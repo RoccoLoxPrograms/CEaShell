@@ -1,0 +1,21 @@
+palettes:
+  - name: global_palette
+    fixed-entries:
+    images: automatic
+
+converts:
+  - name: sprites
+    palette: global_palette
+    transparent-color-index: 0
+    images:
+      - xlibc.png         # Keeps the shape of the original palette
+      - battery.png
+      - charging.png
+
+outputs:
+  - type: c
+    include-file: gfx.h
+    palettes:
+      - global_palette
+    converts:
+      - sprites
