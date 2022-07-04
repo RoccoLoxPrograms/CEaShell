@@ -8,11 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-void ui_StatusBarBG(uint8_t, char*);
-
-void ui_Battery(uint8_t, bool, int, uint8_t);
-
-void ui_Clock(bool, int, uint8_t);
+void ui_StatusBar(uint8_t, bool, char*);
 
 #ifdef __cplusplus
 }
