@@ -11,6 +11,9 @@ converts:
       - xlibc.png         # Keeps the shape of the original palette
       - battery.png
       - charging.png
+      - paint.png
+      - info.png
+      - settings.png
 
 outputs:
   - type: c

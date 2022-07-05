@@ -3,6 +3,7 @@
 #include "gfx/gfx.h"
 
 #include <graphx.h>
+#include <string.h>
 #include <sys/rtc.h>
 #include <sys/power.h>
 
@@ -22,9 +23,7 @@ static void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or A
     bool isAfterNoon = boot_IsAfterNoon();
 
     boot_GetTime(&time[0], &time[1], &time[2]);
-    if (is24Hour && isAfterNoon) {  // Add 12 to the hour if it's PM and 24-Hour Time, so that 1 PM becomes 13, etc.
-        time[2] += 12;
-    }
+    time[2] += 12 * (is24Hour && isAfterNoon);  // Add 12 to the hour if it's PM and 24-Hour Time, so that 1 PM becomes 13, etc.
     gfx_SetTextScale(1, 1);
     gfx_SetTextFGColor(0);
     gfx_SetTextXY(15, 12);
@@ -56,4 +55,32 @@ void ui_StatusBar(uint8_t color, bool is24Hour, char fileName[9]) {  // Draws a 
     }
 
     ui_Battery(boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
+}
+
+void ui_BottomBar(uint8_t color, char *description) {
+    shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
+    shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
+    shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
+    gfx_TransparentSprite_NoClip(paint, 14, 203);
+    gfx_TransparentSprite_NoClip(info, 56, 204);
+    gfx_TransparentSprite_NoClip(settings, 284, 203);
+    
+    gfx_SetTextScale(1, 1); // Description
+    char lineOne[25] = "\0";
+    char lineTwo[25] = "\0";
+    if (strlen(description) > 24) { // Wraps text that is longer than 24, and cuts off anything longer than 48
+        strncpy(lineOne, description, 24);
+        if (strlen(description) > 48) {
+            strncpy(lineTwo, description + 24, 22);
+        } else {
+            strncpy(lineTwo, description + 24, 24);
+        }
+        gfx_PrintStringXY(lineOne, 82, 205);
+        gfx_PrintStringXY(lineTwo, 82, 216);
+        if (strlen(description) > 48) {
+            gfx_PrintString("...");
+        }
+    } else {
+        gfx_PrintStringXY(description, 82, 211);
+    }
 }
