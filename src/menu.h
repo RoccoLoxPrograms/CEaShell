@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-void menu_Looks(uint8_t);
+void menu_Looks(uint8_t *);
 
 void menu_Info(uint8_t);
 

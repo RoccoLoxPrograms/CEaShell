@@ -10,8 +10,7 @@ gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
     uint8_t colors[3] = {246, 237, 236};    // Will load colors from Appvar later, basically it's the background and two extra colors per theme
-    bool transitions = true;
-    uint8_t transitionSpeed = 2;
+    uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     buffer1->height = 193;
     buffer1->width = 152;
     buffer2->height = 193;
@@ -29,17 +28,17 @@ int main(void) {
     while(!kb_IsDown(kb_KeyClear)) {    // Looks menu
         kb_Scan();
         if (kb_IsDown(kb_KeyYequ)) {
-            if (transitions) {  // I'll probably put this in a separate function and clean it up later
+            if (transitionSpeed) {  // I'll probably put this in a separate function and clean it up later
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 8, 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
                 }
             }
-            menu_Looks(colors[1]);
+            menu_Looks(colors);
             gfx_FillScreen(colors[0]);
             ui_StatusBar(colors[1], true, "");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
-            if (transitions) {
+            if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
                 gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 16 / transitionSpeed; frame > 2; frame--) {
@@ -54,7 +53,7 @@ int main(void) {
             gfx_BlitBuffer();
         }
         if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace)) {   // Info menu
-            if (transitions) {  
+            if (transitionSpeed) {  
                 for (int8_t frame = 2; frame < 12 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, 220, frame * (16 * transitionSpeed), 50, 230 - frame * (16 * transitionSpeed));
                     gfx_SwapDraw();
@@ -64,7 +63,7 @@ int main(void) {
             gfx_FillScreen(colors[0]);
             ui_StatusBar(colors[1], true, "");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
-            if (transitions) {
+            if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
                 gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 12 / transitionSpeed; frame > 1; frame--) {
@@ -79,7 +78,7 @@ int main(void) {
             gfx_BlitBuffer();
         }
         if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
-            if (transitions) {  
+            if (transitionSpeed) {  
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 312 - frame * (19 * transitionSpeed), 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
@@ -89,7 +88,7 @@ int main(void) {
             gfx_FillScreen(colors[0]);
             ui_StatusBar(colors[1], true, "");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
-            if (transitions) {
+            if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
                 gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 16 / transitionSpeed; frame > 2; frame--) {
