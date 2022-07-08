@@ -1,5 +1,6 @@
 #include "ui.h"
 #include "shapes.h"
+#include "utility.h"
 #include "gfx/gfx.h"
 
 #include <graphx.h>
@@ -39,7 +40,7 @@ static void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or A
     }
 }
 
-void ui_StatusBar(uint8_t color, bool is24Hour, char fileName[9]) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
+void ui_StatusBar(uint8_t color, bool is24Hour, char *fileName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
     gfx_SetColor(color);
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
     
@@ -69,15 +70,17 @@ void ui_BottomBar(uint8_t color, char *description) {
     char lineOne[25] = "\0";
     char lineTwo[25] = "\0";
     if (strlen(description) > 24) { // Wraps text that is longer than 24, and cuts off anything longer than 48
-        strncpy(lineOne, description, 24);
-        if (strlen(description) > 48) {
-            strncpy(lineTwo, description + 24, 22);
+        int8_t cut = util_SpaceSearch(description); // If there is a space it will end the line there
+        int8_t descLen = strlen(description);
+        strncpy(lineOne, description, cut);
+        if (descLen - cut > 24) {
+            strncpy(lineTwo, description + cut, 22);
         } else {
-            strncpy(lineTwo, description + 24, 24);
+            strncpy(lineTwo, description + cut, 24);
         }
         gfx_PrintStringXY(lineOne, 82, 205);
         gfx_PrintStringXY(lineTwo, 82, 216);
-        if (strlen(description) > 48) {
+        if (descLen - cut > 24) {
             gfx_PrintString("...");
         }
     } else {
