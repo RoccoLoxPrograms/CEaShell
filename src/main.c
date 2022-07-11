@@ -11,6 +11,7 @@ gfx_UninitedSprite(buffer2, 152, 193);
 int main(void) {
     uint8_t colors[3] = {246, 237, 236};    // Will load colors from Appvar later, basically it's the background and two extra colors per theme
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
+    bool is24Hour = true;
     buffer1->height = 193;
     buffer1->width = 152;
     buffer2->height = 193;
@@ -21,22 +22,27 @@ int main(void) {
 
     gfx_SetDrawBuffer();
     gfx_FillScreen(colors[0]);
-    ui_StatusBar(colors[1], true, "");  // Displays bar with program name, clock, and battery
+    ui_StatusBar(colors[1], is24Hour, "");  // Displays bar with program name, clock, and battery
     ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
     gfx_BlitBuffer();
 
     while(!kb_IsDown(kb_KeyClear)) {    // Looks menu
         kb_Scan();
         if (kb_IsDown(kb_KeyYequ)) {
+            ui_StatusBar(colors[1], is24Hour, "Customize");
+            gfx_BlitBuffer();
             if (transitionSpeed) {  // I'll probably put this in a separate function and clean it up later
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 8, 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
                 }
             }
-            menu_Looks(colors);
+            uint8_t * newColors = menu_Looks(colors, is24Hour);
+            for (uint8_t byte = 0; byte < 3; byte++) {
+                colors[byte] = newColors[byte];
+            }
             gfx_FillScreen(colors[0]);
-            ui_StatusBar(colors[1], true, "");
+            ui_StatusBar(colors[1], is24Hour, "Customize");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
@@ -51,6 +57,8 @@ int main(void) {
                 gfx_Sprite_NoClip(buffer2, 160, 38);
             }
             gfx_BlitBuffer();
+            ui_StatusBar(colors[1], is24Hour, "");
+            gfx_SwapDraw();
         }
         if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace)) {   // Info menu
             if (transitionSpeed) {  
@@ -61,7 +69,7 @@ int main(void) {
             }
             menu_Info(colors[1]);
             gfx_FillScreen(colors[0]);
-            ui_StatusBar(colors[1], true, "");
+            ui_StatusBar(colors[1], is24Hour, "");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
@@ -86,7 +94,7 @@ int main(void) {
             }
             menu_Settings(colors[1]);
             gfx_FillScreen(colors[0]);
-            ui_StatusBar(colors[1], true, "");
+            ui_StatusBar(colors[1], is24Hour, "");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
