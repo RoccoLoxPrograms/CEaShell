@@ -7,7 +7,7 @@
 #include <keypadc.h>
 #include <sys/timers.h>
 
-uint8_t * menu_Looks(uint8_t *colors, bool is24Hour) {
+uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
     shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
     shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
