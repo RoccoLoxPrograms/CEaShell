@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "shapes.h"
 #include "ui.h"
+#include "asm/invert.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -87,9 +88,7 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
         }
         if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
             if (color == 27) {
-                for (int byte = 0; byte < 3; byte++) {  // Replace this loop with the invert whole palette thing
-                    colors[byte] = 255 - colors[byte];
-                }
+                invertPalette();
             } else {
                 colors[0] = defaultThemes[color + 1];
                 colors[1] = defaultThemes[color];
