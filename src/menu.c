@@ -8,14 +8,26 @@
 #include <keypadc.h>
 #include <sys/timers.h>
 
-uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
-    shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
+static void menu_ThemePreview(uint8_t color, uint8_t * colors, const uint8_t *defaultThemes) {
+    if (color == 27) {
+        shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 18, 112);
+        shapes_RoundRectangleFill(255 - colors[1], 6, 61, 78, 22, 116);
+        shapes_RoundRectangleFill(255 - colors[2], 6, 61, 39, 87, 116);
+    } else {
+        shapes_RoundRectangleFill(defaultThemes[color + 1], 7, 134, 86, 18, 112);
+        shapes_RoundRectangleFill(defaultThemes[color], 6, 61, 78, 22, 116);
+        shapes_RoundRectangleFill(defaultThemes[color + 2], 6, 61, 39, 87, 116);
+    }
+}
+
+static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, int cursorX, uint8_t cursorY) {
+    shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
     shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
     shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
-    const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
-    uint8_t drawBox = 0;
-    shapes_RoundRectangleFill(colors[2], 8, 26, 26, 16, 47);
+
+    uint8_t drawBox = 0;    // Theme selector
+    shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
     for (uint8_t y = 49; y < 78; y += 28) {
         for (int x = 18; x < 132; x += 28, drawBox += 3) {
             shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
@@ -24,11 +36,13 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
     gfx_SetColor(148);  // Invert color icon
     gfx_Line_NoClip(132, 79, 149, 96);
     gfx_FloodFill(133, 78, 0);
-    shapes_RoundRectangleFill(defaultThemes[1], 7, 134, 86, 18, 112);
-    shapes_RoundRectangleFill(defaultThemes[0], 6, 61, 78, 22, 116);
-    shapes_RoundRectangleFill(defaultThemes[2], 6, 61, 39, 87, 116);
+    menu_ThemePreview(color, colors, defaultThemes);
     gfx_TransparentSprite_NoClip(lArrow, 15, 208);
+}
 
+uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
+    const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
+    menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
     gfx_BlitBuffer();
 
     uint8_t color = 0;
@@ -68,15 +82,7 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
                 gfx_FloodFill(133, 78, 0);
             }
             
-            if (color == 27) {
-                shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 18, 112);
-                shapes_RoundRectangleFill(255 - colors[1], 6, 61, 78, 22, 116);
-                shapes_RoundRectangleFill(255 - colors[2], 6, 61, 39, 87, 116);
-            } else {
-                shapes_RoundRectangleFill(defaultThemes[color + 1], 7, 134, 86, 18, 112);
-                shapes_RoundRectangleFill(defaultThemes[color], 6, 61, 78, 22, 116);
-                shapes_RoundRectangleFill(defaultThemes[color + 2], 6, 61, 39, 87, 116);
-            }
+            menu_ThemePreview(color, colors, defaultThemes);
             gfx_BlitBuffer();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
@@ -95,25 +101,8 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
                 colors[2] = defaultThemes[color + 2];
             }
             gfx_FillScreen(colors[0]);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
             ui_StatusBar(colors[1], is24Hour, "Customize");
-            shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
-            shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
-            shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
-            shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
-            shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
-            drawBox = 0;
-            for (uint8_t y = 49; y < 78; y += 28) {
-                for (int x = 18; x < 132; x += 28, drawBox += 3) {
-                    shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
-                }
-            }
-            gfx_SetColor(148);  // Invert color icon
-            gfx_Line_NoClip(132, 79, 149, 96);
-            gfx_FloodFill(133, 78, 0);
-            shapes_RoundRectangleFill(colors[0], 7, 134, 86, 18, 112);
-            shapes_RoundRectangleFill(colors[1], 6, 61, 78, 22, 116);
-            shapes_RoundRectangleFill(colors[2], 6, 61, 39, 87, 116);
-            gfx_TransparentSprite_NoClip(lArrow, 15, 208);
             gfx_BlitBuffer();
         }
     }

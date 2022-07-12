@@ -31,7 +31,7 @@ int main(void) {
         if (kb_IsDown(kb_KeyYequ)) {
             ui_StatusBar(colors[1], is24Hour, "Customize");
             gfx_BlitBuffer();
-            if (transitionSpeed) {  // I'll probably put this in a separate function and clean it up later
+            if (transitionSpeed) {
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 8, 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
@@ -45,7 +45,7 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, "Customize");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
-                gfx_GetSprite_NoClip(buffer1, 8, 38);
+                gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
                 gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 16 / transitionSpeed; frame > 2; frame--) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);

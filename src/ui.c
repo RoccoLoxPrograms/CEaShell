@@ -43,8 +43,10 @@ static void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or A
 void ui_StatusBar(uint8_t color, bool is24Hour, char *fileName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
     gfx_SetColor(color);
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
-    
+
     ui_Clock(is24Hour);
+    ui_Battery(boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
+
 
     gfx_SetTextScale(2, 2);
     gfx_SetTextFGColor(0);
@@ -55,7 +57,6 @@ void ui_StatusBar(uint8_t color, bool is24Hour, char *fileName) {  // Draws a 30
         gfx_PrintStringXY(fileName, x, 8);
     }
 
-    ui_Battery(boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
 }
 
 void ui_BottomBar(uint8_t color, char *description) {
