@@ -24,7 +24,10 @@ static void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or A
     bool isAfterNoon = boot_IsAfterNoon();
 
     boot_GetTime(&time[0], &time[1], &time[2]);
-    time[2] += 12 * (is24Hour && isAfterNoon);  // Add 12 to the hour if it's PM and 24-Hour Time, so that 1 PM becomes 13, etc.
+    time[2] -= 12 * (!is24Hour && isAfterNoon);  // Add 12 to the hour if it's PM and 24-Hour Time, so that 1 PM becomes 13, etc.
+    if (!time[2] && !is24Hour) {
+        time[2] = 12;
+    }
     gfx_SetTextScale(1, 1);
     gfx_SetTextFGColor(0);
     gfx_SetTextXY(15, 12);
