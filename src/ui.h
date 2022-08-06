@@ -16,13 +16,15 @@ extern "C" {
 #define UI_LARROW	5
 #define UI_RARROW	6
 
+void ui_DrawUISprite(uint8_t, uint8_t, int, uint8_t);
+
 void ui_Clock(bool);
 
 void ui_StatusBar(uint8_t, bool, char *);
 
 void ui_BottomBar(uint8_t, char *);
 
-void ui_DrawAllFiles(uint8_t *, uint8_t *, uint8_t, bool);
+void ui_DrawAllFiles(uint8_t *, uint8_t *, uint8_t, uint8_t, bool);
 
 #ifdef __cplusplus
 }

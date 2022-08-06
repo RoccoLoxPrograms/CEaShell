@@ -126,10 +126,9 @@ void ui_BottomBar(uint8_t color, char *description) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint8_t fileLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
-    uint8_t i = 0;
 
     uint8_t fileType;
     char *fileName;
@@ -140,11 +139,11 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, bool
         }
         if (!appvars && (fileType == TI_PRGM_TYPE || fileType == TI_PPRGM_TYPE)) {
             if (fileType == TI_PRGM_TYPE) {
-                ui_DrawFile(selected[i], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
+                ui_DrawFile(selected[fileLoc], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
             } else {
-                ui_DrawFile(selected[i], colors, fileName, "PRG", x, y);    // More advanced type detection later
+                ui_DrawFile(selected[fileLoc], colors, fileName, "PRG", x, y);    // More advanced type detection later
             }
-            i++;
+            fileLoc++;
             if (x < 242) {
                 x += 76;
             } else {
@@ -152,8 +151,8 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, bool
                 y = 116;
             }
         } else if (appvars && fileType == TI_APPVAR_TYPE) {
-            ui_DrawFile(selected[i], colors, fileName, "VAR", x, y);
-            i++;
+            ui_DrawFile(selected[fileLoc], colors, fileName, "VAR", x, y);
+            fileLoc++;
             if (x < 242) {
                 x += 76;
             } else {
@@ -162,7 +161,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, bool
             }
         }
 
-        if ((x == 242 && y == 116) || i > fileCount) {
+        if ((x == 242 && y == 116) || fileLoc > fileCount) {
             break;
         }
     }
