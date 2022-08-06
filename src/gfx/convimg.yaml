@@ -16,6 +16,13 @@ converts:
       - settings.png
       - lArrow.png
       - rArrow.png
+      - batteryAlt.png
+      - chargingAlt.png
+      - paintAlt.png
+      - infoAlt.png
+      - settingsAlt.png
+      - lArrowAlt.png
+      - rArrowAlt.png
 
 outputs:
   - type: c

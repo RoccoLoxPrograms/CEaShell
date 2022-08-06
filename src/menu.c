@@ -8,7 +8,7 @@
 #include <keypadc.h>
 #include <sys/timers.h>
 
-static void menu_ThemePreview(uint8_t color, uint8_t * colors, const uint8_t *defaultThemes) {
+static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {
     if (color == 27) {
         shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 18, 112);
         shapes_RoundRectangleFill(255 - colors[1], 6, 61, 78, 22, 116);
@@ -37,7 +37,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
     gfx_Line_NoClip(132, 79, 149, 96);
     gfx_FloodFill(133, 78, 0);
     menu_ThemePreview(color, colors, defaultThemes);
-    gfx_TransparentSprite_NoClip(lArrow, 15, 208);
+    ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
 uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
@@ -66,8 +66,16 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
             prevCursorY = cursorY;
             prevCursorX = cursorX;
             pColor = color;
-            cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
-            cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
+            if (kb_IsDown(kb_KeyRight) && cursorX == 128 && cursorY == 47) {	// Cursor looping
+            	cursorX = 16;
+            	cursorY = 75;
+            } else if (kb_IsDown(kb_KeyLeft) && cursorX == 16 && cursorY == 75) {
+            	cursorX = 128;
+            	cursorY = 47;
+            } else {
+	    	cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
+            	cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
+            }
             color = 3 * ((cursorX - 16) / 28) + 15 * (cursorY > 47);
 
             shapes_RoundRectangleFill(colors[0], 8, 26, 26, prevCursorX, prevCursorY);    // Erase old color
@@ -94,6 +102,7 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
         }
         if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
             if (color == 27) {
+                colors[3] = !colors[3];
                 invertPalette();
             } else {
                 colors[0] = defaultThemes[color + 1];
@@ -106,6 +115,7 @@ uint8_t *menu_Looks(uint8_t *colors, bool is24Hour) {
             gfx_BlitBuffer();
         }
     }
+    gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
     return colors;
 }
 
@@ -120,7 +130,7 @@ void menu_Info(uint8_t color) {
 
 void menu_Settings(uint8_t color) {
     shapes_RoundRectangleFill(color, 15, 304, 192, 8, 39);
-    gfx_TransparentSprite_NoClip(rArrow, 290, 208);
+    ui_DrawUISprite(color, UI_RARROW, 290, 208);
     gfx_SwapDraw();
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyGraph) && !kb_IsDown(kb_KeyClear)) {

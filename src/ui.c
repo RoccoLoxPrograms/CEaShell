@@ -8,14 +8,49 @@
 #include <sys/rtc.h>
 #include <sys/power.h>
 
-static void ui_Battery(uint8_t batteryStatus, bool isCharging) {
-    gfx_TransparentSprite_NoClip(battery, 286, 10);
+void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
+    bool colorAlt = !(color > 131 && color % 8 > 3);
+    const gfx_sprite_t *uiIcons[14] = {battery, charging, paint, info, settings, lArrow, rArrow, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt};
+    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 7], x, y);
+    gfx_SetTextFGColor(colorAlt * 255);
+}
 
-    gfx_SetColor((batteryStatus < 2) * 160);
+void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fileType, int x, uint8_t y) {
+    bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
+    if (selected) {
+        shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
+    }
+    shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
+    gfx_SetColor(255 * colorAlt);
+    gfx_FillRectangle(x + 19, y + 14, 29, 39);
+    shapes_FileIcon(255 * !colorAlt, colors[2], x + 16, y + 11);
+    gfx_SetColor(255 * !colorAlt);
+    gfx_FillRectangle(x + 19, y + 36, 28, 9);
+    gfx_SetTextFGColor(255 * colorAlt);
+    gfx_SetTextScale(1, 1);
+    uint8_t stringLength = gfx_GetStringWidth(fileType);
+    if (stringLength) {
+        gfx_PrintStringXY(fileType, x + (64 - stringLength) / 2, y + 37);
+    } else {
+        gfx_PrintStringXY("?", x + 29, y + 37);
+    }
+    gfx_SetTextFGColor(255 * !colorAlt);
+    stringLength = gfx_GetStringWidth(fileName);
+    if (stringLength) {
+        gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
+    } else {
+        gfx_PrintStringXY("?", x + 29, y + 67);
+    }
+}
+
+static void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
+    ui_DrawUISprite(color, UI_BATTERY, 286, 10);
+
+    gfx_SetColor(255 * !(color > 131 && color % 8 > 3));
     gfx_FillRectangle_NoClip(291 + (12 - batteryStatus * 3), 12, batteryStatus * 3, 6);
 
     if (isCharging) {
-        gfx_TransparentSprite_NoClip(charging, 292, 12);  // Charging sprite instead of battery percentage
+        ui_DrawUISprite(color, UI_CHARGING, 292, 12);  // Charging sprite instead of battery percentage
     }
 }
 
@@ -29,7 +64,6 @@ static void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or A
         time[2] = 12;
     }
     gfx_SetTextScale(1, 1);
-    gfx_SetTextFGColor(0);
     gfx_SetTextXY(15, 12);
     gfx_PrintUInt(time[2], 1);
     gfx_PrintString(":");
@@ -48,11 +82,10 @@ void ui_StatusBar(uint8_t color, bool is24Hour, char *fileName) {  // Draws a 30
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
 
     ui_Clock(is24Hour);
-    ui_Battery(boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
+    ui_Battery(color, boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
 
 
     gfx_SetTextScale(2, 2);
-    gfx_SetTextFGColor(0);
     int x = 160 - gfx_GetStringWidth(fileName) / 2;
     if (x == 160) { // If no filename was given
         gfx_PrintStringXY("FILENAME", 96, 8);
@@ -66,9 +99,9 @@ void ui_BottomBar(uint8_t color, char *description) {
     shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
     shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
     shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
-    gfx_TransparentSprite_NoClip(paint, 14, 203);
-    gfx_TransparentSprite_NoClip(info, 56, 204);
-    gfx_TransparentSprite_NoClip(settings, 284, 203);
+    ui_DrawUISprite(color, UI_PAINT, 14, 203);
+    ui_DrawUISprite(color, UI_INFO, 56, 204);
+    ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
     
     gfx_SetTextScale(1, 1); // Description
     char lineOne[25] = "\0";

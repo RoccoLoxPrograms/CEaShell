@@ -1,24 +1,45 @@
 #include "ui.h"
 #include "shapes.h"
 #include "menu.h"
+#include "utility.h"
+#include "asm/invert.h"
 
 #include <graphx.h>
 #include <keypadc.h>
+#include <fileioc.h>
 
 gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make redrawing faster
 gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
-    uint8_t colors[3] = {246, 237, 236};    // Will load colors from Appvar later, basically it's the background and two extra colors per theme
+    uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
+
+    ti_var_t slot = ti_Open("CEASHELL", "r");
+    if (slot) {
+        uint8_t ceaShell[6];
+        ti_Read(&ceaShell, 6, 1, slot);
+        colors[0] = ceaShell[0];
+        colors[1] = ceaShell[1];
+        colors[2] = ceaShell[2];
+        colors[3] = ceaShell[3];
+        transitionSpeed = ceaShell[4];
+        is24Hour = ceaShell[5];
+    }
     buffer1->height = 193;
     buffer1->width = 152;
     buffer2->height = 193;
     buffer2->width = 152;
 
     gfx_Begin();
+    if (colors[3]) {
+        invertPalette();
+    }
     gfx_SetTransparentColor(240);
+    gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
+    gfx_SetTextBGColor(240);
+    gfx_SetTextTransparentColor(240);
 
     gfx_SetDrawBuffer();
     gfx_FillScreen(colors[0]);
@@ -37,8 +58,8 @@ int main(void) {
                     gfx_SwapDraw();
                 }
             }
-            uint8_t * newColors = menu_Looks(colors, is24Hour);
-            for (uint8_t byte = 0; byte < 3; byte++) {
+            uint8_t *newColors = menu_Looks(colors, is24Hour);
+            for (uint8_t byte = 0; byte < 4; byte++) {
                 colors[byte] = newColors[byte];
             }
             gfx_FillScreen(colors[0]);
@@ -56,12 +77,13 @@ int main(void) {
                 gfx_Sprite_NoClip(buffer1, 8, 38);
                 gfx_Sprite_NoClip(buffer2, 160, 38);
             }
-            gfx_BlitBuffer();
+            //gfx_BlitBuffer();
             ui_StatusBar(colors[1], is24Hour, "");
-            gfx_SwapDraw();
+            //gfx_SwapDraw();
+            gfx_BlitBuffer();
         }
         if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace)) {   // Info menu
-            if (transitionSpeed) {  
+            if (transitionSpeed) {
                 for (int8_t frame = 2; frame < 12 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, 220, frame * (16 * transitionSpeed), 50, 230 - frame * (16 * transitionSpeed));
                     gfx_SwapDraw();
@@ -86,7 +108,9 @@ int main(void) {
             gfx_BlitBuffer();
         }
         if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
-            if (transitionSpeed) {  
+            ui_StatusBar(colors[1], is24Hour, "Settings");
+            gfx_BlitBuffer();
+            if (transitionSpeed) {
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 312 - frame * (19 * transitionSpeed), 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
@@ -94,7 +118,7 @@ int main(void) {
             }
             menu_Settings(colors[1]);
             gfx_FillScreen(colors[0]);
-            ui_StatusBar(colors[1], is24Hour, "");
+            ui_StatusBar(colors[1], is24Hour, "Settings");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
                 gfx_GetSprite_NoClip(buffer1, 8, 38);
@@ -108,6 +132,7 @@ int main(void) {
                 gfx_Sprite_NoClip(buffer1, 8, 38);
                 gfx_Sprite_NoClip(buffer2, 160, 38);
             }
+            ui_StatusBar(colors[1], is24Hour, "");
             gfx_BlitBuffer();
         }
         while (kb_Data[1]) {
@@ -116,5 +141,6 @@ int main(void) {
     }
 
     gfx_End();
+    util_Exit(colors, transitionSpeed, is24Hour);
     return 0;
 }
