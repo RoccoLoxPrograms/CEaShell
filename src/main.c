@@ -39,6 +39,8 @@ int main(void) {
     uint8_t *newNumbers = util_FilesInit(fileNumbers);
     NOPROGS = newNumbers[0];        // Stores the number of programs in fileNumbers[0]
     NOAPPVARS = newNumbers[1];      // Stores the number of appvars in fileNumbers[1]
+    uint8_t cursor[8] = {1, 0, 0, 0, 0, 0, 0, 0};    // Which of the slots the cursor is selecting
+    
     gfx_Begin();
     if (colors[3]) {
         invertPalette();
@@ -52,6 +54,7 @@ int main(void) {
     gfx_FillScreen(colors[0]);
     ui_StatusBar(colors[1], is24Hour, "");  // Displays bar with program name, clock, and battery
     ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
+    ui_DrawAllFiles(colors, cursor, NOPROGS, false);
     gfx_BlitBuffer();
 
     while(!kb_IsDown(kb_KeyClear)) {    // Looks menu
@@ -60,6 +63,8 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, "Customize");
             gfx_BlitBuffer();
             if (transitionSpeed) {
+                gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
+                gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 8, 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
@@ -73,8 +78,6 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, "Customize");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
-                gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
-                gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 16 / transitionSpeed; frame > 2; frame--) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
@@ -89,6 +92,8 @@ int main(void) {
         }
         if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace)) {   // Info menu
             if (transitionSpeed) {
+                gfx_GetSprite_NoClip(buffer1, 8, 38);
+                gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (int8_t frame = 2; frame < 12 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, 220, frame * (16 * transitionSpeed), 50, 230 - frame * (16 * transitionSpeed));
                     gfx_SwapDraw();
@@ -99,8 +104,6 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, "");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
-                gfx_GetSprite_NoClip(buffer1, 8, 38);
-                gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 12 / transitionSpeed; frame > 1; frame--) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
@@ -117,6 +120,8 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, "Settings");
             gfx_BlitBuffer();
             if (transitionSpeed) {
+                gfx_GetSprite_NoClip(buffer1, 8, 38);
+                gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
                     shapes_RoundRectangleFill(colors[1], 15, frame * (19 * transitionSpeed), frame * (12 * transitionSpeed), 312 - frame * (19 * transitionSpeed), 231 - frame * (12 * transitionSpeed));
                     gfx_SwapDraw();
@@ -127,8 +132,6 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, "Settings");
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             if (transitionSpeed) {
-                gfx_GetSprite_NoClip(buffer1, 8, 38);
-                gfx_GetSprite_NoClip(buffer2, 160, 38);
                 for (uint8_t frame = 16 / transitionSpeed; frame > 2; frame--) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
@@ -146,6 +149,8 @@ int main(void) {
         }
         if (redraw) {
             ui_StatusBar(colors[1], is24Hour, "");
+            ui_DrawAllFiles(colors, cursor, NOPROGS, false);
+            ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             redraw = false;
         } else {
             gfx_SetColor(colors[1]);

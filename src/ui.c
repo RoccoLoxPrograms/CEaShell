@@ -5,6 +5,7 @@
 
 #include <graphx.h>
 #include <string.h>
+#include <fileioc.h>
 #include <sys/rtc.h>
 #include <sys/power.h>
 
@@ -15,7 +16,7 @@ void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fileType, int x, uint8_t y) {
+static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fileType, int x, uint8_t y) {
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
@@ -122,5 +123,47 @@ void ui_BottomBar(uint8_t color, char *description) {
         }
     } else {
         gfx_PrintStringXY(description, 82, 211);
+    }
+}
+
+void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, bool appvars) {
+    int x = 14;
+    uint8_t y = 30;
+    uint8_t i = 0;
+
+    uint8_t fileType;
+    char *fileName;
+    void *filePtr = NULL;
+    while ((fileName = ti_DetectAny(&filePtr, NULL, &fileType))) {
+        if (*fileName == '!' || *fileName =='#') {
+            continue;
+        }
+        if (!appvars && (fileType == TI_PRGM_TYPE || fileType == TI_PPRGM_TYPE)) {
+            if (fileType == TI_PRGM_TYPE) {
+                ui_DrawFile(selected[i], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
+            } else {
+                ui_DrawFile(selected[i], colors, fileName, "PRG", x, y);    // More advanced type detection later
+            }
+            i++;
+            if (x < 242) {
+                x += 76;
+            } else {
+                x = 14;
+                y = 116;
+            }
+        } else if (appvars && fileType == TI_APPVAR_TYPE) {
+            ui_DrawFile(selected[i], colors, fileName, "VAR", x, y);
+            i++;
+            if (x < 242) {
+                x += 76;
+            } else {
+                x = 14;
+                y = 116;
+            }
+        }
+
+        if ((x == 242 && y == 116) || i > fileCount) {
+            break;
+        }
     }
 }
