@@ -54,7 +54,7 @@ static void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
     }
 }
 
-static void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
+void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
     uint8_t time[3];
     bool isAfterNoon = boot_IsAfterNoon();
 

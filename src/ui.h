@@ -20,6 +20,8 @@ void ui_DrawUISprite(uint8_t, uint8_t, int, uint8_t);
 
 void ui_DrawFile(bool, uint8_t *, char *, char *, int, uint8_t);
 
+void ui_Clock(bool);
+
 void ui_StatusBar(uint8_t, bool, char *);
 
 void ui_BottomBar(uint8_t, char *);

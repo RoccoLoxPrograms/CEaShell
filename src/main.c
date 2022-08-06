@@ -3,6 +3,7 @@
 #include "menu.h"
 #include "utility.h"
 #include "asm/invert.h"
+#include "asm/sortVat.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -16,7 +17,9 @@ int main(void) {
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
 
-    ti_var_t slot = ti_Open("CEASHELL", "r");
+    bool redraw = false;
+
+    ti_var_t slot = ti_Open("CEaShell", "r");
     if (slot) {
         uint8_t ceaShell[6];
         ti_Read(&ceaShell, 6, 1, slot);
@@ -32,6 +35,10 @@ int main(void) {
     buffer2->height = 193;
     buffer2->width = 152;
 
+    uint8_t fileNumbers[2] = {0, 0};
+    uint8_t *newNumbers = util_FilesInit(fileNumbers);
+    NOPROGS = newNumbers[0];        // Stores the number of programs in fileNumbers[0]
+    NOAPPVARS = newNumbers[1];      // Stores the number of appvars in fileNumbers[1]
     gfx_Begin();
     if (colors[3]) {
         invertPalette();
@@ -77,9 +84,7 @@ int main(void) {
                 gfx_Sprite_NoClip(buffer1, 8, 38);
                 gfx_Sprite_NoClip(buffer2, 160, 38);
             }
-            //gfx_BlitBuffer();
-            ui_StatusBar(colors[1], is24Hour, "");
-            //gfx_SwapDraw();
+            redraw = true;
             gfx_BlitBuffer();
         }
         if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace)) {   // Info menu
@@ -105,6 +110,7 @@ int main(void) {
                 gfx_Sprite_NoClip(buffer1, 8, 38);
                 gfx_Sprite_NoClip(buffer2, 160, 38);
             }
+            redraw = true;
             gfx_BlitBuffer();
         }
         if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
@@ -132,12 +138,21 @@ int main(void) {
                 gfx_Sprite_NoClip(buffer1, 8, 38);
                 gfx_Sprite_NoClip(buffer2, 160, 38);
             }
-            ui_StatusBar(colors[1], is24Hour, "");
+            redraw = true;
             gfx_BlitBuffer();
         }
         while (kb_Data[1]) {
             kb_Scan();
         }
+        if (redraw) {
+            ui_StatusBar(colors[1], is24Hour, "");
+            redraw = false;
+        } else {
+            gfx_SetColor(colors[1]);
+            gfx_FillRectangle_NoClip(15, 12, 35, 7);
+            ui_Clock(is24Hour);
+        }
+        gfx_BlitBuffer();
     }
 
     gfx_End();
