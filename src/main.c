@@ -60,8 +60,8 @@ int main(void) {
     gfx_SetDrawBuffer();
     gfx_FillScreen(colors[0]);
     selectedFileName = ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
-    ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
     ui_StatusBar(colors[1], is24Hour, selectedFileName);  // Displays bar with program name and clock
+    ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
     ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
     ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
     gfx_BlitBuffer();
@@ -103,6 +103,7 @@ int main(void) {
             }
             if (kb_IsDown(kb_KeyYequ)) {
                 ui_StatusBar(colors[1], is24Hour, "Customize");
+                ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
                     for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
@@ -115,8 +116,8 @@ int main(void) {
                     colors[byte] = newColors[byte];
                 }
                 gfx_FillScreen(colors[0]);
-                selectedFileName = ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
-                ui_StatusBar(colors[1], is24Hour, selectedFileName);
+                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_StatusBar(colors[1], is24Hour, "Customize");
                 ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
@@ -164,6 +165,7 @@ int main(void) {
             }
             if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
                 ui_StatusBar(colors[1], is24Hour, "Settings");
+                ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
                     for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
@@ -173,8 +175,8 @@ int main(void) {
                 }
                 menu_Settings(colors[1]);
                 gfx_FillScreen(colors[0]);
-                selectedFileName = ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
-                ui_StatusBar(colors[1], is24Hour, selectedFileName);
+                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_StatusBar(colors[1], is24Hour, "Settings");
                 ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {

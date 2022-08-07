@@ -7,6 +7,7 @@
 #include <graphx.h>
 #include <keypadc.h>
 #include <sys/timers.h>
+#include <sys/power.h>
 
 static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {
     if (color == 27) {
@@ -112,6 +113,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
             ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, false);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
             ui_StatusBar(colors[1], is24Hour, "Customize");
+            ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());
             gfx_BlitBuffer();
         }
     }
