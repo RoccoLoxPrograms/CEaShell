@@ -40,6 +40,7 @@ int main(void) {
     uint8_t *newNumbers = util_FilesInit(fileNumbers);
     NOPROGS = newNumbers[0];        // Stores the number of programs in fileNumbers[0]
     NOAPPVARS = newNumbers[1];      // Stores the number of appvars in fileNumbers[1]
+    uint8_t fileStartLoc = 0;
     uint8_t fileSelected = 0;    // Which of the slots the cursor is selecting
     
     bool keyPressed = false;    // A very clever timer thingy by RoccoLox Programs
@@ -58,7 +59,7 @@ int main(void) {
     gfx_FillScreen(colors[0]);
     ui_StatusBar(colors[1], is24Hour, "");  // Displays bar with program name, clock, and battery
     ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
-    ui_DrawAllFiles(colors, fileSelected, NOPROGS, 0, false);
+    ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
     gfx_BlitBuffer();
 
     while(!kb_IsDown(kb_KeyClear)) {    // Looks menu
@@ -68,7 +69,27 @@ int main(void) {
             timer_Set(1, 0);
         }
         if ((kb_Data[7] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) {
-
+            if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < NOPROGS) {
+                if (fileSelected + 2 < NOPROGS) {
+                    fileSelected += 2;
+                } else {
+                    fileSelected += 1;
+                }
+                if (NOPROGS > 8 && (fileStartLoc < (NOPROGS + NOPROGS % 2) - 5)) {
+                    fileStartLoc += 2;
+                }
+                redraw = true;
+            } else if (kb_IsDown(kb_KeyLeft) && fileSelected != 0) {
+                if (fileSelected - 2 >= 0) {
+                    fileSelected -= 2;
+                } else {
+                    fileSelected -= 1;
+                }
+                if (fileStartLoc > 1) {
+                    fileStartLoc -= 2;
+                }
+                redraw = true;
+            }
             if (kb_IsDown(kb_KeyYequ)) {
                 ui_StatusBar(colors[1], is24Hour, "Customize");
                 gfx_BlitBuffer();
@@ -78,12 +99,12 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                uint8_t *newColors = menu_Looks(colors, fileSelected, NOPROGS, 0, is24Hour);
+                uint8_t *newColors = menu_Looks(colors, fileSelected, NOPROGS, fileStartLoc, is24Hour);
                 for (uint8_t byte = 0; byte < 4; byte++) {
                     colors[byte] = newColors[byte];
                 }
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, NOPROGS, 0, false);
+                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
                 ui_StatusBar(colors[1], is24Hour, "Customize");
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
@@ -110,7 +131,7 @@ int main(void) {
                 }
                 menu_Info(colors[1]);
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, NOPROGS, 0, false);
+                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
                 ui_StatusBar(colors[1], is24Hour, "");
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
@@ -139,7 +160,7 @@ int main(void) {
                 }
                 menu_Settings(colors[1]);
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, NOPROGS, 0, false);
+                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
                 ui_StatusBar(colors[1], is24Hour, "Settings");
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
@@ -166,8 +187,9 @@ int main(void) {
             timer_Set(1,0);
         }
         if (redraw) {
+            gfx_FillScreen(colors[0]);
             ui_StatusBar(colors[1], is24Hour, "");
-            ui_DrawAllFiles(colors, fileSelected, NOPROGS, 0, false);
+            ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             redraw = false;
         } else {
