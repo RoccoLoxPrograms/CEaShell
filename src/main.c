@@ -75,7 +75,7 @@ int main(void) {
                 } else {
                     fileSelected += 1;
                 }
-                if (NOPROGS > 8 && (fileStartLoc < (NOPROGS + NOPROGS % 2) - 5)) {
+                if (NOPROGS > 8 && ((fileSelected > 5) && (fileStartLoc < (NOPROGS + NOPROGS % 2) - 9))) {
                     fileStartLoc += 2;
                 }
                 redraw = true;
@@ -85,9 +85,16 @@ int main(void) {
                 } else {
                     fileSelected -= 1;
                 }
-                if (fileStartLoc > 1) {
+                if ((fileStartLoc > 1) && (fileSelected < (NOPROGS + NOPROGS % 2) - 6)) {
                     fileStartLoc -= 2;
                 }
+                redraw = true;
+            }
+            if (kb_IsDown(kb_KeyDown)) {
+                fileSelected += !(fileSelected % 2);
+                redraw = true;
+            } else if (kb_IsDown(kb_KeyUp)) {
+                fileSelected -= (fileSelected % 2);
                 redraw = true;
             }
             if (kb_IsDown(kb_KeyYequ)) {
