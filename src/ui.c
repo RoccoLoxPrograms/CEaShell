@@ -126,7 +126,7 @@ void ui_BottomBar(uint8_t color, char *description) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
     uint8_t filesDrawn = 0;
@@ -143,9 +143,9 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
                 if (fileType == TI_PRGM_TYPE) {
-                    ui_DrawFile(selected[filesDrawn], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
+                    ui_DrawFile((fileSelected == filesSearched), colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
                 } else {
-                    ui_DrawFile(selected[filesDrawn], colors, fileName, "PRG", x, y);    // More advanced type detection later
+                    ui_DrawFile((fileSelected == filesSearched), colors, fileName, "PRG", x, y);    // More advanced type detection later
                 }
                 filesDrawn++;
                 if (y == 30) {
@@ -159,7 +159,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint
         } else if (appvars && fileType == TI_APPVAR_TYPE) {
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
-                ui_DrawFile(selected[filesDrawn], colors, fileName, "VAR", x, y);
+                ui_DrawFile((fileSelected == filesSearched), colors, fileName, "VAR", x, y);
                 filesDrawn++;
                 if (y == 30) {
                     y = 116;

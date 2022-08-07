@@ -40,7 +40,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-uint8_t *menu_Looks(uint8_t *colors, uint8_t *cursor, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour) {
+uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
     gfx_BlitBuffer();
@@ -52,8 +52,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t *cursor, uint8_t fileCount, uint8_t
     int prevCursorX = 16;
     uint8_t pColor = 0;
 
-    bool keyPressed = false;    // A very clever timer thingy by RoccoLox Programs
-    timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+    bool keyPressed = false;
     
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyYequ) && !kb_IsDown(kb_KeyClear)) {
@@ -110,7 +109,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t *cursor, uint8_t fileCount, uint8_t
                 colors[2] = defaultThemes[color + 2];
             }
             gfx_FillScreen(colors[0]);
-            ui_DrawAllFiles(colors, cursor, fileCount, fileStartLoc, false);
+            ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, false);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
             ui_StatusBar(colors[1], is24Hour, "Customize");
             gfx_BlitBuffer();
