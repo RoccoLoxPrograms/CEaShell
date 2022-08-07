@@ -7,7 +7,6 @@
 #include <string.h>
 #include <fileioc.h>
 #include <sys/rtc.h>
-#include <sys/power.h>
 
 void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
@@ -44,7 +43,7 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fi
     }
 }
 
-static void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
+void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
     ui_DrawUISprite(color, UI_BATTERY, 286, 10);
 
     gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
@@ -83,8 +82,6 @@ void ui_StatusBar(uint8_t color, bool is24Hour, char *fileName) {  // Draws a 30
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
 
     ui_Clock(is24Hour);
-    ui_Battery(color, boot_GetBatteryStatus(), boot_BatteryCharging());   // For some reason the battery charging check isn't working
-
 
     gfx_SetTextScale(2, 2);
     int x = 160 - gfx_GetStringWidth(fileName) / 2;
@@ -126,7 +123,7 @@ void ui_BottomBar(uint8_t color, char *description) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
+char *ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
     uint8_t filesDrawn = 0;
@@ -134,6 +131,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
 
     uint8_t fileType;
     char *fileName;
+    char *returnName;
     void *filePtr = NULL;
     while ((fileName = ti_DetectAny(&filePtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName =='#') {
@@ -154,6 +152,9 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     x += 76;
                     y = 30;
                 }
+                if (fileSelected == filesSearched) {
+                    returnName = fileName;    // Name to display in status bar
+                }
             }
             filesSearched++;
         } else if (appvars && fileType == TI_APPVAR_TYPE) {
@@ -168,6 +169,9 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     y = 30;
                 }
             }
+            if (fileSelected == filesSearched) {
+                returnName = fileName;    // Name to display in status bar
+            }
             filesSearched++;
         }
 
@@ -175,4 +179,6 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             break;
         }
     }
+
+    return returnName;
 }
