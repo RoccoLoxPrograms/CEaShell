@@ -47,7 +47,7 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fi
 static void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
     ui_DrawUISprite(color, UI_BATTERY, 286, 10);
 
-    gfx_SetColor(255 * !(color > 131 && color % 8 > 3));
+    gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
     gfx_FillRectangle_NoClip(291 + (12 - batteryStatus * 3), 12, batteryStatus * 3, 6);
 
     if (isCharging) {
