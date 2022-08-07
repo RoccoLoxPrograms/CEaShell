@@ -141,6 +141,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint
         }
         if (!appvars && (fileType == TI_PRGM_TYPE || fileType == TI_PPRGM_TYPE)) {
             if (fileStartLoc <= filesSearched) {
+                fileName = util_FixHiddenName(fileName);
                 if (fileType == TI_PRGM_TYPE) {
                     ui_DrawFile(selected[filesDrawn], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
                 } else {
@@ -157,6 +158,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint
             filesSearched++;
         } else if (appvars && fileType == TI_APPVAR_TYPE) {
             if (fileStartLoc <= filesSearched) {
+                fileName = util_FixHiddenName(fileName);
                 ui_DrawFile(selected[filesDrawn], colors, fileName, "VAR", x, y);
                 filesDrawn++;
                 if (y == 30) {

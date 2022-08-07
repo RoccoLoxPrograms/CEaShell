@@ -26,6 +26,14 @@ void util_Exit(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
     ti_SetArchiveStatus(true, slot);
 }
 
+char *util_FixHiddenName(char *fileName) {
+    if (fileName[0] < 65) {
+        fileName[0] += 64;
+    }
+    
+    return fileName;
+}
+
 uint8_t *util_FilesInit(uint8_t *fileNumbers) {
     uint8_t fileType;
     char *fileName;
