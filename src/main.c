@@ -75,7 +75,7 @@ int main(void) {
                 } else {
                     fileSelected += 1;
                 }
-                if (NOPROGS > 8 && ((fileSelected > 5) && (fileStartLoc < (NOPROGS + NOPROGS % 2) - 9))) {
+                if (fileSelected > 7 && fileStartLoc + 1 < (NOPROGS + NOPROGS % 2) - 7) {
                     fileStartLoc += 2;
                 }
                 redraw = true;
@@ -85,7 +85,7 @@ int main(void) {
                 } else {
                     fileSelected -= 1;
                 }
-                if ((fileStartLoc > 1) && (fileSelected < (NOPROGS + NOPROGS % 2) - 6)) {
+                if ((fileStartLoc > 1) && (fileSelected < (NOPROGS + NOPROGS % 2) - 8)) {
                     fileStartLoc -= 2;
                 }
                 redraw = true;
