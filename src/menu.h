@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-uint8_t *menu_Looks(uint8_t *, uint8_t *, uint8_t, bool);
+uint8_t *menu_Looks(uint8_t *, uint8_t *, uint8_t, uint8_t, bool);
 
 void menu_Info(uint8_t);
 

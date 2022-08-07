@@ -126,9 +126,11 @@ void ui_BottomBar(uint8_t color, char *description) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint8_t fileLoc, bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
+    uint8_t filesDrawn = 0;
+    uint8_t filesSearched = 0;
 
     uint8_t fileType;
     char *fileName;
@@ -138,30 +140,36 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t *selected, uint8_t fileCount, uint
             continue;
         }
         if (!appvars && (fileType == TI_PRGM_TYPE || fileType == TI_PPRGM_TYPE)) {
-            if (fileType == TI_PRGM_TYPE) {
-                ui_DrawFile(selected[fileLoc], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
-            } else {
-                ui_DrawFile(selected[fileLoc], colors, fileName, "PRG", x, y);    // More advanced type detection later
+            if (fileStartLoc <= filesSearched) {
+                if (fileType == TI_PRGM_TYPE) {
+                    ui_DrawFile(selected[filesDrawn], colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
+                } else {
+                    ui_DrawFile(selected[filesDrawn], colors, fileName, "PRG", x, y);    // More advanced type detection later
+                }
+                filesDrawn++;
+                if (y == 30) {
+                    y = 116;
+                } else {
+                    x += 76;
+                    y = 30;
+                }
             }
-            fileLoc++;
-            if (x < 242) {
-                x += 76;
-            } else {
-                x = 14;
-                y = 116;
-            }
+            filesSearched++;
         } else if (appvars && fileType == TI_APPVAR_TYPE) {
-            ui_DrawFile(selected[fileLoc], colors, fileName, "VAR", x, y);
-            fileLoc++;
-            if (x < 242) {
-                x += 76;
-            } else {
-                x = 14;
-                y = 116;
+            if (fileStartLoc <= filesSearched) {
+                ui_DrawFile(selected[filesDrawn], colors, fileName, "VAR", x, y);
+                filesDrawn++;
+                if (y == 30) {
+                    y = 116;
+                } else {
+                    x += 76;
+                    y = 30;
+                }
             }
+            filesSearched++;
         }
 
-        if ((x == 242 && y == 116) || fileLoc > fileCount) {
+        if ((x > 242) || filesSearched > fileCount) {
             break;
         }
     }

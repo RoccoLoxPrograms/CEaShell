@@ -68,7 +68,7 @@ int main(void) {
                     gfx_SwapDraw();
                 }
             }
-            uint8_t *newColors = menu_Looks(colors, cursor, NOPROGS, is24Hour);
+            uint8_t *newColors = menu_Looks(colors, cursor, NOPROGS, 0, is24Hour);
             for (uint8_t byte = 0; byte < 4; byte++) {
                 colors[byte] = newColors[byte];
             }
