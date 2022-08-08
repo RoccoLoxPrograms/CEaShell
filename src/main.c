@@ -78,7 +78,7 @@ int main(void) {
                 } else {
                     fileSelected += 1;
                 }
-                if (fileSelected > 7 && fileStartLoc + 1 < (NOPROGS + NOPROGS % 2) - 7) {
+                if (fileSelected - fileStartLoc > 7 && fileStartLoc + 1 < (NOPROGS + NOPROGS % 2) - 7) {
                     fileStartLoc += 2;
                 }
                 redraw = 1;
@@ -88,16 +88,16 @@ int main(void) {
                 } else {
                     fileSelected -= 1;
                 }
-                if ((fileStartLoc > 1) && (fileSelected < (NOPROGS + NOPROGS % 2) - 8)) {
+                if (fileSelected - fileStartLoc < 0 && fileStartLoc) {
                     fileStartLoc -= 2;
                 }
                 redraw = 1;
             }
-            if (kb_IsDown(kb_KeyDown)) {
+            if (kb_IsDown(kb_KeyDown) && fileSelected + 1 != NOPROGS) {
                 fileSelected += !(fileSelected % 2);
                 redraw = 1;
             } else if (kb_IsDown(kb_KeyUp)) {
-                fileSelected -= (fileSelected % 2);
+                fileSelected -= fileSelected % 2;
                 redraw = 1;
             }
             if (kb_IsDown(kb_KeyYequ)) {
@@ -206,7 +206,7 @@ int main(void) {
                 gfx_FillRectangle_NoClip(12, 28, 296, 164);
                 gfx_SetColor(colors[1]);
                 gfx_FillRectangle_NoClip(15, 12, 35, 7);
-                gfx_FillRectangle_NoClip(96, 8, 128, 15);
+                gfx_FillRectangle_NoClip(96, 8, 128, 16);
                 ui_Clock(is24Hour);
             }
             ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
