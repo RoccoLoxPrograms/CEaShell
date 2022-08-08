@@ -76,7 +76,7 @@ void shapes_FileIcon(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
     for (int i = 0; i < 3; i++) {
         gfx_Rectangle_NoClip(x + i, y + i, 32 - 2 * i, 42 - 2 * i);
     }
-    gfx_FillRectangle_NoClip(x + 16, y, 16, 16);
+    gfx_FillRectangle_NoClip(x + 17, y, 15, 15);
     gfx_SetColor(bgColor);
     gfx_FillTriangle_NoClip(x + 20, y, x + 32, y, x + 32, y + 12);
     gfx_SetPixel(x, y);
