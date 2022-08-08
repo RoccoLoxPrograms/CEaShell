@@ -112,8 +112,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
             gfx_FillScreen(colors[0]);
             ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, false);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
-            ui_StatusBar(colors[1], is24Hour, "Customize");
-            ui_Battery(colors[1], boot_GetBatteryStatus(), boot_BatteryCharging());
+            ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");
             gfx_BlitBuffer();
         }
     }

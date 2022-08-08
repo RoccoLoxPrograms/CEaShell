@@ -7,6 +7,7 @@
 #include <string.h>
 #include <fileioc.h>
 #include <sys/rtc.h>
+#include <sys/power.h>
 
 void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
@@ -43,7 +44,7 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fi
     }
 }
 
-void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
+void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {    // For some reason the battery charging check isn't working
     ui_DrawUISprite(color, UI_BATTERY, 286, 10);
 
     gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
@@ -77,20 +78,16 @@ void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
     }
 }
 
-void ui_StatusBar(uint8_t color, bool is24Hour, char *fileName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
+void ui_StatusBar(uint8_t color, bool is24Hour, uint8_t batteryStatus, char *menuName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
     gfx_SetColor(color);
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
 
     ui_Clock(is24Hour);
+    ui_Battery(color, batteryStatus, boot_BatteryCharging());
 
     gfx_SetTextScale(2, 2);
-    int x = 160 - gfx_GetStringWidth(fileName) / 2;
-    if (x == 160) { // If no filename was given
-        gfx_PrintStringXY("FILENAME", 96, 8);
-    } else {
-        gfx_PrintStringXY(fileName, x, 8);
-    }
-
+    int x = 160 - gfx_GetStringWidth(menuName) / 2;
+    gfx_PrintStringXY(menuName, x, 8);
 }
 
 void ui_BottomBar(uint8_t color, char *description) {
@@ -123,7 +120,7 @@ void ui_BottomBar(uint8_t color, char *description) {
     }
 }
 
-char *ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
     uint8_t filesDrawn = 0;
@@ -131,7 +128,6 @@ char *ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, 
 
     uint8_t fileType;
     char *fileName;
-    char *returnName;
     void *filePtr = NULL;
     while ((fileName = ti_DetectAny(&filePtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName =='#') {
@@ -153,7 +149,10 @@ char *ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, 
                     y = 30;
                 }
                 if (fileSelected == filesSearched) {
-                    returnName = fileName;    // Name to display in status bar
+                    gfx_SetTextScale(2, 2);
+                    gfx_SetColor(colors[1]);
+                    uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
+                    gfx_PrintStringXY(fileName, textX, 8);
                 }
             }
             filesSearched++;
@@ -170,7 +169,10 @@ char *ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, 
                 }
             }
             if (fileSelected == filesSearched) {
-                returnName = fileName;    // Name to display in status bar
+                gfx_SetTextScale(2, 2);
+                gfx_SetColor(colors[1]);
+                uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
+                gfx_PrintStringXY(fileName, textX, 8);
             }
             filesSearched++;
         }
@@ -179,6 +181,4 @@ char *ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, 
             break;
         }
     }
-
-    return returnName;
 }
