@@ -44,7 +44,7 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fi
     }
 }
 
-void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {    // For some reason the battery charging check isn't working
+void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
     ui_DrawUISprite(color, UI_BATTERY, 286, 10);
 
     gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
@@ -133,10 +133,10 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
         if (*fileName == '!' || *fileName =='#') {
             continue;
         }
-        if (!appvars && (fileType == TI_PRGM_TYPE || fileType == TI_PPRGM_TYPE)) {
+        if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
-                if (fileType == TI_PRGM_TYPE) {
+                if (fileType == OS_TYPE_PRGM) {
                     ui_DrawFile((fileSelected == filesSearched), colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
                 } else {
                     ui_DrawFile((fileSelected == filesSearched), colors, fileName, "PRG", x, y);    // More advanced type detection later
@@ -156,7 +156,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                 }
             }
             filesSearched++;
-        } else if (appvars && fileType == TI_APPVAR_TYPE) {
+        } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
                 ui_DrawFile((fileSelected == filesSearched), colors, fileName, "VAR", x, y);
