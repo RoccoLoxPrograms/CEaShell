@@ -22,7 +22,7 @@ int main(void) {
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
-    ti_var_t slot = ti_Open("CEaShell", "r");
+    uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) {
         uint8_t ceaShell[6];
         ti_Read(&ceaShell, 6, 1, slot);
@@ -94,8 +94,12 @@ int main(void) {
                 }
                 redraw = 1;
             }
-            if (kb_IsDown(kb_KeyDown) && fileSelected + 1 != NOPROGS) {
-                fileSelected += !(fileSelected % 2);
+            if (kb_IsDown(kb_KeyDown)) {
+                if (fileSelected + 1 != NOPROGS) {
+                    fileSelected += !(fileSelected % 2);
+                } else if (fileSelected) {
+                    fileSelected -= !(fileSelected % 2) && (fileSelected - 1 >= 0);
+                }
                 redraw = 1;
             } else if (kb_IsDown(kb_KeyUp)) {
                 fileSelected -= fileSelected % 2;

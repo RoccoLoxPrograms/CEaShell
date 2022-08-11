@@ -3,7 +3,7 @@
 
 #include <fileioc.h>
 
-int8_t util_SpaceSearch(char *str) {
+uint8_t util_SpaceSearch(char *str) {
     for (int8_t k = 23; k >= 0; k--) {
         if (str[k] == ' ') {
             return k + 1;
@@ -21,7 +21,7 @@ void util_Exit(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
     ceaShell[4] = transitionSpeed;
     ceaShell[5] = is24Hour;
 
-    ti_var_t slot = ti_Open("CEaShell", "w+");
+    uint8_t slot = ti_Open("CEaShell", "w+");
     ti_Write(&ceaShell, 6, 1, slot);
     ti_SetArchiveStatus(true, slot);
 }

@@ -11,7 +11,7 @@ extern "C" {
 #define NOPROGS     fileNumbers[0]
 #define NOAPPVARS   fileNumbers[1]
 
-int8_t util_SpaceSearch(char *);
+uint8_t util_SpaceSearch(char *);
 
 void util_Exit(uint8_t *, uint8_t, bool);
 
