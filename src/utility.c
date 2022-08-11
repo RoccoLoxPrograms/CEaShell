@@ -46,9 +46,9 @@ uint8_t *util_FilesInit(uint8_t *fileNumbers) {
         if (*fileName == '!' || *fileName == '#') {
             continue;
         }
-        if (fileType == TI_PRGM_TYPE || fileType == TI_PPRGM_TYPE) {
+        if (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) {
             NOPROGS++;
-        } else if (fileType == TI_APPVAR_TYPE) {
+        } else if (fileType == OS_TYPE_APPVAR) {
             NOAPPVARS++;
         }
     }

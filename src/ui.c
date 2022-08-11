@@ -123,7 +123,6 @@ void ui_BottomBar(uint8_t color, char *description) {
 void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
-    uint8_t filesDrawn = 0;
     uint8_t filesSearched = 0;
 
     uint8_t fileType;
@@ -141,7 +140,6 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                 } else {
                     ui_DrawFile((fileSelected == filesSearched), colors, fileName, "PRG", x, y);    // More advanced type detection later
                 }
-                filesDrawn++;
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -160,7 +158,6 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
                 ui_DrawFile((fileSelected == filesSearched), colors, fileName, "VAR", x, y);
-                filesDrawn++;
                 if (y == 30) {
                     y = 116;
                 } else {

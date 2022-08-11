@@ -2,9 +2,9 @@
 # Makefile Options
 # ----------------------------
 
-NAME = SHELL
+NAME = CEASHELL
 ICON = icon.png
-DESCRIPTION = "A shell. (This is all you will know for now)"
+DESCRIPTION = "CEaShell v0.32"
 COMPRESSED = YES
 ARCHIVED = YES
 
