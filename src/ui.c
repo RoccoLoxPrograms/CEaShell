@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "shapes.h"
 #include "utility.h"
+#include "asm/getPrgmType.h"
 #include "gfx/gfx.h"
 
 #include <graphx.h>
@@ -16,8 +17,9 @@ void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fileType, int x, uint8_t y) {
+static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, uint8_t fileType, int x, uint8_t y) {
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
+
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
     }
@@ -29,9 +31,36 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, char *fi
     gfx_FillRectangle(x + 19, y + 36, 28, 9);
     gfx_SetTextFGColor(255 * colorAlt);
     gfx_SetTextScale(1, 1);
-    uint8_t stringLength = gfx_GetStringWidth(fileType);
+
+    char *fileTypeString;
+    switch (fileType) {
+        case ASM_TYPE:
+            fileTypeString = "ASM";
+            break;
+        case C_TYPE:
+            fileTypeString = "C";
+            break;
+        case BASIC_TYPE:
+            fileTypeString = "BSC";
+            break;
+        case ICE_TYPE:
+            fileTypeString = "ICE";
+            break;
+        case ICE_SRC_TYPE:
+            fileTypeString = "SRC";
+            break;
+        case DIR_TYPE:
+            fileTypeString = "Appvars"; // We'll use this for the Appvar folder later
+            break;
+        case APPVAR_TYPE:
+            fileTypeString = "VAR";
+            break;
+        default:
+            break;
+    }
+    uint8_t stringLength = gfx_GetStringWidth(fileTypeString);
     if (stringLength) {
-        gfx_PrintStringXY(fileType, x + (64 - stringLength) / 2, y + 37);
+        gfx_PrintStringXY(fileTypeString, x + (64 - stringLength) / 2, y + 37);
     } else {
         gfx_PrintStringXY("?", x + 29, y + 37);
     }
@@ -135,11 +164,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
         if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
-                if (fileType == OS_TYPE_PRGM) {
-                    ui_DrawFile((fileSelected == filesSearched), colors, fileName, "BSC", x, y);    // We'll assume all unprotected programs are basic for now
-                } else {
-                    ui_DrawFile((fileSelected == filesSearched), colors, fileName, "PRG", x, y);    // More advanced type detection later
-                }
+                ui_DrawFile((fileSelected == filesSearched), colors, fileName, getPrgmType(fileName, fileType), x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -157,7 +182,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
                 fileName = util_FixHiddenName(fileName);
-                ui_DrawFile((fileSelected == filesSearched), colors, fileName, "VAR", x, y);
+                ui_DrawFile((fileSelected == filesSearched), colors, fileName, APPVAR_TYPE, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {

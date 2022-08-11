@@ -10,8 +10,8 @@ _getPrgmType:
     push ix
     ld ix, 0
     add ix, sp
-    ld a, (ix + 6) ; get type
-    ld hl, (ix + 3) ; get name
+    ld a, (ix + 9) ; get type
+    ld hl, (ix + 6) ; get name
     pop ix
     ld (ti.OP1), a ; move type to OP1
     ld de, ti.OP1 + 1
