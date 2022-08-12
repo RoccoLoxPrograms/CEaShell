@@ -12,6 +12,16 @@ void shapes_RoundRectangleFill(uint8_t color, uint8_t radius, int width, uint8_t
     gfx_FillRectangle_NoClip(x + radius, y, width - radius * 2, height);
 }
 
+void shapes_TransparentRect(uint8_t color, int width, uint8_t height, int x, uint8_t y) {
+    gfx_SetColor(color);
+    for (uint8_t pixelXOffset = 0; pixelXOffset <= width + 1; pixelXOffset += 2) {
+        for (uint8_t pixelYOffset = 0; pixelYOffset <= height; pixelYOffset += 2) {
+            gfx_SetPixel(x + pixelXOffset, y + pixelYOffset);
+            gfx_SetPixel(x + pixelXOffset + 1, y + pixelYOffset + 1);
+        }
+    }
+}
+
 void shapes_RoundRectangle(bool buffer, uint8_t color, uint8_t radius, uint8_t thickness, int width, uint8_t height, int x, uint8_t y) {
     gfx_UninitedSprite(corner1, radius, radius);
     gfx_UninitedSprite(corner2, radius, radius);

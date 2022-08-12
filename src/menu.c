@@ -2,10 +2,13 @@
 #include "menu.h"
 #include "shapes.h"
 #include "ui.h"
+#include "utility.h"
 #include "asm/invert.h"
+#include "asm/getPrgmType.h"
 
 #include <graphx.h>
 #include <keypadc.h>
+#include <fileioc.h>
 #include <sys/timers.h>
 #include <sys/power.h>
 
@@ -120,13 +123,67 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
     return colors;
 }
 
-void menu_Info(uint8_t color) {
-    shapes_RoundRectangleFill(color, 15, 220, 192, 50, 38);
-    gfx_SwapDraw();
-    while (kb_AnyKey());
-    while (!kb_IsDown(kb_KeyWindow) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyTrace) && !kb_IsDown(kb_KeyClear)) {
-        kb_Scan();
+void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
+    uint8_t osFileType;
+    uint8_t filesSearched = 0;
+    char *fileName;
+    void *vatPtr = NULL;
+    while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) {
+        if (appvars && osFileType == OS_TYPE_APPVAR) {
+            if (fileSelected == filesSearched) {
+                break;
+            }
+            filesSearched++;
+        } else if (!appvars && (osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM)) {
+            if (fileSelected == filesSearched) {
+                break;
+            }
+            filesSearched++;
+        }
     }
+    uint8_t fileType = getPrgmType(fileName, osFileType);
+    uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
+    int fileSize = ti_GetSize(slot);
+    uint8_t isArchived = ti_IsArchived(slot);
+    uint8_t isProtected = (osFileType == OS_TYPE_PROT_PRGM);
+    char *description = "This is just a dummy description"; // Replace this with description getting later
+    bool hidden = (fileName[0] < 65);
+    fileName[0] += 64 * (fileName[0] < 65);
+    
+    shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
+    shapes_RoundRectangleFill(colors[0], 4, 212, 88, 54, 113);
+    ui_DrawFile(false, false, colors, "", fileType, 128, 44);  // We don't draw a name here because it is drawn somewhere else
+    gfx_PrintStringXY("Name: ", 56, 115);
+    gfx_PrintString(fileName);
+    gfx_PrintStringXY("Size: ", 190, 115);
+    gfx_PrintInt(fileSize, 5);
+    ui_DrawUISprite(colors[1], UI_INFO, 56, 126);
+    ui_DescriptionWrap(description, 82, 127);
+    ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
+    gfx_BlitBuffer();
+
+    bool keyPressed = false;
+
+    while (kb_AnyKey());
+    while (!kb_IsDown(kb_KeyWindow) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyTrace) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear)) {
+        kb_Scan();
+        if (!kb_AnyKey()) {
+            keyPressed = false;
+            timer_Set(1, 0);
+        }
+        if (kb_Data[7] && (!keyPressed || timer_Get(1) > 3000)) {
+            // key stuff
+            if (!keyPressed) {
+                while (timer_Get(1) < 9000 && kb_Data[7]) {
+                    kb_Scan();
+                }
+            }
+            keyPressed = true;
+            timer_Set(1,0);
+        }
+    }
+
+    ti_Close(slot);
 }
 
 void menu_Settings(uint8_t color) {

@@ -12,12 +12,12 @@
 
 void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
-    const gfx_sprite_t *uiIcons[14] = {battery, charging, paint, info, settings, lArrow, rArrow, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt};
-    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 7], x, y);
+    const gfx_sprite_t *uiIcons[16] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt};
+    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 8], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, uint8_t fileType, int x, uint8_t y) {
+void ui_DrawFile(bool selected, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, int x, uint8_t y) {
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
 
     if (selected) {
@@ -29,8 +29,12 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, uint8_t 
     shapes_FileIcon(255 * !colorAlt, colors[2], x + 16, y + 11);
     gfx_SetColor(255 * !colorAlt);
     gfx_FillRectangle(x + 19, y + 36, 28, 9);
-    gfx_SetTextFGColor(255 * colorAlt);
     gfx_SetTextScale(1, 1);
+
+    uint8_t stringLength = gfx_GetStringWidth(fileName);
+    if (stringLength) {
+        gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
+    }
 
     char *fileTypeString;
     switch (fileType) {
@@ -58,18 +62,17 @@ static void ui_DrawFile(bool selected, uint8_t *colors, char *fileName, uint8_t 
         default:
             break;
     }
-    uint8_t stringLength = gfx_GetStringWidth(fileTypeString);
+    gfx_SetTextFGColor(255 * colorAlt);
+    gfx_SetTextScale(1, 1);
+    stringLength = gfx_GetStringWidth(fileTypeString);
     if (stringLength) {
         gfx_PrintStringXY(fileTypeString, x + (64 - stringLength) / 2, y + 37);
     } else {
         gfx_PrintStringXY("?", x + 29, y + 37);
     }
     gfx_SetTextFGColor(255 * !colorAlt);
-    stringLength = gfx_GetStringWidth(fileName);
-    if (stringLength) {
-        gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
-    } else {
-        gfx_PrintStringXY("?", x + 29, y + 67);
+    if (hidden) {
+        shapes_TransparentRect(colors[selected], 64, 64, x, y);
     }
 }
 
@@ -119,14 +122,7 @@ void ui_StatusBar(uint8_t color, bool is24Hour, uint8_t batteryStatus, char *men
     gfx_PrintStringXY(menuName, x, 8);
 }
 
-void ui_BottomBar(uint8_t color, char *description) {
-    shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
-    shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
-    shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
-    ui_DrawUISprite(color, UI_PAINT, 14, 203);
-    ui_DrawUISprite(color, UI_INFO, 56, 204);
-    ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
-    
+void ui_DescriptionWrap(char *description, int x, uint8_t y) {
     gfx_SetTextScale(1, 1); // Description
     char lineOne[25] = "\0";
     char lineTwo[25] = "\0";
@@ -139,14 +135,25 @@ void ui_BottomBar(uint8_t color, char *description) {
         } else {
             strncpy(lineTwo, description + cut, 24);
         }
-        gfx_PrintStringXY(lineOne, 82, 205);
-        gfx_PrintStringXY(lineTwo, 82, 216);
+        gfx_PrintStringXY(lineOne, x, y);
+        gfx_PrintStringXY(lineTwo, x, y + 11);
         if (descLen - cut > 24) {
             gfx_PrintString("...");
         }
     } else {
-        gfx_PrintStringXY(description, 82, 211);
+        gfx_PrintStringXY(description, x, y + 5);
     }
+}
+
+void ui_BottomBar(uint8_t color, char *description) {
+    shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
+    shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
+    shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
+    ui_DrawUISprite(color, UI_PAINT, 14, 203);
+    ui_DrawUISprite(color, UI_INFO, 56, 204);
+    ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
+    
+    ui_DescriptionWrap(description, 82, 205);
 }
 
 void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
@@ -155,16 +162,18 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
     uint8_t filesSearched = 0;
 
     uint8_t fileType;
+    bool hidden;
     char *fileName;
-    void *filePtr = NULL;
-    while ((fileName = ti_DetectAny(&filePtr, NULL, &fileType))) {
+    void *vatPtr = NULL;
+    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName =='#') {
             continue;
         }
         if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileStartLoc <= filesSearched) {
-                fileName = util_FixHiddenName(fileName);
-                ui_DrawFile((fileSelected == filesSearched), colors, fileName, getPrgmType(fileName, fileType), x, y);
+                hidden = (fileName[0] < 65);
+                fileName[0] += 64 * (fileName[0] < 65);
+                ui_DrawFile((fileSelected == filesSearched), hidden, colors, fileName, getPrgmType(fileName, fileType), x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -181,8 +190,9 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             filesSearched++;
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
-                fileName = util_FixHiddenName(fileName);
-                ui_DrawFile((fileSelected == filesSearched), colors, fileName, APPVAR_TYPE, x, y);
+                hidden = (fileName[0] < 65);
+                fileName[0] += 64 * (fileName[0] < 65);
+                ui_DrawFile((fileSelected == filesSearched), hidden, colors, fileName, APPVAR_TYPE, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {

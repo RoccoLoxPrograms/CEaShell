@@ -72,7 +72,7 @@ int main(void) {
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if ((kb_Data[7] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) {
+        if ((kb_Data[7] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) {
             if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < NOPROGS) {
                 if (fileSelected + 2 < NOPROGS) {
                     fileSelected += 2;
@@ -137,14 +137,14 @@ int main(void) {
                 redraw = 2;
                 gfx_BlitBuffer();
             }
-            if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace)) {   // Info menu
+            if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) {   // Info menu
                 if (transitionSpeed) {
                     for (int8_t frame = 2; frame < 12 / transitionSpeed; frame++) {
                         shapes_RoundRectangleFill(colors[1], 15, 220, frame * (16 * transitionSpeed), 50, 230 - frame * (16 * transitionSpeed));
                         gfx_SwapDraw();
                     }
                 }
-                menu_Info(colors[1]);
+                menu_Info(colors, fileSelected, false);
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
