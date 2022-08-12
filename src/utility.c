@@ -48,3 +48,34 @@ uint8_t *util_FilesInit(uint8_t *fileNumbers) {
 
     return fileNumbers;
 }
+
+char *util_FileTypeToString(uint8_t fileType) {
+    char *fileTypeString= NULL;
+    switch (fileType) {
+        case ASM_TYPE:
+            fileTypeString = "ASM";
+            break;
+        case C_TYPE:
+            fileTypeString = "C";
+            break;
+        case BASIC_TYPE:
+            fileTypeString = "BSC";
+            break;
+        case ICE_TYPE:
+            fileTypeString = "ICE";
+            break;
+        case ICE_SRC_TYPE:
+            fileTypeString = "SRC";
+            break;
+        case DIR_TYPE:
+            fileTypeString = "Appvars"; // We'll use this for the Appvar folder later
+            break;
+        case APPVAR_TYPE:
+            fileTypeString = "VAR";
+            break;
+        default:
+            break;
+    }
+
+    return fileTypeString;
+}

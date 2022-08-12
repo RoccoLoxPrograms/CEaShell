@@ -36,32 +36,7 @@ void ui_DrawFile(bool selected, bool hidden, uint8_t *colors, char *fileName, ui
         gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
     }
 
-    char *fileTypeString;
-    switch (fileType) {
-        case ASM_TYPE:
-            fileTypeString = "ASM";
-            break;
-        case C_TYPE:
-            fileTypeString = "C";
-            break;
-        case BASIC_TYPE:
-            fileTypeString = "BSC";
-            break;
-        case ICE_TYPE:
-            fileTypeString = "ICE";
-            break;
-        case ICE_SRC_TYPE:
-            fileTypeString = "SRC";
-            break;
-        case DIR_TYPE:
-            fileTypeString = "Appvars"; // We'll use this for the Appvar folder later
-            break;
-        case APPVAR_TYPE:
-            fileTypeString = "VAR";
-            break;
-        default:
-            break;
-    }
+    char *fileTypeString = util_FileTypeToString(fileType);
     gfx_SetTextFGColor(255 * colorAlt);
     gfx_SetTextScale(1, 1);
     stringLength = gfx_GetStringWidth(fileTypeString);
@@ -162,6 +137,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
     uint8_t filesSearched = 0;
 
     uint8_t fileType;
+    uint8_t shellFileType;
     bool hidden;
     char *fileName;
     void *vatPtr = NULL;
@@ -171,9 +147,10 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
         }
         if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileStartLoc <= filesSearched) {
+                shellFileType = getPrgmType(fileName, fileType);
                 hidden = (fileName[0] < 65);
                 fileName[0] += 64 * (fileName[0] < 65);
-                ui_DrawFile((fileSelected == filesSearched), hidden, colors, fileName, getPrgmType(fileName, fileType), x, y);
+                ui_DrawFile((fileSelected == filesSearched), hidden, colors, fileName, shellFileType, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {

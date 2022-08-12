@@ -138,6 +138,8 @@ int main(void) {
                 gfx_BlitBuffer();
             }
             if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) {   // Info menu
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
+                gfx_BlitBuffer();
                 if (transitionSpeed) {
                     for (int8_t frame = 2; frame < 12 / transitionSpeed; frame++) {
                         shapes_RoundRectangleFill(colors[1], 15, 220, frame * (16 * transitionSpeed), 50, 230 - frame * (16 * transitionSpeed));
@@ -148,6 +150,7 @@ int main(void) {
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background

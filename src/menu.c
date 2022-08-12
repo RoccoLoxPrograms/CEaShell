@@ -70,8 +70,8 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
             prevCursorX = cursorX;
             pColor = color;
             if (kb_IsDown(kb_KeyRight) && cursorX == 128 && cursorY == 47) {	// Cursor looping
-            	cursorX = 16;
-            	cursorY = 75;
+                cursorX = 16;
+                cursorY = 75;
             } else if (kb_IsDown(kb_KeyLeft) && cursorX == 16 && cursorY == 75) {
             	cursorX = 128;
             	cursorY = 47;
@@ -142,6 +142,7 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
         }
     }
     uint8_t fileType = getPrgmType(fileName, osFileType);
+    char *fileTypeString = util_FileTypeToString(fileType);
     uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
     int fileSize = ti_GetSize(slot);
     uint8_t isArchived = ti_IsArchived(slot);
@@ -151,14 +152,25 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     fileName[0] += 64 * (fileName[0] < 65);
     
     shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
-    shapes_RoundRectangleFill(colors[0], 4, 212, 88, 54, 113);
-    ui_DrawFile(false, false, colors, "", fileType, 128, 44);  // We don't draw a name here because it is drawn somewhere else
-    gfx_PrintStringXY("Name: ", 56, 115);
-    gfx_PrintString(fileName);
-    gfx_PrintStringXY("Size: ", 190, 115);
+    shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
+    ui_DrawFile(false, false, colors, "", fileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
+    // shapes_RoundCorners(true, colors[1], 8, 64, 64, 200, 44); (This isn't working and I don't know why)
+    shapes_RoundRectangleFill(colors[0], 8, 138, 122, 56, 80);
+    shapes_RoundRectangleFill(colors[0], 8, 82, 88, 182, 114);
+    gfx_SetColor(colors[0]);
+    gfx_SetPixel(193, 112);
+    gfx_SetPixel(193, 113);
+    gfx_SetPixel(194, 113);
+    gfx_SetTextScale(2, 2);
+    uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
+    gfx_PrintStringXY(fileName, nameX, 52);
+    gfx_SetTextScale(1, 1);
+    gfx_PrintStringXY("Type: ", 64, 90);
+    gfx_PrintString(fileTypeString);
+    gfx_PrintStringXY("Size: ", 64, 102);
     gfx_PrintInt(fileSize, 5);
-    ui_DrawUISprite(colors[1], UI_INFO, 56, 126);
-    ui_DescriptionWrap(description, 82, 127);
+    gfx_PrintStringXY("Description:", 64, 114);
+    ui_DescriptionWrap(description, 64, 124);
     ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
     gfx_BlitBuffer();
 

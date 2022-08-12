@@ -26,6 +26,8 @@ void util_Exit(uint8_t *, uint8_t, bool);
 
 uint8_t *util_FilesInit(uint8_t *);
 
+char *util_FileTypeToString(uint8_t);
+
 #ifdef __cplusplus
 }
 #endif
