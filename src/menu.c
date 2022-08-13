@@ -69,15 +69,15 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
             prevCursorY = cursorY;
             prevCursorX = cursorX;
             pColor = color;
-            if (kb_IsDown(kb_KeyRight) && cursorX == 128 && cursorY == 47) {	// Cursor looping
+            if (kb_IsDown(kb_KeyRight) && cursorX == 128) {	// Cursor looping
                 cursorX = 16;
-                cursorY = 75;
-            } else if (kb_IsDown(kb_KeyLeft) && cursorX == 16 && cursorY == 75) {
-            	cursorX = 128;
-            	cursorY = 47;
+                cursorY = cursorY - 28 * (cursorY == 75) + 28 * (cursorY == 47);
+            } else if (kb_IsDown(kb_KeyLeft) && cursorX == 16) {
+                cursorX = 128;
+                cursorY = cursorY - 28 * (cursorY == 75) + 28 * (cursorY == 47);
             } else {
-	    	cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
-            	cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
+	    	    cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
+                cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
             }
             color = 3 * ((cursorX - 16) / 28) + 15 * (cursorY > 47);
 
@@ -123,6 +123,16 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
     return colors;
 }
 
+static void menu_InfoRedraw(uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden) {
+    gfx_SetColor(colors[0]);
+    gfx_FillRectangle_NoClip(60, 143, 200, 55);
+    shapes_RoundRectangleFill(colors[1], 8, 66, 27, cursorX, cursorY);
+    for (uint8_t xOffset = 0; xOffset < 198; xOffset += 67) {
+        shapes_RoundRectangleFill(colors[2], 6, 62, 23, 62 + xOffset, 145);
+        shapes_RoundRectangleFill(colors[2], 6, 62, 23, 62 + xOffset, 173);
+    }
+}
+
 void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     uint8_t osFileType;
     uint8_t filesSearched = 0;
@@ -142,36 +152,44 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
         }
     }
     uint8_t fileType = getPrgmType(fileName, osFileType);
-    char *fileTypeString = util_FileTypeToString(fileType);
+    char *fileTypeString = util_FileTypeToString(fileType, false);
     uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
     int fileSize = ti_GetSize(slot);
-    uint8_t isArchived = ti_IsArchived(slot);
-    uint8_t isProtected = (osFileType == OS_TYPE_PROT_PRGM);
+    bool isArchived = ti_IsArchived(slot);
+    bool isLocked = (osFileType == OS_TYPE_PROT_PRGM);
     char *description = "This is just a dummy description"; // Replace this with description getting later
-    bool hidden = (fileName[0] < 65);
+    bool isHidden = (fileName[0] < 65);
     fileName[0] += 64 * (fileName[0] < 65);
+
+    int cursorX = 60;
+    uint8_t cursorY = 143;
     
     shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
     shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
-    ui_DrawFile(false, false, colors, "", fileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
-    // shapes_RoundCorners(true, colors[1], 8, 64, 64, 200, 44); (This isn't working and I don't know why)
     shapes_RoundRectangleFill(colors[0], 8, 138, 122, 56, 80);
     shapes_RoundRectangleFill(colors[0], 8, 82, 88, 182, 114);
     gfx_SetColor(colors[0]);
-    gfx_SetPixel(193, 112);
-    gfx_SetPixel(193, 113);
-    gfx_SetPixel(194, 113);
+    gfx_FillRectangle_NoClip(194, 103, 11, 11);
+    gfx_SetColor(colors[1]);
+    gfx_FillCircle_NoClip(205, 102, 11);
+    ui_DrawFile(false, false, colors, "", fileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
+    gfx_SetColor(colors[0]);
     gfx_SetTextScale(2, 2);
     uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
     gfx_PrintStringXY(fileName, nameX, 52);
     gfx_SetTextScale(1, 1);
-    gfx_PrintStringXY("Type: ", 64, 90);
+    gfx_PrintStringXY("Type: ", 61, 85);
     gfx_PrintString(fileTypeString);
-    gfx_PrintStringXY("Size: ", 64, 102);
+    gfx_PrintStringXY("Size: ", 61, 98);
+    gfx_SetTextXY(99, 98);
     gfx_PrintInt(fileSize, 5);
-    gfx_PrintStringXY("Description:", 64, 114);
-    ui_DescriptionWrap(description, 64, 124);
+    gfx_PrintStringXY("Description:", 61, 111);
+    ui_DescriptionWrap(description, 27, 61, 121);
     ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
+
+    menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
+    gfx_BlitBuffer();
+    shapes_RoundCorners(true, colors[1], 8, 64, 64, 200, 44);
     gfx_BlitBuffer();
 
     bool keyPressed = false;
@@ -184,7 +202,18 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
             timer_Set(1, 0);
         }
         if (kb_Data[7] && (!keyPressed || timer_Get(1) > 3000)) {
-            // key stuff
+            if (kb_IsDown(kb_KeyRight) && cursorX == 194) {	// Cursor looping
+                cursorX = 60;
+                cursorY = cursorY - 28 * (cursorY == 171) + 28 * (cursorY == 143);
+            } else if (kb_IsDown(kb_KeyLeft) && cursorX == 60) {
+                cursorX = 194;
+                cursorY = cursorY - 28 * (cursorY == 171) + 28 * (cursorY == 143);
+            } else {
+	    	    cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 143) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 171);
+                cursorX = cursorX - 67 * (kb_IsDown(kb_KeyLeft) && cursorX > 60) + 67 * (kb_IsDown(kb_KeyRight) && cursorX < 194);
+            }
+            menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
+            gfx_BlitBuffer();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
                     kb_Scan();

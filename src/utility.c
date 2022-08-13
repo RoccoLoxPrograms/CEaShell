@@ -4,13 +4,13 @@
 #include <graphx.h>
 #include <fileioc.h>
 
-uint8_t util_SpaceSearch(char *str) {
-    for (int8_t k = 23; k >= 0; k--) {
+uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
+    for (int8_t k = charPerLine; k >= 0; k--) {
         if (str[k] == ' ') {
             return k + 1;
         }
     }
-    return 23;
+    return charPerLine;
 }
 
 void util_Exit(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
@@ -49,29 +49,45 @@ uint8_t *util_FilesInit(uint8_t *fileNumbers) {
     return fileNumbers;
 }
 
-char *util_FileTypeToString(uint8_t fileType) {
+char *util_FileTypeToString(uint8_t fileType, bool abbreviated) {
     char *fileTypeString= NULL;
     switch (fileType) {
         case ASM_TYPE:
-            fileTypeString = "ASM";
+            if (abbreviated) {  // Abbreviations are shown on the desktop, while the full type is shown in the info menu
+                fileTypeString = "ASM";
+            } else {
+                fileTypeString = "eZ80";
+            }
             break;
         case C_TYPE:
-            fileTypeString = "C";
+            fileTypeString = "C";   // C has no abbreviation, it's just "C"
             break;
         case BASIC_TYPE:
-            fileTypeString = "BSC";
+            if (abbreviated) {
+                fileTypeString = "BSC";
+            } else {
+                fileTypeString = "TI-BASIC";
+            }
             break;
         case ICE_TYPE:
             fileTypeString = "ICE";
             break;
         case ICE_SRC_TYPE:
-            fileTypeString = "SRC";
+            if (abbreviated) {
+                fileTypeString = "SRC";
+            } else {
+                fileTypeString = "ICE Source";
+            }
             break;
         case DIR_TYPE:
             fileTypeString = "Appvars"; // We'll use this for the Appvar folder later
             break;
         case APPVAR_TYPE:
-            fileTypeString = "VAR";
+            if (abbreviated) {
+                fileTypeString = "VAR";
+            } else {
+                fileTypeString = "Appvar";
+            }
             break;
         default:
             break;

@@ -36,7 +36,7 @@ void ui_DrawFile(bool selected, bool hidden, uint8_t *colors, char *fileName, ui
         gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
     }
 
-    char *fileTypeString = util_FileTypeToString(fileType);
+    char *fileTypeString = util_FileTypeToString(fileType, true);
     gfx_SetTextFGColor(255 * colorAlt);
     gfx_SetTextScale(1, 1);
     stringLength = gfx_GetStringWidth(fileTypeString);
@@ -97,22 +97,22 @@ void ui_StatusBar(uint8_t color, bool is24Hour, uint8_t batteryStatus, char *men
     gfx_PrintStringXY(menuName, x, 8);
 }
 
-void ui_DescriptionWrap(char *description, int x, uint8_t y) {
+void ui_DescriptionWrap(char *description, uint8_t charPerLine, int x, uint8_t y) {
     gfx_SetTextScale(1, 1); // Description
-    char lineOne[25] = "\0";
-    char lineTwo[25] = "\0";
-    if (strlen(description) > 24) { // Wraps text that is longer than 24, and cuts off anything longer than 48
-        int8_t cut = util_SpaceSearch(description); // If there is a space it will end the line there
+    char lineOne[30] = "\0";
+    char lineTwo[30] = "\0";
+    if (strlen(description) > charPerLine) { // Wraps text that is longer than 24, and cuts off anything longer than 48
+        int8_t cut = util_SpaceSearch(description, charPerLine); // If there is a space it will end the line there
         int8_t descLen = strlen(description);
         strncpy(lineOne, description, cut);
-        if (descLen - cut > 24) {
-            strncpy(lineTwo, description + cut, 22);
+        if (descLen - cut > charPerLine) {
+            strncpy(lineTwo, description + cut, charPerLine - 2);
         } else {
-            strncpy(lineTwo, description + cut, 24);
+            strncpy(lineTwo, description + cut, charPerLine);
         }
         gfx_PrintStringXY(lineOne, x, y);
         gfx_PrintStringXY(lineTwo, x, y + 11);
-        if (descLen - cut > 24) {
+        if (descLen - cut > charPerLine) {
             gfx_PrintString("...");
         }
     } else {
@@ -128,7 +128,7 @@ void ui_BottomBar(uint8_t color, char *description) {
     ui_DrawUISprite(color, UI_INFO, 56, 204);
     ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
     
-    ui_DescriptionWrap(description, 82, 205);
+    ui_DescriptionWrap(description, 23, 82, 205);
 }
 
 void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {

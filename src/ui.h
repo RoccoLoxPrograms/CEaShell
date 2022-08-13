@@ -27,7 +27,7 @@ void ui_Battery(uint8_t, uint8_t, bool);
 
 void ui_StatusBar(uint8_t, bool, uint8_t, char *);
 
-void ui_DescriptionWrap(char *, int, uint8_t);
+void ui_DescriptionWrap(char *, uint8_t, int, uint8_t);
 
 void ui_BottomBar(uint8_t, char *);
 

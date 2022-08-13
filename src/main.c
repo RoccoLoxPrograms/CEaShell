@@ -204,6 +204,9 @@ int main(void) {
             keyPressed = true;
             timer_Set(1,0);
         }
+        if (kb_IsDown(kb_KeyClear)) {
+            continue;
+        }
         if (redraw) {
             if (redraw == 2) {
                 gfx_FillScreen(colors[0]);

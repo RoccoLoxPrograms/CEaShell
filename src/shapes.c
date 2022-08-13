@@ -23,12 +23,8 @@ void shapes_TransparentRect(uint8_t color, int width, uint8_t height, int x, uin
 }
 
 void shapes_RoundCorners(bool buffer, uint8_t bg_color, uint8_t radius, int width, uint8_t height, int x, uint8_t y) {
-    gfx_UninitedSprite(corner1, radius, radius);
-    gfx_UninitedSprite(corner2, radius, radius);
-    corner1->width = radius;
-    corner1->height = radius;
-    corner2->width = radius;
-    corner2->height = radius;
+    gfx_sprite_t *corner1 = gfx_MallocSprite(radius, radius);
+    gfx_sprite_t *corner2 = gfx_MallocSprite(radius, radius);
     gfx_SetDrawBuffer();
     gfx_SetColor(bg_color);
     gfx_FillRectangle_NoClip(x, y, radius, radius);
@@ -46,6 +42,9 @@ void shapes_RoundCorners(bool buffer, uint8_t bg_color, uint8_t radius, int widt
     if (!buffer) {
         gfx_SwapDraw();
     }
+    
+    free (corner1);
+    free (corner2);
 }
 
 void shapes_FileIcon(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
