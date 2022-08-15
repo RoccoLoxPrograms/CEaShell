@@ -1,7 +1,7 @@
 #include "ui.h"
 #include "shapes.h"
 #include "utility.h"
-#include "asm/getPrgmType.h"
+#include "asm/fileOps.h"
 #include "gfx/gfx.h"
 
 #include <graphx.h>

@@ -4,7 +4,7 @@
 #include "ui.h"
 #include "utility.h"
 #include "asm/invert.h"
-#include "asm/getPrgmType.h"
+#include "asm/fileOps.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -139,11 +139,11 @@ static void menu_InfoRedraw(uint8_t *colors, int cursorX, uint8_t cursorY, bool 
         shapes_RoundRectangleFill(colors[1], 3, 62, 11, cursorX, cursorY);
     }
     ui_CheckBox(colors[1], gfx_GetPixel(64, 157), isArchived, 64, 157);
-    gfx_PrintStringXY("Archived", 73, 157);
+    gfx_PrintStringXY("Archived", 74, 157);
     ui_CheckBox(colors[1], gfx_GetPixel(140, 157), isLocked, 140, 157);
-    gfx_PrintStringXY("Locked", 149, 157);
+    gfx_PrintStringXY("Locked", 150, 157);
     ui_CheckBox(colors[1], gfx_GetPixel(203, 157), isHidden, 203, 157);
-    gfx_PrintStringXY("Hidden", 212, 157);
+    gfx_PrintStringXY("Hidden", 213, 157);
     gfx_PrintStringXY("Delete", 71, 184);
     gfx_PrintStringXY("Rename", 136, 184);
     gfx_PrintStringXY("Edit", 213, 184);
@@ -273,25 +273,25 @@ bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
                 cursorY = 182;
             }
             if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
+                fileName[0] -= 64 * (isHidden);
                 if (cursorY == 156) {
                     if (cursorX == 63) {
                         if (isArchived) {
                             ti_Close(slot);
-                            fileName[0] += 64 * isHidden;
                             slot = ti_OpenVar(fileName, "r+", osFileType);
-                            fileName[0] -= 64 * isHidden;
                         } else {
                             ti_SetArchiveStatus(true, slot);
                         }
                         isArchived = !isArchived;
-                    } else if (cursorX == 139) {
-                        // Locked
+                    } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE)) {
+                        lockPrgm(fileName, osFileType);
+                        isLocked = !isLocked;
                     } else {
-                        // Hidden
+                        hidePrgm(fileName, osFileType);
+                        isHidden = !isHidden;
                     }
                 } else {
                     if (cursorX == 63) {
-                        fileName[0] += 64 * (fileName[0] < 65);
                         ti_DeleteVar(fileName, osFileType);
                         return true;
                     } else if (cursorX == 129) {
@@ -300,6 +300,7 @@ bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
                         // Edit
                     }
                 }
+                fileName[0] += 64 * isHidden;
                 while(kb_AnyKey());
             }
             redraw = true;

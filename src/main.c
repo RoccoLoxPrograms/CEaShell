@@ -4,7 +4,7 @@
 #include "utility.h"
 #include "asm/invert.h"
 #include "asm/sortVat.h"
-#include "asm/getPrgmType.h"
+#include "asm/fileOps.h"
 
 #include <graphx.h>
 #include <keypadc.h>
