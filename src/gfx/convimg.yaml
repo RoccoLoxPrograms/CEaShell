@@ -17,6 +17,7 @@ converts:
       - lArrow.png
       - rArrow.png
       - dArrow.png
+      - check.png
       - batteryAlt.png
       - chargingAlt.png
       - paintAlt.png
@@ -25,6 +26,7 @@ converts:
       - lArrowAlt.png
       - rArrowAlt.png
       - dArrowAlt.png
+      - checkAlt.png
 
 outputs:
   - type: c

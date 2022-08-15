@@ -146,7 +146,13 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Info(colors, fileSelected, false);
+                if (menu_Info(colors, fileSelected, false)) {
+                    NOPROGS--;
+                    fileSelected -= 1 * (fileSelected);
+                    redraw = 2;
+                } else {
+                    redraw = 1;
+                }
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
@@ -164,7 +170,6 @@ int main(void) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
-                redraw = 2;
                 gfx_BlitBuffer();
             }
             if (kb_IsDown(kb_KeyGraph)) {   // Settings menu

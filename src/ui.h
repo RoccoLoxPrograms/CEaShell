@@ -15,11 +15,14 @@ extern "C" {
 #define UI_SETTINGS	4
 #define UI_LARROW	5
 #define UI_RARROW	6
-#define UI_DARROW     7
+#define UI_DARROW   7
+#define UI_CHECK    8
 
 void ui_DrawUISprite(uint8_t, uint8_t, int, uint8_t);
 
 void ui_DrawFile(bool, bool, uint8_t *, char *, uint8_t, int, uint8_t);
+
+void ui_CheckBox(uint8_t, uint8_t, bool, int, uint8_t);
 
 void ui_Clock(bool);
 

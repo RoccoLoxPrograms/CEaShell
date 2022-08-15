@@ -12,8 +12,8 @@
 
 void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
-    const gfx_sprite_t *uiIcons[16] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt};
-    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 8], x, y);
+    const gfx_sprite_t *uiIcons[18] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt};
+    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 9], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
@@ -48,6 +48,24 @@ void ui_DrawFile(bool selected, bool hidden, uint8_t *colors, char *fileName, ui
     gfx_SetTextFGColor(255 * !colorAlt);
     if (hidden) {
         shapes_TransparentRect(colors[selected], 64, 64, x, y);
+    }
+}
+
+void ui_CheckBox(uint8_t color, uint8_t bgColor, bool isChecked, int x, uint8_t y) {
+    bool colorAlt = !(bgColor > 131 && bgColor % 8 > 3);
+    if (colorAlt) {
+        gfx_SetColor(148);
+    } else {
+        gfx_SetColor(181);
+    }
+    gfx_FillRectangle_NoClip(x, y, 7, 7);
+    gfx_SetColor(bgColor);
+    gfx_SetPixel(x, y);
+    gfx_SetPixel(x, y + 6);
+    gfx_SetPixel(x + 6, y + 6);
+    gfx_SetPixel(x + 6, y);
+    if (isChecked) {
+        ui_DrawUISprite(color, UI_CHECK, x + 1, y - 1);
     }
 }
 

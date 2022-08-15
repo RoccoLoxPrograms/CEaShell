@@ -125,15 +125,31 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
 
 static void menu_InfoRedraw(uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden) {
     gfx_SetColor(colors[0]);
-    gfx_FillRectangle_NoClip(60, 143, 200, 55);
-    shapes_RoundRectangleFill(colors[1], 8, 66, 27, cursorX, cursorY);
-    for (uint8_t xOffset = 0; xOffset < 198; xOffset += 67) {
-        shapes_RoundRectangleFill(colors[2], 6, 62, 23, 62 + xOffset, 145);
-        shapes_RoundRectangleFill(colors[2], 6, 62, 23, 62 + xOffset, 173);
+    gfx_FillRectangle_NoClip(63, 156, 193, 9);
+    gfx_FillRectangle_NoClip(63, 182, 194, 11);
+    if (cursorY == 156) {
+        gfx_SetColor(colors[1]);
+        gfx_FillRectangle_NoClip(cursorX, cursorY, 9, 9);
+        gfx_SetColor(colors[0]);
+        gfx_SetPixel(cursorX, cursorY);
+        gfx_SetPixel(cursorX, cursorY + 8);
+        gfx_SetPixel(cursorX + 8, cursorY + 8);
+        gfx_SetPixel(cursorX + 8, cursorY);
+    } else {
+        shapes_RoundRectangleFill(colors[1], 3, 62, 11, cursorX, cursorY);
     }
+    ui_CheckBox(colors[1], gfx_GetPixel(64, 157), isArchived, 64, 157);
+    gfx_PrintStringXY("Archived", 73, 157);
+    ui_CheckBox(colors[1], gfx_GetPixel(140, 157), isLocked, 140, 157);
+    gfx_PrintStringXY("Locked", 149, 157);
+    ui_CheckBox(colors[1], gfx_GetPixel(203, 157), isHidden, 203, 157);
+    gfx_PrintStringXY("Hidden", 212, 157);
+    gfx_PrintStringXY("Delete", 71, 184);
+    gfx_PrintStringXY("Rename", 136, 184);
+    gfx_PrintStringXY("Edit", 213, 184);
 }
 
-void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
+bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     uint8_t osFileType;
     uint8_t filesSearched = 0;
     char *fileName;
@@ -161,8 +177,8 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     bool isHidden = (fileName[0] < 65);
     fileName[0] += 64 * (fileName[0] < 65);
 
-    int cursorX = 60;
-    uint8_t cursorY = 143;
+    int cursorX = 63;
+    uint8_t cursorY = 156;
     
     shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
     shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
@@ -184,7 +200,9 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     gfx_SetTextXY(99, 98);
     gfx_PrintInt(fileSize, 5);
     gfx_PrintStringXY("Description:", 61, 111);
-    ui_DescriptionWrap(description, 27, 61, 121);
+    ui_DescriptionWrap(description, 25, 61, 121);
+    gfx_PrintStringXY("Attributes:", 61, 145);
+    gfx_PrintStringXY("File Operations:", 61, 171);
     ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
 
     menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
@@ -193,6 +211,7 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     gfx_BlitBuffer();
 
     bool keyPressed = false;
+    bool redraw = false;
 
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyWindow) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyTrace) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear)) {
@@ -201,19 +220,89 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if (kb_Data[7] && (!keyPressed || timer_Get(1) > 3000)) {
-            if (kb_IsDown(kb_KeyRight) && cursorX == 194) {	// Cursor looping
-                cursorX = 60;
-                cursorY = cursorY - 28 * (cursorY == 171) + 28 * (cursorY == 143);
-            } else if (kb_IsDown(kb_KeyLeft) && cursorX == 60) {
-                cursorX = 194;
-                cursorY = cursorY - 28 * (cursorY == 171) + 28 * (cursorY == 143);
-            } else {
-	    	    cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 143) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 171);
-                cursorX = cursorX - 67 * (kb_IsDown(kb_KeyLeft) && cursorX > 60) + 67 * (kb_IsDown(kb_KeyRight) && cursorX < 194);
+        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || timer_Get(1) > 3000)) {
+            if (kb_IsDown(kb_KeyRight)) {
+                if (cursorX < 195) {
+                    if (cursorY == 182) {
+                        cursorX += 66;
+                    } else {
+                        cursorX = cursorX + 76 * (cursorX == 63) + 63 * (cursorX == 139);
+                    }
+                } else {
+                    cursorX = 63;
+                    if (cursorY == 182) {
+                        cursorY = 156;
+                    } else {
+                        cursorY = 182; 
+                    }
+                }
+            } else if (kb_IsDown(kb_KeyLeft)) {
+                if (cursorX > 63) {
+                    if (cursorY == 182) {
+                        cursorX -= 66;
+                    } else {
+                        cursorX = cursorX - 76 * (cursorX == 139) - 63 * (cursorX == 202);
+                    }
+                } else {
+                    if (cursorY == 182) {
+                        cursorX = 202;
+                        cursorY = 156;
+                    } else {
+                        cursorX = 195;
+                        cursorY = 182; 
+                    }
+                }
             }
-            menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
-            gfx_BlitBuffer();
+            if (kb_IsDown(kb_KeyUp) && cursorY == 182) {
+                if (cursorX > 63) {
+                    if (cursorX == 129) {
+                        cursorX = 139;
+                    } else {
+                        cursorX = 202;
+                    }
+                }
+                cursorY = 156;
+            } else if (kb_IsDown(kb_KeyDown)) {
+                if (cursorX > 63) {
+                    if (cursorX == 139) {
+                        cursorX = 129;
+                    } else {
+                        cursorX = 195;
+                    }
+                }
+                cursorY = 182;
+            }
+            if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
+                if (cursorY == 156) {
+                    if (cursorX == 63) {
+                        if (isArchived) {
+                            ti_Close(slot);
+                            fileName[0] += 64 * isHidden;
+                            slot = ti_OpenVar(fileName, "r+", osFileType);
+                            fileName[0] -= 64 * isHidden;
+                        } else {
+                            ti_SetArchiveStatus(true, slot);
+                        }
+                        isArchived = !isArchived;
+                    } else if (cursorX == 139) {
+                        // Locked
+                    } else {
+                        // Hidden
+                    }
+                } else {
+                    if (cursorX == 63) {
+                        fileName[0] += 64 * (fileName[0] < 65);
+                        ti_DeleteVar(fileName, osFileType);
+                        return true;
+                    } else if (cursorX == 129) {
+                        // Rename
+                    } else {
+                        // Edit
+                    }
+                }
+                while(kb_AnyKey());
+            }
+            redraw = true;
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
                     kb_Scan();
@@ -222,9 +311,15 @@ void menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
             keyPressed = true;
             timer_Set(1,0);
         }
+        if (redraw) {
+            menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
+            gfx_BlitBuffer();
+            redraw = false;
+        }
     }
 
     ti_Close(slot);
+    return false;
 }
 
 void menu_Settings(uint8_t color) {
