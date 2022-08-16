@@ -45,11 +45,14 @@ int main(void) {
     uint8_t fileStartLoc = 0;
     uint8_t fileSelected = 0;    // Which of the slots the cursor is selecting
 
+    bool infoOps[2] = {false, false};
+
     uint8_t batteryStatus = boot_GetBatteryStatus();
     
     bool keyPressed = false;    // A very clever timer thingy by RoccoLox Programs
     timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
 
+    ti_SetGCBehavior(&gfx_End, &gfx_Begin);
     gfx_Begin();
     if (colors[3]) {
         invertPalette();
@@ -146,10 +149,16 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                if (menu_Info(colors, fileSelected, false)) {
+                bool * newInfoOps = menu_Info(colors, infoOps, fileSelected, fileStartLoc, fileNumbers, false);
+                infoOps[0] = newInfoOps[0];
+                infoOps[1] = newInfoOps[1];
+                if (infoOps[0]) {
                     NOPROGS--;
-                    fileSelected -= 1 * (fileSelected);
+                    if (fileSelected >= NOPROGS) {
+                        fileSelected--;
+                    }
                     redraw = 2;
+                    infoOps[0] = false;
                 } else {
                     redraw = 1;
                 }
@@ -158,6 +167,10 @@ int main(void) {
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
                 ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
+                if (infoOps[1]) {
+                    gfx_BlitScreen();
+                    infoOps[1] = false;
+                }
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
                     gfx_GetSprite_NoClip(buffer2, 160, 38);
@@ -219,7 +232,7 @@ int main(void) {
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
             } else {
                 gfx_SetColor(colors[0]);
-                gfx_FillRectangle_NoClip(12, 28, 296, 164);
+                gfx_FillRectangle_NoClip(8, 28, 304, 203);
                 gfx_SetColor(colors[1]);
                 gfx_FillRectangle_NoClip(15, 12, 35, 7);
                 gfx_FillRectangle_NoClip(96, 8, 128, 16);

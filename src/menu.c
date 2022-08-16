@@ -12,6 +12,8 @@
 #include <sys/timers.h>
 #include <sys/power.h>
 
+#include <debug.h>
+
 static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {
     if (color == 27) {
         shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 18, 112);
@@ -123,7 +125,33 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
     return colors;
 }
 
-static void menu_InfoRedraw(uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden) {
+static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, char *description) {
+    if (fullRedraw) {
+        shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
+        shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
+        shapes_RoundRectangleFill(colors[0], 8, 138, 122, 56, 80);
+        shapes_RoundRectangleFill(colors[0], 8, 82, 88, 182, 114);
+        gfx_SetColor(colors[0]);
+        gfx_FillRectangle_NoClip(194, 103, 11, 11);
+        gfx_SetColor(colors[1]);
+        gfx_FillCircle_NoClip(205, 102, 11);
+        ui_DrawFile(false, false, colors, "", fileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
+        gfx_SetColor(colors[0]);
+        gfx_SetTextScale(2, 2);
+        uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
+        gfx_PrintStringXY(fileName, nameX, 52);
+        gfx_SetTextScale(1, 1);
+        gfx_PrintStringXY("Type: ", 61, 85);
+        gfx_PrintString(fileTypeString);
+        gfx_PrintStringXY("Size: ", 61, 98);
+        gfx_SetTextXY(99, 98);
+        gfx_PrintInt(fileSize, 5);
+        gfx_PrintStringXY("Description:", 61, 111);
+        ui_DescriptionWrap(description, 25, 61, 121);
+        gfx_PrintStringXY("Attributes:", 61, 145);
+        gfx_PrintStringXY("File Operations:", 61, 171);
+        ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
+    }
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(63, 156, 193, 9);
     gfx_FillRectangle_NoClip(63, 182, 194, 11);
@@ -149,7 +177,7 @@ static void menu_InfoRedraw(uint8_t *colors, int cursorX, uint8_t cursorY, bool 
     gfx_PrintStringXY("Edit", 213, 184);
 }
 
-bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
+bool *menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fileStartLoc, uint8_t *fileNumbers, bool appvars) {
     uint8_t osFileType;
     uint8_t filesSearched = 0;
     char *fileName;
@@ -175,37 +203,13 @@ bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     bool isLocked = (osFileType == OS_TYPE_PROT_PRGM);
     char *description = "This is just a dummy description"; // Replace this with description getting later
     bool isHidden = (fileName[0] < 65);
+    const bool initialValue[3] = {isArchived, isLocked, isHidden};
     fileName[0] += 64 * (fileName[0] < 65);
 
     int cursorX = 63;
     uint8_t cursorY = 156;
-    
-    shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
-    shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
-    shapes_RoundRectangleFill(colors[0], 8, 138, 122, 56, 80);
-    shapes_RoundRectangleFill(colors[0], 8, 82, 88, 182, 114);
-    gfx_SetColor(colors[0]);
-    gfx_FillRectangle_NoClip(194, 103, 11, 11);
-    gfx_SetColor(colors[1]);
-    gfx_FillCircle_NoClip(205, 102, 11);
-    ui_DrawFile(false, false, colors, "", fileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
-    gfx_SetColor(colors[0]);
-    gfx_SetTextScale(2, 2);
-    uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
-    gfx_PrintStringXY(fileName, nameX, 52);
-    gfx_SetTextScale(1, 1);
-    gfx_PrintStringXY("Type: ", 61, 85);
-    gfx_PrintString(fileTypeString);
-    gfx_PrintStringXY("Size: ", 61, 98);
-    gfx_SetTextXY(99, 98);
-    gfx_PrintInt(fileSize, 5);
-    gfx_PrintStringXY("Description:", 61, 111);
-    ui_DescriptionWrap(description, 25, 61, 121);
-    gfx_PrintStringXY("Attributes:", 61, 145);
-    gfx_PrintStringXY("File Operations:", 61, 171);
-    ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
 
-    menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
+    menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, description);
     gfx_BlitBuffer();
     shapes_RoundCorners(true, colors[1], 8, 64, 64, 200, 44);
     gfx_BlitBuffer();
@@ -213,6 +217,7 @@ bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
     bool keyPressed = false;
     bool redraw = false;
 
+    fileName[0] -= 64 * initialValue[2];
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyWindow) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyTrace) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear)) {
         kb_Scan();
@@ -273,34 +278,32 @@ bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
                 cursorY = 182;
             }
             if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
-                fileName[0] -= 64 * (isHidden);
                 if (cursorY == 156) {
                     if (cursorX == 63) {
-                        if (isArchived) {
-                            ti_Close(slot);
-                            slot = ti_OpenVar(fileName, "r+", osFileType);
-                        } else {
-                            ti_SetArchiveStatus(true, slot);
-                        }
                         isArchived = !isArchived;
                     } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE)) {
-                        lockPrgm(fileName, osFileType);
                         isLocked = !isLocked;
-                    } else {
-                        hidePrgm(fileName, osFileType);
+                    } else if (cursorX == 202) {
                         isHidden = !isHidden;
                     }
                 } else {
                     if (cursorX == 63) {
                         ti_DeleteVar(fileName, osFileType);
-                        return true;
+                        if (fileSelected >= NOPROGS - 1) {
+                            fileSelected--;
+                        }
+                        gfx_SetColor(colors[0]);
+                        gfx_FillRectangle_NoClip(12, 28, 296, 164);
+                        ui_DrawAllFiles(colors, fileSelected, NOPROGS - 1, fileStartLoc, appvars);
+                        gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
+                        infoOps[0] = true;
+                        return infoOps;
                     } else if (cursorX == 129) {
                         // Rename
                     } else {
                         // Edit
                     }
                 }
-                fileName[0] += 64 * isHidden;
                 while(kb_AnyKey());
             }
             redraw = true;
@@ -313,14 +316,34 @@ bool menu_Info(uint8_t *colors, uint8_t fileSelected, bool appvars) {
             timer_Set(1,0);
         }
         if (redraw) {
-            menu_InfoRedraw(colors, cursorX, cursorY, isArchived, isLocked, isHidden);
+            menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, description);
             gfx_BlitBuffer();
             redraw = false;
         }
     }
 
+    if (initialValue[0] != isArchived) {
+        if (initialValue[0]) {
+            ti_Close(slot);
+            slot = ti_OpenVar(fileName, "r+", osFileType);
+        } else {
+            infoOps[1] = !ti_ArchiveHasRoom(fileSize + 18);
+            ti_SetArchiveStatus(true, slot);
+        }
+    }
+    if (initialValue[2] != isHidden) {
+        hidePrgm(fileName, osFileType);
+        if (isHidden) {
+            fileName[0] -= 64;
+        } else {
+            fileName[0] += 64;
+        }
+    }
+    if (initialValue[1] != isLocked) {
+        lockPrgm(fileName, osFileType);
+    }
     ti_Close(slot);
-    return false;
+    return infoOps;
 }
 
 void menu_Settings(uint8_t color) {
