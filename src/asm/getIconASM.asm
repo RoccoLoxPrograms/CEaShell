@@ -43,7 +43,7 @@ inRam:
     pop bc
     xor a, a
     cp a, c
-    jr z, isAsm
+    jr z, isAsm ; we skip an extra byte if the program is C or ICE
     inc de
 
 isAsm:
@@ -52,20 +52,20 @@ isAsm:
     add hl, de
 
     ld a, (hl)
-    pop de
-    cp a, 1
-    ld a, 0
+    pop de ; pointer to the gfx_sprite_t
+    cp a, 1 ; check if the program has a valid sprite
+    ld a, 0 ; we'll return false if the program does not have a sprite
     ret nz
-    inc hl
+    inc hl ; skip to the sprite data
     inc hl
     inc hl
 
-    inc de
+    inc de ; skip height and width in the gfx_sprite_t
     inc de
 
-    ld bc, 256
+    ld bc, 256 ; number of bytes to copy
 
     ldir
 
-    ld a, 1
+    ld a, 1 ; the program has a sprite, so return true
     ret

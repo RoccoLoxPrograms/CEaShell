@@ -10,29 +10,29 @@
 #include <sys/rtc.h>
 #include <sys/power.h>
 
-void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
+void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {   // Takes care of drawing the sprite in white or black, depending on the theme
     bool colorAlt = !(color > 131 && color % 8 > 3);
     const gfx_sprite_t *uiIcons[18] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt};
     gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 9], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {
+void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {  // Draws a file, with the icon if it exists
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
-    gfx_sprite_t *icon = gfx_MallocSprite(16, 16);
+    gfx_sprite_t *icon = gfx_MallocSprite(16, 16);  // Malloc the sprite ahead of time
     fileName[0] -= 64 * hidden;
 
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
     }
-    if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
-        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
+    if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {   // No basic icons for now
+        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4); // Round the corners of the icon to match with the file icons
         shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
         shapes_DrawRoundCorners(corner1, 64, 64, x, y);
         free (corner1);
     } else {
-        shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
+        shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);  // If there isn't an icon we'll draw our own default file icon
         gfx_SetColor(255 * colorAlt);
         gfx_FillRectangle(x + 19, y + 14, 29, 39);
         shapes_FileIcon(255 * !colorAlt, colors[2], x + 16, y + 11);
@@ -51,22 +51,22 @@ void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, cha
         gfx_SetTextFGColor(255 * !colorAlt);
     }
     
-    free (icon);
-    fileName[0] += 64 * hidden;
+    free (icon);    // We do not need this anymore
+    fileName[0] += 64 * hidden; // Make the hidden name viewable (If it is hidden)
     gfx_SetTextScale(1, 1);
-    if (drawName) {
+    if (drawName) { // In some places we do not draw the name
         uint8_t stringLength = gfx_GetStringWidth(fileName);
         if (stringLength) {
             gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
         }
     }
 
-    if (hidden) {
+    if (hidden) {   // Hidden effect (NEEDS OPTIMIZATION)
         shapes_TransparentRect(colors[selected], 64, 64, x, y);
     }
 }
 
-void ui_CheckBox(uint8_t color, uint8_t bgColor, bool isChecked, int x, uint8_t y) {
+void ui_CheckBox(uint8_t color, uint8_t bgColor, bool isChecked, int x, uint8_t y) {    // Draws a simple checkbox
     bool colorAlt = !(bgColor > 131 && bgColor % 8 > 3);
     if (colorAlt) {
         gfx_SetColor(148);
@@ -175,7 +175,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
     char *fileName;
     void *vatPtr = NULL;
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
-        if (*fileName == '!' || *fileName =='#') {
+        if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
             continue;
         }
         if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
@@ -190,7 +190,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     x += 76;
                     y = 30;
                 }
-                if (fileSelected == filesSearched) {
+                if (fileSelected == filesSearched) {    // Draws the name of the selected program
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
                     uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;

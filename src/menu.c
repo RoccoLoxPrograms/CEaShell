@@ -14,7 +14,7 @@
 
 #include <debug.h>
 
-static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {
+static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {   // Draws the theme preview box. Basically a bunch of rectangles
     if (color == 27) {
         shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 18, 112);
         shapes_RoundRectangleFill(255 - colors[1], 6, 61, 78, 22, 116);
@@ -46,7 +46,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour) {
+void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
     gfx_BlitBuffer();
@@ -61,7 +61,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
     bool keyPressed = false;
     
     while (kb_AnyKey());
-    while (!kb_IsDown(kb_KeyYequ) && !kb_IsDown(kb_KeyClear)) {
+    while (!kb_IsDown(kb_KeyYequ) && !kb_IsDown(kb_KeyClear)) { // Key detection loop
         kb_Scan();
         if (!kb_AnyKey()) {
             keyPressed = false;
@@ -81,7 +81,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
 	    	    cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
                 cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
             }
-            color = 3 * ((cursorX - 16) / 28) + 15 * (cursorY > 47);
+            color = 3 * ((cursorX - 16) / 28) + 15 * (cursorY > 47);    // Change the selected color/theme
 
             shapes_RoundRectangleFill(colors[0], 8, 26, 26, prevCursorX, prevCursorY);    // Erase old color
             shapes_RoundRectangleFill(defaultThemes[pColor], 6, 22, 22, prevCursorX + 2, prevCursorY + 2);
@@ -95,7 +95,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
                 gfx_FloodFill(133, 78, 0);
             }
             
-            menu_ThemePreview(color, colors, defaultThemes);
+            menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
             gfx_BlitBuffer();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
@@ -105,7 +105,7 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
             keyPressed = true;
             timer_Set(1,0);
         }
-        if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
+        if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {   // If you select a theme
             if (color == 27) {
                 colors[3] = !colors[3];
                 invertPalette();
@@ -117,16 +117,15 @@ uint8_t *menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, ui
             gfx_FillScreen(colors[0]);
             ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, false);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
-            ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");
+            ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");    // Might as well also update the battery
             gfx_BlitBuffer();
         }
     }
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
-    return colors;
 }
 
 static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, uint8_t osFileType, char *description) {
-    if (fullRedraw) {
+    if (fullRedraw) {   // Redraws most of the file information. (Comment is here since the line above is already quite long)
         shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
         shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
         shapes_RoundRectangleFill(colors[0], 8, 138, 122, 56, 80);
@@ -177,12 +176,12 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
     gfx_PrintStringXY("Edit", 213, 184);
 }
 
-bool *menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fileStartLoc, uint8_t *fileNumbers, bool appvars) {
-    uint8_t osFileType;
+void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fileStartLoc, uint8_t *fileNumbers, bool appvars) {
+    uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     uint8_t filesSearched = 0;
     char *fileName;
     void *vatPtr = NULL;
-    while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) {
+    while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
         if (appvars && osFileType == OS_TYPE_APPVAR) {
             if (fileSelected == filesSearched) {
                 break;
@@ -212,13 +211,13 @@ bool *menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fi
     gfx_sprite_t *corner1 = gfx_MallocSprite(8, 8);
     shapes_GetRoundCorners(corner1, colors[1], 8, 200, 44);
     menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, description);
-    shapes_DrawRoundCorners(corner1, 64, 64, 200, 44);
+    shapes_DrawRoundCorners(corner1, 64, 64, 200, 44);  // We have to round the corners of the program icon a little more in this menu
     gfx_BlitBuffer();
 
     bool keyPressed = false;
     bool redraw = false;
 
-    fileName[0] -= 64 * initialValue[2];
+    fileName[0] -= 64 * initialValue[2];    // The viewable file name becomes what the OS sees instead
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyWindow) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyTrace) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear)) {
         kb_Scan();
@@ -323,7 +322,7 @@ bool *menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fi
         }
     }
 
-    if (initialValue[0] != isArchived) {
+    if (initialValue[0] != isArchived) {    // We'll only update the status if the program actually has to be changed
         if (initialValue[0]) {
             ti_Close(slot);
             slot = ti_OpenVar(fileName, "r+", osFileType);
@@ -347,10 +346,9 @@ bool *menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fi
     }
     free (corner1);
     ti_Close(slot);
-    return infoOps;
 }
 
-void menu_Settings(uint8_t color) {
+void menu_Settings(uint8_t color) { // Very empty right now
     shapes_RoundRectangleFill(color, 15, 304, 192, 8, 39);
     ui_DrawUISprite(color, UI_RARROW, 290, 208);
     gfx_SwapDraw();

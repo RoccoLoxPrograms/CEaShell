@@ -27,7 +27,7 @@ void util_Exit(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
     ti_SetArchiveStatus(true, slot);
 }
 
-uint8_t *util_FilesInit(uint8_t *fileNumbers) {
+void util_FilesInit(uint8_t *fileNumbers) {
     uint8_t fileType;
     char *fileName;
     void *vatPtr = NULL;
@@ -45,8 +45,6 @@ uint8_t *util_FilesInit(uint8_t *fileNumbers) {
             NOAPPVARS++;
         }
     }
-
-    return fileNumbers;
 }
 
 char *util_FileTypeToString(uint8_t fileType, bool abbreviated) {
