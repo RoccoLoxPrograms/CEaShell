@@ -297,7 +297,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
                         ui_DrawAllFiles(colors, fileSelected, NOPROGS - 1, fileStartLoc, appvars);
                         gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                         infoOps[0] = true;
-                        return infoOps;
+                        return;
                     } else if (cursorX == 129) {
                         // Rename
                     } else {

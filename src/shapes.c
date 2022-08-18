@@ -12,12 +12,25 @@ void shapes_RoundRectangleFill(uint8_t color, uint8_t radius, int width, uint8_t
     gfx_FillRectangle_NoClip(x + radius, y, width - radius * 2, height);
 }
 
-void shapes_TransparentRect(uint8_t color, int width, uint8_t height, int x, uint8_t y) {
+void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, uint8_t color, int x, uint8_t y) {
+    x += 2; // Make sure it's hidden behind whatever we draws
+    y += 2;
+    gfx_SetColor(240);
+    gfx_FillRectangle_NoClip(x, y, 16, 16);
     gfx_SetColor(color);
-    for (uint8_t pixelXOffset = 0; pixelXOffset <= width + 1; pixelXOffset += 2) {
-        for (uint8_t pixelYOffset = 0; pixelYOffset <= height; pixelYOffset += 2) {
+    for (uint8_t pixelXOffset = 0; pixelXOffset < 18; pixelXOffset += 2) {
+        for (uint8_t pixelYOffset = 0; pixelYOffset < 17; pixelYOffset += 2) {
             gfx_SetPixel(x + pixelXOffset, y + pixelYOffset);
             gfx_SetPixel(x + pixelXOffset + 1, y + pixelYOffset + 1);
+        }
+    }
+    gfx_GetSprite_NoClip(tileSprite, x, y);
+}
+
+void shapes_DrawTransparentRect(gfx_sprite_t *tileSprite, int x, uint8_t y) {
+    for (uint8_t pixelXOffset = 0; pixelXOffset < 64; pixelXOffset += 16) {
+        for (uint8_t pixelYOffset = 0; pixelYOffset < 64; pixelYOffset += 16) {
+            gfx_TransparentSprite_NoClip(tileSprite, x + pixelXOffset, y + pixelYOffset);
         }
     }
 }

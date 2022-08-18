@@ -222,15 +222,11 @@ int main(void) {
             if (redraw == 2) {
                 gfx_FillScreen(colors[0]);
                 batteryStatus = boot_GetBatteryStatus();
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
             } else {
                 gfx_SetColor(colors[0]);
                 gfx_FillRectangle_NoClip(8, 28, 304, 203);
-                gfx_SetColor(colors[1]);
-                gfx_FillRectangle_NoClip(15, 12, 35, 7);
-                gfx_FillRectangle_NoClip(96, 8, 128, 16);
-                ui_Clock(is24Hour);
             }
+            ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
             ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
             ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             redraw = false;

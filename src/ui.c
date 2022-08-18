@@ -20,6 +20,10 @@ void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {   // T
 void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {  // Draws a file, with the icon if it exists
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
     gfx_sprite_t *icon = gfx_MallocSprite(16, 16);  // Malloc the sprite ahead of time
+    gfx_sprite_t *tileSprite = gfx_MallocSprite(16, 16);
+    if (hidden) {
+        shapes_GetTransparentRect(tileSprite, colors[(selected)], x, y);
+    }
     fileName[0] -= 64 * hidden;
 
     if (selected) {
@@ -62,8 +66,9 @@ void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, cha
     }
 
     if (hidden) {   // Hidden effect (NEEDS OPTIMIZATION)
-        shapes_TransparentRect(colors[selected], 64, 64, x, y);
+        shapes_DrawTransparentRect(tileSprite, x, y);
     }
+    free(tileSprite);
 }
 
 void ui_CheckBox(uint8_t color, uint8_t bgColor, bool isChecked, int x, uint8_t y) {    // Draws a simple checkbox
