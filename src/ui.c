@@ -17,35 +17,50 @@ void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-void ui_DrawFile(bool selected, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, int x, uint8_t y) {
+void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
+    gfx_sprite_t *icon = gfx_MallocSprite(16, 16);
+    fileName[0] -= 64 * hidden;
 
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
     }
-    shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
-    gfx_SetColor(255 * colorAlt);
-    gfx_FillRectangle(x + 19, y + 14, 29, 39);
-    shapes_FileIcon(255 * !colorAlt, colors[2], x + 16, y + 11);
-    gfx_SetColor(255 * !colorAlt);
-    gfx_FillRectangle(x + 19, y + 36, 28, 9);
-    gfx_SetTextScale(1, 1);
-
-    uint8_t stringLength = gfx_GetStringWidth(fileName);
-    if (stringLength) {
-        gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
-    }
-
-    char *fileTypeString = util_FileTypeToString(fileType, true);
-    gfx_SetTextFGColor(255 * colorAlt);
-    gfx_SetTextScale(1, 1);
-    stringLength = gfx_GetStringWidth(fileTypeString);
-    if (stringLength) {
-        gfx_PrintStringXY(fileTypeString, x + (64 - stringLength) / 2, y + 37);
+    if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
+        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
+        shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
+        gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
+        shapes_DrawRoundCorners(corner1, 64, 64, x, y);
+        free (corner1);
     } else {
-        gfx_PrintStringXY("?", x + 29, y + 37);
+        shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
+        gfx_SetColor(255 * colorAlt);
+        gfx_FillRectangle(x + 19, y + 14, 29, 39);
+        shapes_FileIcon(255 * !colorAlt, colors[2], x + 16, y + 11);
+        gfx_SetColor(255 * !colorAlt);
+        gfx_FillRectangle(x + 19, y + 36, 28, 9);
+        gfx_SetTextScale(1, 1);
+        char *fileTypeString = util_FileTypeToString(fileType, true);
+        gfx_SetTextFGColor(255 * colorAlt);
+        gfx_SetTextScale(1, 1);
+        uint8_t typeLength = gfx_GetStringWidth(fileTypeString);
+        if (typeLength) {
+            gfx_PrintStringXY(fileTypeString, x + (64 - typeLength) / 2, y + 37);
+        } else {
+            gfx_PrintStringXY("?", x + 29, y + 37);
+        }
+        gfx_SetTextFGColor(255 * !colorAlt);
     }
-    gfx_SetTextFGColor(255 * !colorAlt);
+    
+    free (icon);
+    fileName[0] += 64 * hidden;
+    gfx_SetTextScale(1, 1);
+    if (drawName) {
+        uint8_t stringLength = gfx_GetStringWidth(fileName);
+        if (stringLength) {
+            gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
+        }
+    }
+
     if (hidden) {
         shapes_TransparentRect(colors[selected], 64, 64, x, y);
     }
@@ -168,7 +183,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                 shellFileType = getPrgmType(fileName, fileType);
                 hidden = (fileName[0] < 65);
                 fileName[0] += 64 * (fileName[0] < 65);
-                ui_DrawFile((fileSelected == filesSearched), hidden, colors, fileName, shellFileType, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, hidden, colors, fileName, shellFileType, fileType, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -185,9 +200,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             filesSearched++;
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
-                hidden = (fileName[0] < 65);
-                fileName[0] += 64 * (fileName[0] < 65);
-                ui_DrawFile((fileSelected == filesSearched), hidden, colors, fileName, APPVAR_TYPE, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, hidden, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {

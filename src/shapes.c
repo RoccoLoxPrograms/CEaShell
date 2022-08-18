@@ -22,28 +22,24 @@ void shapes_TransparentRect(uint8_t color, int width, uint8_t height, int x, uin
     }
 }
 
-void shapes_RoundCorners(bool buffer, uint8_t bg_color, uint8_t radius, int width, uint8_t height, int x, uint8_t y) {
-    gfx_sprite_t *corner1 = gfx_MallocSprite(radius, radius);
-    gfx_sprite_t *corner2 = gfx_MallocSprite(radius, radius);
-    gfx_SetDrawBuffer();
-    gfx_SetColor(bg_color);
+void shapes_GetRoundCorners(gfx_sprite_t *corner1, uint8_t color, uint8_t radius, int x, uint8_t y) {
+    gfx_SetColor(color);
     gfx_FillRectangle_NoClip(x, y, radius, radius);
     gfx_SetColor(240);
     gfx_FillCircle_NoClip(x + radius, y + radius, radius);
     gfx_GetSprite(corner1, x, y);
-    gfx_BlitScreen();
+}
+
+void shapes_DrawRoundCorners(gfx_sprite_t *corner1, uint8_t width, uint8_t height, int x, uint8_t y) {
+    gfx_sprite_t *corner2 = gfx_MallocSprite(corner1->width, corner1->height);
     gfx_TransparentSprite_NoClip(corner1, x, y);
     gfx_RotateSpriteC(corner1, corner2);
-    gfx_TransparentSprite_NoClip(corner2, x + width - radius, y);
+    gfx_TransparentSprite_NoClip(corner2, x + width - corner1->width, y);
     gfx_RotateSpriteC(corner2, corner1);
-    gfx_TransparentSprite_NoClip(corner1, x + width - radius, y + height - radius);
+    gfx_TransparentSprite_NoClip(corner1, x + width - corner1->width, y + height - corner1->width);
     gfx_RotateSpriteC(corner1, corner2);
-    gfx_TransparentSprite_NoClip(corner2, x, y + height - radius);
-    if (!buffer) {
-        gfx_SwapDraw();
-    }
+    gfx_TransparentSprite_NoClip(corner2, x, y + height - corner1->width);
     
-    free (corner1);
     free (corner2);
 }
 
