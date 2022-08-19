@@ -124,7 +124,7 @@ void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
 }
 
-static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, uint8_t osFileType, char *description) {
+static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, uint8_t osFileType) {
     if (fullRedraw) {   // Redraws most of the file information. (Comment is here since the line above is already quite long)
         shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
         shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
@@ -135,6 +135,18 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         gfx_SetColor(colors[1]);
         gfx_FillCircle_NoClip(205, 102, 11);
         ui_DrawFile(false, false, false, colors, fileName, fileType, osFileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
+        if (fileType != BASIC_TYPE && fileType != ICE_TYPE) {
+            char *description = malloc(52);
+            fileName[0] -= 64 * isHidden;
+            if (getDescASM(fileName, osFileType, fileType, description)) {
+                ui_DescriptionWrap(description, 25, 61, 121);
+                free (description);
+            } else {
+                gfx_PrintStringXY("No description.", 61, 126);
+            }
+        } else {
+            gfx_PrintStringXY("No description.", 61, 126);
+        }
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
         uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
@@ -146,7 +158,6 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         gfx_SetTextXY(99, 98);
         gfx_PrintInt(fileSize, 5);
         gfx_PrintStringXY("Description:", 61, 111);
-        ui_DescriptionWrap(description, 25, 61, 121);
         gfx_PrintStringXY("Attributes:", 61, 145);
         gfx_PrintStringXY("File Operations:", 61, 171);
         ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
@@ -200,7 +211,6 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
     int fileSize = ti_GetSize(slot);
     bool isArchived = ti_IsArchived(slot);
     bool isLocked = (osFileType == OS_TYPE_PROT_PRGM);
-    char *description = "This is just a dummy description"; // Replace this with description getting later
     bool isHidden = (fileName[0] < 65);
     const bool initialValue[3] = {isArchived, isLocked, isHidden};
     fileName[0] += 64 * (fileName[0] < 65);
@@ -210,7 +220,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
 
     gfx_sprite_t *corner1 = gfx_MallocSprite(8, 8);
     shapes_GetRoundCorners(corner1, colors[1], 8, 200, 44);
-    menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, description);
+    menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
     shapes_DrawRoundCorners(corner1, 64, 64, 200, 44);  // We have to round the corners of the program icon a little more in this menu
     gfx_BlitBuffer();
 
@@ -316,7 +326,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
             timer_Set(1,0);
         }
         if (redraw) {
-            menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, description);
+            menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
             gfx_BlitBuffer();
             redraw = false;
         }

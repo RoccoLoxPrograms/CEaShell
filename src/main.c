@@ -63,8 +63,8 @@ int main(void) {
     gfx_SetDrawBuffer();
     gfx_FillScreen(colors[0]);
     ui_StatusBar(colors[1], is24Hour, batteryStatus, "");  // Displays bar with battery and clock
-    ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);    // This is always called after ui_StatusBar as it will draw the program name onto the status bar
-    ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
+    ui_BottomBar(colors[1]);
+    ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
     gfx_BlitBuffer();
 
     while(!kb_IsDown(kb_KeyClear)) {    // Key detection loop
@@ -118,8 +118,8 @@ int main(void) {
                 menu_Looks(colors, fileSelected, NOPROGS, fileStartLoc, is24Hour); // This function will store changed colors into the colors array
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize");
-                ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
                     gfx_GetSprite_NoClip(buffer2, 160, 38);
@@ -158,8 +158,8 @@ int main(void) {
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
-                ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (infoOps[1]) {
                     gfx_BlitScreen();
                     infoOps[1] = false;
@@ -190,8 +190,8 @@ int main(void) {
                 menu_Settings(colors[1]);   // Nothing here yet
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings");
-                ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
                     gfx_GetSprite_NoClip(buffer2, 160, 38);
@@ -227,8 +227,8 @@ int main(void) {
                 gfx_FillRectangle_NoClip(8, 28, 304, 203);
             }
             ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
+            ui_BottomBar(colors[1]);
             ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
-            ui_BottomBar(colors[1], "By TIny_Hacker + RoccoLox Programs");
             redraw = false;
         } else {
             gfx_SetColor(colors[1]);

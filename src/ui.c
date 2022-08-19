@@ -158,15 +158,13 @@ void ui_DescriptionWrap(char *description, uint8_t charPerLine, int x, uint8_t y
     }
 }
 
-void ui_BottomBar(uint8_t color, char *description) {
+void ui_BottomBar(uint8_t color) {
     shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
     shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
     shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
     ui_DrawUISprite(color, UI_PAINT, 14, 203);
     ui_DrawUISprite(color, UI_INFO, 56, 204);
     ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
-    
-    ui_DescriptionWrap(description, 23, 82, 205);
 }
 
 void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
@@ -187,7 +185,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             if (fileStartLoc <= filesSearched) {
                 shellFileType = getPrgmType(fileName, fileType);
                 hidden = (fileName[0] < 65);
-                fileName[0] += 64 * (fileName[0] < 65);
+                fileName[0] += 64 * hidden;
                 ui_DrawFile((fileSelected == filesSearched), true, hidden, colors, fileName, shellFileType, fileType, x, y);
                 if (y == 30) {
                     y = 116;
@@ -196,6 +194,14 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     y = 30;
                 }
                 if (fileSelected == filesSearched) {    // Draws the name of the selected program
+                    char *description = malloc(52);
+                    fileName[0] -= 64 * hidden;
+                    if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE) {
+                        if (getDescASM(fileName, fileType, shellFileType, description)) {
+                            ui_DescriptionWrap(description, 23, 82, 205);
+                        }
+                    }
+                    free (description);
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
                     uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;

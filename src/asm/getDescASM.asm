@@ -4,15 +4,16 @@
 
 include 'include/ti84pceg.inc'
 
-	public _getIconASM
-_getIconASM:
+	public _getDescASM
+
+_getDescASM:
     push ix
     ld ix, 0
     add ix, sp
     ld bc, (ix + 12) ; get asm status
     ld a, (ix + 9) ; get type
     ld hl, (ix + 6) ; get name
-    ld de, (ix + 15) ; get sprite to store into
+    ld de, (ix + 15) ; get char * to store into
     pop ix
     push de
     push bc
@@ -54,20 +55,33 @@ isAsm:
     add hl, de
 
     ld a, (hl)
-    pop de ; pointer to the gfx_sprite_t
+    pop de ; pointer to the char *
     cp a, 1 ; check if the program has a valid sprite
-    ld a, 0 ; we'll return false if the program does not have a sprite
+    inc hl
+    jr nz, noIcon
+
+    ld bc, 258
+    add hl, bc
+    jr description
+
+noIcon:
+    cp a, 2 ; check for only a description
+    ld a, 0
     ret nz
-    inc hl ; skip to the sprite data
-    inc hl
-    inc hl
 
-    inc de ; skip height and width in the gfx_sprite_t
-    inc de
+description:
+    ld b, 52 ; max number of bytes to copy
 
-    ld bc, 256 ; number of bytes to copy
-
-    ldir
-
-    ld a, 1 ; the program has a sprite, so return true
+getDesc:
+    ldi ; copy description byte to char *
+    inc bc ; restore bc
+    xor a, a
+    cp a, (hl)
+    ld a, 1 ; return true since there was a description
+    ret z
+    djnz getDesc
+    ;push hl
+    ;ld hl, -1
+    ;ld (hl), 2
+    ;pop hl
     ret
