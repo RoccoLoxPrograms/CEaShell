@@ -139,7 +139,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
             char *description = malloc(52);
             fileName[0] -= 64 * isHidden;
             if (getDescASM(fileName, osFileType, fileType, description)) {
-                ui_DescriptionWrap(description, 25, 61, 121);
+                ui_DescriptionWrap(description, 27, 61, 121);
                 free (description);
             } else {
                 gfx_PrintStringXY("No description.", 61, 126);

@@ -77,11 +77,16 @@ getDesc:
     inc bc ; restore bc
     xor a, a
     cp a, (hl)
-    ld a, 1 ; return true since there was a description
-    ret z
+    jr z, return
     djnz getDesc
     ;push hl
     ;ld hl, -1
     ;ld (hl), 2
     ;pop hl
+
+return:
+    ex de, hl
+    ld (hl), 0
+    ld a, 1
     ret
+

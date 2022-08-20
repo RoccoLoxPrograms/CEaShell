@@ -143,14 +143,14 @@ void ui_DescriptionWrap(char *description, uint8_t charPerLine, int x, uint8_t y
         int8_t cut = util_SpaceSearch(description, charPerLine); // If there is a space it will end the line there
         int8_t descLen = strlen(description);
         strncpy(lineOne, description, cut);
-        if (descLen - cut > charPerLine) {
-            strncpy(lineTwo, description + cut, charPerLine - 2);
+        if (descLen - cut > charPerLine - 1) {
+            strncpy(lineTwo, description + cut, charPerLine - 3);
         } else {
-            strncpy(lineTwo, description + cut, charPerLine);
+            strncpy(lineTwo, description + cut, charPerLine - 1);
         }
         gfx_PrintStringXY(lineOne, x, y);
         gfx_PrintStringXY(lineTwo, x, y + 11);
-        if (descLen - cut > charPerLine) {
+        if (descLen - cut > charPerLine - 1) {
             gfx_PrintString("...");
         }
     } else {
@@ -198,7 +198,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     fileName[0] -= 64 * hidden;
                     if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE) {
                         if (getDescASM(fileName, fileType, shellFileType, description)) {
-                            ui_DescriptionWrap(description, 23, 82, 205);
+                            ui_DescriptionWrap(description, 24, 82, 205);
                         }
                     }
                     free (description);

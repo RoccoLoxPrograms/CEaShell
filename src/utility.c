@@ -10,7 +10,7 @@ uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
             return k + 1;
         }
     }
-    return charPerLine;
+    return charPerLine - 2;
 }
 
 void util_Exit(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
