@@ -49,7 +49,9 @@ isAsm:
     ld a, $c3
     cp a, (hl)
     ld a, 0
+    pop de
     ret nz
+    push de
     ld de, 4
     add hl, de
 

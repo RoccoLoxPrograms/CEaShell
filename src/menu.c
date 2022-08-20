@@ -166,7 +166,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
     gfx_FillRectangle_NoClip(63, 156, 193, 9);
     gfx_FillRectangle_NoClip(63, 182, 194, 11);
     if (cursorY == 156) {
-        gfx_SetColor(colors[1]);
+        gfx_SetColor(colors[2]);
         gfx_FillRectangle_NoClip(cursorX, cursorY, 9, 9);
         gfx_SetColor(colors[0]);
         gfx_SetPixel(cursorX, cursorY);
@@ -174,7 +174,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         gfx_SetPixel(cursorX + 8, cursorY + 8);
         gfx_SetPixel(cursorX + 8, cursorY);
     } else {
-        shapes_RoundRectangleFill(colors[1], 3, 62, 11, cursorX, cursorY);
+        shapes_RoundRectangleFill(colors[2], 3, 62, 11, cursorX, cursorY);
     }
     ui_CheckBox(colors[1], gfx_GetPixel(64, 157), isArchived, 64, 157);
     gfx_PrintStringXY("Archived", 74, 157);

@@ -29,7 +29,7 @@ void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, cha
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
     }
-    if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {   // No basic icons for now
+    if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
         gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4); // Round the corners of the icon to match with the file icons
         shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);

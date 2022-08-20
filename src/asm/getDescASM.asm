@@ -50,7 +50,9 @@ isAsm:
     ld a, $c3
     cp a, (hl)
     ld a, 0
+    pop de
     ret nz
+    push de
     ld de, 4
     add hl, de
 
@@ -71,6 +73,9 @@ noIcon:
 
 description:
     ld b, 52 ; max number of bytes to copy
+    xor a, a
+    cp a, (hl)
+    ret z
 
 getDesc:
     ldi ; copy description byte to char *
@@ -79,10 +84,6 @@ getDesc:
     cp a, (hl)
     jr z, return
     djnz getDesc
-    ;push hl
-    ;ld hl, -1
-    ;ld (hl), 2
-    ;pop hl
 
 return:
     ex de, hl
