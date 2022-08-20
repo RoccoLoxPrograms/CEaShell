@@ -196,10 +196,15 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                 if (fileSelected == filesSearched) {    // Draws the name of the selected program
                     char *description = malloc(52);
                     fileName[0] -= 64 * hidden;
-                    if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE) {
-                        if (getDescASM(fileName, fileType, shellFileType, description)) {
-                            ui_DescriptionWrap(description, 24, 82, 205);
-                        }
+                    if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE && getDescASM(fileName, fileType, shellFileType, description)) {
+                        ui_DescriptionWrap(description, 24, 82, 205);
+                    } else {
+                        unsigned int ramFree = os_MemChk(NULL) + os_AsmPrgmSize;
+                        os_ArcChk();
+                        gfx_PrintStringXY("RAM Free: ", 82, 205);
+                        gfx_PrintUInt(ramFree, 6);
+                        gfx_PrintStringXY("ROM Free: ", 82, 216);
+                        gfx_PrintInt(os_TempFreeArc, 7);
                     }
                     free (description);
                     gfx_SetTextScale(2, 2);
