@@ -9,10 +9,6 @@ include 'include/ti84pceg.inc'
 EOF := ti.appData
 
 _getDescBASIC:
-    push hl
-    ld hl, -1
-    ld (hl), 2
-    pop hl
     push ix
     ld ix, 0
     add ix, sp
@@ -126,7 +122,7 @@ _checkEOF: ; bc = current address being read; destroys hl and a
 
 _getEOF: ; args: hl = size of var; de = start of variable; preserves both registers
     push hl
-    inc hl
+    dec hl
     add hl, de
     ld (EOF), hl
     pop hl
