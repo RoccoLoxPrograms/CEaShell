@@ -16,6 +16,8 @@ void lockPrgm(char *, uint8_t); // Toggles a program's protected status
 
 bool getDescASM(char *, uint8_t, uint8_t, char *);  // Gets description from C, ICE, or ASM program
 
+bool getDescBASIC(char *, uint8_t, char *);
+
 bool getIconASM(char *, uint8_t, uint8_t, gfx_sprite_t *);  // Gets an icon from a C, ICE, or ASM program and returns false if it does not have one
 
 #ifdef __cplusplus

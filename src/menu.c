@@ -135,18 +135,17 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         gfx_SetColor(colors[1]);
         gfx_FillCircle_NoClip(205, 102, 11);
         ui_DrawFile(false, false, false, colors, fileName, fileType, osFileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
-        if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE) {
-            char *description = malloc(52);
-            fileName[0] -= 64 * isHidden;
-            if (getDescASM(fileName, osFileType, fileType, description)) {
-                ui_DescriptionWrap(description, 27, 61, 121);
-                free (description);
-            } else {
-                gfx_PrintStringXY("No description.", 61, 126);
-            }
+        char *description = malloc(52);
+        fileName[0] -= 64 * isHidden;
+        if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE && getDescASM(fileName, osFileType, fileType, description)) {
+            ui_DescriptionWrap(description, 27, 61, 121);
+        } else if (fileType == BASIC_TYPE && getDescBASIC(fileName, osFileType, description)) {
+            ui_DescriptionWrap(description, 27, 61, 121);
         } else {
             gfx_PrintStringXY("No description.", 61, 126);
         }
+        fileName[0] += 64 * isHidden;
+        free (description);
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
         uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;

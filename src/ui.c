@@ -65,7 +65,7 @@ void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, cha
         }
     }
 
-    if (hidden) {   // Hidden effect (NEEDS OPTIMIZATION)
+    if (hidden) {   // Hidden effect
         shapes_DrawTransparentRect(tileSprite, x, y);
     }
     free(tileSprite);
@@ -198,6 +198,8 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     fileName[0] -= 64 * hidden;
                     if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE && getDescASM(fileName, fileType, shellFileType, description)) {
                         ui_DescriptionWrap(description, 24, 82, 205);
+                    } else if (shellFileType == BASIC_TYPE && getDescBASIC(fileName, fileType, description)) {
+                        ui_DescriptionWrap(description, 24, 82, 205);
                     } else {
                         unsigned int ramFree = os_MemChk(NULL) + os_AsmPrgmSize;
                         os_ArcChk();
@@ -207,6 +209,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                         gfx_PrintInt(os_TempFreeArc, 7);
                     }
                     free (description);
+                    fileName[0] += 64 * hidden;
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
                     uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
