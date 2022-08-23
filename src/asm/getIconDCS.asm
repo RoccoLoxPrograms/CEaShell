@@ -50,24 +50,27 @@ inRam:
     pop de
     ret nz
     inc hl
-    ld a, $44
+    ld a, $2a ; check for Cesium format (quotation mark token)
+    cp a, (hl)
+    jp z, _cesiumIcon
+    ld a, $44 ; D
     cp a, (hl)
     ld a, 0
     ret nz
     inc hl
-    ld a, $43
+    ld a, $43 ; C
     cp a, (hl)
     ld a, 0
     ret nz
     inc hl
-    ld a, $53
+    ld a, $53 ; S
     ld a, 0
     ret nz
     inc hl
     push de
 
     ; program has DCS Icon
-    ld a, $36 ; check for DCS6 icon
+    ld a, $36 ; check for DCS6 icon (6 token)
     cp a, (hl)
     jp z, _mono16x16
 
@@ -109,8 +112,6 @@ getDCSType:
     pop af
     cp a, 16
     jr z, _mono8x8
-    ld de, 256
-    or a, a
     pop hl
 
 _color:
@@ -135,7 +136,7 @@ _color:
     inc hl
     inc de
     djnz .loop
-    jq return
+    jp return
 
 _mono8x8:
     pop hl ; brings us back to the beginning of the program sprite data
@@ -236,6 +237,37 @@ _mono16x16:
     call _storeMono16x16
     inc hl
     djnz .loop
+
+    jq return
+
+_cesiumIcon:
+    inc hl
+    ld a, $3f ; check for newline
+    cp a, (hl)
+    jr z, .getIcon
+    push hl
+    pop bc
+    call _checkEOF ; check for end of file
+    ld a, 0
+    ret z
+    push bc
+    pop hl
+    jr _cesiumIcon
+
+.getIcon:
+    inc hl
+    ld a, $3e ; check for second colon
+    cp a, (hl)
+    ld a, 0
+    ret nz
+    inc hl
+    ld a, $2a ; check for quotation
+    cp a, (hl)
+    ld a, 0
+    ret nz
+    inc hl
+    push de
+    jp _color
 
 return:
     ld a, 1
