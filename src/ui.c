@@ -17,7 +17,7 @@ void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {   // T
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {  // Draws a file, with the icon if it exists
+void ui_DrawFile(bool selected, bool drawName, bool drawHidden, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {  // Draws a file, with the icon if it exists
     bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
     gfx_sprite_t *icon = gfx_MallocSprite(16, 16);  // Malloc the sprite ahead of time
     gfx_sprite_t *tileSprite = gfx_MallocSprite(16, 16);
@@ -35,7 +35,13 @@ void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, cha
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
         shapes_DrawRoundCorners(corner1, 64, 64, x, y);
         free (corner1);
-    } else {
+    } else if (fileType == BASIC_TYPE && getIconDCS(fileName, osFileType, icon)) { // Possible optimizations with this bit and the above if statement?
+        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
+        shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
+        gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
+        shapes_DrawRoundCorners(corner1, 64, 64, x, y);
+        free (corner1);
+    }else {
         shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);  // If there isn't an icon we'll draw our own default file icon
         gfx_SetColor(255 * colorAlt);
         gfx_FillRectangle(x + 19, y + 14, 29, 39);
@@ -65,7 +71,7 @@ void ui_DrawFile(bool selected, bool drawName, bool hidden, uint8_t *colors, cha
         }
     }
 
-    if (hidden) {   // Hidden effect
+    if (drawHidden && hidden) {   // Hidden effect
         shapes_DrawTransparentRect(tileSprite, x, y);
     }
     free(tileSprite);
@@ -186,7 +192,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                 shellFileType = getPrgmType(fileName, fileType);
                 hidden = (fileName[0] < 65);
                 fileName[0] += 64 * hidden;
-                ui_DrawFile((fileSelected == filesSearched), true, hidden, colors, fileName, shellFileType, fileType, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, shellFileType, fileType, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -219,7 +225,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             filesSearched++;
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
-                ui_DrawFile((fileSelected == filesSearched), true, hidden, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {

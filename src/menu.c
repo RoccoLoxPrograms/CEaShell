@@ -134,7 +134,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         gfx_FillRectangle_NoClip(194, 103, 11, 11);
         gfx_SetColor(colors[1]);
         gfx_FillCircle_NoClip(205, 102, 11);
-        ui_DrawFile(false, false, false, colors, fileName, fileType, osFileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
+        ui_DrawFile(false, false, false, isHidden, colors, fileName, fileType, osFileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
         char *description = malloc(52);
         fileName[0] -= 64 * isHidden;
         if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE && getDescASM(fileName, osFileType, fileType, description)) {
