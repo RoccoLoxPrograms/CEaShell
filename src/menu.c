@@ -144,7 +144,9 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         } else {
             gfx_PrintStringXY("No description.", 61, 126);
         }
-        fileName[0] += 64 * isHidden;
+        if (osFileType != OS_TYPE_APPVAR) {
+            fileName[0] += 64 * isHidden;
+        }
         free (description);
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
@@ -290,9 +292,9 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
                 if (cursorY == 156) {
                     if (cursorX == 63) {
                         isArchived = !isArchived;
-                    } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE)) {
+                    } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE) && !appvars) {
                         isLocked = !isLocked;
-                    } else if (cursorX == 202) {
+                    } else if (cursorX == 202 && !appvars) {
                         isHidden = !isHidden;
                     }
                 } else {

@@ -210,10 +210,10 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
         if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
             continue;
         }
+        hidden = (fileName[0] < 65);
         if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileStartLoc <= filesSearched) {
                 shellFileType = getPrgmType(fileName, fileType);
-                hidden = (fileName[0] < 65);
                 fileName[0] += 64 * hidden;
                 ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, shellFileType, fileType, x, y);
                 if (y == 30) {
@@ -243,7 +243,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             filesSearched++;
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
-                ui_DrawFile((fileSelected == filesSearched), true, true, false, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
