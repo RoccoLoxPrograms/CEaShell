@@ -29,7 +29,12 @@ void ui_DrawFile(bool selected, bool drawName, bool drawHidden, bool hidden, uin
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
     }
-    if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
+    if (fileType == DIR_TYPE) {
+        shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
+        gfx_SetColor(255 * colorAlt);
+        gfx_FillRectangle_NoClip(28, 52, 36, 23);
+        shapes_Folder(255 * !colorAlt, colors[2], x + 11, y + 16);
+    } else if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
         gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4); // Round the corners of the icon to match with the file icons
         shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
@@ -41,7 +46,7 @@ void ui_DrawFile(bool selected, bool drawName, bool drawHidden, bool hidden, uin
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
         shapes_DrawRoundCorners(corner1, 64, 64, x, y);
         free (corner1);
-    }else {
+    } else {
         shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);  // If there isn't an icon we'll draw our own default file icon
         gfx_SetColor(255 * colorAlt);
         gfx_FillRectangle(x + 19, y + 14, 29, 39);
@@ -183,6 +188,24 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
     bool hidden;
     char *fileName;
     void *vatPtr = NULL;
+    if (fileStartLoc == 0) {
+        if (appvars) {
+            fileName = "Programs";
+        } else {
+            fileName = "Appvars";
+        }
+        ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, fileName, DIR_TYPE, 0, 14, 30);
+        y = 116;
+        if (fileSelected == filesSearched) {
+            gfx_PrintStringXY(fileName, 82, 210);
+            gfx_PrintString(" folder");
+            gfx_SetTextScale(2, 2);
+            gfx_SetColor(colors[1]);
+            uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
+            gfx_PrintStringXY(fileName, textX, 8);
+        }
+    }
+    filesSearched++;    // We have "Checked" for the folder
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
             continue;
@@ -207,12 +230,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                     } else if (shellFileType == BASIC_TYPE && getDescBASIC(fileName, fileType, description)) {
                         ui_DescriptionWrap(description, 24, 82, 205);
                     } else {
-                        unsigned int ramFree = os_MemChk(NULL) + os_AsmPrgmSize;
-                        os_ArcChk();
-                        gfx_PrintStringXY("RAM Free: ", 82, 205);
-                        gfx_PrintUInt(ramFree, 6);
-                        gfx_PrintStringXY("ROM Free: ", 82, 216);
-                        gfx_PrintInt(os_TempFreeArc, 7);
+                        util_PrintFreeRamRom();
                     }
                     free (description);
                     fileName[0] += 64 * hidden;
@@ -225,7 +243,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
             filesSearched++;
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
-                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, true, false, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -234,6 +252,7 @@ void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, u
                 }
             }
             if (fileSelected == filesSearched) {
+                util_PrintFreeRamRom();
                 gfx_SetTextScale(2, 2);
                 gfx_SetColor(colors[1]);
                 uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;

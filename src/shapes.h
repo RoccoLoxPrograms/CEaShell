@@ -22,6 +22,8 @@ void shapes_DrawRoundCorners(gfx_sprite_t *, uint8_t, uint8_t, int, uint8_t);
 
 void shapes_FileIcon(uint8_t, uint8_t, int, uint8_t);
 
+void shapes_Folder(uint8_t, uint8_t, int, uint8_t);
+
 #ifdef __cplusplus
 }
 #endif

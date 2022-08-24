@@ -32,8 +32,8 @@ void util_FilesInit(uint8_t *fileNumbers) {
     char *fileName;
     void *vatPtr = NULL;
     sortVAT();
-    NOPROGS = 0;
-    NOAPPVARS = 0;
+    NOPROGS = 1;    // Accounts for folder
+    NOAPPVARS = 1;
 
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName == '#') {
@@ -92,4 +92,13 @@ char *util_FileTypeToString(uint8_t fileType, bool abbreviated) {
     }
 
     return fileTypeString;
+}
+
+void util_PrintFreeRamRom(void) {
+    unsigned int ramFree = os_MemChk(NULL) + os_AsmPrgmSize;
+    os_ArcChk();
+    gfx_PrintStringXY("RAM Free: ", 82, 205);
+    gfx_PrintUInt(ramFree, 6);
+    gfx_PrintStringXY("ROM Free: ", 82, 216);
+    gfx_PrintInt(os_TempFreeArc, 7);
 }

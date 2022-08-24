@@ -68,3 +68,18 @@ void shapes_FileIcon(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
     gfx_SetPixel(x, y + 41);
     gfx_SetPixel(x + 31, y + 41);
 }
+
+void shapes_Folder(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
+    gfx_SetColor(color);
+    for (int i = 0; i < 3; i++) {
+        gfx_Rectangle_NoClip(x + i, y + i + 3, 42 - 2 * i, 29 - 2 * i);
+    }
+    gfx_FillRectangle_NoClip(x, y, 16, 3);
+    gfx_SetPixel(x + 16, y + 2);
+    gfx_SetColor(bgColor);
+    gfx_SetPixel(x, y);
+    gfx_SetPixel(x, y + 31);
+    gfx_SetPixel(x + 41, y + 3);
+    gfx_SetPixel(x + 41, y + 31);
+    gfx_SetPixel(x + 15, y);
+}

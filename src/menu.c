@@ -46,7 +46,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour) {
+void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour, bool appvars) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
     gfx_BlitBuffer();
@@ -115,7 +115,7 @@ void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_
                 colors[2] = defaultThemes[color + 2];
             }
             gfx_FillScreen(colors[0]);
-            ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, false);
+            ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, appvars);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
             ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");    // Might as well also update the battery
             gfx_BlitBuffer();
@@ -297,13 +297,14 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
                     }
                 } else {
                     if (cursorX == 63) {
+                        ti_Close(slot);
                         ti_DeleteVar(fileName, osFileType);
-                        if (fileSelected >= NOPROGS - 1) {
+                        if (fileSelected >= fileNumbers[appvars] - 1) {
                             fileSelected--;
                         }
                         gfx_SetColor(colors[0]);
                         gfx_FillRectangle_NoClip(12, 28, 296, 164);
-                        ui_DrawAllFiles(colors, fileSelected, NOPROGS - 1, fileStartLoc, appvars);
+                        ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars] - 1, fileStartLoc, appvars);
                         gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                         infoOps[0] = true;
                         return;
@@ -342,7 +343,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fil
     }
     if (initialValue[2] != isHidden) {
         hidePrgm(fileName, osFileType);
-        ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+        ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
         gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
         if (isHidden) {
             fileName[0] -= 64;

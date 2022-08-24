@@ -19,6 +19,7 @@ int main(void) {
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
+    bool appvars = false;   // Whether the appvars are being displayed
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
@@ -64,7 +65,7 @@ int main(void) {
     gfx_FillScreen(colors[0]);
     ui_StatusBar(colors[1], is24Hour, batteryStatus, "");  // Displays bar with battery and clock
     ui_BottomBar(colors[1]);
-    ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
+    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
     gfx_BlitBuffer();
 
     while(!kb_IsDown(kb_KeyClear)) {    // Key detection loop
@@ -73,14 +74,14 @@ int main(void) {
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if ((kb_Data[7] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) { // File selecting (Probably very badly optimized)
-            if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < NOPROGS) {
-                if (fileSelected + 2 < NOPROGS) {
+        if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) { // File selecting (Probably very badly optimized)
+            if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[appvars]) {
+                if (fileSelected + 2 < fileNumbers[appvars]) {
                     fileSelected += 2;
                 } else {
                     fileSelected += 1;
                 }
-                if (fileSelected - fileStartLoc > 7 && fileStartLoc + 1 < (NOPROGS + NOPROGS % 2) - 7) {
+                if (fileSelected - fileStartLoc > 7 && fileStartLoc + 1 < (fileNumbers[appvars] + fileNumbers[appvars] % 2) - 7) {
                     fileStartLoc += 2;
                 }
                 redraw = 1;
@@ -96,7 +97,7 @@ int main(void) {
                 redraw = 1;
             }
             if (kb_IsDown(kb_KeyDown)) {
-                if (fileSelected + 1 != NOPROGS) {
+                if (fileSelected + 1 != fileNumbers[appvars]) {
                     fileSelected += !(fileSelected % 2);
                 } else if (fileSelected) {
                     fileSelected -= !(fileSelected % 2) && (fileSelected - 1 >= 0);
@@ -115,9 +116,9 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Looks(colors, fileSelected, NOPROGS, fileStartLoc, is24Hour); // This function will store changed colors into the colors array
+                menu_Looks(colors, fileSelected, fileNumbers[appvars], fileStartLoc, is24Hour, appvars); // This function will store changed colors into the colors array
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
                 ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize");
                 if (transitionSpeed) {
@@ -135,7 +136,7 @@ int main(void) {
                 redraw = 2;
                 gfx_BlitBuffer();
             }
-            if (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) {   // Info menu
+            if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected != 0) {   // Info menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
@@ -144,20 +145,23 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Info(colors, infoOps, fileSelected, fileStartLoc, fileNumbers, false); // This will store some file changes to the infoOps (Info Operations) array
+                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars); // This will store some file changes to the infoOps (Info Operations) array
                 if (infoOps[0]) {   // Takes care of deletions
-                    NOPROGS--;
-                    if (fileSelected >= NOPROGS) {
-                        fileSelected--;
+                    fileNumbers[appvars]--;
+                    fileSelected--;
+                    if (fileSelected + 1 >= fileNumbers[appvars] && fileStartLoc) {
+                        if (fileStartLoc + 7 > fileNumbers[appvars]) {
+                            fileStartLoc -= 2;
+                        }
                     }
-                    redraw = 2; // We need to do a full redraw later since more stuff has changed
                     infoOps[0] = false;
-                } else {
-                    redraw = 1;
+                    while (kb_AnyKey());
                 }
+                redraw = 1;
+
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
-                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
                 ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
                 if (infoOps[1]) {
@@ -189,7 +193,7 @@ int main(void) {
                 }
                 menu_Settings(colors[1]);   // Nothing here yet
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
                 ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings");
                 if (transitionSpeed) {
@@ -206,6 +210,13 @@ int main(void) {
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
+            }
+            if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+                if (fileSelected == 0) {
+                    appvars = !appvars;
+                    redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
+                }
+                // Program running stuff later
             }
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && (kb_Data[7] || kb_Data[1])) {
@@ -228,7 +239,7 @@ int main(void) {
             }
             ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
             ui_BottomBar(colors[1]);
-            ui_DrawAllFiles(colors, fileSelected, NOPROGS, fileStartLoc, false);
+            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
             redraw = false;
         } else {
             gfx_SetColor(colors[1]);

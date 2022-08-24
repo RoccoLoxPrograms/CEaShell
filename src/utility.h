@@ -28,6 +28,8 @@ void util_FilesInit(uint8_t *);
 
 char *util_FileTypeToString(uint8_t, bool);
 
+void util_PrintFreeRamRom(void);
+
 #ifdef __cplusplus
 }
 #endif
