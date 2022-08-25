@@ -46,7 +46,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool is24Hour, bool appvars) {
+void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsigned int fileStartLoc, bool is24Hour, bool appvars) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
     gfx_BlitBuffer();
@@ -188,7 +188,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
     gfx_PrintStringXY("Edit", 213, 184);
 }
 
-void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, uint8_t fileStartLoc, uint8_t *fileNumbers, bool appvars) {
+void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned int fileStartLoc, uint8_t *fileNumbers, bool appvars) {
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     uint8_t filesSearched = 0;
     char *fileName;

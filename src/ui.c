@@ -178,7 +178,7 @@ void ui_BottomBar(uint8_t color) {
     ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
 }
 
-void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, uint8_t fileStartLoc, bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsigned int fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
     uint8_t filesSearched = 0;

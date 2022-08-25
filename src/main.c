@@ -1,3 +1,4 @@
+#include "main.h"
 #include "ui.h"
 #include "shapes.h"
 #include "menu.h"
@@ -16,6 +17,11 @@ gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make
 gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
+    shellMain(0, 0);
+    return 0;
+}
+
+int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
@@ -41,8 +47,6 @@ int main(void) {
 
     uint8_t fileNumbers[2] = {0, 0};
     util_FilesInit(fileNumbers); // Get number of programs and appvars
-    uint8_t fileStartLoc = 0;
-    uint8_t fileSelected = 0;    // Which of the slots the cursor is selecting
 
     bool infoOps[2] = {false, false}; // This will keep track of whether a program has been deleted or hidden
 
@@ -86,13 +90,13 @@ int main(void) {
                 }
                 redraw = 1;
             } else if (kb_IsDown(kb_KeyLeft) && fileSelected != 0) {
-                if (fileSelected - 2 >= 0) {
-                    fileSelected -= 2;
-                } else {
-                    fileSelected -= 1;
-                }
-                if (fileSelected - fileStartLoc < 0 && fileStartLoc) {
+                if (fileSelected - fileStartLoc < 2 && fileStartLoc) {
                     fileStartLoc -= 2;
+                }
+                if (fileSelected != 1) {
+                    fileSelected -= 2;
+                } else if (fileSelected == 1) {
+                    fileSelected -= 1;
                 }
                 redraw = 1;
             }
@@ -133,6 +137,7 @@ int main(void) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
+                util_WritePrefs(colors, transitionSpeed, is24Hour);   // Stores our data to the appvar before exiting
                 redraw = 2;
                 gfx_BlitBuffer();
             }
@@ -215,8 +220,9 @@ int main(void) {
                 if (fileSelected == 0) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
+                } else {
+                    util_RunPrgm(fileSelected, fileStartLoc);
                 }
-                // Program running stuff later
             }
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && (kb_Data[7] || kb_Data[1])) {
@@ -250,6 +256,5 @@ int main(void) {
     }
 
     gfx_End();
-    util_Exit(colors, transitionSpeed, is24Hour);   // Stores our data to the appvar before exiting
     return 0;
 }

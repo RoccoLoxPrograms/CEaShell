@@ -34,7 +34,7 @@ void ui_DescriptionWrap(char *, uint8_t, int, uint8_t);
 
 void ui_BottomBar(uint8_t);
 
-void ui_DrawAllFiles(uint8_t *, uint8_t, uint8_t, uint8_t, bool);
+void ui_DrawAllFiles(uint8_t *, uint8_t, uint8_t, unsigned int, bool);
 
 #ifdef __cplusplus
 }

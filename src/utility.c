@@ -1,4 +1,5 @@
 #include "utility.h"
+#include "main.h"
 #include "asm/sortVat.h"
 
 #include <graphx.h>
@@ -13,7 +14,7 @@ uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_Exit(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
+void util_WritePrefs(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
     uint8_t ceaShell[6];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
@@ -101,4 +102,28 @@ void util_PrintFreeRamRom(void) {
     gfx_PrintUInt(ramFree, 6);
     gfx_PrintStringXY("ROM Free: ", 82, 216);
     gfx_PrintInt(os_TempFreeArc, 7);
+}
+
+void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc) {
+    gfx_End();
+    uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
+    uint8_t filesSearched = 0;
+    char *fileName;
+    void *vatPtr = NULL;
+    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
+        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
+            if (fileSelected - 1 == filesSearched) {
+                break;
+            }
+            filesSearched++;
+        }
+    }
+    unsigned int returnInfo[] = {fileSelected, fileStartLoc};
+    os_RunPrgm(fileName, (void *)returnInfo, 6, util_EndPrgm);
+}
+
+int util_EndPrgm(void *data, int retVal) {
+    (void)(retVal); // Ignore this for now
+    shellMain(*(unsigned int*)&data[0], *(unsigned int *)&data[3]);    // Typecasting brings us home to the shell (data[3] is the 3rd byte of data, since it's a void *)
+    return 0;
 }

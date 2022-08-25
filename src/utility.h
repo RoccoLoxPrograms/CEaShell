@@ -22,13 +22,17 @@ extern "C" {
 
 uint8_t util_SpaceSearch(char *, uint8_t);
 
-void util_Exit(uint8_t *, uint8_t, bool);
+void util_WritePrefs(uint8_t *, uint8_t, bool);
 
 void util_FilesInit(uint8_t *);
 
 char *util_FileTypeToString(uint8_t, bool);
 
 void util_PrintFreeRamRom(void);
+
+void util_RunPrgm(unsigned int, unsigned int);
+
+int util_EndPrgm(void *data, int retVal);
 
 #ifdef __cplusplus
 }
