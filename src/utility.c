@@ -3,6 +3,7 @@
 #include "asm/sortVat.h"
 
 #include <graphx.h>
+#include <keypadc.h>
 #include <fileioc.h>
 
 uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
@@ -26,6 +27,7 @@ void util_WritePrefs(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
     uint8_t slot = ti_Open("CEaShell", "w+");
     ti_Write(&ceaShell, 6, 1, slot);
     ti_SetArchiveStatus(true, slot);
+    ti_Close(slot);
 }
 
 void util_FilesInit(uint8_t *fileNumbers) {
@@ -124,6 +126,7 @@ void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc) {
 
 int util_EndPrgm(void *data, int retVal) {
     (void)(retVal); // Ignore this for now
+    while(kb_AnyKey());
     shellMain(*(unsigned int*)&data[0], *(unsigned int *)&data[3]);    // Typecasting brings us home to the shell (data[3] is the 3rd byte of data, since it's a void *)
     return 0;
 }
