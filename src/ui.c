@@ -16,7 +16,7 @@
 void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {   // Takes care of drawing the sprite in white or black, depending on the theme
     bool colorAlt = !(color > 131 && color % 8 > 3);
     const gfx_sprite_t *uiIcons[22] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorAlpha, cursorNumber, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorAlphaAlt, cursorNumberAlt};
-    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 10], x, y);
+    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 11], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 

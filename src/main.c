@@ -137,7 +137,11 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
-                util_WritePrefs(colors, transitionSpeed, is24Hour);   // Stores our data to the appvar before exiting
+                if (kb_IsDown(kb_KeyClear)) {
+                    continue;
+                } else {    // We write the preferences before exiting, so this is fine
+                    util_WritePrefs(colors, transitionSpeed, is24Hour);   // Stores our data to the appvar before exiting
+                }
                 redraw = 2;
                 gfx_BlitBuffer();
             }
@@ -255,6 +259,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
         gfx_BlitBuffer();
     }
 
+    util_WritePrefs(colors, transitionSpeed, is24Hour);
     gfx_End();
     return 0;
 }
