@@ -124,7 +124,7 @@ void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsign
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
 }
 
-static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, uint8_t osFileType) {
+static void menu_InfoRedraw(bool fullRedraw, bool drawCursor, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, uint8_t osFileType) {
     if (fullRedraw) {   // Redraws most of the file information. (Comment is here since the line above is already quite long)
         shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
         shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
@@ -134,7 +134,11 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
         gfx_FillRectangle_NoClip(194, 103, 11, 11);
         gfx_SetColor(colors[1]);
         gfx_FillCircle_NoClip(205, 102, 11);
+        gfx_sprite_t *corner1 = gfx_MallocSprite(8, 8);
+        shapes_GetRoundCorners(corner1, colors[1], 8, 200, 44);
         ui_DrawFile(false, false, false, isHidden, colors, fileName, fileType, osFileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
+        shapes_DrawRoundCorners(corner1, 64, 64, 200, 44);  // We have to round the corners of the program icon a little more in this menu
+
         char *description = malloc(52);
         fileName[0] -= 64 * isHidden;
         if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE && getDescASM(fileName, osFileType, fileType, description)) {
@@ -148,6 +152,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
             fileName[0] += 64 * isHidden;
         }
         free (description);
+        free (corner1);
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
         uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
@@ -166,16 +171,18 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(63, 156, 193, 9);
     gfx_FillRectangle_NoClip(63, 182, 194, 11);
-    if (cursorY == 156) {
-        gfx_SetColor(colors[2]);
-        gfx_FillRectangle_NoClip(cursorX, cursorY, 9, 9);
-        gfx_SetColor(colors[0]);
-        gfx_SetPixel(cursorX, cursorY);
-        gfx_SetPixel(cursorX, cursorY + 8);
-        gfx_SetPixel(cursorX + 8, cursorY + 8);
-        gfx_SetPixel(cursorX + 8, cursorY);
-    } else {
-        shapes_RoundRectangleFill(colors[2], 3, 62, 11, cursorX, cursorY);
+    if (drawCursor) {
+        if (cursorY == 156) {
+            gfx_SetColor(colors[2]);
+            gfx_FillRectangle_NoClip(cursorX, cursorY, 9, 9);
+            gfx_SetColor(colors[0]);
+            gfx_SetPixel(cursorX, cursorY);
+            gfx_SetPixel(cursorX, cursorY + 8);
+            gfx_SetPixel(cursorX + 8, cursorY + 8);
+            gfx_SetPixel(cursorX + 8, cursorY);
+        } else {
+            shapes_RoundRectangleFill(colors[2], 3, 62, 11, cursorX, cursorY);
+        }
     }
     ui_CheckBox(colors[1], gfx_GetPixel(64, 157), isArchived, 64, 157);
     gfx_PrintStringXY("Archived", 74, 157);
@@ -220,10 +227,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
     int cursorX = 63;
     uint8_t cursorY = 156;
 
-    gfx_sprite_t *corner1 = gfx_MallocSprite(8, 8);
-    shapes_GetRoundCorners(corner1, colors[1], 8, 200, 44);
-    menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
-    shapes_DrawRoundCorners(corner1, 64, 64, 200, 44);  // We have to round the corners of the program icon a little more in this menu
+    menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
     gfx_BlitBuffer();
 
     bool keyPressed = false;
@@ -300,10 +304,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
                     }
                 } else {
                     if (((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && cursorX == 63) || kb_IsDown(kb_KeyDel)) {
-                        menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
-                        gfx_SetColor(colors[0]);
-                        gfx_FillRectangle_NoClip(63, 182, 62, 11);
-                        gfx_PrintStringXY("Delete", 71, 184);
+                        menu_InfoRedraw(false, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
                         if (ui_DeleteConf(colors, 56, 206)) {
                             ti_Close(slot);
                             ti_DeleteVar(fileName, osFileType);
@@ -317,20 +318,21 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
                             infoOps[0] = true;
                             return;
                         }
-                        menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                        menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
                         gfx_BlitBuffer();
                     } else if (cursorX == 129) {
                         memcpy(newName, fileName, strlen(fileName) + 1);   // Copy name into string to modify
                         newName[0] += 64 * (newName[0] < 65);
+                        menu_InfoRedraw(true, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, newName, fileSize, fileType, osFileType);
                         if (ui_RenameBox(colors, newName)) {
                             ti_Close(slot);
                             ti_RenameVar(fileName, newName, osFileType);
                             sortVAT();
                             memcpy(fileName, newName, strlen(newName) + 1);
                             ti_OpenVar(fileName, "r", osFileType);
-                            menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
-                            gfx_BlitBuffer();
                         }
+                        menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                        gfx_BlitBuffer();
                         kb_Scan();
                         if (kb_IsDown(kb_KeyClear)) {
                             continue;
@@ -350,7 +352,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
             timer_Set(1,0);
         }
         if (redraw) {
-            menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+            menu_InfoRedraw(false, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
             gfx_SwapDraw();
             redraw = false;
         }
@@ -378,7 +380,6 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
     if (initialValue[1] != isLocked) {
         lockPrgm(fileName, osFileType);
     }
-    free (corner1);
     ti_Close(slot);
 }
 
