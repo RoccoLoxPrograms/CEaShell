@@ -111,6 +111,43 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 fileSelected -= fileSelected % 2;
                 redraw = 1;
             }
+            if (kb_IsDown(kb_KeyDel) && fileSelected) {
+                uint8_t filesSearched = 0;
+                uint8_t osFileType;
+                char *delFileName;
+                void *vatPtr = NULL;
+                while ((delFileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
+                    if (appvars && osFileType == OS_TYPE_APPVAR) {
+                        if (fileSelected - 1 == filesSearched) {
+                            break;
+                        }
+                        filesSearched++;
+                    } else if (!appvars && (osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM)) {
+                        if (fileSelected - 1 == filesSearched) {
+                            break;
+                        }
+                        filesSearched++;
+                    }
+                }
+                if (ui_DeleteConf(colors, 56, 204)) {
+                    ti_DeleteVar(delFileName, osFileType);
+                    gfx_SetColor(colors[0]);
+                    gfx_FillRectangle_NoClip(12, 28, 296, 164);
+                    if (fileSelected >= fileNumbers[appvars] - 1) {
+                        fileSelected--;
+                    }
+                    fileNumbers[appvars]--;
+                    if (fileSelected + 1 >= fileNumbers[appvars] && fileStartLoc) {
+                        if (fileStartLoc + 7 > fileNumbers[appvars]) {
+                            fileStartLoc -= 2;
+                        }
+                    }
+                    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+                    gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
+                }
+                while (kb_AnyKey());
+                redraw = 1;
+            }
             if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize");
                 gfx_BlitBuffer();
