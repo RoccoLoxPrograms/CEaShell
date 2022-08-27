@@ -18,6 +18,8 @@ converts:
       - rArrow.png
       - dArrow.png
       - check.png
+      - cursorAlpha.png
+      - cursorNumber.png
       - batteryAlt.png
       - chargingAlt.png
       - paintAlt.png
@@ -27,6 +29,8 @@ converts:
       - rArrowAlt.png
       - dArrowAlt.png
       - checkAlt.png
+      - cursorAlphaAlt.png
+      - cursorNumberAlt.png
 
 outputs:
   - type: c

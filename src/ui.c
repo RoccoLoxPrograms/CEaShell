@@ -7,13 +7,16 @@
 #include <graphx.h>
 #include <string.h>
 #include <fileioc.h>
+#include <keypadc.h>
 #include <sys/rtc.h>
+#include <sys/timers.h>
 #include <sys/power.h>
+#include <ti/getcsc.h>
 
 void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {   // Takes care of drawing the sprite in white or black, depending on the theme
     bool colorAlt = !(color > 131 && color % 8 > 3);
-    const gfx_sprite_t *uiIcons[18] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt};
-    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 9], x, y);
+    const gfx_sprite_t *uiIcons[22] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorAlpha, cursorNumber, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorAlphaAlt, cursorNumberAlt};
+    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 10], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
@@ -176,6 +179,116 @@ void ui_BottomBar(uint8_t color) {
     ui_DrawUISprite(color, UI_PAINT, 14, 203);
     ui_DrawUISprite(color, UI_INFO, 56, 204);
     ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
+}
+
+bool ui_DeleteConf(uint8_t *colors, int x, uint8_t y) {
+    bool retVal = true;
+    while (kb_AnyKey());
+    shapes_RoundRectangleFill(colors[0], 8, 208, 20, x, y);
+    gfx_PrintStringXY("Are you sure?", x + 28, y + 6);
+    gfx_BlitBuffer();
+    gfx_SetColor(colors[2]);
+    gfx_FillRectangle_NoClip(x + 160, y + 5, 27, 9);
+    gfx_PrintStringXY("Yes    No", x + 130, y + 6);
+    gfx_SetDrawScreen();
+    gfx_FillRectangle_NoClip(x + 128, y + 5, 27, 9);
+    gfx_PrintStringXY("Yes    No", x + 130, y + 6);
+    gfx_SetColor(colors[0]);
+    gfx_SetPixel(x + 128, y + 5);
+    gfx_SetPixel(x + 128, y + 13);
+    gfx_SetPixel(x + 154, y + 5);
+    gfx_SetPixel(x + 154, y + 13);
+    gfx_SetDrawBuffer();
+    gfx_SetPixel(x + 160, y + 5);
+    gfx_SetPixel(x + 160, y + 13);
+    gfx_SetPixel(x + 186, y + 5);
+    gfx_SetPixel(x + 186, y + 13);
+    while (!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_Key1) && !kb_IsDown(kb_KeyLog) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyGraph)) {
+        kb_Scan();
+        if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
+            gfx_SwapDraw();
+            retVal = !retVal;
+            while (kb_AnyKey());
+        }
+        if (kb_IsDown(kb_Key1) || kb_IsDown(kb_KeyZoom)) {
+            retVal = true;
+        } else if (kb_IsDown(kb_KeyLog) || kb_IsDown(kb_KeyGraph)) {
+            retVal = false;
+        }
+    }
+    if (kb_IsDown(kb_KeyClear)) {
+        return false;
+    }
+    shapes_RoundRectangleFill(colors[1], 8, 208, 20, x, y);
+    return retVal;
+}
+
+bool ui_RenameBox(uint8_t *colors, char *newName) {
+    gfx_BlitScreen();
+    const char *chars = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0\0VQLG\0\0\0ZUPKFC\0\0YTOJEB\0\0XSNIDA\0\0\0\0\0\0\0\0";
+    uint8_t length = strlen(newName);
+    gfx_SetColor(colors[0]);
+    gfx_FillRectangle_NoClip(129, 182, 62, 11);
+    gfx_PrintStringXY("Rename", 136, 184);
+    gfx_SetTextScale(2, 2);
+    uint8_t xOffset = gfx_GetStringWidth(newName) / 2;
+    gfx_SetColor(colors[2]);
+    gfx_FillRectangle_NoClip(60, 52, 129, 14);
+    gfx_PrintStringXY(newName, 121 - xOffset, 52);
+    gfx_BlitBuffer();
+    while (kb_AnyKey());
+    uint8_t key = os_GetCSC();
+    bool redraw;
+    bool alphaPressed;  // Use this for number input later
+    bool cursor = false;
+    timer_Set(1, 0);
+    while (key != sk_Clear && key != sk_Alpha && key != sk_Window && key != sk_Zoom && key != sk_Trace) {
+        key = os_GetCSC();
+        if (key == sk_Clear) {
+            continue;
+        }
+        if (key) {
+            if ((key == sk_Left || key == sk_Del) && length) {
+                length -= 1;
+                newName[length] = '\0';
+                redraw = true;
+            }
+            if (chars[key] && length < 8) {
+                newName[length++] = chars[key];
+                redraw = true;
+            }
+            if (redraw) {
+                redraw = false;
+                shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
+                xOffset = gfx_GetStringWidth(newName) / 2;
+                gfx_PrintStringXY(newName, 121 - xOffset, 52);
+                gfx_BlitBuffer();
+            }
+            if (key == sk_Enter || key == sk_2nd) {
+                if (length) {
+                    break;
+                }
+            }
+        } else {
+            if (cursor) {
+                ui_DrawUISprite(colors[1], UI_CURSOR_A, gfx_GetTextX() + 1, gfx_GetTextY());
+            } else {
+                gfx_SetColor(colors[2]);
+                gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);
+            }
+            gfx_BlitBuffer();
+            while (timer_Get(1) < 5000);
+            timer_Set(1, 0);
+            cursor = !cursor;
+        }
+    }
+    gfx_SetTextScale(1, 1);
+    if (key == sk_Enter || key == sk_2nd) {
+        while (kb_AnyKey());
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsigned int fileStartLoc, bool appvars) {

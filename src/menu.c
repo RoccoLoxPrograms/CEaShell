@@ -5,14 +5,14 @@
 #include "utility.h"
 #include "asm/invert.h"
 #include "asm/fileOps.h"
+#include "asm/sortVat.h"
 
 #include <graphx.h>
 #include <keypadc.h>
 #include <fileioc.h>
 #include <sys/timers.h>
 #include <sys/power.h>
-
-#include <debug.h>
+#include <string.h>
 
 static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {   // Draws the theme preview box. Basically a bunch of rectangles
     if (color == 27) {
@@ -191,6 +191,7 @@ static void menu_InfoRedraw(bool fullRedraw, uint8_t *colors, int cursorX, uint8
 void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned int fileStartLoc, uint8_t *fileNumbers, bool appvars) {
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     uint8_t filesSearched = 0;
+    char newName[9]= "\0";
     char *fileName;
     void *vatPtr = NULL;
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
@@ -236,7 +237,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || timer_Get(1) > 3000)) {
+        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyDel)) && (!keyPressed || timer_Get(1) > 3000)) {
             if (kb_IsDown(kb_KeyRight)) {
                 if (cursorX < 195) {
                     if (cursorY == 182) {
@@ -288,8 +289,8 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
                 }
                 cursorY = 182;
             }
-            if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {
-                if (cursorY == 156) {
+            if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyDel)) {
+                if (cursorY == 156 && !kb_IsDown(kb_KeyDel)) {
                     if (cursorX == 63) {
                         isArchived = !isArchived;
                     } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE) && !appvars) {
@@ -298,25 +299,46 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
                         isHidden = !isHidden;
                     }
                 } else {
-                    if (cursorX == 63) {
-                        ti_Close(slot);
-                        ti_DeleteVar(fileName, osFileType);
-                        if (fileSelected >= fileNumbers[appvars] - 1) {
-                            fileSelected--;
-                        }
+                    if (((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && cursorX == 63) || kb_IsDown(kb_KeyDel)) {
+                        menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
                         gfx_SetColor(colors[0]);
-                        gfx_FillRectangle_NoClip(12, 28, 296, 164);
-                        ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars] - 1, fileStartLoc, appvars);
-                        gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
-                        infoOps[0] = true;
-                        return;
+                        gfx_FillRectangle_NoClip(63, 182, 62, 11);
+                        gfx_PrintStringXY("Delete", 71, 184);
+                        if (ui_DeleteConf(colors, 56, 206)) {
+                            ti_Close(slot);
+                            ti_DeleteVar(fileName, osFileType);
+                            if (fileSelected >= fileNumbers[appvars] - 1) {
+                                fileSelected--;
+                            }
+                            gfx_SetColor(colors[0]);
+                            gfx_FillRectangle_NoClip(12, 28, 296, 164);
+                            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars] - 1, fileStartLoc, appvars);
+                            gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
+                            infoOps[0] = true;
+                            return;
+                        }
+                        menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                        gfx_BlitBuffer();
                     } else if (cursorX == 129) {
-                        // Rename
+                        memcpy(newName, fileName, strlen(fileName) + 1);   // Copy name into string to modify
+                        newName[0] += 64 * (newName[0] < 65);
+                        if (ui_RenameBox(colors, newName)) {
+                            ti_Close(slot);
+                            ti_RenameVar(fileName, newName, osFileType);
+                            sortVAT();
+                            memcpy(fileName, newName, strlen(newName) + 1);
+                            ti_OpenVar(fileName, "r", osFileType);
+                            menu_InfoRedraw(true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                            gfx_BlitBuffer();
+                        }
+                        kb_Scan();
+                        if (kb_IsDown(kb_KeyClear)) {
+                            continue;
+                        }
                     } else {
                         // Edit
                     }
                 }
-                while(kb_AnyKey());
             }
             redraw = true;
             if (!keyPressed) {
@@ -329,7 +351,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
         }
         if (redraw) {
             menu_InfoRedraw(false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
-            gfx_BlitBuffer();
+            gfx_SwapDraw();
             redraw = false;
         }
     }
