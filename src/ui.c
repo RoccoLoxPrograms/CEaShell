@@ -225,7 +225,8 @@ bool ui_DeleteConf(uint8_t *colors, int x, uint8_t y) {
 
 bool ui_RenameBox(uint8_t *colors, char *newName) {
     gfx_BlitScreen();
-    const char *chars = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0\0VQLG\0\0\0ZUPKFC\0\0YTOJEB\0\0XSNIDA\0\0\0\0\0\0\0\0";
+    const char *charAlpha = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
+    const char *charNums = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0""369\0\0\0\0\0""258\0\0\0\0""0147\0\0\0X\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
     uint8_t length = strlen(newName);
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(129, 182, 62, 11);
@@ -239,10 +240,10 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     while (kb_AnyKey());
     uint8_t key = os_GetCSC();
     bool redraw;
-    bool alphaPressed;  // Use this for number input later
+    bool alphaPressed;  // Number mode?
     bool cursor = false;
     timer_Set(1, 0);
-    while (key != sk_Clear && key != sk_Alpha && key != sk_Window && key != sk_Zoom && key != sk_Trace) {
+    while (key != sk_Clear && key != sk_Window && key != sk_Zoom && key != sk_Trace) {
         key = os_GetCSC();
         if (key == sk_Clear) {
             continue;
@@ -253,9 +254,16 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
                 newName[length] = '\0';
                 redraw = true;
             }
-            if (chars[key] && length < 8) {
-                newName[length++] = chars[key];
-                redraw = true;
+            if (!alphaPressed) {
+                if (charAlpha[key] && length < 8) {
+                    newName[length++] = charAlpha[key];
+                    redraw = true;
+                }
+            } else {
+                if (charNums[key] && length < 8 && length) {
+                    newName[length++] = charNums[key];
+                    redraw = true;
+                }
             }
             if (redraw) {
                 redraw = false;
@@ -269,9 +277,12 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
                     break;
                 }
             }
+            if (key == sk_Alpha) {
+                alphaPressed = !alphaPressed;
+            }
         } else {
             if (cursor) {
-                ui_DrawUISprite(colors[1], UI_CURSOR_A, gfx_GetTextX() + 1, gfx_GetTextY());
+                ui_DrawUISprite(colors[1], UI_CURSOR_A + alphaPressed, gfx_GetTextX() + 1, gfx_GetTextY());
             } else {
                 gfx_SetColor(colors[2]);
                 gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);
