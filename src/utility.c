@@ -1,6 +1,8 @@
 #include "utility.h"
 #include "main.h"
 #include "asm/sortVat.h"
+#include "asm/fileOps.h"
+#include "asm/hooks.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -120,12 +122,16 @@ void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc) {
             filesSearched++;
         }
     }
+    if (getPrgmType(fileName, fileType) == BASIC_TYPE) {
+        installStopHook();
+    }
     unsigned int returnInfo[] = {fileSelected, fileStartLoc};
     os_RunPrgm(fileName, (void *)returnInfo, 6, util_EndPrgm);
 }
 
 int util_EndPrgm(void *data, int retVal) {
     (void)(retVal); // Ignore this for now
+    removeStopHook();
     while(kb_AnyKey());
     shellMain(*(unsigned int*)&data[0], *(unsigned int *)&data[3]);    // Typecasting brings us home to the shell (data[3] is the 3rd byte of data, since it's a void *)
     return 0;
