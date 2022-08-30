@@ -305,7 +305,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
 void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsigned int fileStartLoc, bool appvars) {
     int x = 14;
     uint8_t y = 30;
-    uint8_t filesSearched = 0;
+    unsigned int filesSearched = 0;
 
     uint8_t fileType;
     uint8_t shellFileType;

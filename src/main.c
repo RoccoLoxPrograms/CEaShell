@@ -12,6 +12,7 @@
 #include <fileioc.h>
 #include <sys/timers.h>
 #include <sys/power.h>
+#include <ti/getcsc.h>
 
 gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make redrawing faster
 gfx_UninitedSprite(buffer2, 152, 193);
@@ -147,8 +148,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 }
                 while (kb_AnyKey());
                 redraw = 1;
-            }
-            if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
+            } else if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize");
                 gfx_BlitBuffer();
                 if (transitionSpeed) {  // If the user turns transitions off, this won't call at all
@@ -181,8 +181,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
-            }
-            if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected != 0) {   // Info menu
+            } else if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected != 0) {   // Info menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
@@ -227,8 +226,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
                 gfx_BlitBuffer();
-            }
-            if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
+            } else if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings");
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
@@ -256,8 +254,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
-            }
-            if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+            } else if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                 if (fileSelected == 0) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
@@ -272,6 +269,11 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
             }
             keyPressed = true;
             timer_Set(1,0);
+        } else if (kb_AnyKey()) {
+            os_GetCSC();    // Running this twice because interrupts
+            if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars)) {
+                redraw = 1;
+            }
         }
         if (kb_IsDown(kb_KeyClear)) {
             continue;

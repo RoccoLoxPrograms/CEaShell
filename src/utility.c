@@ -7,6 +7,7 @@
 #include <graphx.h>
 #include <keypadc.h>
 #include <fileioc.h>
+#include <debug.h>
 
 uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
     for (int8_t k = charPerLine; k >= 0; k--) {
@@ -111,7 +112,7 @@ void util_PrintFreeRamRom(void) {
 void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc) {
     gfx_End();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
-    uint8_t filesSearched = 0;
+    unsigned int filesSearched = 0;
     char *fileName;
     void *vatPtr = NULL;
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
@@ -134,5 +135,48 @@ int util_EndPrgm(void *data, int retVal) {
     removeStopHook();
     while(kb_AnyKey());
     shellMain(*(unsigned int*)&data[0], *(unsigned int *)&data[3]);    // Typecasting brings us home to the shell (data[3] is the 3rd byte of data, since it's a void *)
+    return 0;
+}
+
+bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, uint8_t key, unsigned int fileCount, bool appvars) {
+    const char *alphabet = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
+    uint8_t fileType;
+    unsigned int filesSearched = 1;  // ignore folder
+    char *fileName;
+    void *vatPtr = NULL;
+    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
+        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
+            if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[key]) {
+                *fileSelected = filesSearched;
+                if (*fileSelected > *fileStartLoc + 7) {
+                    *fileStartLoc = filesSearched;
+                    if (*fileStartLoc > fileCount - 6) {
+                        *fileStartLoc = fileCount - 8;
+                    }
+                    if (filesSearched % 2) {
+                        fileStartLoc--;
+                    }
+                }
+                return 1;
+            }
+            filesSearched++;
+        } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
+            if (fileName[0] == alphabet[key]) {
+                *fileSelected = filesSearched;
+                if (*fileSelected > *fileStartLoc + 7) {
+                    *fileStartLoc = filesSearched;
+                    if (*fileStartLoc > fileCount - 6) {
+                        *fileStartLoc = fileCount - 8;
+                    }
+                    if (filesSearched % 2) {
+                        fileStartLoc--;
+                    }
+                }
+                return 1;
+            }
+            filesSearched++;
+        }
+    }
+
     return 0;
 }

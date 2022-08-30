@@ -197,7 +197,7 @@ static void menu_InfoRedraw(bool fullRedraw, bool drawCursor, uint8_t *colors, i
 
 void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned int fileStartLoc, uint8_t *fileNumbers, bool appvars) {
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
-    uint8_t filesSearched = 0;
+    unsigned filesSearched = 0;
     char newName[9]= "\0";
     char *fileName;
     void *vatPtr = NULL;
@@ -338,7 +338,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
                             continue;
                         }
                     } else {
-                        // Edit
+                        // edit programs
                     }
                 }
             }

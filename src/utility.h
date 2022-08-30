@@ -34,6 +34,8 @@ void util_RunPrgm(unsigned int, unsigned int);
 
 int util_EndPrgm(void *data, int retVal);
 
+bool util_AlphaSearch(unsigned int *, unsigned int *, uint8_t, unsigned int, bool);
+
 #ifdef __cplusplus
 }
 #endif
