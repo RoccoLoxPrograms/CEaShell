@@ -18,6 +18,7 @@ gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make
 gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
+    while (kb_AnyKey());
     shellMain(0, 0);
     return 0;
 }
@@ -274,6 +275,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
             if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars)) {
                 redraw = 1;
             }
+            kb_Scan();
         }
         if (kb_IsDown(kb_KeyClear)) {
             continue;
