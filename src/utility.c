@@ -7,7 +7,6 @@
 #include <graphx.h>
 #include <keypadc.h>
 #include <fileioc.h>
-#include <debug.h>
 
 uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
     for (int8_t k = charPerLine; k >= 0; k--) {
@@ -148,13 +147,13 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, ui
         if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
             if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[key]) {
                 *fileSelected = filesSearched;
-                if (*fileSelected > *fileStartLoc + 7) {
+                if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                     *fileStartLoc = filesSearched;
-                    if (*fileStartLoc > fileCount - 6) {
-                        *fileStartLoc = fileCount - 8;
+                    if (*fileStartLoc > fileCount - 5) {
+                        *fileStartLoc = fileCount - 7;
                     }
-                    if (filesSearched % 2) {
-                        fileStartLoc--;
+                    if (*fileStartLoc % 2) {
+                        *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
                     }
                 }
                 return 1;
@@ -163,13 +162,13 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, ui
         } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
             if (fileName[0] == alphabet[key]) {
                 *fileSelected = filesSearched;
-                if (*fileSelected > *fileStartLoc + 7) {
+                if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                     *fileStartLoc = filesSearched;
-                    if (*fileStartLoc > fileCount - 6) {
-                        *fileStartLoc = fileCount - 8;
+                    if (*fileStartLoc > fileCount - 5) {
+                        *fileStartLoc = fileCount - 7;
                     }
-                    if (filesSearched % 2) {
-                        fileStartLoc--;
+                    if (*fileStartLoc % 2) {
+                        *fileStartLoc = *fileStartLoc - 1;
                     }
                 }
                 return 1;
