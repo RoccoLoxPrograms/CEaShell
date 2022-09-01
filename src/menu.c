@@ -215,6 +215,9 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
         }
     }
     uint8_t fileType = getPrgmType(fileName, osFileType);
+    if (osFileType == OS_TYPE_APPVAR) {
+        fileType = APPVAR_TYPE;
+    }
     char *fileTypeString = util_FileTypeToString(fileType, false);
     uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
     int fileSize = ti_GetSize(slot);
