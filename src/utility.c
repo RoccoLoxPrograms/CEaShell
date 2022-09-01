@@ -138,43 +138,55 @@ int util_EndPrgm(void *data, int retVal) {
 }
 
 bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, uint8_t key, unsigned int fileCount, bool appvars) {
-    const char *alphabet = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
+    const char *alphabetCSC = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
+    const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
     uint8_t fileType;
     unsigned int filesSearched = 1;  // ignore folder
     char *fileName;
     void *vatPtr = NULL;
-    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
-        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
-            if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[key]) {
-                *fileSelected = filesSearched;
-                if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
-                    *fileStartLoc = filesSearched;
-                    if (*fileStartLoc > fileCount - 5) {
-                        *fileStartLoc = fileCount - 7;
-                    }
-                    if (*fileStartLoc % 2) {
-                        *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
-                    }
-                }
-                return 1;
-            }
-            filesSearched++;
-        } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
-            if (fileName[0] == alphabet[key]) {
-                *fileSelected = filesSearched;
-                if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
-                    *fileStartLoc = filesSearched;
-                    if (*fileStartLoc > fileCount - 5) {
-                        *fileStartLoc = fileCount - 7;
-                    }
-                    if (*fileStartLoc % 2) {
-                        *fileStartLoc = *fileStartLoc - 1;
-                    }
-                }
-                return 1;
-            }
-            filesSearched++;
+    uint8_t alpha;
+    for (alpha = 0; alpha < 27; alpha++) {
+        if (alphabetCSC[key] == alphabet[alpha]) {
+            break;
         }
+    }
+    while (alpha < 27) {
+        while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
+            if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
+                if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[alpha]) {
+                    *fileSelected = filesSearched;
+                    if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
+                        *fileStartLoc = filesSearched;
+                        if (*fileStartLoc > fileCount - 5) {
+                            *fileStartLoc = fileCount - 7;
+                        }
+                        if (*fileStartLoc % 2) {
+                            *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
+                        }
+                    }
+                    return 1;
+                }
+                filesSearched++;
+            } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
+                if (fileName[0] == alphabet[alpha]) {
+                    *fileSelected = filesSearched;
+                    if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
+                        *fileStartLoc = filesSearched;
+                        if (*fileStartLoc > fileCount - 5) {
+                            *fileStartLoc = fileCount - 7;
+                        }
+                        if (*fileStartLoc % 2) {
+                            *fileStartLoc = *fileStartLoc - 1;
+                        }
+                    }
+                    return 1;
+                }
+                filesSearched++;
+            }
+        }
+        vatPtr = NULL;
+        filesSearched = 1;
+        alpha++;
     }
 
     return 0;

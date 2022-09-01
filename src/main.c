@@ -271,10 +271,11 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
             keyPressed = true;
             timer_Set(1,0);
         } else if (kb_AnyKey()) {
-            os_GetCSC();    // Running this twice because interrupts
+            asm ("ei");
             if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars)) {
                 redraw = 1;
             }
+            asm ("di");
             kb_Scan();
         }
         if (kb_IsDown(kb_KeyClear)) {
