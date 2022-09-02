@@ -20,27 +20,27 @@ extern "C" {
 #define UI_CURSOR_A     9
 #define UI_CURSOR_1     10
 
-void ui_DrawUISprite(uint8_t, uint8_t, int, uint8_t);
+void ui_DrawUISprite(const uint8_t, const uint8_t, const int, const uint8_t);
 
-void ui_DrawFile(bool, bool, bool, bool, uint8_t *, char *, uint8_t, uint8_t, int, uint8_t);
+void ui_DrawFile(const bool, const bool, const bool, const bool, uint8_t *, char *, const uint8_t, const uint8_t, const int, const uint8_t);
 
-void ui_CheckBox(uint8_t, uint8_t, bool, int, uint8_t);
+void ui_CheckBox(const uint8_t, const uint8_t, const bool, const int, const uint8_t);
 
-void ui_Clock(bool);
+void ui_Clock(const bool);
 
-void ui_Battery(uint8_t, uint8_t, bool);
+void ui_Battery(const uint8_t, const uint8_t, const bool);
 
-void ui_StatusBar(uint8_t, bool, uint8_t, char *);
+void ui_StatusBar(const uint8_t, const bool, const uint8_t, const char *);
 
-void ui_DescriptionWrap(char *, uint8_t, int, uint8_t);
+void ui_DescriptionWrap(const char *, const uint8_t, const int, const uint8_t);
 
-void ui_BottomBar(uint8_t);
+void ui_BottomBar(const uint8_t);
 
-bool ui_DeleteConf(uint8_t *, int, uint8_t);
+bool ui_DeleteConf(uint8_t *, const int, const uint8_t);
 
 bool ui_RenameBox(uint8_t *, char *);
 
-void ui_DrawAllFiles(uint8_t *, uint8_t, uint8_t, unsigned int, bool);
+void ui_DrawAllFiles(uint8_t *, const uint8_t, const uint8_t, const unsigned int, const bool);
 
 #ifdef __cplusplus
 }

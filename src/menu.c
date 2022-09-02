@@ -14,7 +14,7 @@
 #include <sys/power.h>
 #include <string.h>
 
-static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {   // Draws the theme preview box. Basically a bunch of rectangles
+static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {   // Draws the theme preview box. Basically a bunch of rectangles
     if (color == 27) {
         shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 18, 112);
         shapes_RoundRectangleFill(255 - colors[1], 6, 61, 78, 22, 116);
@@ -26,7 +26,7 @@ static void menu_ThemePreview(uint8_t color, uint8_t *colors, const uint8_t *def
     }
 }
 
-static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, int cursorX, uint8_t cursorY) {
+static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY) {
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
     shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
     shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
@@ -44,7 +44,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsigned int fileStartLoc, bool is24Hour, bool appvars) {
+void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool is24Hour, const bool appvars) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
     gfx_BlitBuffer();
@@ -120,7 +120,7 @@ void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsign
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
 }
 
-static void menu_InfoRedraw(bool fullRedraw, bool drawCursor, uint8_t *colors, int cursorX, uint8_t cursorY, bool isArchived, bool isLocked, bool isHidden, char *fileTypeString, char *fileName, int fileSize, uint8_t fileType, uint8_t osFileType) {
+static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_t *colors, const int cursorX, const uint8_t cursorY, const bool isArchived, const bool isLocked, const bool isHidden, const char *fileTypeString, char *fileName, const int fileSize, const uint8_t fileType, const uint8_t osFileType) {
     if (fullRedraw) {   // Redraws most of the file information. (Comment is here since the line above is already quite long)
         shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
         shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
@@ -151,7 +151,7 @@ static void menu_InfoRedraw(bool fullRedraw, bool drawCursor, uint8_t *colors, i
         free (corner1);
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
-        uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
+        const uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;
         gfx_PrintStringXY(fileName, nameX, 52);
         gfx_SetTextScale(1, 1);
         gfx_PrintStringXY("Type: ", 61, 85);
@@ -191,7 +191,7 @@ static void menu_InfoRedraw(bool fullRedraw, bool drawCursor, uint8_t *colors, i
     gfx_PrintStringXY("Edit", 213, 184);
 }
 
-void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned int fileStartLoc, uint8_t *fileNumbers, bool appvars) {
+void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, uint8_t *fileNumbers, const bool appvars) {
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned filesSearched = 0;
     char newName[9]= "\0";
@@ -382,7 +382,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, unsigned in
     ti_Close(slot);
 }
 
-void menu_Settings(uint8_t color) { // Very empty right now
+void menu_Settings(const uint8_t color) { // Very empty right now
     shapes_RoundRectangleFill(color, 15, 304, 192, 8, 39);
     ui_DrawUISprite(color, UI_RARROW, 290, 208);
     gfx_SwapDraw();

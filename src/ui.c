@@ -13,15 +13,15 @@
 #include <sys/power.h>
 #include <ti/getcsc.h>
 
-void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {   // Takes care of drawing the sprite in white or black, depending on the theme
+void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {   // Takes care of drawing the sprite in white or black, depending on the theme
     bool colorAlt = !(color > 131 && color % 8 > 3);
     const gfx_sprite_t *uiIcons[22] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorAlpha, cursorNumber, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorAlphaAlt, cursorNumberAlt};
     gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 11], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-void ui_DrawFile(bool selected, bool drawName, bool drawHidden, bool hidden, uint8_t *colors, char *fileName, uint8_t fileType, uint8_t osFileType, int x, uint8_t y) {  // Draws a file, with the icon if it exists
-    bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
+void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden, const bool hidden, uint8_t *colors, char *fileName, const uint8_t fileType, const uint8_t osFileType, const int x, const uint8_t y) {  // Draws a file, with the icon if it exists
+    const bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
     gfx_sprite_t *icon = gfx_MallocSprite(16, 16);  // Malloc the sprite ahead of time
     gfx_sprite_t *tileSprite = gfx_MallocSprite(16, 16);
     if (hidden) {
@@ -85,7 +85,7 @@ void ui_DrawFile(bool selected, bool drawName, bool drawHidden, bool hidden, uin
     free(tileSprite);
 }
 
-void ui_CheckBox(uint8_t color, uint8_t bgColor, bool isChecked, int x, uint8_t y) {    // Draws a simple checkbox
+void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecked, const int x, const uint8_t y) {    // Draws a simple checkbox
     bool colorAlt = !(bgColor > 131 && bgColor % 8 > 3);
     if (colorAlt) {
         gfx_SetColor(148);
@@ -103,18 +103,7 @@ void ui_CheckBox(uint8_t color, uint8_t bgColor, bool isChecked, int x, uint8_t 
     }
 }
 
-void ui_Battery(uint8_t color, uint8_t batteryStatus, bool isCharging) {
-    ui_DrawUISprite(color, UI_BATTERY, 286, 10);
-
-    gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
-    gfx_FillRectangle_NoClip(291 + (12 - batteryStatus * 3), 12, batteryStatus * 3, 6);
-
-    if (isCharging) {
-        ui_DrawUISprite(color, UI_CHARGING, 292, 12);  // Charging sprite instead of battery percentage
-    }
-}
-
-void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
+void ui_Clock(const bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
     uint8_t time[3];
     bool isAfterNoon = boot_IsAfterNoon();
 
@@ -137,7 +126,18 @@ void ui_Clock(bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
     }
 }
 
-void ui_StatusBar(uint8_t color, bool is24Hour, uint8_t batteryStatus, char *menuName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
+void ui_Battery(const uint8_t color, const uint8_t batteryStatus, const bool isCharging) {
+    ui_DrawUISprite(color, UI_BATTERY, 286, 10);
+
+    gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
+    gfx_FillRectangle_NoClip(291 + (12 - batteryStatus * 3), 12, batteryStatus * 3, 6);
+
+    if (isCharging) {
+        ui_DrawUISprite(color, UI_CHARGING, 292, 12);  // Charging sprite instead of battery percentage
+    }
+}
+
+void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
     gfx_SetColor(color);
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
 
@@ -145,11 +145,11 @@ void ui_StatusBar(uint8_t color, bool is24Hour, uint8_t batteryStatus, char *men
     ui_Battery(color, batteryStatus, boot_BatteryCharging());
 
     gfx_SetTextScale(2, 2);
-    int x = 160 - gfx_GetStringWidth(menuName) / 2;
+    const int x = 160 - gfx_GetStringWidth(menuName) / 2;
     gfx_PrintStringXY(menuName, x, 8);
 }
 
-void ui_DescriptionWrap(char *description, uint8_t charPerLine, int x, uint8_t y) {
+void ui_DescriptionWrap(const char *description, const uint8_t charPerLine, const int x, const uint8_t y) {
     gfx_SetTextScale(1, 1); // Description
     char lineOne[30] = "\0";
     char lineTwo[30] = "\0";
@@ -172,7 +172,7 @@ void ui_DescriptionWrap(char *description, uint8_t charPerLine, int x, uint8_t y
     }
 }
 
-void ui_BottomBar(uint8_t color) {
+void ui_BottomBar(const uint8_t color) {
     shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
     shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
     shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
@@ -181,7 +181,7 @@ void ui_BottomBar(uint8_t color) {
     ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
 }
 
-bool ui_DeleteConf(uint8_t *colors, int x, uint8_t y) {
+bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y) {
     bool retVal = true;
     while (kb_AnyKey());
     shapes_RoundRectangleFill(colors[0], 8, 208, 20, x, y);
@@ -302,7 +302,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsigned int fileStartLoc, bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool appvars) {
     int x = 14;
     uint8_t y = 30;
     unsigned int filesSearched = 0;

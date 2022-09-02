@@ -20,13 +20,13 @@ extern "C" {
 #define DIR_TYPE        5   // For appvars folder?
 #define APPVAR_TYPE     6
 
-uint8_t util_SpaceSearch(char *, uint8_t);
+uint8_t util_SpaceSearch(const char *, const uint8_t);
 
-void util_WritePrefs(uint8_t *, uint8_t, bool);
+void util_WritePrefs(uint8_t *, const uint8_t, const bool);
 
 void util_FilesInit(uint8_t *);
 
-char *util_FileTypeToString(uint8_t, bool);
+char *util_FileTypeToString(const uint8_t, const bool);
 
 void util_PrintFreeRamRom(void);
 
@@ -34,7 +34,7 @@ void util_RunPrgm(unsigned int, unsigned int);
 
 int util_EndPrgm(void *data, int retVal);
 
-bool util_AlphaSearch(unsigned int *, unsigned int *, uint8_t, unsigned int, bool);
+bool util_AlphaSearch(unsigned int *, unsigned int *, const uint8_t, const unsigned int, const bool);
 
 #ifdef __cplusplus
 }

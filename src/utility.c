@@ -8,7 +8,7 @@
 #include <keypadc.h>
 #include <fileioc.h>
 
-uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
+uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     for (int8_t k = charPerLine; k >= 0; k--) {
         if (str[k] == ' ') {
             return k + 1;
@@ -17,7 +17,7 @@ uint8_t util_SpaceSearch(char *str, uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, uint8_t transitionSpeed, bool is24Hour) {
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour) {
     uint8_t ceaShell[6];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
@@ -52,7 +52,7 @@ void util_FilesInit(uint8_t *fileNumbers) {
     }
 }
 
-char *util_FileTypeToString(uint8_t fileType, bool abbreviated) {
+char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
     char *fileTypeString= NULL;
     switch (fileType) {
         case ASM_TYPE:
@@ -137,7 +137,7 @@ int util_EndPrgm(void *data, int retVal) {
     return 0;
 }
 
-bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, uint8_t key, unsigned int fileCount, bool appvars) {
+bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool appvars) {
     const char *alphabetCSC = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
     const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
     uint8_t fileType;

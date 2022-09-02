@@ -2,7 +2,7 @@
 
 #include <graphx.h>
 
-void shapes_RoundRectangleFill(uint8_t color, uint8_t radius, int width, uint8_t height, int x, uint8_t y) {
+void shapes_RoundRectangleFill(const uint8_t color, const uint8_t radius, const int width, const uint8_t height, const int x, const uint8_t y) {
     gfx_SetColor(color);
     gfx_FillCircle_NoClip(x + radius, y + radius, radius);
     gfx_FillCircle_NoClip(x + radius, y + height - radius - 1, radius);
@@ -12,7 +12,7 @@ void shapes_RoundRectangleFill(uint8_t color, uint8_t radius, int width, uint8_t
     gfx_FillRectangle_NoClip(x + radius, y, width - radius * 2, height);
 }
 
-void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, uint8_t color, int x, uint8_t y) {
+void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, const uint8_t color, int x, uint8_t y) {
     x += 2; // Make sure it's hidden behind whatever we draws
     y += 2;
     gfx_SetColor(240);
@@ -27,7 +27,7 @@ void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, uint8_t color, int x, u
     gfx_GetSprite_NoClip(tileSprite, x, y);
 }
 
-void shapes_DrawTransparentRect(gfx_sprite_t *tileSprite, int x, uint8_t y) {
+void shapes_DrawTransparentRect(gfx_sprite_t *tileSprite, const int x, const uint8_t y) {
     for (uint8_t pixelXOffset = 0; pixelXOffset < 64; pixelXOffset += 16) {
         for (uint8_t pixelYOffset = 0; pixelYOffset < 64; pixelYOffset += 16) {
             gfx_TransparentSprite_NoClip(tileSprite, x + pixelXOffset, y + pixelYOffset);
@@ -35,7 +35,7 @@ void shapes_DrawTransparentRect(gfx_sprite_t *tileSprite, int x, uint8_t y) {
     }
 }
 
-void shapes_GetRoundCorners(gfx_sprite_t *corner1, uint8_t color, uint8_t radius, int x, uint8_t y) {
+void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const uint8_t radius, const int x, const uint8_t y) {
     gfx_SetColor(color);
     gfx_FillRectangle_NoClip(x, y, radius, radius);
     gfx_SetColor(240);
@@ -43,7 +43,7 @@ void shapes_GetRoundCorners(gfx_sprite_t *corner1, uint8_t color, uint8_t radius
     gfx_GetSprite(corner1, x, y);
 }
 
-void shapes_DrawRoundCorners(gfx_sprite_t *corner1, uint8_t width, uint8_t height, int x, uint8_t y) {
+void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const uint8_t height, const int x, const uint8_t y) {
     gfx_sprite_t *corner2 = gfx_MallocSprite(corner1->width, corner1->height);
     gfx_TransparentSprite_NoClip(corner1, x, y);
     gfx_RotateSpriteC(corner1, corner2);
@@ -56,9 +56,9 @@ void shapes_DrawRoundCorners(gfx_sprite_t *corner1, uint8_t width, uint8_t heigh
     free (corner2);
 }
 
-void shapes_FileIcon(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
+void shapes_FileIcon(const uint8_t color, const uint8_t bgColor, const int x, const uint8_t y) {
     gfx_SetColor(color);
-    for (int i = 0; i < 3; i++) {
+    for (uint8_t i = 0; i < 3; i++) {
         gfx_Rectangle_NoClip(x + i, y + i, 32 - 2 * i, 42 - 2 * i);
     }
     gfx_FillRectangle_NoClip(x + 17, y, 15, 15);
@@ -69,7 +69,7 @@ void shapes_FileIcon(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
     gfx_SetPixel(x + 31, y + 41);
 }
 
-void shapes_Folder(uint8_t color, uint8_t bgColor, int x, uint8_t y) {
+void shapes_Folder(const uint8_t color, const uint8_t bgColor, const int x, const uint8_t y) {
     gfx_SetColor(color);
     for (int i = 0; i < 3; i++) {
         gfx_Rectangle_NoClip(x + i, y + i + 3, 42 - 2 * i, 29 - 2 * i);
