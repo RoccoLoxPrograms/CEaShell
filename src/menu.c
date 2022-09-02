@@ -39,9 +39,7 @@ static void menu_LooksRefresh(uint8_t color, uint8_t *colors, const uint8_t *def
             shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
         }
     }
-    gfx_SetColor(148);  // Invert color icon
-    gfx_Line_NoClip(132, 79, 149, 96);
-    gfx_FloodFill(133, 78, 0);
+    gfx_TransparentSprite_NoClip(invSwitch, 130, 77);   // Invert color icon
     menu_ThemePreview(color, colors, defaultThemes);
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
@@ -90,9 +88,7 @@ void menu_Looks(uint8_t *colors, uint8_t fileSelected, uint8_t fileCount, unsign
             shapes_RoundRectangleFill(defaultThemes[color], 6, 22, 22, cursorX + 2, cursorY + 2);
 
             if ((prevCursorX == 128 && prevCursorY == 75) || (cursorX == 128 && cursorY == 75)) {
-                gfx_SetColor(148);
-                gfx_Line_NoClip(132, 79, 149, 96);
-                gfx_FloodFill(133, 78, 0);
+                gfx_TransparentSprite_NoClip(invSwitch, 130, 77);
             }
             
             menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
