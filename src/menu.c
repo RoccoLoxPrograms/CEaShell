@@ -26,11 +26,41 @@ static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_
     }
 }
 
-static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY) {
+static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed) {
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
     shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
     shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
+
+    gfx_SetTextScale(1, 1); // Customizing options
+    gfx_PrintStringXY("Clock:", 170, 51);
+    gfx_PrintStringXY("<", 234, 51);
+    gfx_PrintStringXY(">", 293, 51);
+    if (is24Hour) {
+        gfx_PrintStringXY("24 Hour", 241, 51);
+    } else {
+        gfx_PrintStringXY("AM/PM", 246, 51);
+    }
+    gfx_PrintStringXY("Transitions:", 170, 68);
+    gfx_PrintStringXY("<", 263, 68);
+    gfx_PrintStringXY(">", 293, 68);
+    gfx_PrintStringXY("Transition", 170, 85);
+    gfx_PrintStringXY("Speed:", 170, 97);
+    gfx_PrintStringXY("<", 242, 97);
+    gfx_PrintStringXY(">", 293, 97);
+    if (transitionSpeed) {
+        gfx_PrintStringXY("On", 273, 68);
+        if (transitionSpeed == 1) {
+            gfx_PrintStringXY("Slow", 256, 97);
+        } else if (transitionSpeed == 2) {
+            gfx_PrintStringXY("Normal", 248, 97);
+        } else if (transitionSpeed == 3) {
+            gfx_PrintStringXY("Fast", 255, 97);
+        }
+    } else {
+        gfx_PrintStringXY("Off", 269, 68);
+        gfx_PrintStringXY("Off", 258, 97);
+    }
 
     uint8_t drawBox = 0;    // Theme selector
     shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
@@ -44,9 +74,9 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool is24Hour, const bool appvars) {
+void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool is24Hour, const uint8_t transitionSpeed, const bool appvars) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
-    menu_LooksRefresh(0, colors, defaultThemes, 16, 47);
+    menu_LooksRefresh(0, colors, defaultThemes, 16, 47, is24Hour, transitionSpeed);
     gfx_BlitBuffer();
 
     uint8_t color = 0;
@@ -112,7 +142,7 @@ void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileC
             }
             gfx_FillScreen(colors[0]);
             ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, appvars);
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, is24Hour, transitionSpeed);
             ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");    // Might as well also update the battery
             gfx_BlitBuffer();
         }
@@ -340,6 +370,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                         // edit programs
                     }
                 }
+                while (kb_AnyKey());
             }
             redraw = true;
             if (!keyPressed) {

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-void menu_Looks(uint8_t *, const uint8_t, const uint8_t, const unsigned int, const bool, const bool);
+void menu_Looks(uint8_t *, const uint8_t, const uint8_t, const unsigned int, const bool, const uint8_t, const bool);
 
 void menu_Info(uint8_t *, bool *, uint8_t, const unsigned int, uint8_t *, const bool);
 

@@ -158,7 +158,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Looks(colors, fileSelected, fileNumbers[appvars], fileStartLoc, is24Hour, appvars); // This function will store changed colors into the colors array
+                menu_Looks(colors, fileSelected, fileNumbers[appvars], fileStartLoc, is24Hour, transitionSpeed, appvars); // This function will store changed colors into the colors array
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
                 ui_BottomBar(colors[1]);
