@@ -26,7 +26,7 @@ static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_
     }
 }
 
-static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed) {
+static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell) {
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
     shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
     shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
@@ -48,6 +48,10 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     gfx_PrintStringXY("Speed:", 170, 97);
     gfx_PrintStringXY("<", 242, 97);
     gfx_PrintStringXY(">", 293, 97);
+    gfx_PrintStringXY("Hide", 170, 114);
+    gfx_PrintStringXY("CEaShell:", 170, 126);
+    gfx_PrintStringXY("<", 263, 126);
+    gfx_PrintStringXY(">", 293, 126);
     if (transitionSpeed) {
         gfx_PrintStringXY("On", 273, 68);
         if (transitionSpeed == 1) {
@@ -60,6 +64,11 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     } else {
         gfx_PrintStringXY("Off", 269, 68);
         gfx_PrintStringXY("Off", 258, 97);
+    }
+    if (displayCEaShell) {
+        gfx_PrintStringXY("On", 273, 126);
+    } else {
+        gfx_PrintStringXY("Off", 269, 126);
     }
 
     uint8_t drawBox = 0;    // Theme selector
@@ -74,9 +83,9 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool is24Hour, const uint8_t transitionSpeed, const bool appvars) {
+void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool is24Hour, const uint8_t transitionSpeed, const bool appvars, const bool displayCEaShell) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
-    menu_LooksRefresh(0, colors, defaultThemes, 16, 47, is24Hour, transitionSpeed);
+    menu_LooksRefresh(0, colors, defaultThemes, 16, 47, is24Hour, transitionSpeed, displayCEaShell);
     gfx_BlitBuffer();
 
     uint8_t color = 0;
@@ -141,8 +150,8 @@ void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileC
                 colors[2] = defaultThemes[color + 2];
             }
             gfx_FillScreen(colors[0]);
-            ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, appvars);
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, is24Hour, transitionSpeed);
+            ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, is24Hour, transitionSpeed, displayCEaShell);
             ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");    // Might as well also update the battery
             gfx_BlitBuffer();
         }
@@ -221,13 +230,19 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
     gfx_PrintStringXY("Edit", 213, 184);
 }
 
-void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, uint8_t *fileNumbers, const bool appvars) {
+void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, uint8_t *fileNumbers, const bool appvars, const bool displayCEaShell) {
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned filesSearched = 0;
     char newName[9]= "\0";
     char *fileName;
     void *vatPtr = NULL;
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
+        if (*fileName == '!' || *fileName == '#') {
+            continue;
+        }
+        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+            continue;
+        }
         if (appvars && osFileType == OS_TYPE_APPVAR) {
             if (fileSelected == filesSearched) {
                 break;
@@ -246,7 +261,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     }
     char *fileTypeString = util_FileTypeToString(fileType, false);
     uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
-    int fileSize = ti_GetSize(slot);
+    int fileSize = getProgSize(fileName, osFileType);
     bool isArchived = ti_IsArchived(slot);
     bool isLocked = (osFileType == OS_TYPE_PROT_PRGM);
     bool isHidden = (fileName[0] < 65);
@@ -342,7 +357,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                             }
                             gfx_SetColor(colors[0]);
                             gfx_FillRectangle_NoClip(12, 28, 296, 164);
-                            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars] - 1, fileStartLoc, appvars);
+                            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars] - 1, fileStartLoc, appvars, displayCEaShell);
                             gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                             infoOps[0] = true;
                             return;
@@ -397,18 +412,23 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
             ti_SetArchiveStatus(true, slot);
         }
     }
+    if (initialValue[1] != isLocked) {
+        lockPrgm(fileName, osFileType);
+        if (isLocked) {
+            osFileType = OS_TYPE_PRGM;
+        } else {
+            osFileType = OS_TYPE_PROT_PRGM;
+        }
+    }
     if (initialValue[2] != isHidden) {
         hidePrgm(fileName, osFileType);
-        ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+        ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
         gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
         if (isHidden) {
             fileName[0] -= 64;
         } else {
             fileName[0] += 64;
         }
-    }
-    if (initialValue[1] != isLocked) {
-        lockPrgm(fileName, osFileType);
     }
     ti_Close(slot);
 }

@@ -22,19 +22,19 @@ extern "C" {
 
 uint8_t util_SpaceSearch(const char *, const uint8_t);
 
-void util_WritePrefs(uint8_t *, const uint8_t, const bool);
+void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool);
 
-void util_FilesInit(uint8_t *);
+void util_FilesInit(uint8_t *, const bool);
 
 char *util_FileTypeToString(const uint8_t, const bool);
 
 void util_PrintFreeRamRom(void);
 
-void util_RunPrgm(unsigned int, unsigned int);
+void util_RunPrgm(unsigned int, unsigned int, const bool);
 
 int util_EndPrgm(void *data, int retVal);
 
-bool util_AlphaSearch(unsigned int *, unsigned int *, const uint8_t, const unsigned int, const bool);
+bool util_AlphaSearch(unsigned int *, unsigned int *, const uint8_t, const unsigned int, const bool, const bool);
 
 #ifdef __cplusplus
 }

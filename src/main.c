@@ -28,19 +28,21 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
     bool appvars = false;   // Whether the appvars are being displayed
+    bool displayCEaShell = false;   // Whether we display CEaShell
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
-        uint8_t ceaShell[6];
-        ti_Read(&ceaShell, 6, 1, slot);
+        uint8_t ceaShell[7];
+        ti_Read(&ceaShell, 7, 1, slot);
         colors[0] = ceaShell[0];
         colors[1] = ceaShell[1];
         colors[2] = ceaShell[2];
         colors[3] = ceaShell[3];
         transitionSpeed = ceaShell[4];
         is24Hour = ceaShell[5];
+        displayCEaShell = ceaShell[6];
     }
     buffer1->height = 193;
     buffer1->width = 152;
@@ -48,7 +50,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
     buffer2->width = 152;
 
     uint8_t fileNumbers[2] = {0, 0};
-    util_FilesInit(fileNumbers); // Get number of programs and appvars
+    util_FilesInit(fileNumbers, displayCEaShell); // Get number of programs and appvars
 
     bool infoOps[2] = {false, false}; // This will keep track of whether a program has been deleted or hidden
 
@@ -71,7 +73,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
     gfx_FillScreen(colors[0]);
     ui_StatusBar(colors[1], is24Hour, batteryStatus, "");  // Displays bar with battery and clock
     ui_BottomBar(colors[1]);
-    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
+    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
     gfx_BlitBuffer();
 
     while(!kb_IsDown(kb_KeyClear)) {    // Key detection loop
@@ -144,7 +146,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                             fileStartLoc -= 2;
                         }
                     }
-                    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+                    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                     gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                 }
                 while (kb_AnyKey());
@@ -158,9 +160,9 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Looks(colors, fileSelected, fileNumbers[appvars], fileStartLoc, is24Hour, transitionSpeed, appvars); // This function will store changed colors into the colors array
+                menu_Looks(colors, fileSelected, fileNumbers[appvars], fileStartLoc, is24Hour, transitionSpeed, appvars, displayCEaShell); // This function will store changed colors into the colors array
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize");
                 if (transitionSpeed) {
@@ -178,7 +180,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -191,7 +193,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars); // This will store some file changes to the infoOps (Info Operations) array
+                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell); // This will store some file changes to the infoOps (Info Operations) array
                 if (infoOps[0]) {   // Takes care of deletions
                     fileNumbers[appvars]--;
                     fileSelected--;
@@ -207,7 +209,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
 
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info");
                 if (infoOps[1]) {
@@ -238,7 +240,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 }
                 menu_Settings(colors[1]);   // Nothing here yet
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings");
                 if (transitionSpeed) {
@@ -260,7 +262,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
-                    util_RunPrgm(fileSelected, fileStartLoc);
+                    util_RunPrgm(fileSelected, fileStartLoc, displayCEaShell);
                 }
             }
             if (!keyPressed) {
@@ -272,7 +274,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
             timer_Set(1,0);
         } else if (kb_AnyKey()) {
             asm ("ei");
-            if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars)) {
+            if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars, displayCEaShell)) {
                 redraw = 1;
             }
             asm ("di");
@@ -291,7 +293,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
             }
             ui_StatusBar(colors[1], is24Hour, batteryStatus, "");
             ui_BottomBar(colors[1]);
-            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars);
+            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
             redraw = false;
         } else {
             gfx_SetColor(colors[1]);
@@ -301,7 +303,7 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell);
     gfx_End();
     return 0;
 }

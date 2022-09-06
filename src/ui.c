@@ -302,7 +302,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool appvars) {
+void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool appvars, const bool displayCEaShell) {
     int x = 14;
     uint8_t y = 30;
     unsigned int filesSearched = 0;
@@ -332,6 +332,9 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
     filesSearched++;    // We have "Checked" for the folder
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
+            continue;
+        }
+        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
             continue;
         }
         hidden = (fileName[0] < 65);

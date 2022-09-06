@@ -40,7 +40,7 @@ bool ui_DeleteConf(uint8_t *, const int, const uint8_t);
 
 bool ui_RenameBox(uint8_t *, char *);
 
-void ui_DrawAllFiles(uint8_t *, const uint8_t, const uint8_t, const unsigned int, const bool);
+void ui_DrawAllFiles(uint8_t *, const uint8_t, const uint8_t, const unsigned int, const bool, const bool);
 
 #ifdef __cplusplus
 }

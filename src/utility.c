@@ -7,6 +7,7 @@
 #include <graphx.h>
 #include <keypadc.h>
 #include <fileioc.h>
+#include <string.h>
 
 uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     for (int8_t k = charPerLine; k >= 0; k--) {
@@ -17,22 +18,23 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour) {
-    uint8_t ceaShell[6];
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell) {
+    uint8_t ceaShell[7];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
     ceaShell[2] = colors[2];
     ceaShell[3] = colors[3];
     ceaShell[4] = transitionSpeed;
     ceaShell[5] = is24Hour;
+    ceaShell[6] = displayCEaShell;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
-    ti_Write(&ceaShell, 6, 1, slot);
+    ti_Write(&ceaShell, 7, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
 }
 
-void util_FilesInit(uint8_t *fileNumbers) {
+void util_FilesInit(uint8_t *fileNumbers, const bool displayCEaShell) {
     uint8_t fileType;
     char *fileName;
     void *vatPtr = NULL;
@@ -42,6 +44,9 @@ void util_FilesInit(uint8_t *fileNumbers) {
 
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName == '#') {
+            continue;
+        }
+        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
             continue;
         }
         if (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) {
@@ -100,7 +105,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
 }
 
 void util_PrintFreeRamRom(void) {
-    unsigned int ramFree = os_MemChk(NULL) + os_AsmPrgmSize;
+    unsigned int ramFree = os_MemChk(NULL) + getProgSize("CEASHELL", os_AsmPrgmSize);
     os_ArcChk();
     gfx_PrintStringXY("RAM Free: ", 82, 205);
     gfx_PrintUInt(ramFree, 6);
@@ -108,13 +113,19 @@ void util_PrintFreeRamRom(void) {
     gfx_PrintInt(os_TempFreeArc, 7);
 }
 
-void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc) {
+void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc, const bool displayCEaShell) {
     gfx_End();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned int filesSearched = 0;
     char *fileName;
     void *vatPtr = NULL;
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
+        if (*fileName == '!' || *fileName == '#') {
+            continue;
+        }
+        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+            continue;
+        }
         if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileSelected - 1 == filesSearched) {
                 break;
@@ -137,7 +148,7 @@ int util_EndPrgm(void *data, int retVal) {
     return 0;
 }
 
-bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool appvars) {
+bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool appvars, const bool displayCEaShell) {
     const char *alphabetCSC = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
     const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
     uint8_t fileType;
@@ -152,6 +163,12 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
     }
     while (alpha < 27) {
         while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
+            if (*fileName == '!' || *fileName == '#') {
+                continue;
+            }
+            if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+                continue;
+            }
             if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
                 if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[alpha]) {
                     *fileSelected = filesSearched;
