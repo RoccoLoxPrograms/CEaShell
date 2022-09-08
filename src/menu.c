@@ -26,66 +26,91 @@ static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_
     }
 }
 
-static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell) {
-    shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
+static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const uint8_t option) {
     shapes_RoundRectangleFill(colors[0], 8, 140, 56, 15, 46);
-    shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
-    shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
 
-    gfx_SetTextScale(1, 1); // Customizing options
-    gfx_PrintStringXY("Clock:", 170, 51);
-    gfx_PrintStringXY("<", 234, 51);
-    gfx_PrintStringXY(">", 293, 51);
-    if (is24Hour) {
-        gfx_PrintStringXY("24 Hour", 241, 51);
-    } else {
-        gfx_PrintStringXY("AM/PM", 246, 51);
-    }
-    gfx_PrintStringXY("Transitions:", 170, 68);
-    gfx_PrintStringXY("<", 263, 68);
-    gfx_PrintStringXY(">", 293, 68);
-    gfx_PrintStringXY("Transition", 170, 85);
-    gfx_PrintStringXY("Speed:", 170, 97);
-    gfx_PrintStringXY("<", 242, 97);
-    gfx_PrintStringXY(">", 293, 97);
-    gfx_PrintStringXY("Hide", 170, 114);
-    gfx_PrintStringXY("CEaShell:", 170, 126);
-    gfx_PrintStringXY("<", 263, 126);
-    gfx_PrintStringXY(">", 293, 126);
-    if (transitionSpeed) {
-        gfx_PrintStringXY("On", 273, 68);
-        if (transitionSpeed == 1) {
-            gfx_PrintStringXY("Slow", 256, 97);
-        } else if (transitionSpeed == 2) {
-            gfx_PrintStringXY("Normal", 248, 97);
-        } else if (transitionSpeed == 3) {
-            gfx_PrintStringXY("Fast", 255, 97);
+    if (!themePicker) {
+        shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
+        switch (option) {
+            case 0:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 50, 132, 9);
+                break;
+            case 1:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 67, 132, 9);
+                break;
+            case 2:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 84, 132, 21);
+                break;
+            case 3:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 113, 132, 21);
+                break;
+            case 4:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 142, 132, 9);
+                break;
+            default:
+                break;
+        }
+
+        gfx_SetTextScale(1, 1); // Customizing options
+        gfx_PrintStringXY("Clock:", 170, 51);
+        gfx_PrintStringXY("<", 234, 51);
+        gfx_PrintStringXY(">", 293, 51);
+        if (is24Hour) {
+            gfx_PrintStringXY("24 Hour", 241, 51);
+        } else {
+            gfx_PrintStringXY("AM/PM", 246, 51);
+        }
+        gfx_PrintStringXY("Transitions:", 170, 68);
+        gfx_PrintStringXY("<", 263, 68);
+        gfx_PrintStringXY(">", 293, 68);
+        gfx_PrintStringXY("Transition", 170, 85);
+        gfx_PrintStringXY("Speed:", 170, 97);
+        gfx_PrintStringXY("<", 242, 97);
+        gfx_PrintStringXY(">", 293, 97);
+        gfx_PrintStringXY("Hide", 170, 114);
+        gfx_PrintStringXY("CEaShell:", 170, 126);
+        gfx_PrintStringXY("<", 263, 126);
+        gfx_PrintStringXY(">", 293, 126);
+        gfx_PrintStringXY("Change Theme", 170, 143);
+        gfx_PrintStringXY("Nothing", 59, 144);
+        gfx_PrintStringXY("Selected", 55, 157);
+        if (transitionSpeed) {
+            gfx_PrintStringXY("On", 273, 68);
+            if (transitionSpeed == 1) {
+                gfx_PrintStringXY("Slow", 256, 97);
+            } else if (transitionSpeed == 2) {
+                gfx_PrintStringXY("Normal", 248, 97);
+            } else if (transitionSpeed == 3) {
+                gfx_PrintStringXY("Fast", 255, 97);
+            }
+        } else {
+            gfx_PrintStringXY("Off", 269, 68);
+            gfx_PrintStringXY("Off", 258, 97);
+        }
+        if (!displayCEaShell) {
+            gfx_PrintStringXY("On", 273, 126);
+        } else {
+            gfx_PrintStringXY("Off", 269, 126);
         }
     } else {
-        gfx_PrintStringXY("Off", 269, 68);
-        gfx_PrintStringXY("Off", 258, 97);
+        shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
+        menu_ThemePreview(color, colors, defaultThemes);
     }
-    if (displayCEaShell) {
-        gfx_PrintStringXY("On", 273, 126);
-    } else {
-        gfx_PrintStringXY("Off", 269, 126);
-    }
-
     uint8_t drawBox = 0;    // Theme selector
-    shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
     for (uint8_t y = 49; y < 78; y += 28) {
         for (int x = 18; x < 132; x += 28, drawBox += 3) {
             shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
         }
     }
     gfx_TransparentSprite_NoClip(invSwitch, 130, 77);   // Invert color icon
-    menu_ThemePreview(color, colors, defaultThemes);
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool is24Hour, const uint8_t transitionSpeed, const bool appvars, const bool displayCEaShell) {
+void menu_Looks(uint8_t *colors, uint8_t *fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const bool appvars, bool *displayCEaShell) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
-    menu_LooksRefresh(0, colors, defaultThemes, 16, 47, is24Hour, transitionSpeed, displayCEaShell);
+    shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
+    shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
+    menu_LooksRefresh(0, colors, defaultThemes, 16, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, 0);
     gfx_BlitBuffer();
 
     uint8_t color = 0;
@@ -94,7 +119,11 @@ void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileC
     int cursorX = 16;
     int prevCursorX = 16;
     uint8_t pColor = 0;
+    uint8_t option = 0;
 
+    uint8_t batteryStatus = boot_GetBatteryStatus();
+
+    bool themePicker = false;
     bool keyPressed = false;
     
     while (kb_AnyKey());
@@ -104,33 +133,91 @@ void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileC
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if (kb_Data[7] && (!keyPressed || timer_Get(1) > 3000)) {
-            prevCursorY = cursorY;
-            prevCursorX = cursorX;
-            pColor = color;
-            if (kb_IsDown(kb_KeyRight) && cursorX == 128) {	// Cursor looping
-                cursorX = 16;
-                cursorY = cursorY - 28 * (cursorY == 75) + 28 * (cursorY == 47);
-            } else if (kb_IsDown(kb_KeyLeft) && cursorX == 16) {
-                cursorX = 128;
-                cursorY = cursorY - 28 * (cursorY == 75) + 28 * (cursorY == 47);
+        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || timer_Get(1) > 3000)) {
+            if (themePicker) {
+                prevCursorY = cursorY;
+                prevCursorX = cursorX;
+                pColor = color;
+                if (kb_IsDown(kb_KeyRight) && cursorX == 128) {	// Cursor looping
+                    cursorX = 16;
+                    cursorY = cursorY - 28 * (cursorY == 75) + 28 * (cursorY == 47);
+                } else if (kb_IsDown(kb_KeyLeft) && cursorX == 16) {
+                    cursorX = 128;
+                    cursorY = cursorY - 28 * (cursorY == 75) + 28 * (cursorY == 47);
+                } else {
+	    	        cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
+                    cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
+                }
+                color = 3 * ((cursorX - 16) / 28) + 15 * (cursorY > 47);    // Change the selected color/theme
+
+                shapes_RoundRectangleFill(colors[0], 8, 26, 26, prevCursorX, prevCursorY);    // Erase old color
+                shapes_RoundRectangleFill(defaultThemes[pColor], 6, 22, 22, prevCursorX + 2, prevCursorY + 2);
+
+                shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
+                shapes_RoundRectangleFill(defaultThemes[color], 6, 22, 22, cursorX + 2, cursorY + 2);
+
+                if ((prevCursorX == 128 && prevCursorY == 75) || (cursorX == 128 && cursorY == 75)) {
+                    gfx_TransparentSprite_NoClip(invSwitch, 130, 77);
+                }
             } else {
-	    	    cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
-                cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 16) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 128);
+                if (kb_IsDown(kb_KeyDown)) {
+                    if (option < 4) {
+                        option++;
+                    } else {
+                        option = 0;
+                    }
+                } else if (kb_IsDown(kb_KeyUp)) {
+                    if (option) {
+                        option--;
+                    } else {
+                        option = 4;
+                    }
+                } else if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
+                    switch (option) {
+                        case 0:
+                            *is24Hour = !*is24Hour;
+                            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
+                            gfx_BlitBuffer();
+                            break;
+                        case 1:
+                            *transitionSpeed = !*transitionSpeed;
+                            *transitionSpeed = *transitionSpeed + *transitionSpeed;
+                            break;
+                        case 2:
+                            if (kb_IsDown(kb_KeyLeft)) {
+                                if (*transitionSpeed > 1) {
+                                    *transitionSpeed = *transitionSpeed - 1;
+                                } else {
+                                    *transitionSpeed = 3;
+                                }
+                            } else {
+                                if (*transitionSpeed < 3) {
+                                    *transitionSpeed = *transitionSpeed + 1;
+                                } else {
+                                    *transitionSpeed = 1;
+                                }
+                            }
+                            break;
+                        case 3:
+                            *displayCEaShell = !*displayCEaShell;
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+                    if (option == 4) {
+                        themePicker = true;
+                    }
+                    while (kb_AnyKey());
+                }
+                
+                if (themePicker) {
+                    menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
+                }
+                gfx_BlitBuffer();
             }
-            color = 3 * ((cursorX - 16) / 28) + 15 * (cursorY > 47);    // Change the selected color/theme
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
 
-            shapes_RoundRectangleFill(colors[0], 8, 26, 26, prevCursorX, prevCursorY);    // Erase old color
-            shapes_RoundRectangleFill(defaultThemes[pColor], 6, 22, 22, prevCursorX + 2, prevCursorY + 2);
-
-            shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
-            shapes_RoundRectangleFill(defaultThemes[color], 6, 22, 22, cursorX + 2, cursorY + 2);
-
-            if ((prevCursorX == 128 && prevCursorY == 75) || (cursorX == 128 && cursorY == 75)) {
-                gfx_TransparentSprite_NoClip(invSwitch, 130, 77);
-            }
-            
-            menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
             gfx_BlitBuffer();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
@@ -140,7 +227,8 @@ void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileC
             keyPressed = true;
             timer_Set(1,0);
         }
-        if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) {   // If you select a theme
+        if ((kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) && themePicker) {   // If you select a theme
+            themePicker = false;
             if (color == 27) {
                 colors[3] = !colors[3];
                 invertPalette();
@@ -150,9 +238,16 @@ void menu_Looks(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileC
                 colors[2] = defaultThemes[color + 2];
             }
             gfx_FillScreen(colors[0]);
-            ui_DrawAllFiles(colors, fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell);
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, is24Hour, transitionSpeed, displayCEaShell);
-            ui_StatusBar(colors[1], is24Hour, boot_GetBatteryStatus(), "Customize");    // Might as well also update the battery
+            ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell);
+            shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
+            shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
+            gfx_BlitBuffer();
+        } else if (kb_IsDown(kb_KeyAlpha) && themePicker) {
+            themePicker = false;
+            shapes_RoundRectangleFill(colors[0], 8, 140, 92, 15, 109);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
             gfx_BlitBuffer();
         }
     }

@@ -11,6 +11,8 @@ extern "C" {
 
 void shapes_RoundRectangleFill(const uint8_t, const uint8_t, const int, const uint8_t, const int, const uint8_t);	// Draws a filled rectangle with rounded corners
 
+void shapes_PixelIndentRectangle(const uint8_t, const uint8_t, const unsigned int, const uint8_t, const unsigned int, const uint8_t);
+
 void shapes_GetTransparentRect(gfx_sprite_t *, const uint8_t, int, uint8_t);
 
 void shapes_DrawTransparentRect(gfx_sprite_t *, const int, const uint8_t);   // Draws a semi-transparent filled rectangle with rounded corners

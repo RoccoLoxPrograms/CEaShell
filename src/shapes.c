@@ -12,6 +12,16 @@ void shapes_RoundRectangleFill(const uint8_t color, const uint8_t radius, const 
     gfx_FillRectangle_NoClip(x + radius, y, width - radius * 2, height);
 }
 
+void shapes_PixelIndentRectangle(const uint8_t fgColor, const uint8_t bgColor, const unsigned int x, const uint8_t y, const unsigned int width, const uint8_t height) {
+    gfx_SetColor(fgColor);
+    gfx_FillRectangle_NoClip(x, y, width, height);
+    gfx_SetColor(bgColor);
+    gfx_SetPixel(x, y);
+    gfx_SetPixel(x, y + height - 1);
+    gfx_SetPixel(x + width - 1, y + height - 1);
+    gfx_SetPixel(x + width - 1, y);
+}
+
 void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, const uint8_t color, int x, uint8_t y) {
     x += 2; // Make sure it's hidden behind whatever we draws
     y += 2;

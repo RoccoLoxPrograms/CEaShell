@@ -160,7 +160,8 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Looks(colors, fileSelected, fileNumbers[appvars], fileStartLoc, is24Hour, transitionSpeed, appvars, displayCEaShell); // This function will store changed colors into the colors array
+                menu_Looks(colors, &fileSelected, fileNumbers[appvars], fileStartLoc, &is24Hour, &transitionSpeed, appvars, &displayCEaShell); // This function will store changed colors into the colors array
+                util_FilesInit(fileNumbers, displayCEaShell);
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
