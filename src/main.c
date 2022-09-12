@@ -10,6 +10,7 @@
 #include <graphx.h>
 #include <keypadc.h>
 #include <fileioc.h>
+#include <string.h>
 #include <sys/timers.h>
 #include <sys/power.h>
 #include <ti/getcsc.h>
@@ -116,11 +117,17 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
                 redraw = 1;
             }
             if (kb_IsDown(kb_KeyDel) && fileSelected) {
-                uint8_t filesSearched = 0;
+                unsigned int filesSearched = 0;
                 uint8_t osFileType;
                 char *delFileName;
                 void *vatPtr = NULL;
                 while ((delFileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
+                    if (*delFileName == '!' || *delFileName == '#') {
+                        continue;
+                    }
+                    if (!displayCEaShell && !strcmp(delFileName, "CEASHELL")) {
+                        continue;
+                    }
                     if (appvars && osFileType == OS_TYPE_APPVAR) {
                         if (fileSelected - 1 == filesSearched) {
                             break;
