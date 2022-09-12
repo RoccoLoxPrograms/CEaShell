@@ -52,7 +52,7 @@ inRam:
     inc hl
     ld a, $2a ; check for Cesium format (quotation mark token)
     cp a, (hl)
-    jp z, _cesiumIcon
+    jp z, _description
     ld a, $44 ; D
     cp a, (hl)
     ld a, 0
@@ -112,7 +112,15 @@ getDCSType:
     pop af
     cp a, 16
     jr z, _mono8x8
+    cp a, 64
     pop hl
+    dec hl
+    dec hl
+    dec hl
+    jp z, _mono16x16
+    inc hl
+    inc hl
+    inc hl
 
 _color:
     ld b, 0 ; underflows to 255 (256 bytes)
@@ -203,7 +211,7 @@ _mono8x8:
 
 _mono16x16:
     inc hl
-    inc hl ; skip the newline
+    inc hl
     ld a, $2a ; check for quotation mark just to be safe
     cp a, (hl)
     ld a, 0
@@ -240,34 +248,34 @@ _mono16x16:
 
     jq return
 
-_cesiumIcon:
+_description:
     inc hl
     ld a, $3f ; check for newline
     cp a, (hl)
     jr z, .getIcon
     push hl
-    pop bc
+    pop bc ; swap hl and bc
     call _checkEOF ; check for end of file
     ld a, 0
     ret z
     push bc
-    pop hl
-    jr _cesiumIcon
+    pop hl ; swap bc and hl
+    jr _description
 
 .getIcon:
-    inc hl
+    inc hl ; skip newline
     ld a, $3e ; check for second colon
     cp a, (hl)
     ld a, 0
     ret nz
     inc hl
-    ld a, $2a ; check for quotation
+    ld a, $2a ; check for quotation mark
     cp a, (hl)
     ld a, 0
     ret nz
-    inc hl
     push de
-    jp _color
+    dec hl ; switch back so _getIconLength works
+    jp _getIconLength
 
 return:
     ld a, 1
