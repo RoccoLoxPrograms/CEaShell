@@ -124,9 +124,14 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_SetColor(colors[1]);
         gfx_FillRectangle_NoClip(165, 96, 140, 19);
         shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
+        shapes_RoundRectangleFill(colors[0], 8, 110, 23, 165, 189);
+        gfx_SetColor(colors[0]);
+        gfx_SetPixel(275, 201);
         shapes_RoundRectangleFill(colors[0], 8, 140, 56, 165, 46);
         shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
         menu_ThemePreview(color, colors, defaultThemes);
+        gfx_SetTextScale(1, 1);
+        gfx_PrintStringXY("Alpha - Return", 172, 198);
         uint8_t drawBox = 0;    // Theme selector
         for (uint8_t y = 49; y < 78; y += 28) {
             for (int x = 168; x < 282; x += 28, drawBox += 3) {
@@ -271,7 +276,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
             ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell);
             shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
             gfx_SetColor(colors[1]);
-            gfx_FillRectangle_NoClip(165, 130, 140, 71);
+            gfx_FillRectangle_NoClip(165, 130, 140, 82);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
             ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
             gfx_BlitBuffer();
@@ -279,7 +284,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
             themePicker = false;
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
             gfx_SetColor(colors[1]);
-            gfx_FillRectangle_NoClip(165, 130, 140, 71);
+            gfx_FillRectangle_NoClip(165, 130, 140, 82);
             gfx_BlitBuffer();
         }
     }
