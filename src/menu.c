@@ -17,13 +17,18 @@
 static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes) {   // Draws the theme preview box. Basically a bunch of rectangles
     if (color == 27) {
         shapes_RoundRectangleFill(255 - colors[0], 7, 134, 86, 168, 112);
-        shapes_RoundRectangleFill(255 - colors[1], 6, 61, 78, 172, 116);
+        shapes_RoundRectangleFill(255 - colors[1], 6, 61, 67, 172, 116);
         shapes_RoundRectangleFill(255 - colors[2], 6, 61, 39, 237, 116);
     } else {
         shapes_RoundRectangleFill(defaultThemes[color + 1], 7, 134, 86, 168, 112);
-        shapes_RoundRectangleFill(defaultThemes[color], 6, 61, 78, 172, 116);
+        shapes_RoundRectangleFill(defaultThemes[color], 6, 61, 67, 172, 116);
         shapes_RoundRectangleFill(defaultThemes[color + 2], 6, 61, 39, 237, 116);
     }
+
+    gfx_SetTextFGColor(255 * !(defaultThemes[color] > 131 && defaultThemes[color] % 8 > 3));
+    gfx_SetTextScale(1, 1);
+    gfx_PrintStringXY("Alpha: Return", 173, 186);
+    gfx_SetTextFGColor(255 * !(defaultThemes[color] > 131 && defaultThemes[color] % 8 > 3));
 }
 
 static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const uint8_t option) {
@@ -124,14 +129,9 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_SetColor(colors[1]);
         gfx_FillRectangle_NoClip(165, 96, 140, 19);
         shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
-        shapes_RoundRectangleFill(colors[0], 8, 110, 23, 165, 189);
-        gfx_SetColor(colors[0]);
-        gfx_SetPixel(275, 201);
         shapes_RoundRectangleFill(colors[0], 8, 140, 56, 165, 46);
         shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
         menu_ThemePreview(color, colors, defaultThemes);
-        gfx_SetTextScale(1, 1);
-        gfx_PrintStringXY("Alpha - Return", 172, 198);
         uint8_t drawBox = 0;    // Theme selector
         for (uint8_t y = 49; y < 78; y += 28) {
             for (int x = 168; x < 282; x += 28, drawBox += 3) {
