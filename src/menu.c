@@ -33,64 +33,64 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
         switch (option) {
             case 0:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 50, 132, 9);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 170, 51, 130, 9);
                 break;
             case 1:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 67, 132, 9);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 170, 68, 130, 9);
                 break;
             case 2:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 84, 132, 21);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 170, 85, 130, 21);
                 break;
             case 3:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 113, 132, 21);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 170, 114, 130, 21);
                 break;
             case 4:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 169, 142, 132, 9);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 170, 143, 130, 9);
                 break;
             default:
                 break;
         }
 
         gfx_SetTextScale(1, 1); // Customizing options
-        gfx_PrintStringXY("Clock:", 170, 51);
-        gfx_PrintStringXY("<", 234, 51);
-        gfx_PrintStringXY(">", 293, 51);
+        gfx_PrintStringXY("Clock:", 171, 52);
+        gfx_PrintStringXY("<", 235, 52);
+        gfx_PrintStringXY(">", 294, 52);
         if (is24Hour) {
-            gfx_PrintStringXY("24 Hour", 241, 51);
+            gfx_PrintStringXY("24 Hour", 242, 52);
         } else {
-            gfx_PrintStringXY("AM/PM", 246, 51);
+            gfx_PrintStringXY("AM/PM", 247, 52);
         }
-        gfx_PrintStringXY("Transitions:", 170, 68);
-        gfx_PrintStringXY("<", 263, 68);
-        gfx_PrintStringXY(">", 293, 68);
-        gfx_PrintStringXY("Transition", 170, 85);
-        gfx_PrintStringXY("Speed:", 170, 97);
-        gfx_PrintStringXY("<", 242, 97);
-        gfx_PrintStringXY(">", 293, 97);
-        gfx_PrintStringXY("Hide", 170, 114);
-        gfx_PrintStringXY("CEaShell:", 170, 126);
-        gfx_PrintStringXY("<", 263, 126);
-        gfx_PrintStringXY(">", 293, 126);
-        gfx_PrintStringXY("Change Theme", 170, 143);
+        gfx_PrintStringXY("Transitions:", 171, 69);
+        gfx_PrintStringXY("<", 264, 69);
+        gfx_PrintStringXY(">", 294, 69);
+        gfx_PrintStringXY("Transition", 171, 86);
+        gfx_PrintStringXY("Speed:", 171, 98);
+        gfx_PrintStringXY("<", 243, 98);
+        gfx_PrintStringXY(">", 294, 98);
+        gfx_PrintStringXY("Hide", 171, 115);
+        gfx_PrintStringXY("CEaShell:", 171, 127);
+        gfx_PrintStringXY("<", 264, 127);
+        gfx_PrintStringXY(">", 294, 127);
+        gfx_PrintStringXY("Change Theme", 171, 144);
         gfx_PrintStringXY("Nothing", 59, 144);
         gfx_PrintStringXY("Selected", 55, 157);
         if (transitionSpeed) {
-            gfx_PrintStringXY("On", 273, 68);
+            gfx_PrintStringXY("On", 274, 69);
             if (transitionSpeed == 1) {
-                gfx_PrintStringXY("Slow", 256, 97);
+                gfx_PrintStringXY("Slow", 257, 98);
             } else if (transitionSpeed == 2) {
-                gfx_PrintStringXY("Normal", 248, 97);
+                gfx_PrintStringXY("Normal", 249, 98);
             } else if (transitionSpeed == 3) {
-                gfx_PrintStringXY("Fast", 255, 97);
+                gfx_PrintStringXY("Fast", 256, 98);
             }
         } else {
-            gfx_PrintStringXY("Off", 269, 68);
-            gfx_PrintStringXY("Off", 258, 97);
+            gfx_PrintStringXY("Off", 270, 69);
+            gfx_PrintStringXY("Off", 259, 98);
         }
         if (!displayCEaShell) {
-            gfx_PrintStringXY("On", 273, 126);
+            gfx_PrintStringXY("On", 274, 127);
         } else {
-            gfx_PrintStringXY("Off", 269, 126);
+            gfx_PrintStringXY("Off", 270, 127);
         }
     } else {
         shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
