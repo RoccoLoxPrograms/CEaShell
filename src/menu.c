@@ -27,25 +27,55 @@ static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_
 }
 
 static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const uint8_t option) {
-    shapes_RoundRectangleFill(colors[0], 8, 140, 56, 165, 46);
-
     if (!themePicker) {
         shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
+        if (option != 2 && option != 4) {
+            shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
+        } else {
+            gfx_SetColor(colors[1]);
+            gfx_FillRectangle_NoClip(165, 111, 140, 19);
+            shapes_RoundRectangleFill(colors[0], 8, 140, 72, 165, 46);
+        }
+        gfx_SetTextScale(1, 1);
+        gfx_PrintStringXY("About:", 171, 52);
         switch (option) {
             case 0:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 20, 51, 130, 9);
+                gfx_PrintStringXY("Choose whether", 171, 69);
+                gfx_PrintStringXY("the clock appears", 171, 81);
+                gfx_PrintStringXY("using 24-Hour", 171, 93);
+                gfx_PrintStringXY("time or using", 171, 105);
+                gfx_PrintStringXY("12-Hour time.", 171, 117);
                 break;
             case 1:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 20, 68, 130, 9);
+                gfx_PrintStringXY("Turn on/off the", 171, 69);
+                gfx_PrintStringXY("transition", 171, 81);
+                gfx_PrintStringXY("animations when", 171, 93);
+                gfx_PrintStringXY("opening or", 171, 105);
+                gfx_PrintStringXY("closing menus.", 171, 117);
                 break;
             case 2:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 20, 85, 130, 21);
+                gfx_PrintStringXY("Choose the", 171, 69);
+                gfx_PrintStringXY("animation speed", 171, 81);
+                gfx_PrintStringXY("for transition", 171, 93);
+                gfx_PrintStringXY("animations.", 171, 105);
                 break;
             case 3:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 20, 114, 130, 21);
+                gfx_PrintStringXY("Choose whether", 171, 69);
+                gfx_PrintStringXY("to show CEaShell", 171, 81);
+                gfx_PrintStringXY("in the list of", 171, 93);
+                gfx_PrintStringXY("programs shown", 171, 105);
+                gfx_PrintStringXY("in the shell.", 171, 117);
                 break;
             case 4:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 20, 143, 130, 9);
+                gfx_PrintStringXY("Select a preset", 171, 69);
+                gfx_PrintStringXY("color theme", 171, 81);
+                gfx_PrintStringXY("for CEaShell to", 171, 93);
+                gfx_PrintStringXY("use.", 171, 105);
                 break;
             default:
                 break;
@@ -72,8 +102,6 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_PrintStringXY("<", 114, 127);
         gfx_PrintStringXY(">", 144, 127);
         gfx_PrintStringXY("Change Theme", 21, 144);
-        gfx_PrintStringXY("Nothing", 209, 144);
-        gfx_PrintStringXY("Selected", 205, 157);
         if (transitionSpeed) {
             gfx_PrintStringXY("On", 124, 69);
             if (transitionSpeed == 1) {
@@ -93,23 +121,27 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
             gfx_PrintStringXY("Off", 120, 127);
         }
     } else {
+        gfx_SetColor(colors[1]);
+        gfx_FillRectangle_NoClip(165, 96, 140, 19);
+        shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
+        shapes_RoundRectangleFill(colors[0], 8, 140, 56, 165, 46);
         shapes_RoundRectangleFill(colors[2], 8, 26, 26, cursorX, cursorY);
         menu_ThemePreview(color, colors, defaultThemes);
-    }
-    uint8_t drawBox = 0;    // Theme selector
-    for (uint8_t y = 49; y < 78; y += 28) {
-        for (int x = 168; x < 282; x += 28, drawBox += 3) {
-            shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
+        uint8_t drawBox = 0;    // Theme selector
+        for (uint8_t y = 49; y < 78; y += 28) {
+            for (int x = 168; x < 282; x += 28, drawBox += 3) {
+                shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
+            }
         }
+        gfx_TransparentSprite_NoClip(invSwitch, 280, 77);   // Invert color icon
     }
-    gfx_TransparentSprite_NoClip(invSwitch, 280, 77);   // Invert color icon
+    
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
 void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const bool appvars, bool *displayCEaShell) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
-    shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
     menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, 0);
     gfx_BlitBuffer();
 
@@ -210,11 +242,9 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                     }
                     while (kb_AnyKey());
                 }
-                
                 if (themePicker) {
                     menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
                 }
-                gfx_BlitBuffer();
             }
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
 
@@ -240,14 +270,16 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
             gfx_FillScreen(colors[0]);
             ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell);
             shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
-            shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
+            gfx_SetColor(colors[1]);
+            gfx_FillRectangle_NoClip(165, 130, 140, 71);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
             ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
             gfx_BlitBuffer();
         } else if (kb_IsDown(kb_KeyAlpha) && themePicker) {
             themePicker = false;
-            shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+            gfx_SetColor(colors[1]);
+            gfx_FillRectangle_NoClip(165, 130, 140, 71);
             gfx_BlitBuffer();
         }
     }
