@@ -110,7 +110,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         if (transitionSpeed) {
             gfx_PrintStringXY("On", 124, 69);
             if (transitionSpeed == 1) {
-                gfx_PrintStringXY("Slow", 207, 98);
+                gfx_PrintStringXY("Slow", 107, 98);
             } else if (transitionSpeed == 2) {
                 gfx_PrintStringXY("Normal", 99, 98);
             } else if (transitionSpeed == 3) {
