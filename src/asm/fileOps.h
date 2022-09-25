@@ -35,6 +35,8 @@ bool getIconDCS(char *, uint8_t, gfx_sprite_t *);   // Gets a DCS format icon
 
 int getProgSize(char *, uint8_t);   // Gets the actual size of a program (ti_GetSize is slightly off)
 
+int getASMPrgmSize(void); 
+
 #ifdef __cplusplus
 }
 #endif

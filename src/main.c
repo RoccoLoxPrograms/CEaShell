@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: September 25, 2022
- * Version: 0.61
+ * Version: 0.61.1
  * 
  * --------------------------------------
 **/
@@ -280,7 +280,7 @@ int main(void) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
-                    util_RunPrgm(fileSelected, fileStartLoc, displayCEaShell);
+                    util_RunPrgm(fileSelected, displayCEaShell);
                 }
             }
             if (!keyPressed) {

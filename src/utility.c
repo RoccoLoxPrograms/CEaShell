@@ -116,7 +116,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
 }
 
 void util_PrintFreeRamRom(void) {
-    unsigned int ramFree = os_MemChk(NULL) + getProgSize("CEASHELL", os_AsmPrgmSize);
+    unsigned int ramFree = os_MemChk(NULL) + getASMPrgmSize();
     os_ArcChk();
     gfx_PrintStringXY("RAM Free: ", 82, 205);
     gfx_PrintUInt(ramFree, 6);
@@ -124,7 +124,7 @@ void util_PrintFreeRamRom(void) {
     gfx_PrintInt(os_TempFreeArc, 7);
 }
 
-void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc, const bool displayCEaShell) {
+void util_RunPrgm(unsigned int fileSelected, const bool displayCEaShell) {
     gfx_End();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned int filesSearched = 0;
@@ -148,7 +148,6 @@ void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc, const bo
     if (shellType == BASIC_TYPE) {
         installStopHook();
     }
-    unsigned int returnInfo[] = {fileSelected, fileStartLoc};
     runProgram(fileName, fileType, shellType);
     return;
 }

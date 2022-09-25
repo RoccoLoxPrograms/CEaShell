@@ -41,7 +41,7 @@ char *util_FileTypeToString(const uint8_t, const bool);
 
 void util_PrintFreeRamRom(void);
 
-void util_RunPrgm(unsigned int, unsigned int, const bool);
+void util_RunPrgm(unsigned int, const bool);
 
 int util_EndPrgm(void *data, int retVal);
 
