@@ -1,3 +1,12 @@
+;--------------------------------------
+;
+; CEaShell Source Code - getProgSize.asm
+; By RoccoLox Programs and TIny_Hacker
+; Copyright 2022
+; License: GPL-3.0
+;
+;--------------------------------------
+
 	assume adl=1
 
 	section .text

@@ -1,4 +1,16 @@
-#include "main.h"
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - main.c
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * Last Build: September 25, 2022
+ * Version: 0.61
+ * 
+ * --------------------------------------
+**/
+
 #include "ui.h"
 #include "shapes.h"
 #include "menu.h"
@@ -6,6 +18,7 @@
 #include "asm/invert.h"
 #include "asm/sortVat.h"
 #include "asm/fileOps.h"
+#include "gfx/gfx.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -20,11 +33,6 @@ gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
     while (kb_AnyKey());
-    shellMain(0, 0);
-    return 0;
-}
-
-int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
@@ -52,6 +60,8 @@ int shellMain(unsigned int fileSelected, unsigned int fileStartLoc) {
 
     uint8_t fileNumbers[2] = {0, 0};
     util_FilesInit(fileNumbers, displayCEaShell); // Get number of programs and appvars
+    unsigned int fileSelected = 0;
+    unsigned int fileStartLoc = 0;
 
     bool infoOps[2] = {false, false}; // This will keep track of whether a program has been deleted or hidden
 

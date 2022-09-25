@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - utility.h
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * 
+ * --------------------------------------
+**/
+
 #ifndef UTILITY_H
 #define UTILITY_H
 

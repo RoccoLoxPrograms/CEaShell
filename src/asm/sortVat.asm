@@ -33,7 +33,7 @@
 
 	assume adl=1
 
-	section .text
+	section .data
 
 include 'include/ti84pceg.inc'
 

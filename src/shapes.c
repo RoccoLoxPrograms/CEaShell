@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - shapes.c
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * 
+ * --------------------------------------
+**/
+
 #include "shapes.h"
 
 #include <graphx.h>
@@ -63,7 +74,7 @@ void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const u
     gfx_RotateSpriteC(corner1, corner2);
     gfx_TransparentSprite_NoClip(corner2, x, y + height - corner1->width);
     
-    free (corner2);
+    free(corner2);
 }
 
 void shapes_FileIcon(const uint8_t color, const uint8_t bgColor, const int x, const uint8_t y) {

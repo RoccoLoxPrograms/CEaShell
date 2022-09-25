@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - sortVat.h
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * 
+ * --------------------------------------
+**/
+
 #ifndef SORTVAT_H
 #define SORTVAT_H
 

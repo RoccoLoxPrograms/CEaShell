@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - menu.c
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * 
+ * --------------------------------------
+**/
+
 #include "gfx/gfx.h"
 #include "menu.h"
 #include "shapes.h"
@@ -318,8 +329,8 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
         if (osFileType != OS_TYPE_APPVAR) {
             fileName[0] += 64 * isHidden;
         }
-        free (description);
-        free (corner1);
+        free(description);
+        free(corner1);
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
         const uint8_t nameX = 125 - gfx_GetStringWidth(fileName) / 2;

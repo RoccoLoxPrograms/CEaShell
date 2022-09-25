@@ -68,14 +68,7 @@ _hookParser:
 	ld a, ti.E_AppErr1
 	jq ti.JError
 
-hookSize := $-_hookParser
-
 _installStopHook: ; hook chaining and installation
-    ld hl, _hookParser
-    ld de, ti.appData
-    ld bc, hookSize
-    ldir ; copy hook to appData
-
     ; more cesium code
     xor	a, a
 	ld (ti.appErr2), a
@@ -83,7 +76,7 @@ _installStopHook: ; hook chaining and installation
 	bit	ti.parserHookActive, (iy + ti.hookflags4)
 	jq z, .noChain
 	ld	hl, (ti.parserHookPtr)
-	ld de, ti.appData
+	ld de, _hookParser
 	or a, a
 	sbc	hl, de
 	add	hl, de
@@ -112,14 +105,14 @@ _installStopHook: ; hook chaining and installation
 	jq .chainHooks
 
 .noChain:
-    ld hl, ti.appData
+    ld hl, _hookParser
     jp ti.SetParserHook
 
 _removeStopHook:
     bit	ti.parserHookActive, (iy + ti.hookflags4)
 	jq z, .clearParser
 	ld hl, (ti.parserHookPtr)
-	ld de, ti.appData
+	ld de, _hookParser
 	or a, a
 	sbc	hl, de
 	add	hl, de

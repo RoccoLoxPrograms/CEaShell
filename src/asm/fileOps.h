@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - fileOps.h
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * 
+ * --------------------------------------
+**/
+
 #ifndef FILEOPS_H
 #define FILEOPS_H
 

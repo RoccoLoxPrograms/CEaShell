@@ -1,11 +1,18 @@
-# ----------------------------
-# Makefile Options
-# ----------------------------
+#--------------------------------------
+#
+# CEaShell Source Code - makefile
+# By RoccoLox Programs and TIny_Hacker
+# Copyright 2022
+# License: GPL-3.0
+#
+#--------------------------------------
 
-NAME = CEASHELL
+NAME = CEaShell
+APP_NAME = CEaShell
+APP_VERSION = 5.0.0.0000
 ICON = icon.png
-DESCRIPTION = "CEaShell v0.60.2"
-COMPRESSED = YES
+DESCRIPTION = (C)  2022  RoccoLox  +  TIny_Hacker
+COMPRESSED = NO
 ARCHIVED = YES
 
 CFLAGS = -Wall -Wextra -Oz
@@ -13,7 +20,7 @@ CXXFLAGS = -Wall -Wextra -Oz
 
 # ----------------------------
 
-include $(shell cedev-config --makefile)
+include app_tools/makefile
 
 final:
 	make

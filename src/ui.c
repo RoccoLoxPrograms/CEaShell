@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------
+ * 
+ * CEaShell Source Code - ui.c
+ * By RoccoLox Programs and TIny_Hacker
+ * Copyright 2022
+ * License: GPL-3.0
+ * 
+ * --------------------------------------
+**/
+
 #include "ui.h"
 #include "shapes.h"
 #include "utility.h"
@@ -27,7 +38,9 @@ void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden
     if (hidden) {
         shapes_GetTransparentRect(tileSprite, colors[(selected)], x, y);
     }
-    fileName[0] -= 64 * hidden;
+    if (fileType != DIR_TYPE) {
+        fileName[0] -= 64 * hidden;
+    }
 
     if (selected) {
         shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
@@ -42,13 +55,13 @@ void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden
         shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
         shapes_DrawRoundCorners(corner1, 64, 64, x, y);
-        free (corner1);
+        free(corner1);
     } else if (fileType == BASIC_TYPE && getIconDCS(fileName, osFileType, icon)) { // Possible optimizations with this bit and the above if statement?
         gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
         shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
         gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
         shapes_DrawRoundCorners(corner1, 64, 64, x, y);
-        free (corner1);
+        free(corner1);
     } else {
         shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);  // If there isn't an icon we'll draw our own default file icon
         gfx_SetColor(255 * colorAlt);
@@ -69,8 +82,10 @@ void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden
         gfx_SetTextFGColor(255 * !colorAlt);
     }
     
-    free (icon);    // We do not need this anymore
-    fileName[0] += 64 * hidden; // Make the hidden name viewable (If it is hidden)
+    free(icon);    // We do not need this anymore
+    if (fileType != DIR_TYPE) {
+        fileName[0] += 64 * hidden; // Make the hidden name viewable (If it is hidden)
+    }
     gfx_SetTextScale(1, 1);
     if (drawName) { // In some places we do not draw the name
         uint8_t stringLength = gfx_GetStringWidth(fileName);
@@ -359,7 +374,7 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
                     } else {
                         util_PrintFreeRamRom();
                     }
-                    free (description);
+                    free(description);
                     fileName[0] += 64 * hidden;
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
