@@ -296,18 +296,18 @@ _return:
 	xor a, a
 
 _return.error:
-	push	af
-	res	ti.progExecuting,(iy + ti.newDispF)
-	res	ti.cmdExec,(iy + ti.cmdFlags)
-	res	ti.allowProgTokens,(iy + ti.newDispF)
-	res	ti.textInverse,(iy + ti.textFlags)
-	res	ti.onInterrupt,(iy + ti.onFlags)
-	call	ti.ReloadAppEntryVecs
+	push af
+	res ti.progExecuting, (iy + ti.newDispF)
+	res	ti.cmdExec, (iy + ti.cmdFlags)
+	res	ti.allowProgTokens, (iy + ti.newDispF)
+	res	ti.textInverse, (iy + ti.textFlags)
+	res	ti.onInterrupt, (iy + ti.onFlags)
+	call ti.ReloadAppEntryVecs
 	pop	bc
 	ld a, b
-	or	a,a
-	jr	z, .quit
-	call	_showError
+	or a,a
+	jr z, .quit
+	call _showError
 
 .quit:
     ld de, (ti.asm_prgm_size)
@@ -358,27 +358,27 @@ _checkMemSpace:
 	ret
 
 _clearUsedMem:
-    xor	a,a
-	ld	(ti.appErr1),a
-	ld	(ti.kbdGetKy),a
-	call	ti.ForceFullScreen
-	call	ti.ClrScrn
-	call	ti.HomeUp
-	ld	hl,ti.pixelShadow
-	ld	bc,8400 * 3
-	call	ti.MemClear
-	call	ti.ClrTxtShd
-	ld	hl,ti.textShadow
-	ld	de,ti.cmdShadow
-	ld	bc,$104
+    xor	a, a
+	ld (ti.appErr1), a
+	ld (ti.kbdGetKy), a
+	call ti.ForceFullScreen
+	call ti.ClrScrn
+	call ti.HomeUp
+	ld hl, ti.pixelShadow
+	ld bc, 8400 * 3
+	call ti.MemClear
+	call ti.ClrTxtShd
+	ld hl, ti.textShadow
+	ld de, ti.cmdShadow
+	ld bc, $104
 	ldir
 	ret
 
 _utilBackupPrgmName:
-	ld	hl,ti.OP1
+	ld hl, ti.OP1
 .entry:
-	ld	de,backupPrgmName
-	jp	ti.Mov9b
+	ld de, backupPrgmName
+	jp ti.Mov9b
 
 _utilSquishyConvertByte:
 	sub a, $30
@@ -388,10 +388,10 @@ _utilSquishyConvertByte:
 	ret
 
 _utilSquishyCheckByte:
-	cp	a,$30
-	jp	c,.error
-	cp	a,$3A
-	jr	nc,.skip
+	cp a, $30
+	jp c, .error
+	cp a, $3A
+	jr nc, .skip
 	;sub	a,$30
 	ret
 
@@ -400,174 +400,174 @@ _utilSquishyCheckByte:
 	jp ti.ErrSyntax
 
 .skip:
-	cp	a,$41
-	jp	c,ti.ErrSyntax
-	cp	a,$47
-	jp	nc,ti.ErrSyntax
+	cp a, $41
+	jp c, ti.ErrSyntax
+	cp a, $47
+	jp nc, ti.ErrSyntax
 	;sub	a,$37
 	ret
 
 _showError:
-	xor	a,a
-	ld	(ti.menuCurrent),a
-	ld	a,(ti.errNo)
-	cp	a,ti.E_AppErr1
+	xor a, a
+	ld (ti.menuCurrent), a
+	ld a, (ti.errNo)
+	cp a, ti.E_AppErr1
 	ret	z			; if stop token, ignore
-	call	ti.boot.ClearVRAM
-	ld	a,$2d
-	ld	(ti.mpLcdCtrl),a
-	call	ti.CursorOff
-	call	ti.DrawStatusBar
-	call	ti.DispErrorScreen
-	ld	hl,1
-	ld	(ti.curRow),hl
-	ld	hl,data_string_quit1
-	set	ti.textInverse,(iy + ti.textFlags)
-	call	ti.PutS
-	res	ti.textInverse,(iy + ti.textFlags)
-	call	ti.PutS
-	ld	hl, backupPrgmName
-	ld	a,(hl)			; check if correct program
-	cp	a,ti.ProtProgObj
-	jr	nz,.next
-	ld	b,a
-	ld	a,(ti.basic_prog)
-	cp	a,b
-	jp	nz,.only_allow_quit
+	call ti.boot.ClearVRAM
+	ld a, $2d
+	ld (ti.mpLcdCtrl), a
+	call ti.CursorOff
+	call ti.DrawStatusBar
+	call ti.DispErrorScreen
+	ld hl, 1
+	ld (ti.curRow), hl
+	ld hl, data_string_quit1
+	set	ti.textInverse, (iy + ti.textFlags)
+	call ti.PutS
+	res	ti.textInverse, (iy + ti.textFlags)
+	call ti.PutS
+	ld hl, backupPrgmName
+	ld a, (hl)			; check if correct program
+	cp a, ti.ProtProgObj
+	jr nz, .next
+	ld b, a
+	ld a, (ti.basic_prog)
+	cp a, b
+	jp nz, .only_allow_quit
 
 .next:
-	xor	a,a
-	ld	(ti.curCol),a
-	ld	a,2
-	ld	(ti.curRow),a
-	ld	hl,data_string_quit2
-	call	ti.PutS
-	call	ti.PutS
-	call	ti.GetCSC
+	xor	a, a
+	ld (ti.curCol), a
+	ld a, 2
+	ld (ti.curRow), a
+	ld hl, data_string_quit2
+	call ti.PutS
+	call ti.PutS
+	call ti.GetCSC
 .input:
-	call	ti.GetCSC
-	cp	a,ti.skUp
-	jr	z,.highlight_1
-	cp	a,ti.skDown
-	jr	z,.highlight_2
-	cp	a,ti.sk2
-	jr	z,.goto
-	cp	a,ti.sk1
-	jp	z,.exit
-	cp	a,ti.skEnter
-	jr	z,.get_option
-	jr	.input
+	call ti.GetCSC
+	cp a, ti.skUp
+	jr z, .highlight_1
+	cp a, ti.skDown
+	jr z, .highlight_2
+	cp a, ti.sk2
+	jr z, .goto
+	cp a, ti.sk1
+	jp z, .exit
+	cp a, ti.skEnter
+	jr z, .get_option
+	jr .input
 .highlight_1:
-	ld	hl,1
-	ld	de,2
-	ld	a,'1'
-	ld	b,'2'
-	jr	.highlight
+	ld hl, 1
+	ld de, 2
+	ld a, '1'
+	ld b, '2'
+	jr .highlight
 .highlight_2:
-	ld	hl,2
-	ld	de,1
-	ld	a,'2'
-	ld	b,'1'
+	ld hl, 2
+	ld de, 1
+	ld a, '2'
+	ld b, '1'
 .highlight:
-	push	bc
-	push	de
-	ld.sis	(ti.curRow and $ffff),hl
-	ld	hl,ti.OP6
-	ld	(hl),a
+	push bc
+	push de
+	ld.sis (ti.curRow and $ffff), hl
+	ld hl, ti.OP6
+	ld (hl), a
 	inc	hl
-	ld	(hl),':'
+	ld (hl), ':'
 	inc	hl
-	ld	(hl),0
+	ld (hl), 0
 	dec	hl
 	dec	hl
-	push	hl
+	push hl
 	scf
-	sbc	hl,hl
-	ld	(ti.fillRectColor),hl
+	sbc	hl, hl
+	ld (ti.fillRectColor), hl
 	inc	hl
-	ld	de,25
-	ld	bc,(55 shl 8) or 96
-	call	ti.FillRect
+	ld de, 25
+	ld bc, (55 shl 8) or 96
+	call ti.FillRect
 	pop	hl
-	set	ti.textInverse,(iy + ti.textFlags)
-	call	ti.PutS
-	res	ti.textInverse,(iy + ti.textFlags)
+	set	ti.textInverse, (iy + ti.textFlags)
+	call ti.PutS
+	res	ti.textInverse, (iy + ti.textFlags)
 	pop	de
 	pop	bc
-	ld.sis	(ti.curRow and $ffff),de
-	ld	hl,ti.OP6
-	ld	(hl),b
-	call	ti.PutS
-	jr	.input
+	ld.sis (ti.curRow and $ffff), de
+	ld hl, ti.OP6
+	ld (hl), b
+	call ti.PutS
+	jr .input
 .get_option:
-	ld	a,(ti.curRow)
+	ld a, (ti.curRow)
 	dec	a
-	jr	nz,.exit
+	jr nz, .exit
 .goto:
 	;ld	a,return_goto (We'll add this later when we support editing programs)
 	ret
 .only_allow_quit:
-	call	ti.GetCSC
-	cp	a,ti.sk1
-	jr	z,.exit
-	cp	a,ti.skEnter
-	jr	z,.exit
-	jr	.only_allow_quit
+	call ti.GetCSC
+	cp a, ti.sk1
+	jr z, .exit
+	cp a, ti.skEnter
+	jr z, .exit
+	jr .only_allow_quit
 .exit:
 	ret
 
 _reloadApp:
-	call	ti.ClrAppChangeHook
-	res	ti.useTokensInString,(iy + ti.clockFlags)
-	res	ti.onInterrupt,(iy + ti.onFlags)
-	set	ti.graphDraw,(iy + ti.graphFlags)
-	call	ti.ResetStacks
-	call	ti.ReloadAppEntryVecs
-	call	ti.AppSetup
-	set	ti.appRunning,(iy + ti.APIFlg)		; turn on apps
-	set	6,(iy + $28)
-	res	0,(iy + $2C)				; set some app flags
-	set	ti.appAllowContext,(iy + ti.APIFlg)	; turn on apps
-	call	_clearUsedMem
-	ld	hl,$d1787c				; copy to ram data location
-	ld	bc,$fff
-	call	ti.MemClear				; zero out the ram data section
+	call ti.ClrAppChangeHook
+	res	ti.useTokensInString, (iy + ti.clockFlags)
+	res	ti.onInterrupt, (iy + ti.onFlags)
+	set	ti.graphDraw, (iy + ti.graphFlags)
+	call ti.ResetStacks
+	call ti.ReloadAppEntryVecs
+	call ti.AppSetup
+	set	ti.appRunning, (iy + ti.APIFlg)		; turn on apps
+	set	6, (iy + $28)
+	res	0, (iy + $2C)				; set some app flags
+	set	ti.appAllowContext, (iy + ti.APIFlg)	; turn on apps
+	call _clearUsedMem
+	ld hl, $d1787c				; copy to ram data location
+	ld bc, $fff
+	call ti.MemClear				; zero out the ram data section
 	ld hl, _appMainStart				; hl -> start of app
     ld bc, app+256-_appMainStart
 	add hl, bc
-    push	hl					; de -> start of code for app
-	ex	de,hl
-	ld	hl,$18					; find the start of the data to copy to ram
-	add	hl,de
-	ld	hl,(hl)
+    push hl					; de -> start of code for app
+	ex de, hl
+	ld hl, $18					; find the start of the data to copy to ram
+	add	hl, de
+	ld hl, (hl)
     ; compare_hl_zero
-	add	hl,de
-	or	a,a
-	sbc	hl,de					; initialize the bss if it exists
-	jr	z,.no_bss
-	push	hl
+	add	hl, de
+	or a, a
+	sbc	hl, de					; initialize the bss if it exists
+	jr z, .no_bss
+	push hl
 	pop	bc
-	ld	hl,$15
-	add	hl,de
-	ld	hl,(hl)
-	add	hl,de
-	ld	de,$d1787c				; copy it in
+	ld hl, $15
+	add	hl, de
+	ld hl, (hl)
+	add	hl, de
+	ld de, $d1787c				; copy it in
 	ldir
 
 .no_bss:
 	pop	hl
-	push	hl
+	push hl
 	pop	de
-	ld	bc,$1b					; offset
-	add	hl,bc
-	ld	hl,(hl)
-	add	hl,de
-	jp	(hl)
+	ld bc, $1b					; offset
+	add	hl, bc
+	ld hl, (hl)
+	add	hl, de
+	jp (hl)
 
 tempProgram:
 	db	ti.TempProgObj, 'CEASHTMP', 0
 
 data_string_quit1:
-	db	'1:',0,'Quit',0
+	db	'1:', 0, 'Quit', 0
 data_string_quit2:
-	db	'2:',0,'Goto',0
+	db	'2:',  0, 'Goto', 0
