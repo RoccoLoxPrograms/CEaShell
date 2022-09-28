@@ -37,6 +37,7 @@ include 'include/ti84pceg.inc'
 	public _runProgram
     extern app
     extern _appMainStart
+	extern _removeStopHook
 
 backupPrgmName := ti.appData
 
@@ -286,10 +287,13 @@ _basicProgram:
 	call ti.PushErrorHandler
 	call ti.EnableAPD
 	ei
-	ld hl, _return
+	ld hl, _returnBasic
 	push hl
 	call ti.DrawStatusBar
 	jp ti.ParseInp
+
+_returnBasic:
+	call _removeStopHook
 
 _return:
 	call ti.PopErrorHandler
