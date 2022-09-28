@@ -38,7 +38,9 @@ _getCSCHookStart:
     cp a, 3 ; check for program menu
     jr nz, .return
     ld a, (ti.menuCurrentSub)
-    cp a, 0 ; check for run menu
+    cp a, ti.mPrgm_Run ; check for run menu
+    jr z, .icons
+    cp a, ti.mPrgm_Edit
     jr nz, .returnOther
 
 .icons:

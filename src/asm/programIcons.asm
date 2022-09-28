@@ -72,18 +72,21 @@ _showIcons:
 .loop:
     ld a, (itemSelected)
     cp a, 9 ; are we finished drawing programs?
-    ld bc, 03
     jp z, .return
     ld de, (ti.pTemp)
     or a, a
     sbc hl, de
     add hl, de
-    jr z, .return ; return if we've hit the end of the vat
+    jp z, _vatEnd; we draw blank icons for the end of the VAT, this erases potential artifacts on the edit menu
     ld a, (hl)
     cp a, $05
     jr z, .isProgram
-    cp a, $06
+    ld a, (ti.menuCurrentSub)
+    cp a, ti.mPrgm_Edit ; check if we're on the edit menu
     push hl
+    jr z, .nextEntry
+    ld a, (hl)
+    cp a, $06
     jr nz, .nextEntry
     pop hl
 
@@ -589,6 +592,24 @@ _storeMono16x16:
     pop af
     inc de
     ret
+
+_vatEnd:
+    ld a, (itemSelected)
+    cp a, 9
+    jp z, _showIcons.return
+    ld b, a
+    add a, a
+    add a, b ; multiply a by 3
+	ld bc, 0
+    ld c, a
+    ld hl, iconLocations
+    add hl, bc
+    ld de, (hl) ; location to start drawing in VRAM is in de
+    call _noIcon
+    ld a, (itemSelected)
+    inc a
+    ld (itemSelected), a
+    jr _vatEnd
 
 iconLocations:
     dl $d49210
