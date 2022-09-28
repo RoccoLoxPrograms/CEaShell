@@ -14,6 +14,7 @@
 include 'include/ti84pceg.inc'
 
 	public _getIconASM
+
 _getIconASM:
     push ix
     ld ix, 0

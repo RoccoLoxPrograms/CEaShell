@@ -33,7 +33,7 @@ _getIconDCS:
 
     call ti.ChkFindSym
     call ti.ChkInRam
-    jr z, inRam ; same as in getPrgmType
+    jr z, .inRam ; same as in getPrgmType
     ld hl, 10
     add hl, de
     ld a, c
@@ -42,7 +42,7 @@ _getIconDCS:
     add hl, bc
     ex de, hl
 
-inRam:
+.inRam:
     ld hl, 0
     ld a, (de)
     ld l, a
@@ -73,6 +73,7 @@ inRam:
     ret nz
     inc hl
     ld a, $53 ; S
+    cp a, (hl)
     ld a, 0
     ret nz
     inc hl

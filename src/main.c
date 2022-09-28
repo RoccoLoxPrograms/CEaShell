@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: September 25, 2022
- * Version: 0.61.1
+ * Last Build: September 27, 2022
+ * Version: 0.62
  * 
  * --------------------------------------
 **/
@@ -19,6 +19,7 @@
 #include "asm/sortVat.h"
 #include "asm/fileOps.h"
 #include "gfx/gfx.h"
+#include "asm/hooks.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -32,6 +33,7 @@ gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make
 gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
+    installGetCSCHook();
     while (kb_AnyKey());
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
