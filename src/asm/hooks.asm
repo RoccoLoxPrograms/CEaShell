@@ -31,7 +31,7 @@ _getCSCHookStart:
     db $83
     push bc
     cp a, $1a
-    jr nz, .return
+    jr nz, .sort
     pop bc
     push af
     ld a, (ti.menuCurrent)
@@ -41,9 +41,15 @@ _getCSCHookStart:
     cp a, 0 ; check for run menu
     jr nz, .returnOther
 
-.continue:
-    call _sortVAT
+.icons:
     call _showIcons
+    jr .return
+
+.sort:
+    ld a, ti.skPrgm
+    cp a, b
+    jr nz, .return
+    call _sortVAT
 
 .return:
     pop bc
