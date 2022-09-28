@@ -287,13 +287,10 @@ _basicProgram:
 	call ti.PushErrorHandler
 	call ti.EnableAPD
 	ei
-	ld hl, _returnBasic
+	ld hl, _return
 	push hl
 	call ti.DrawStatusBar
 	jp ti.ParseInp
-
-_returnBasic:
-	call _removeStopHook
 
 _return:
 	call ti.PopErrorHandler
@@ -314,6 +311,8 @@ _return.error:
 	call _showError
 
 .quit:
+	call ti.DeleteTempPrograms
+	call ti.CleanAll
     ld de, (ti.asm_prgm_size)
     or a, a
     sbc hl, hl
