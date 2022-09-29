@@ -56,7 +56,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_PrintStringXY("About:", 171, 52);
         switch (option) {
             case 0:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 20, 51, 130, 9);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 50, 132, 11);
                 gfx_PrintStringXY("Choose whether", 171, 69);
                 gfx_PrintStringXY("the clock appears", 171, 81);
                 gfx_PrintStringXY("using 24-Hour", 171, 93);
@@ -64,7 +64,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
                 gfx_PrintStringXY("12-Hour time.", 171, 117);
                 break;
             case 1:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 20, 68, 130, 9);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 67, 132, 11);
                 gfx_PrintStringXY("Turn on/off the", 171, 69);
                 gfx_PrintStringXY("transition", 171, 81);
                 gfx_PrintStringXY("animations when", 171, 93);
@@ -72,14 +72,14 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
                 gfx_PrintStringXY("closing menus.", 171, 117);
                 break;
             case 2:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 20, 85, 130, 21);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 84, 132, 23);
                 gfx_PrintStringXY("Choose the", 171, 69);
                 gfx_PrintStringXY("animation speed", 171, 81);
                 gfx_PrintStringXY("for transition", 171, 93);
                 gfx_PrintStringXY("animations.", 171, 105);
                 break;
             case 3:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 20, 114, 130, 21);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 113, 132, 23);
                 gfx_PrintStringXY("Choose whether", 171, 69);
                 gfx_PrintStringXY("to show CEaShell", 171, 81);
                 gfx_PrintStringXY("in the list of", 171, 93);
@@ -87,7 +87,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
                 gfx_PrintStringXY("in the shell.", 171, 117);
                 break;
             case 4:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 20, 143, 130, 9);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 142, 132, 11);
                 gfx_PrintStringXY("Select a preset", 171, 69);
                 gfx_PrintStringXY("color theme", 171, 81);
                 gfx_PrintStringXY("for CEaShell to", 171, 93);
