@@ -17,21 +17,14 @@ include 'include/ti84pceg.inc'
     extern _showIcons
     public _installGetCSCHook
 
-sort_flag := $21
-sort_first_item_found := 0
-sort_first_hidden := 1
-sort_second_hidden := 2
-sort_first_item_found_ptr := ti.mpLcdCrsrImage
-sort_end_of_part_ptr := ti.mpLcdCrsrImage + 3
-sort_vat_entry_size := ti.mpLcdCrsrImage + 6
-sort_vat_entry_new_loc := ti.mpLcdCrsrImage + 9
-sort_vat_entry_temp_end := ti.mpLcdCrsrImage + 12 + 15
+; CEaShell hook flags stuff
+updateProgInfo := 0
 
 _getCSCHookStart:
     db $83
     push bc
     cp a, $1a
-    jr nz, .sort
+    jr nz, .keyPress
     pop bc
     push af
     ld a, (ti.menuCurrent)
@@ -39,18 +32,40 @@ _getCSCHookStart:
     jr nz, .return
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Run ; check for run menu
-    jr z, .icons
+    jr z, .update
     cp a, ti.mPrgm_Edit
     jr nz, .returnOther
 
-.icons:
+.update:
+    bit updateProgInfo, (iy + ti.asm_Flag2)
+    jr nz, .return
     call _showIcons
+    set updateProgInfo, (iy + ti.asm_Flag2)
+    jr .return
+
+.keyPress: ; keypress event
+    ld a, ti.skPrgm
+    cp a, b
+    jr z, .sort
+    ld a, ti.skUp
+    cp a, b
+    jr z, .updateDescription
+    ld a, ti.skDown
+    cp a, b
+    jr z, .updateDescription
+    ld a, ti.skLeft
+    cp a, b
+    jr z, .updateDescription
+    ld a, ti.skRight
+    cp a, b
+    jr nz, .return
+
+.updateDescription:
+    res updateProgInfo, (iy + ti.asm_Flag2)
     jr .return
 
 .sort:
-    ld a, ti.skPrgm
-    cp a, b
-    jr nz, .return
+    res updateProgInfo, (iy + ti.asm_Flag2)
     call _sortVAT
 
 .return:
