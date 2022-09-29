@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: September 29, 2022
- * Version: 0.63.4
+ * Version: 0.64
  * 
  * --------------------------------------
 **/
@@ -33,6 +33,7 @@ gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make
 gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
+    removeStopHook();
     installGetCSCHook();
     while (kb_AnyKey());
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings

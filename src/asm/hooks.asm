@@ -15,6 +15,7 @@ include 'include/ti84pceg.inc'
 
 	extern _sortVAT
     extern _showIcons
+    extern _showDescription
     public _installGetCSCHook
 
 ; CEaShell hook flags stuff
@@ -40,33 +41,15 @@ _getCSCHookStart:
     bit updateProgInfo, (iy + ti.asm_Flag2)
     jr nz, .return
     call _showIcons
+    call _showDescription
     set updateProgInfo, (iy + ti.asm_Flag2)
     jr .return
 
 .keyPress: ; keypress event
     ld a, ti.skPrgm
     cp a, b
-    jr z, .sort
-    ld a, ti.skUp
-    cp a, b
-    jr z, .redraw
-    ld a, ti.skDown
-    cp a, b
-    jr z, .redraw
-    ld a, ti.skLeft
-    cp a, b
-    jr z, .redraw
-    ld a, ti.skRight
-    cp a, b
-    jr nz, .return
-
-.redraw:
-    res updateProgInfo, (iy + ti.asm_Flag2)
-    jr .return
-
-.sort:
-    res updateProgInfo, (iy + ti.asm_Flag2)
-    call _sortVAT
+    call z, _sortVAT
+    res updateProgInfo, (iy + ti.asm_Flag2) ; reset flag on keypress
 
 .return:
     pop bc
@@ -84,7 +67,7 @@ _getCSCHookStart:
 	ld b, 58
 	ld c, 234
 	call ti.FillRect
-    set updateProgInfo, (iy +ti.asm_Flag2)
+    set updateProgInfo, (iy + ti.asm_Flag2)
 	jr .return
 
 _installGetCSCHook:

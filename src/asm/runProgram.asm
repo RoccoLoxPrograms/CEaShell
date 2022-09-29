@@ -37,7 +37,6 @@ include 'include/ti84pceg.inc'
 	public _runProgram
     extern app
     extern _appMainStart
-	extern _removeStopHook
 
 backupPrgmName := ti.appData
 
@@ -293,7 +292,6 @@ _basicProgram:
 	jp ti.ParseInp
 
 _return:
-	call _removeStopHook
 	call ti.PopErrorHandler
 	xor a, a
 

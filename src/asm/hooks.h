@@ -20,6 +20,8 @@ void installGetCSCHook(void);
 
 void installStopHook(void);
 
+void removeStopHook(void);
+
 #ifdef __cplusplus
 }
 #endif
