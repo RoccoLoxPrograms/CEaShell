@@ -287,15 +287,13 @@ _basicProgram:
 	call ti.PushErrorHandler
 	call ti.EnableAPD
 	ei
-	ld hl, _returnBasic
+	ld hl, _return
 	push hl
 	call ti.DrawStatusBar
 	jp ti.ParseInp
 
-_returnBasic:
-	call _removeStopHook
-
 _return:
+	call _removeStopHook
 	call ti.PopErrorHandler
 	xor a, a
 
