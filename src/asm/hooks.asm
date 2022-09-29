@@ -49,18 +49,18 @@ _getCSCHookStart:
     jr z, .sort
     ld a, ti.skUp
     cp a, b
-    jr z, .updateDescription
+    jr z, .redraw
     ld a, ti.skDown
     cp a, b
-    jr z, .updateDescription
+    jr z, .redraw
     ld a, ti.skLeft
     cp a, b
-    jr z, .updateDescription
+    jr z, .redraw
     ld a, ti.skRight
     cp a, b
     jr nz, .return
 
-.updateDescription:
+.redraw:
     res updateProgInfo, (iy + ti.asm_Flag2)
     jr .return
 
@@ -74,18 +74,18 @@ _getCSCHookStart:
     ld a, b
     ret
 
-.returnOther: ; draw over icons when switching menu
-	ld hl, $ffff
+.returnOther: ; draw over artifact when switching to create menu
+	bit updateProgInfo, (iy + ti.asm_Flag2)
+    jr nz, .return
+    ld hl, $ffff
 	ld (ti.fillRectColor), hl
 	ld hl, 144
 	ld de, 152
 	ld b, 58
 	ld c, 234
 	call ti.FillRect
-	pop bc
-	or a, 1
-	ld a, b
-	ret
+    set updateProgInfo, (iy +ti.asm_Flag2)
+	jr .return
 
 _installGetCSCHook:
     ld hl, _getCSCHookStart
