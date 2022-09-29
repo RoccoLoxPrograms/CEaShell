@@ -62,8 +62,8 @@ _getCSCHookStart:
     jr nz, .return
     ld hl, $ffff
 	ld (ti.fillRectColor), hl
-	ld hl, 144
-	ld de, 152
+	ld hl, 152
+	ld de, 168
 	ld b, 58
 	ld c, 234
 	call ti.FillRect

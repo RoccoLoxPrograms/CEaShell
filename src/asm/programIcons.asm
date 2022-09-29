@@ -612,12 +612,12 @@ _vatEnd:
     jr _vatEnd
 
 iconLocations:
-    dl $d49210
-    dl $d4c410
-    dl $d4f610
-    dl $d52810
-    dl $d55a10
-    dl $d58c10
-    dl $d5be10
-    dl $d5f010
-    dl $d62210
+    dl $d49230
+    dl $d4c430
+    dl $d4f630
+    dl $d52830
+    dl $d55a30
+    dl $d58c30
+    dl $d5be30
+    dl $d5f030
+    dl $d62230
