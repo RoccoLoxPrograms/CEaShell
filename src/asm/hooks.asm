@@ -40,6 +40,10 @@ _getCSCHookStart:
 .update:
     bit updateProgInfo, (iy + ti.asm_Flag2)
     jr nz, .return
+    call ti.os.ClearStatusBarLow
+    ld a, (ti.menuNumItems)
+    cp a, 0
+    jr z, .returnOther
     call _showIcons
     call _showDescription
     set updateProgInfo, (iy + ti.asm_Flag2)
@@ -58,6 +62,7 @@ _getCSCHookStart:
     ret
 
 .returnOther: ; draw over artifact when switching to create menu
+    call ti.os.ClearStatusBarLow
 	bit updateProgInfo, (iy + ti.asm_Flag2)
     jr nz, .return
     ld hl, $ffff

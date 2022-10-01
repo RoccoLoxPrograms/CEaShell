@@ -115,6 +115,7 @@ _asmProgram.run:
     call ti.DisableAPD
 	set	ti.appAutoScroll, (iy + ti.appFlags)
     call _clearUsedMem
+	call ti.DrawStatusBar
 	ld hl, _return.error
 	call ti.PushErrorHandler
     call ti.userMem

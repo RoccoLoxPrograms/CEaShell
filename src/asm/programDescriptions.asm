@@ -19,12 +19,9 @@ EOF := ti.appData
 description := ti.pixelShadow2
 
 _showDescription:
-    ;push hl
-    ;ld hl, -1
-    ;ld (hl), 2
-    ;pop hl
-    ; ----------
-    call ti.os.ClearStatusBarLow
+    ld hl, description
+    ld bc, 52
+    call ti.MemClear ; zero out for our description
     ld hl, ti.progCurrent
     call ti.Mov9ToOP1
     call ti.ChkFindSym
@@ -62,24 +59,34 @@ _asmDesc:
     jp nz, _return
 
 .description:
-    ld b, 37 ; max number of bytes to copy
     xor a, a
     cp a, (hl)
     ret z
     ld de, description
 
 .copy:
-    ldi ; copy description byte to pixelShadow2
+    ld a, (hl)
+    ld (de), a
+    inc de
+    inc hl ; copy description byte to pixelShadow2
     inc bc ; restore bc
     xor a, a
     cp a, (hl)
     jr z, .continue
-    djnz .copy
+    push hl
+    ld hl, description
+    call ti.FontGetWidth
+    ld hl, 290
+    or a, a
+    sbc hl, bc
+    jr c, .continue
+    pop hl
+    jr .copy
 
 .continue:
     ex de, hl
     ld (hl), 0
-    jr _drawDescription
+    jp _drawDescription
 
 _basicDesc:
     dec de
@@ -96,27 +103,26 @@ _basicDesc:
     ld de, description
     ld a, $3e ; colon token
     cp a, (hl)
-    ld a, 0
     ret nz ; we can just return if there isn't a colon
 
     inc hl
     ld a, $2a
     cp a, (hl) ; check for a quotation mark
-    ld a, 0
     ret nz ; return if there is no description
 
     inc hl
-    ld a, 37
-    push af
 
 .getDesc:
-    pop bc
-    xor a, a
-    cp a, b ; check if bc is 0, meaning we've copied all 37 bytes
-    jr z, .zeroTerminate
-    push hl ; save things to stack in this order
-    push bc
+    push hl
+    ld hl, description
+    call ti.FontGetWidth
+    ld hl, 290
+    or a, a
+    sbc hl, bc
+    pop hl
+    push hl ; push things to the stack in this order
     push de
+    jr c, .returnPop
     ld a, $3f
     cp a, (hl)
     jr z, .returnPop
@@ -134,14 +140,19 @@ _basicDesc:
 
 .copyOP3:
     ldi
-    pop af ; number of bytes uncopied
-    dec a
-    push af
+    push hl
+    push bc
+    ld hl, description
+    call ti.FontGetWidth
+    ld hl, 290
+    or a, a
+    sbc hl, bc
+    pop bc
+    pop hl
+    jr c, .zeroTerminate
     djnz .copyOP3
     
-    pop af
     pop hl
-    push af
     ld a, (hl)
     inc hl
     call ti.Isa2ByteTok
@@ -157,7 +168,6 @@ _basicDesc:
 .returnPop: ; clear stack
     ex de, hl
     ld (hl), 0
-    pop hl
     pop hl
     pop hl
 
