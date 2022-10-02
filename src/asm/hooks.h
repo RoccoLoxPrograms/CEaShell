@@ -20,6 +20,8 @@ extern "C" {
 
 void installGetCSCHook(void);
 
+void removeGetCSCHook(void);
+
 bool checkGetCSCHookInstalled(void);
 
 void installStopHook(void);

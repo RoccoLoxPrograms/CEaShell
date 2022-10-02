@@ -627,7 +627,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook) {
                         if (*programIconHook && (!checkGetCSCHookInstalled())) {
                             installGetCSCHook();
                         } else if (checkGetCSCHookInstalled()) {
-                            asm("call $0213E4");
+                            removeGetCSCHook();
                         }
                 }
             }

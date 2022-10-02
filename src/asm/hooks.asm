@@ -17,6 +17,7 @@ include 'include/ti84pceg.inc'
     extern _showIcons
     extern _showDescription
     public _installGetCSCHook
+    public _removeGetCSCHook
     public _checkGetCSCHookInstalled
 
 ; CEaShell hook flags stuff
@@ -80,6 +81,10 @@ _installGetCSCHook:
     ld hl, _getCSCHookStart
     ld iy, ti.flags
     jp ti.SetGetCSCHook
+
+_removeGetCSCHook:
+    ld iy, ti.flags
+    jp ti.ClrGetKeyHook
 
 _checkGetCSCHookInstalled:
     ld iy, ti.flags

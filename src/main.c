@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: October 2, 2022
- * Version: 0.65
+ * Version: 0.65.1
  * 
  * --------------------------------------
 **/
@@ -62,7 +62,7 @@ int main(void) {
     if (programIconHook && (!checkGetCSCHookInstalled())) {
         installGetCSCHook();
     } else if ((!programIconHook) && checkGetCSCHookInstalled()) {
-        asm("call $0213E4");
+        removeGetCSCHook();
     }
 
     buffer1->height = 193;
