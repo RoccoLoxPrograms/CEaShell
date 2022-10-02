@@ -77,10 +77,6 @@ _getCSCHookStart:
 	jr .return
 
 _installGetCSCHook:
-    push hl
-    ld hl, -1
-    ld (hl), 2
-    pop hl
     ld hl, _getCSCHookStart
     call ti.SetGetCSCHook
     ld iy, ti.flags
