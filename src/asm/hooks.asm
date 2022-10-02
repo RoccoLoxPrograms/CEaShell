@@ -78,9 +78,8 @@ _getCSCHookStart:
 
 _installGetCSCHook:
     ld hl, _getCSCHookStart
-    call ti.SetGetCSCHook
     ld iy, ti.flags
-    set ti.getCSCHookActive, (iy + ti.hookflags2) ; manually add this because it wasn't working?
+    jp ti.SetGetCSCHook
 
 _checkGetCSCHookInstalled:
     ld iy, ti.flags
