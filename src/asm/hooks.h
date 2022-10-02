@@ -12,11 +12,15 @@
 #ifndef HOOKS_H
 #define HOOKS_H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void installGetCSCHook(void);
+
+bool checkGetCSCHookInstalled(void);
 
 void installStopHook(void);
 

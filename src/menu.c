@@ -17,6 +17,7 @@
 #include "asm/invert.h"
 #include "asm/fileOps.h"
 #include "asm/sortVat.h"
+#include "asm/hooks.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -576,12 +577,73 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     ti_Close(slot);
 }
 
-void menu_Settings(const uint8_t color) { // Very empty right now
-    shapes_RoundRectangleFill(color, 15, 304, 192, 8, 39);
-    ui_DrawUISprite(color, UI_RARROW, 290, 208);
-    gfx_SwapDraw();
+static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const bool programIconHook) {
+    shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
+    shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
+    gfx_SetTextScale(1, 1);
+    gfx_PrintStringXY("About:", 171, 52);
+    switch (option) {   // more coming soon
+        case 0:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 50, 132, 11);
+            gfx_PrintStringXY("Choose whether", 171, 69);
+            gfx_PrintStringXY("to display program", 171, 81);
+            gfx_PrintStringXY("icons and", 171, 93);
+            gfx_PrintStringXY("descriptions in", 171, 105);
+            gfx_PrintStringXY("the OS [prgm] menu.", 171, 117);
+            break;
+        default:
+            break;
+    }
+    gfx_PrintStringXY("Icon Hook", 21, 52);
+    gfx_PrintStringXY("<", 114, 52);
+    gfx_PrintStringXY(">", 144, 52);
+    if (programIconHook) {
+        gfx_PrintStringXY("On", 124, 52);
+    } else {
+        gfx_PrintStringXY("Off", 120, 52);
+    }
+}
+
+void menu_Settings(uint8_t *colors, bool *programIconHook) {
+    shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
+    ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
+    bool keyPressed = false;
+    bool redraw = false;
+    uint8_t option = 0;
+    menu_SettingsRedraw(colors, option, *programIconHook);
+    gfx_BlitBuffer();
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyGraph) && !kb_IsDown(kb_KeyClear)) {
         kb_Scan();
+        if (!kb_AnyKey()) {
+            keyPressed = false;
+            timer_Set(1, 0);
+        }
+        if (kb_Data[7] && (!keyPressed || timer_Get(1) > 3000)) {
+            if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
+                switch (option) {
+                    case 0:
+                        *programIconHook = !*programIconHook;
+                        if (*programIconHook && (!checkGetCSCHookInstalled())) {
+                            installGetCSCHook();
+                        } else if (checkGetCSCHookInstalled()) {
+                            asm("call $0213E4");
+                        }
+                }
+            }
+            redraw = true;
+            if (!keyPressed) {
+                while (timer_Get(1) < 9000 && kb_Data[7]) {
+                    kb_Scan();
+                }
+            }
+            keyPressed = true;
+            timer_Set(1,0);
+        }
+        if (redraw) {
+            redraw = false;
+            menu_SettingsRedraw(colors, option, *programIconHook);
+            gfx_BlitBuffer();
+        }
     }
 }

@@ -17,6 +17,7 @@ include 'include/ti84pceg.inc'
     extern _showIcons
     extern _showDescription
     public _installGetCSCHook
+    public _checkGetCSCHookInstalled
 
 ; CEaShell hook flags stuff
 updateProgInfo := 0
@@ -76,5 +77,24 @@ _getCSCHookStart:
 	jr .return
 
 _installGetCSCHook:
+    push hl
+    ld hl, -1
+    ld (hl), 2
+    pop hl
     ld hl, _getCSCHookStart
-    jp ti.SetGetCSCHook
+    call ti.SetGetCSCHook
+    ld iy, ti.flags
+    set ti.getCSCHookActive, (iy + ti.hookflags2) ; manually add this because it wasn't working?
+
+_checkGetCSCHookInstalled:
+    ld iy, ti.flags
+    bit ti.getCSCHookActive, (iy + ti.hookflags2) ; check if a get csc hook is installed
+    ld a, 0
+    ret z
+    ld hl, (ti.getKeyHookPtr)
+    ld de, _getCSCHookStart
+    or a, a
+    sbc hl, de
+    ret nz
+    inc a
+    ret

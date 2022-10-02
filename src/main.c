@@ -34,20 +34,20 @@ gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
     removeStopHook();
-    installGetCSCHook();
     while (kb_AnyKey());
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
     bool appvars = false;   // Whether the appvars are being displayed
     bool displayCEaShell = false;   // Whether we display CEaShell
+    bool programIconHook = false;
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
-        uint8_t ceaShell[7];
-        ti_Read(&ceaShell, 7, 1, slot);
+        uint8_t ceaShell[8];
+        ti_Read(&ceaShell, 8, 1, slot);
         colors[0] = ceaShell[0];
         colors[1] = ceaShell[1];
         colors[2] = ceaShell[2];
@@ -55,7 +55,16 @@ int main(void) {
         transitionSpeed = ceaShell[4];
         is24Hour = ceaShell[5];
         displayCEaShell = ceaShell[6];
+        programIconHook = ceaShell[7];
     }
+
+    // Restore hooks
+    if (programIconHook && (!checkGetCSCHookInstalled())) {
+        installGetCSCHook();
+    } else if ((!programIconHook) && checkGetCSCHookInstalled()) {
+        asm("call $0213E4");
+    }
+
     buffer1->height = 193;
     buffer1->width = 152;
     buffer2->height = 193;
@@ -201,7 +210,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -259,7 +268,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Settings(colors[1]);   // Nothing here yet
+                menu_Settings(colors, &programIconHook);
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
@@ -275,6 +284,11 @@ int main(void) {
                     }
                     gfx_Sprite_NoClip(buffer1, 8, 38);
                     gfx_Sprite_NoClip(buffer2, 160, 38);
+                }
+                if (kb_IsDown(kb_KeyClear)) {
+                    continue;
+                } else {    // Same as Customize menu
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook);
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -324,7 +338,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook);
     gfx_End();
     return 0;
 }
