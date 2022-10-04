@@ -230,7 +230,7 @@ hook_app_change:
 	ret	nz
 	ld	a,c
 	or	a,a
-	ld hl, hook_app_change
+	ld iy, ti.flags
 	call ti.ClrAppChangeHook
 	jr	z,.close_editor
 	cp	a,ti.cxMode

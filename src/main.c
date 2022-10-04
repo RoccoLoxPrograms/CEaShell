@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: October 4, 2022
- * Version: 0.66
+ * Version: 0.66.1
  * 
  * --------------------------------------
 **/
