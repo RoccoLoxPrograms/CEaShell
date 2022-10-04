@@ -245,11 +245,15 @@ hook_app_change:
 	ld a, 0
 	cp a, (hl)
 	jp nz, .exitApp
+	push hl
+	ld hl, -1
+	ld (hl), 2
+	pop hl
 	pop af
 	pop de
-	pop ix
-	pop ix
-	push de ; sort the stack for proper return?
+	pop de
+	pop de
+	pop de ; sort the stack for proper return?
 	ret
 .close_editor:
 	push	af, bc, hl

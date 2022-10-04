@@ -41,6 +41,10 @@ _menuHookStart:
     call ti.Mov9ToOP1
     ld hl, ti.appData
     ld (hl), 0
+    push hl
+    ld hl, -1
+    ld (hl), 2
+    pop hl
     jp edit_basic_program
 
 .return:
