@@ -374,7 +374,7 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
     gfx_PrintStringXY("Edit", 213, 184);
 }
 
-void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, uint8_t *fileNumbers, const bool appvars, const bool displayCEaShell) {
+void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, uint8_t *fileNumbers, const bool appvars, const bool displayCEaShell, const bool editLockedProg) {
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned filesSearched = 0;
     char newName[9]= "\0";
@@ -526,8 +526,16 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                             continue;
                         }
                     } else {
-                        gfx_End();
-                        editBasicProg(fileName, osFileType);
+                        while (kb_AnyKey());
+                        if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE) {
+                            break;
+                        } else {
+                            if (osFileType == OS_TYPE_PROT_PRGM && editLockedProg) {
+                                unlockBasic(fileName, osFileType);
+                            }
+                            gfx_End();
+                            editBasicProg(fileName, osFileType);
+                        }
                     }
                 }
                 while (kb_AnyKey());
@@ -578,9 +586,9 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     ti_Close(slot);
 }
 
-static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const bool programIconHook, const bool editArchivedProg) {
+static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg) {
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
-    if (option != 1) {  // small about box
+    if (option != 1 && option != 2) {  // small about box
         shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
     } else {    // big about box
         gfx_SetColor(colors[1]);
@@ -605,6 +613,12 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const boo
             gfx_PrintStringXY("programs in the OS", 171, 93);
             gfx_PrintStringXY("[prgm] edit menu.", 171, 105);
             break;
+        case 2:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 96, 132, 23);
+            gfx_PrintStringXY("Allow the editing", 171, 69);
+            gfx_PrintStringXY("of locked BASIC", 171, 81);
+            gfx_PrintStringXY("programs in", 171, 93);
+            gfx_PrintStringXY("CEaShell.", 171, 105);
         default:
             break;
     }
@@ -625,15 +639,24 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const boo
     } else {
         gfx_PrintStringXY("Off", 120, 81);
     }
+    gfx_PrintStringXY("Edit locked", 21, 98);
+    gfx_PrintStringXY("Programs", 21, 110);
+    gfx_PrintStringXY("<", 114, 110);
+    gfx_PrintStringXY(">", 144, 110);
+    if (editLockedProg) {
+        gfx_PrintStringXY("On", 124, 110);
+    } else {
+        gfx_PrintStringXY("Off", 120, 110);
+    }
 }
 
-void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedProg) {    // Add more options later
+void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedProg, bool *editLockedProg) {    // Add more options later
     shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     bool keyPressed = false;
     bool redraw = false;
     uint8_t option = 0;
-    menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg);
+    menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg, *editLockedProg);
     gfx_BlitBuffer();
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyGraph) && !kb_IsDown(kb_KeyClear)) {
@@ -661,12 +684,14 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
                             removeMenuHook();
                         }
                         break;
+                    case 2:
+                        *editLockedProg = !*editLockedProg;
                     default:
                         break;
                 }
             }
             if (kb_IsDown(kb_KeyDown)) {
-                if (option != 1) {
+                if (option != 2) {
                     option += 1;
                 } else {
                     option = 0; // Restart menu
@@ -675,7 +700,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
                 if (option != 0) {
                     option -= 1;
                 } else {
-                    option = 1; // Restart menu
+                    option = 2; // Restart menu
                 }
             }
             redraw = true;
@@ -689,7 +714,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
         }
         if (redraw) {
             redraw = false;
-            menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg);
+            menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg, *editLockedProg);
             gfx_BlitBuffer();
         }
     }

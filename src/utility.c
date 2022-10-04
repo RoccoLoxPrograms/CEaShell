@@ -29,8 +29,8 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg) {
-    uint8_t ceaShell[9];
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg) {
+    uint8_t ceaShell[10];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
     ceaShell[2] = colors[2];
@@ -40,9 +40,10 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ceaShell[6] = displayCEaShell;
     ceaShell[7] = programIconHook;
     ceaShell[8] = editArchivedProg;
+    ceaShell[9] = editLockedProg;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
-    ti_Write(&ceaShell, 9, 1, slot);
+    ti_Write(&ceaShell, 10, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
 }

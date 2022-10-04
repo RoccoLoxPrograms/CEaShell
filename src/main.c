@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: October 4, 2022
- * Version: 0.66.1
+ * Version: 0.67
  * 
  * --------------------------------------
 **/
@@ -43,13 +43,14 @@ int main(void) {
     bool displayCEaShell = false;   // Whether we display CEaShell
     bool programIconHook = false;
     bool editArchivedProg = false;
+    bool editLockedProg = false;
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
-        uint8_t ceaShell[9];
-        ti_Read(&ceaShell, 9, 1, slot);
+        uint8_t ceaShell[10];
+        ti_Read(&ceaShell, 10, 1, slot);
         colors[0] = ceaShell[0];
         colors[1] = ceaShell[1];
         colors[2] = ceaShell[2];
@@ -59,6 +60,7 @@ int main(void) {
         displayCEaShell = ceaShell[6];
         programIconHook = ceaShell[7];
         editArchivedProg = ceaShell[8];
+        editLockedProg = ceaShell[9];
     }
 
     // Restore hooks
@@ -219,7 +221,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -232,7 +234,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell); // This will store some file changes to the infoOps (Info Operations) array
+                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg); // This will store some file changes to the infoOps (Info Operations) array
                 if (infoOps[0]) {   // Takes care of deletions
                     fileNumbers[appvars]--;
                     fileSelected--;
@@ -277,7 +279,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Settings(colors, &programIconHook, &editArchivedProg);
+                menu_Settings(colors, &programIconHook, &editArchivedProg, &editLockedProg);
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
@@ -297,7 +299,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg);
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -347,7 +349,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg);
     gfx_End();
     return 0;
 }

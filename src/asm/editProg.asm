@@ -43,8 +43,10 @@ include 'include/ti84pceg.inc'
 returnCEaShell := ti.pixelShadow2
 edit_status := returnCEaShell + 1
 edit_mode := edit_status + 1
+edit_locked := $dd
 edit_goto := $ee
 edit_archived := $ff
+lock_status := edit_mode + 1
 string_temp := ti.mpLcdCrsrImage
 backup_prgm_name := edit_mode + 1
 
@@ -245,10 +247,6 @@ hook_app_change:
 	ld a, 0
 	cp a, (hl)
 	jp nz, .exitApp
-	push hl
-	ld hl, -1
-	ld (hl), 2
-	pop hl
 	pop af
 	pop de
 	pop de
@@ -263,6 +261,9 @@ hook_app_change:
 	call ti.Mov9ToOP1
 	call	ti.ChkFindSym
 	jr	c,.noarc
+	ld a, (lock_status)
+	cp a, $dd ; check for lock
+	ld (hl), 6
 	ld	a,(edit_status)
 	or	a,a
 	call	nz,ti.Arc_Unarc

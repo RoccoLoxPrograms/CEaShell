@@ -31,6 +31,12 @@ _menuHookStart:
     db $83
     cp a, 3
     jr nz, .return
+    ld a, (ti.kbdLGSC)
+    cp a, ti.skEnter
+    jr nz, .return
+    ld a, (ti.menuNumItems)
+    or a, a
+    jr z, .return
     ld a, (ti.menuCurrent)
     cp a, ti.mProgramHome
     jr nz, .return
@@ -41,10 +47,6 @@ _menuHookStart:
     call ti.Mov9ToOP1
     ld hl, ti.appData
     ld (hl), 0
-    push hl
-    ld hl, -1
-    ld (hl), 2
-    pop hl
     jp edit_basic_program
 
 .return:
