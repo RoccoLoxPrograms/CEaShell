@@ -37,6 +37,8 @@ include 'include/ti84pceg.inc'
 	public _runProgram
     extern app
     extern _appMainStart
+	extern edit_basic_program_goto
+	public _reloadApp
 
 backupPrgmName := ti.appData
 
@@ -507,8 +509,9 @@ _showError:
 	dec	a
 	jr nz, .exit
 .goto:
-	;ld	a,return_goto (We'll add this later when we support editing programs)
-	ret
+	ld hl, backupPrgmName
+	call ti.Mov9ToOP1
+	jp edit_basic_program_goto
 .only_allow_quit:
 	call ti.GetCSC
 	cp a, ti.sk1

@@ -526,7 +526,8 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                             continue;
                         }
                     } else {
-                        // edit programs
+                        gfx_End();
+                        editBasicProg(fileName, osFileType);
                     }
                 }
                 while (kb_AnyKey());
@@ -577,9 +578,15 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     ti_Close(slot);
 }
 
-static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const bool programIconHook) {
+static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const bool programIconHook, const bool editArchivedProg) {
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
-    shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
+    if (option != 1) {  // small about box
+        shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
+    } else {    // big about box
+        gfx_SetColor(colors[1]);
+        gfx_FillRectangle_NoClip(165, 111, 140, 19);
+        shapes_RoundRectangleFill(colors[0], 8, 140, 72, 165, 46);
+    }
     gfx_SetTextScale(1, 1);
     gfx_PrintStringXY("About:", 171, 52);
     switch (option) {   // more coming soon
@@ -590,6 +597,13 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const boo
             gfx_PrintStringXY("icons and", 171, 93);
             gfx_PrintStringXY("descriptions in", 171, 105);
             gfx_PrintStringXY("the OS [prgm] menu.", 171, 117);
+            break;
+        case 1:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 67, 132, 23);
+            gfx_PrintStringXY("Allow the editing", 171, 69);
+            gfx_PrintStringXY("of archived", 171, 81);
+            gfx_PrintStringXY("programs in the OS", 171, 93);
+            gfx_PrintStringXY("[prgm] edit menu.", 171, 105);
             break;
         default:
             break;
@@ -602,15 +616,24 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const boo
     } else {
         gfx_PrintStringXY("Off", 120, 52);
     }
+    gfx_PrintStringXY("Edit archived", 21, 69);
+    gfx_PrintStringXY("Programs", 21, 81);
+    gfx_PrintStringXY("<", 114, 81);
+    gfx_PrintStringXY(">", 144, 81);
+    if (editArchivedProg) {
+        gfx_PrintStringXY("On", 124, 81);
+    } else {
+        gfx_PrintStringXY("Off", 120, 81);
+    }
 }
 
-void menu_Settings(uint8_t *colors, bool *programIconHook) {
+void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedProg) {    // Add more options later
     shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     bool keyPressed = false;
     bool redraw = false;
     uint8_t option = 0;
-    menu_SettingsRedraw(colors, option, *programIconHook);
+    menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg);
     gfx_BlitBuffer();
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyGraph) && !kb_IsDown(kb_KeyClear)) {
@@ -629,6 +652,30 @@ void menu_Settings(uint8_t *colors, bool *programIconHook) {
                         } else if (checkGetCSCHookInstalled()) {
                             removeGetCSCHook();
                         }
+                        break;
+                    case 1:
+                        *editArchivedProg = !*editArchivedProg;
+                        if (*editArchivedProg && (!checkMenuHookInstalled())) {
+                            installMenuHook();
+                        } else if (checkMenuHookInstalled()) {
+                            removeMenuHook();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (kb_IsDown(kb_KeyDown)) {
+                if (option != 1) {
+                    option += 1;
+                } else {
+                    option = 0; // Restart menu
+                }
+            } else if (kb_IsDown(kb_KeyUp)) {
+                if (option != 0) {
+                    option -= 1;
+                } else {
+                    option = 1; // Restart menu
                 }
             }
             redraw = true;
@@ -642,7 +689,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook) {
         }
         if (redraw) {
             redraw = false;
-            menu_SettingsRedraw(colors, option, *programIconHook);
+            menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg);
             gfx_BlitBuffer();
         }
     }

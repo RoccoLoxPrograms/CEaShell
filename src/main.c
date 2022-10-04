@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 2, 2022
- * Version: 0.65.1
+ * Last Build: October 4, 2022
+ * Version: 0.66
  * 
  * --------------------------------------
 **/
@@ -34,6 +34,7 @@ gfx_UninitedSprite(buffer2, 152, 193);
 
 int main(void) {
     removeStopHook();
+    installMenuHook();
     while (kb_AnyKey());
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
@@ -41,13 +42,14 @@ int main(void) {
     bool appvars = false;   // Whether the appvars are being displayed
     bool displayCEaShell = false;   // Whether we display CEaShell
     bool programIconHook = false;
+    bool editArchivedProg = false;
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
-        uint8_t ceaShell[8];
-        ti_Read(&ceaShell, 8, 1, slot);
+        uint8_t ceaShell[9];
+        ti_Read(&ceaShell, 9, 1, slot);
         colors[0] = ceaShell[0];
         colors[1] = ceaShell[1];
         colors[2] = ceaShell[2];
@@ -56,6 +58,7 @@ int main(void) {
         is24Hour = ceaShell[5];
         displayCEaShell = ceaShell[6];
         programIconHook = ceaShell[7];
+        editArchivedProg = ceaShell[8];
     }
 
     // Restore hooks
@@ -63,6 +66,12 @@ int main(void) {
         installGetCSCHook();
     } else if ((!programIconHook) && checkGetCSCHookInstalled()) {
         removeGetCSCHook();
+    }
+
+    if (editArchivedProg && (!checkMenuHookInstalled())) {
+        installMenuHook();
+    } else if ((!editArchivedProg) && checkMenuHookInstalled()) {
+        removeMenuHook();
     }
 
     buffer1->height = 193;
@@ -210,7 +219,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -268,7 +277,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Settings(colors, &programIconHook);
+                menu_Settings(colors, &programIconHook, &editArchivedProg);
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell);
                 ui_BottomBar(colors[1]);
@@ -288,7 +297,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg);
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -338,7 +347,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg);
     gfx_End();
     return 0;
 }

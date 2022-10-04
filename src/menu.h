@@ -23,7 +23,7 @@ void menu_Looks(uint8_t *, unsigned int *, const unsigned int, const unsigned in
 
 void menu_Info(uint8_t *, bool *, uint8_t, const unsigned int, uint8_t *, const bool, const bool);
 
-void menu_Settings(uint8_t *, bool *);
+void menu_Settings(uint8_t *, bool *, bool *);
 
 #ifdef __cplusplus
 }

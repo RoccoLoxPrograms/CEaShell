@@ -16,6 +16,10 @@ include 'include/ti84pceg.inc'
 	extern _sortVAT
     extern _showIcons
     extern _showDescription
+    extern edit_basic_program
+    public _installMenuHook
+    public _removeMenuHook
+    public _checkMenuHookInstalled
     public _installGetCSCHook
     public _removeGetCSCHook
     public _checkGetCSCHookInstalled
@@ -23,7 +27,27 @@ include 'include/ti84pceg.inc'
 ; CEaShell hook flags stuff
 updateProgInfo := 0
 
-_getCSCHookStart:
+_menuHookStart:
+    db $83
+    cp a, 3
+    jr nz, .return
+    ld a, (ti.menuCurrent)
+    cp a, ti.mProgramHome
+    jr nz, .return
+    ld a, (ti.menuCurrentSub)
+    cp a, ti.mPrgm_Edit
+    jr nz, .return
+    ld hl, ti.progCurrent
+    call ti.Mov9ToOP1
+    ld hl, ti.appData
+    ld (hl), 0
+    jp edit_basic_program
+
+.return:
+    cp a, a
+    ret
+
+_getCSCHookStart: ; icons in [prgm] menu
     db $83
     push bc
     cp a, $1a
@@ -76,6 +100,28 @@ _getCSCHookStart:
 	call ti.FillRect
     set updateProgInfo, (iy + ti.asm_Flag2)
 	jr .return
+
+_installMenuHook:
+    ld iy, ti.flags
+    ld hl, _menuHookStart
+    jp ti.SetMenuHook
+
+_removeMenuHook:
+    ld iy, ti.flags
+    jp ti.ClrMenuHook
+
+_checkMenuHookInstalled:
+    ld iy, ti.flags
+    bit ti.menuHookActive, (iy + ti.hookflags4) ; check if a menu hook is installed
+    ld a, 0
+    ret z
+    ld hl, (ti.menuHookPtr)
+    ld de, _menuHookStart
+    or a, a
+    sbc hl, de
+    ret nz
+    inc a
+    ret
 
 _installGetCSCHook:
     ld hl, _getCSCHookStart

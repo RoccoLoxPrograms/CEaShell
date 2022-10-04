@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+void editBasicProg(char *, uint8_t);    // Edit a program
+
 uint8_t getPrgmType(char *, uint8_t);   // Gets the program's actual type (ASM, C, ICE, etc)
 
 void hidePrgm(char *, uint8_t); // Toggles a program's hidden status

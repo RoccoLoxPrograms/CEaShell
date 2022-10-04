@@ -18,6 +18,12 @@
 extern "C" {
 #endif
 
+void installMenuHook(void);
+
+void removeMenuHook(void);
+
+bool checkMenuHookInstalled(void);
+
 void installGetCSCHook(void);
 
 void removeGetCSCHook(void);
