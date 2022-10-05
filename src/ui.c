@@ -317,7 +317,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool appvars, const bool displayCEaShell) {
+void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool appvars, const bool displayCEaShell, const bool showHiddenProg) {
     int x = 14;
     uint8_t y = 30;
     unsigned int filesSearched = 0;
@@ -350,6 +350,9 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
             continue;
         }
         if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+            continue;
+        }
+        if (!showHiddenProg && fileName[0] < 65) {
             continue;
         }
         hidden = (fileName[0] < 65);

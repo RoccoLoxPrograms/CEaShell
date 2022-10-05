@@ -33,9 +33,9 @@ extern "C" {
 
 uint8_t util_SpaceSearch(const char *, const uint8_t);
 
-void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const bool, const bool, const bool);
+void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const bool, const bool, const bool, const bool);
 
-void util_FilesInit(uint8_t *, const bool);
+void util_FilesInit(unsigned int *, const bool, const bool);
 
 char *util_FileTypeToString(const uint8_t, const bool);
 

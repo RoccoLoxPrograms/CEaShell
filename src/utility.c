@@ -29,8 +29,8 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg) {
-    uint8_t ceaShell[10];
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg) {
+    uint8_t ceaShell[11];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
     ceaShell[2] = colors[2];
@@ -41,14 +41,15 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ceaShell[7] = programIconHook;
     ceaShell[8] = editArchivedProg;
     ceaShell[9] = editLockedProg;
+    ceaShell[10] = showHiddenProg;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
-    ti_Write(&ceaShell, 10, 1, slot);
+    ti_Write(&ceaShell, 11, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
 }
 
-void util_FilesInit(uint8_t *fileNumbers, const bool displayCEaShell) {
+void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg) {
     uint8_t fileType;
     char *fileName;
     void *vatPtr = NULL;
@@ -61,6 +62,9 @@ void util_FilesInit(uint8_t *fileNumbers, const bool displayCEaShell) {
             continue;
         }
         if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+            continue;
+        }
+        if (!showHiddenProg && fileName[0] < 65) {
             continue;
         }
         if (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) {

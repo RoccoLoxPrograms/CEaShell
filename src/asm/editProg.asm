@@ -48,7 +48,7 @@ edit_goto := $ee
 edit_archived := $ff
 lock_status := edit_mode + 1
 string_temp := ti.mpLcdCrsrImage
-backup_prgm_name := edit_mode + 1
+backup_prgm_name := edit_mode + 2
 
 errorOffset := (edit_helper.error_offset - edit_helper) + ti.cursorImage + 253
 
@@ -262,8 +262,10 @@ hook_app_change:
 	call	ti.ChkFindSym
 	jr	c,.noarc
 	ld a, (lock_status)
-	cp a, $dd ; check for lock
+	cp a, edit_locked ; check if locked
+	jr nz, .notLocked
 	ld (hl), 6
+.notLocked:
 	ld	a,(edit_status)
 	or	a,a
 	call	nz,ti.Arc_Unarc

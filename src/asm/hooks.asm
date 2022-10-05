@@ -45,7 +45,7 @@ _menuHookStart:
     jr nz, .return
     ld hl, ti.progCurrent
     call ti.Mov9ToOP1
-    ld hl, ti.appData
+    ld hl, ti.pixelShadow2
     ld (hl), 0
     jp edit_basic_program
 
