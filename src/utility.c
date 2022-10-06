@@ -29,8 +29,9 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg) {
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const unsigned int fileSelected, const unsigned int fileStartLoc) {
     uint8_t ceaShell[11];
+    unsigned int scrollLoc[2];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
     ceaShell[2] = colors[2];
@@ -42,9 +43,13 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ceaShell[8] = editArchivedProg;
     ceaShell[9] = editLockedProg;
     ceaShell[10] = showHiddenProg;
+    scrollLoc[0] = fileSelected;
+    scrollLoc[1] = fileStartLoc;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
     ti_Write(&ceaShell, 11, 1, slot);
+    ti_Seek(11, SEEK_SET, slot);
+    ti_Write(&scrollLoc, 6, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
 }

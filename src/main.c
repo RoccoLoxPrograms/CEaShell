@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: October 6, 2022
- * Version: 0.68.3
+ * Version: 0.68.4
  * 
  * --------------------------------------
 **/
@@ -47,6 +47,8 @@ int main(void) {
     bool editArchivedProg = false;
     bool editLockedProg = false;
     bool showHiddenProg = true;
+    unsigned int fileSelected = 0;
+    unsigned int fileStartLoc = 0;
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
@@ -66,6 +68,11 @@ int main(void) {
         editArchivedProg = ceaShell[8];
         editLockedProg = ceaShell[9];
         showHiddenProg = ceaShell[10];
+        ti_Seek(11, SEEK_SET, slot);
+        unsigned int scrollLoc[2];
+        ti_Read(&scrollLoc, 6, 1, slot);
+        fileSelected = scrollLoc[0];
+        fileStartLoc = scrollLoc[1];
     }
 
     // Restore hooks
@@ -88,8 +95,6 @@ int main(void) {
 
     unsigned int fileNumbers[2] = {0, 0};
     util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg); // Get number of programs and appvars
-    unsigned int fileSelected = 0;
-    unsigned int fileStartLoc = 0;
 
     bool infoOps[2] = {false, false}; // This will keep track of whether a program has been deleted or hidden
 
@@ -226,7 +231,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -311,7 +316,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -320,6 +325,7 @@ int main(void) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
                     util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
                 }
             }
@@ -361,7 +367,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, 0, 0);
     gfx_End();
     return 0;
 }
