@@ -131,7 +131,7 @@ void util_PrintFreeRamRom(void) {
     gfx_PrintInt(os_TempFreeArc, 7);
 }
 
-void util_RunPrgm(unsigned int fileSelected, const bool displayCEaShell) {
+void util_RunPrgm(unsigned int fileSelected, const bool displayCEaShell, const bool editLockedProg) {
     gfx_End();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned int filesSearched = 0;
@@ -155,7 +155,7 @@ void util_RunPrgm(unsigned int fileSelected, const bool displayCEaShell) {
     if (shellType == BASIC_TYPE) {
         installStopHook();
     }
-    runProgram(fileName, fileType, shellType);
+    runProgram(fileName, fileType, shellType, editLockedProg);
     return;
 }
 

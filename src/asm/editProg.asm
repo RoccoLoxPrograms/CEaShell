@@ -49,8 +49,7 @@ edit_archived := $ff
 lock_status := edit_mode + 1
 string_temp := ti.mpLcdCrsrImage
 backup_prgm_name := edit_mode + 2
-
-errorOffset := (edit_helper.error_offset - edit_helper) + ti.cursorImage + 253
+errorOffset := backup_prgm_name + 9
 
 _editBasicProg:
 	ld hl, returnCEaShell
@@ -141,9 +140,8 @@ edit_helper:
 	sbc	hl,de
 	add	hl,de
 	jr	nz,.goto_end
+	ld	bc, (errorOffset)
 
-	ld	bc,0
-.error_offset:
 	call	ti.ChkBCIs0
 	jr	z,.goto_end
 	ld	hl,(ti.editTail)

@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-void runProgram(char *, uint8_t, uint8_t);
+void runProgram(char *, uint8_t, uint8_t, bool);
 
 #ifdef __cplusplus
 }

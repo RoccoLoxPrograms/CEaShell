@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 5, 2022
- * Version: 0.68
+ * Last Build: October 6, 2022
+ * Version: 0.68.2
  * 
  * --------------------------------------
 **/
@@ -320,7 +320,7 @@ int main(void) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
-                    util_RunPrgm(fileSelected, displayCEaShell);
+                    util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
                 }
             }
             if (!keyPressed) {

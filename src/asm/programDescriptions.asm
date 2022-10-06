@@ -14,6 +14,7 @@
 include 'include/ti84pceg.inc'
 
     public _showDescription
+    public _checkPrgmType
 
 EOF := ti.appData
 description := ti.pixelShadow2
@@ -25,7 +26,7 @@ _showDescription:
     ld hl, ti.progCurrent
     call ti.Mov9ToOP1
     call ti.ChkFindSym
-    call _getPrgmType ; get type and conveniently fix the data pointer for archive also
+    call _checkPrgmType ; get type and conveniently fix the data pointer for archive also
     cp a, 4 ; check for ice source
     ret z
     cp a, 2
@@ -189,7 +190,7 @@ _return:
     cp a, a
     ret
 
-_getPrgmType:
+_checkPrgmType:
     call ti.ChkInRam
     jr z, .inRam ; we can skip this next bit if it's in the RAM
     ; it's in archive, so we need to change the data offset

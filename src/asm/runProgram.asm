@@ -37,16 +37,25 @@ include 'include/ti84pceg.inc'
 	public _runProgram
     extern app
     extern _appMainStart
+	extern _checkPrgmType
 	extern edit_basic_program_goto
 	public _reloadApp
 
 backupPrgmName := ti.appData
+returnIsAsm := backupPrgmName + 9
+returnEditLocked := returnIsAsm + 1
+lockStatus := ti.pixelShadow2 + 3
 
 _runProgram:
     push ix
     ld ix, 0
     add ix, sp
+	ld a, (ix + 15)	; edit locked programs?
+	ld hl, returnEditLocked
+	ld (hl), a
     ld c, (ix + 12) ; get asm status
+	ld hl, returnIsAsm
+	ld (hl), c
 	ld a, (ix + 9) ; get type
     ld hl, (ix + 6) ; get name
     pop ix
@@ -432,13 +441,21 @@ _showError:
 	res	ti.textInverse, (iy + ti.textFlags)
 	call ti.PutS
 	ld hl, backupPrgmName
-	ld a, (hl)			; check if correct program
+	ld a, (hl)
 	cp a, ti.ProtProgObj
 	jr nz, .next
-	ld b, a
-	ld a, (ti.basic_prog)
-	cp a, b
+	ld a, (returnIsAsm)
+	cp a, 2
 	jp nz, .only_allow_quit
+	ld a, (returnEditLocked)
+	cp a, 1
+	jp nz, .only_allow_quit
+	ld hl, backupPrgmName
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	ld (hl), 5
+    ld hl, lockStatus
+    ld (hl), $dd
 
 .next:
 	xor	a, a
