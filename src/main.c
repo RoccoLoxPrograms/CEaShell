@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: October 6, 2022
- * Version: 0.68.4
+ * Version: 0.68.5
  * 
  * --------------------------------------
 **/
@@ -244,6 +244,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
+                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
                 menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg, showHiddenProg); // This will store some file changes to the infoOps (Info Operations) array
                 if (infoOps[0]) {   // Takes care of deletions
                     fileNumbers[appvars]--;
@@ -337,11 +338,11 @@ int main(void) {
             keyPressed = true;
             timer_Set(1,0);
         } else if (kb_AnyKey()) {
-            asm ("ei");
+            asm("ei");
             if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars, displayCEaShell)) {
                 redraw = 1;
             }
-            asm ("di");
+            asm("di");
             kb_Scan();
         }
         if (kb_IsDown(kb_KeyClear)) {
