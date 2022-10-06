@@ -127,6 +127,12 @@ _basicDesc:
     ld a, $3f
     cp a, (hl)
     jr z, .returnPop
+    ld a, $2a
+    cp a, (hl) ; check for a quotation mark
+    jr z, .returnPop
+    ld a, $04
+    cp a, (hl) ; check for store arrow
+    jr z, .returnPop
     push hl
     pop bc ; switch hl into bc
     call _checkEOF

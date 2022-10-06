@@ -533,8 +533,33 @@ _description:
     inc hl
     ld a, $2a ; check for quotation mark
     cp a, (hl)
+    jp z, .next
+    ld a, $44 ; D
+    cp a, (hl)
     ld a, 0
     ret nz
+    inc hl
+    ld a, $43 ; C
+    cp a, (hl)
+    ld a, 0
+    ret nz
+    inc hl
+    ld a, $53 ; S
+    cp a, (hl)
+    ld a, 0
+    ret nz
+    inc hl
+    ld a, $3f ; newline
+    cp a, (hl)
+    ld a, 0
+    ret nz
+    inc hl ; skip to the quotation mark
+    ld a, $2a
+    cp a, (hl)
+    ld a, 0
+    ret nz
+
+.next:
     push de
     dec hl ; switch back so _getIconLength works
     jp _getIconLength
