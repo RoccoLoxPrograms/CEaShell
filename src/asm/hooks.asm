@@ -40,8 +40,29 @@ _homescreenHookStart: ; handle OS programs using our code
     db $83
     cp a, 2
     jr nz, .return
+    ld hl, appVarName
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    ld a, 0
+    jr c, .continue ; CEaShell appvar doesn't exits
+    call ti.ChkInRam
+    jr z, .inRam
+    ld hl, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ex de, hl
+
+.inRam:
+    ld hl, 11 ; skip to the byte to check
+    add hl, de
+    ld a, (hl)
+
+.continue:
     ld hl, returnEditLocked
-    ld (hl), 0 ; You don't get to edit locked programs from the OS
+    ld (hl), a
     ld hl, returnCEaShell
     ld (hl), 0 ; return to the OS
     ld hl, hashProg ; prgm#
@@ -322,3 +343,6 @@ hashProg:
 
 appName:
     db 'CEaShell', 0
+
+appVarName:
+    db ti.AppVarObj, 'CEaShell', 0
