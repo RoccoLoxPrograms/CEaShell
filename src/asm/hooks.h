@@ -18,6 +18,10 @@
 extern "C" {
 #endif
 
+void installHomescreenHook(void);
+
+void removeHomescreenHook(void);
+
 void installMenuHook(void);
 
 void removeMenuHook(void);

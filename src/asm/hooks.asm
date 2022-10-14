@@ -16,7 +16,12 @@ include 'include/ti84pceg.inc'
 	extern _sortVAT
     extern _showIcons
     extern _showDescription
+    extern _checkPrgmType
+    extern _continueRun
     extern edit_basic_program
+    extern hook_show_labels
+    public _installHomescreenHook
+    public _removeHomescreenHook
     public _installMenuHook
     public _removeMenuHook
     public _checkMenuHookInstalled
@@ -26,6 +31,57 @@ include 'include/ti84pceg.inc'
 
 ; CEaShell hook flags stuff
 updateProgInfo := 0
+returnIsAsm := ti.appData + 9
+returnEditLocked := returnIsAsm + 1
+returnCEaShell := returnEditLocked + 1
+tempAppVarSize := 1
+
+_homescreenHookStart: ; handle OS programs using our code
+    db $83
+    cp a, 2
+    jr nz, .return
+    ld hl, returnEditLocked
+    ld (hl), 0 ; You don't get to edit locked programs from the OS
+    ld hl, returnCEaShell
+    ld (hl), 0 ; return to the OS
+    ld hl, hashProg ; prgm#
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    inc de
+    inc de ; skip size
+    ex de, hl
+    ld a, $5f ; prgm token
+    cp a, (hl)
+    jr nz, .return
+    dec hl
+    dec hl ; get size
+    ld bc, 0
+    ld c, (hl)
+    inc hl
+    ld b, (hl)
+    dec bc ; skip prgm token
+    inc hl
+    inc hl
+    ex de, hl
+    ld hl, ti.OP1
+    ld (hl), $5
+    inc hl
+    ex de, hl
+    ldir
+    ex de, hl
+    ld (hl), 0
+    call ti.ChkFindSym
+    call _checkPrgmType
+    ld hl, returnIsAsm
+    ld (hl), a
+    ld bc, 0
+    ld c, a
+    push bc
+    jp _continueRun
+
+.return:
+    cp a, a
+    ret
 
 _menuHookStart:
     db $83
@@ -43,9 +99,11 @@ _menuHookStart:
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Edit
     jr nz, .return
+    call ti.ReleaseBuffer
+    call ti.PPutAway
     ld hl, ti.progCurrent
     call ti.Mov9ToOP1
-    ld hl, ti.pixelShadow2
+    ld hl, returnCEaShell
     ld (hl), 0
     jp edit_basic_program
 
@@ -82,10 +140,35 @@ _getCSCHookStart: ; icons in [prgm] menu
     jr .return
 
 .keyPress: ; keypress event
+    ld	hl,$f0202c
+	ld	(hl),l
+	ld	l,h
+	bit	0,(hl)
+    jr nz, .onShortcut
     ld a, ti.skPrgm
     cp a, b
     call z, _sortVAT
     res updateProgInfo, (iy + ti.asm_Flag2) ; reset flag on keypress
+    jr .return
+
+.onShortcut:
+    ld a, ti.skGraph
+    cp a, b
+    pop ix
+    jp z, hook_show_labels
+    ld a, ti.skPrgm
+    cp a, b
+    jp z, _openShellHook
+    ld a, ti.skStat
+    cp a, b
+    jp z, _apdHook
+    ld a, ti.skStore
+    cp a, b
+    jp z, _invertOn
+    ld a, ti.skLn
+    cp a, b
+    jp z, _invertOff
+    push ix
 
 .return:
     pop bc
@@ -106,6 +189,89 @@ _getCSCHookStart: ; icons in [prgm] menu
 	call ti.FillRect
     set updateProgInfo, (iy + ti.asm_Flag2)
 	jr .return
+
+_openShellHook: ; From Cesium
+	ld iy, ti.flags
+	call ti.CursorOff
+	call ti.RunIndicOff
+	di
+	call ti.ClrGetKeyHook
+	ld a, (ti.menuCurrent)
+	cp a, ti.kWindow
+	jr nz, .notinwindow
+	ld a, ti.kClear
+	call ti.PullDownChk	; exit from alpha + function menus
+.notinwindow:
+	ld a, ti.kQuit
+	call ti.PullDownChk	; exit from randInt( and related menus
+	ld a, ti.kQuit
+	call ti.NewContext0	; just attempt a cleanup now
+	call ti.CursorOff
+	call ti.RunIndicOff
+	xor	a, a
+	ld (ti.menuCurrent), a ; make sure we aren't on a menu
+	ld hl, appName ; execute app
+	ld de, $d0082e ; I have absolutely no idea what this is
+	push de
+	ld bc, 8
+	push bc
+	ldir
+	pop	bc
+	pop	hl
+	ld de, ti.progToEdit ; copy it here just to be safe
+	ldir
+	ld a, ti.kExtApps
+	call ti.NewContext0
+	ld a, ti.kClear
+	jp ti.JForceCmd
+
+_apdHook: ; trigger APD (Turn off and save where you were!)
+    di
+	call ti.EnableAPD
+	ld a, 1
+	ld hl, ti.apdSubTimer
+	ld (hl), a
+	inc	hl
+	ld (hl), a
+	set	ti.apdRunning, (iy + ti.apdFlags)
+    ei
+    xor a, a
+    inc a
+    dec a
+    ret
+
+_invertOn:
+    call ti.boot.InitializeHardware ; cesium code
+	ld hl, $F80818
+	ld (hl), h
+	ld (hl), $44
+	ld (hl), $21
+	ld l, h
+	ld (hl), $01
+    xor a, a
+    inc a
+	ret
+
+_invertOff:
+    call ti.boot.InitializeHardware
+    ld hl, $F80818
+    ld (hl), h
+    ld (hl), $44
+    ld (hl), $20
+    ld l, h
+    ld (hl), $01
+    xor a, a
+    inc a
+    ret
+
+_installHomescreenHook:
+    ld hl, _homescreenHookStart
+    ld iy, ti.flags
+    jp ti.SetHomescreenHook
+
+_removeHomescreenHook:
+    ld iy, ti.flags
+    jp ti.ClrHomescreenHook
 
 _installMenuHook:
     ld iy, ti.flags
@@ -150,3 +316,9 @@ _checkGetCSCHookInstalled:
     ret nz
     inc a
     ret
+
+hashProg:
+    db $05, '#', 0
+
+appName:
+    db 'CEaShell', 0

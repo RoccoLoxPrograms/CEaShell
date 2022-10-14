@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 6, 2022
- * Version: 0.68.5
+ * Last Build: October 14, 2022
+ * Version: 0.70
  * 
  * --------------------------------------
 **/
@@ -28,6 +28,7 @@
 #include <sys/timers.h>
 #include <sys/power.h>
 #include <ti/getcsc.h>
+#include <ti/screen.h>
 
 gfx_UninitedSprite(buffer1, 152, 193);  // These preserve the background to make redrawing faster
 gfx_UninitedSprite(buffer2, 152, 193);
@@ -35,6 +36,7 @@ gfx_UninitedSprite(buffer2, 152, 193);
 int main(void) {
     removeStopHook();
     installMenuHook();
+    installHomescreenHook();
     while (kb_AnyKey());
     
     // Default settings
@@ -370,5 +372,6 @@ int main(void) {
 
     util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, 0, 0);
     gfx_End();
+    os_ClrHome();   // Clean screen
     return 0;
 }

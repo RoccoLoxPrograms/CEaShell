@@ -35,6 +35,7 @@
 include 'include/ti84pceg.inc'
 
 	public _runProgram
+	public _continueRun
     extern app
     extern _appMainStart
 	extern _checkPrgmType
@@ -44,6 +45,7 @@ include 'include/ti84pceg.inc'
 backupPrgmName := ti.appData
 returnIsAsm := backupPrgmName + 9
 returnEditLocked := returnIsAsm + 1
+returnCEaShell := returnEditLocked + 1
 lockStatus := ti.pixelShadow2 + 3
 
 _runProgram:
@@ -56,6 +58,8 @@ _runProgram:
     ld c, (ix + 12) ; get asm status
 	ld hl, returnIsAsm
 	ld (hl), c
+	ld hl, returnCEaShell
+	ld (hl), 1
 	ld a, (ix + 9) ; get type
     ld hl, (ix + 6) ; get name
     pop ix
@@ -64,10 +68,11 @@ _runProgram:
     ld de, ti.OP1 + 1
     ld bc, 8
     ldir ; move name to OP1
-	call _utilBackupPrgmName
 
+_continueRun:
+	call _utilBackupPrgmName
 	pop bc
-    ld a, c
+	ld a, c
     cp a, 2 ; check for a basic program
     jp z, _basicProgram
 
@@ -330,7 +335,15 @@ _return.error:
     ld (ti.asm_prgm_size), hl
     ld hl, ti.userMem
     call ti.DelMem
-    jq _reloadApp
+    ld a, (returnCEaShell)
+	cp a, 1
+	jp z, _reloadApp
+	call ti.ClrTxtShd
+	ld a, ti.cxCmd
+	call ti.NewContext0
+	call ti.PPutAway
+	or a, 1
+	ret
 
 _getRealSize: ; get the real size of the program in OP1, stored in hl
 	call ti.ChkFindSym
@@ -594,3 +607,6 @@ data_string_quit1:
 	db	'1:', 0, 'Quit', 0
 data_string_quit2:
 	db	'2:',  0, 'Goto', 0
+
+prgmEx:
+	db 5, '!', 0

@@ -40,8 +40,8 @@ include 'include/ti84pceg.inc'
 	public _editBasicProg
 	extern _reloadApp
 
-returnCEaShell := ti.pixelShadow2
-edit_status := returnCEaShell + 1
+returnCEaShell := ti.appData + 11
+edit_status := ti.pixelShadow2 + 1
 edit_mode := edit_status + 1
 edit_locked := $dd
 edit_goto := $ee
@@ -67,8 +67,6 @@ _editBasicProg:
 	jp edit_basic_program
 
 edit_basic_program_goto:
-	ld hl, returnCEaShell
-	ld (hl), 1
 	call	compute_error_offset
 	ld	a,edit_goto
 	ld	(edit_mode),a
@@ -123,7 +121,7 @@ edit_basic_program:
 
 edit_helper:
 	ld	a,ti.cxPrgmEdit
-	call	ti.NewContext
+	call	ti.NewContext0
 	xor	a,a
 	ld	(ti.winTop),a
 	call	ti.ScrollUp
