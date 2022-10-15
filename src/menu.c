@@ -591,18 +591,19 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     ti_Close(slot);
 }
 
-static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg) {
+static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg) {
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
-    if (option == 0) {  // small about box
+    shapes_RoundRectangleFill(colors[1], 8, 140, 155, 165, 46);
+    if (option == 0) {  // big about box
         shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
-    } else {    // big about box
-        gfx_SetColor(colors[1]);
-        gfx_FillRectangle_NoClip(165, 111, 140, 19);
+    } else if (option == 1) {
+        shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
+    } else {    // small about box
         shapes_RoundRectangleFill(colors[0], 8, 140, 72, 165, 46);
     }
     gfx_SetTextScale(1, 1);
     gfx_PrintStringXY("About:", 171, 52);
-    switch (option) {   // more coming soon
+    switch (option) {
         case 0:
             shapes_PixelIndentRectangle(colors[2], colors[0], 19, 50, 132, 11);
             gfx_PrintStringXY("Choose whether", 171, 69);
@@ -613,20 +614,34 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const boo
             break;
         case 1:
             shapes_PixelIndentRectangle(colors[2], colors[0], 19, 67, 132, 23);
+            gfx_PrintStringXY("Enable keyboard", 171, 69);
+            gfx_PrintStringXY("shortcuts.", 171, 81);
+            gfx_PrintStringXY("[on] + [prgm]:", 171, 93);
+            gfx_PrintStringXY("Launch CEaShell.", 171, 105);
+            gfx_PrintStringXY("[on] + [sto]/[ln]:", 171, 117);
+            gfx_PrintStringXY("Enable/Disable OS", 171, 129);
+            gfx_PrintStringXY("Dark mode.", 171, 141);
+            gfx_PrintStringXY("[on] + [stat]:", 171, 153);
+            gfx_PrintStringXY("Trigger APD.", 171, 165);
+            gfx_PrintStringXY("[on] + [graph]:", 171, 177);
+            gfx_PrintStringXY("Jump to lbl in prgms.", 171, 189);
+            break;
+        case 2:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 96, 132, 23);
             gfx_PrintStringXY("Allow the editing", 171, 69);
             gfx_PrintStringXY("of archived", 171, 81);
             gfx_PrintStringXY("programs in the OS", 171, 93);
             gfx_PrintStringXY("[prgm] edit menu.", 171, 105);
             break;
-        case 2:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 96, 132, 23);
+        case 3:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 125, 132, 23);
             gfx_PrintStringXY("Allow the editing", 171, 69);
             gfx_PrintStringXY("of locked BASIC", 171, 81);
             gfx_PrintStringXY("programs in", 171, 93);
             gfx_PrintStringXY("CEaShell.", 171, 105);
             break;
-        case 3:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 125, 132, 23);
+        case 4:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 154, 132, 23);
             gfx_PrintStringXY("Display hidden", 171, 69);
             gfx_PrintStringXY("programs in the", 171, 81);
             gfx_PrintStringXY("CEaShell program", 171, 93);
@@ -638,47 +653,56 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const boo
     gfx_PrintStringXY("Icon Hook", 21, 52);
     gfx_PrintStringXY("<", 114, 52);
     gfx_PrintStringXY(">", 144, 52);
-    if (programIconHook) {
+    if (getCSCHook == BOTH || getCSCHook == ICON_HOOK) {
         gfx_PrintStringXY("On", 124, 52);
     } else {
         gfx_PrintStringXY("Off", 120, 52);
     }
-    gfx_PrintStringXY("Edit archived", 21, 69);
-    gfx_PrintStringXY("Programs", 21, 81);
+    gfx_PrintStringXY("[on] key", 21, 69);
+    gfx_PrintStringXY("Shortcuts", 21, 81);
     gfx_PrintStringXY("<", 114, 81);
     gfx_PrintStringXY(">", 144, 81);
-    if (editArchivedProg) {
+    if (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK) {
         gfx_PrintStringXY("On", 124, 81);
     } else {
         gfx_PrintStringXY("Off", 120, 81);
     }
-    gfx_PrintStringXY("Edit locked", 21, 98);
+    gfx_PrintStringXY("Edit archived", 21, 98);
     gfx_PrintStringXY("Programs", 21, 110);
     gfx_PrintStringXY("<", 114, 110);
     gfx_PrintStringXY(">", 144, 110);
-    if (editLockedProg) {
+    if (editArchivedProg) {
         gfx_PrintStringXY("On", 124, 110);
     } else {
         gfx_PrintStringXY("Off", 120, 110);
     }
-    gfx_PrintStringXY("Show hidden", 21, 127);
+    gfx_PrintStringXY("Edit locked", 21, 127);
     gfx_PrintStringXY("Programs", 21, 139);
     gfx_PrintStringXY("<", 114, 139);
     gfx_PrintStringXY(">", 144, 139);
-    if (showHiddenProg) {
+    if (editLockedProg) {
         gfx_PrintStringXY("On", 124, 139);
     } else {
         gfx_PrintStringXY("Off", 120, 139);
     }
+    gfx_PrintStringXY("Show hidden", 21, 156);
+    gfx_PrintStringXY("Programs", 21, 168);
+    gfx_PrintStringXY("<", 114, 168);
+    gfx_PrintStringXY(">", 144, 168);
+    if (showHiddenProg) {
+        gfx_PrintStringXY("On", 124, 168);
+    } else {
+        gfx_PrintStringXY("Off", 120, 168);
+    }
 }
 
-void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg) {    // Add more options later
+void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg) {    // Add more options later
     shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     bool keyPressed = false;
     bool redraw = false;
     uint8_t option = 0;
-    menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg, *editLockedProg, *showHiddenProg);
+    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg);
     gfx_BlitBuffer();
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyGraph) && !kb_IsDown(kb_KeyClear)) {
@@ -691,25 +715,55 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
             if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
                 switch (option) {
                     case 0:
-                        *programIconHook = !*programIconHook;
-                        if (*programIconHook && (!checkGetCSCHookInstalled())) {
-                            installGetCSCHook();
-                        } else if (checkGetCSCHookInstalled()) {
+                        if (*getCSCHook == BOTH) {  // Turning off
+                            *getCSCHook = ON_SHORTS_HOOK;
+                        } else if (*getCSCHook == ICON_HOOK) {
+                            *getCSCHook = NONE;
+                        } else if (*getCSCHook == ON_SHORTS_HOOK) { // Turning on
+                            *getCSCHook = BOTH;
+                        } else if (*getCSCHook == NONE) {  
+                            *getCSCHook = ICON_HOOK;
+                        }
+                        if (*getCSCHook) {
+                            installGetCSCHook(*getCSCHook);
+                        } else {
                             removeGetCSCHook();
                         }
                         break;
                     case 1:
-                        *editArchivedProg = !*editArchivedProg;
-                        if (*editArchivedProg && (!checkMenuHookInstalled())) {
-                            installMenuHook();
-                        } else if (checkMenuHookInstalled()) {
-                            removeMenuHook();
+                        if (*getCSCHook == BOTH) {  // Turning off
+                            *getCSCHook = ICON_HOOK;
+                        } else if (*getCSCHook == ICON_HOOK) {
+                            *getCSCHook = BOTH;
+                        } else if (*getCSCHook == ON_SHORTS_HOOK) { // Turning on
+                            *getCSCHook = NONE;
+                        } else if (*getCSCHook == NONE) {  
+                            *getCSCHook = ON_SHORTS_HOOK;
+                        }
+                        if (*getCSCHook) {
+                            installGetCSCHook(*getCSCHook);
+                        } else {
+                            removeGetCSCHook();
                         }
                         break;
                     case 2:
-                        *editLockedProg = !*editLockedProg;
+                        *editArchivedProg = !*editArchivedProg;
+                        if (*editArchivedProg) {
+                            installMenuHook();
+                            installHomescreenHook();
+                        } else {
+                            if (checkMenuHookInstalled()) {
+                                removeMenuHook();
+                            }
+                            if (checkHomescreenHookInstalled()) {
+                                removeHomescreenHook();
+                            }
+                        }
                         break;
                     case 3:
+                        *editLockedProg = !*editLockedProg;
+                        break;
+                    case 4:
                         *showHiddenProg = !*showHiddenProg;
                         break;
                     default:
@@ -717,7 +771,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
                 }
             }
             if (kb_IsDown(kb_KeyDown)) {
-                if (option != 3) {
+                if (option != 4) {
                     option += 1;
                 } else {
                     option = 0; // Restart menu
@@ -726,7 +780,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
                 if (option != 0) {
                     option -= 1;
                 } else {
-                    option = 3; // Restart menu
+                    option = 4; // Restart menu
                 }
             }
             redraw = true;
@@ -740,7 +794,7 @@ void menu_Settings(uint8_t *colors, bool *programIconHook, bool *editArchivedPro
         }
         if (redraw) {
             redraw = false;
-            menu_SettingsRedraw(colors, option, *programIconHook, *editArchivedProg, *editLockedProg, *showHiddenProg);
+            menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg);
             gfx_BlitBuffer();
         }
     }

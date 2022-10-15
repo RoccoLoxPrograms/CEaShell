@@ -29,7 +29,7 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const bool programIconHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const unsigned int fileSelected, const unsigned int fileStartLoc) {
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const unsigned int fileSelected, const unsigned int fileStartLoc) {
     uint8_t ceaShell[11];
     unsigned int scrollLoc[2];
     ceaShell[0] = colors[0];
@@ -39,7 +39,7 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ceaShell[4] = transitionSpeed;
     ceaShell[5] = is24Hour;
     ceaShell[6] = displayCEaShell;
-    ceaShell[7] = programIconHook;
+    ceaShell[7] = getCSCHook;
     ceaShell[8] = editArchivedProg;
     ceaShell[9] = editLockedProg;
     ceaShell[10] = showHiddenProg;

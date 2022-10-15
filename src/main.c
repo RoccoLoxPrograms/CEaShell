@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 14, 2022
- * Version: 0.70.1
+ * Last Build: October 15, 2022
+ * Version: 0.70.5
  * 
  * --------------------------------------
 **/
@@ -36,7 +36,6 @@ gfx_UninitedSprite(buffer2, 152, 193);
 int main(void) {
     removeStopHook();
     installMenuHook();
-    installHomescreenHook();
     while (kb_AnyKey());
     
     // Default settings
@@ -45,9 +44,9 @@ int main(void) {
     bool is24Hour = true;
     bool appvars = false;   // Whether the appvars are being displayed
     bool displayCEaShell = false;   // Whether we display CEaShell
-    bool programIconHook = false;
-    bool editArchivedProg = false;
-    bool editLockedProg = false;
+    uint8_t getCSCHook = BOTH;
+    bool editArchivedProg = true;
+    bool editLockedProg = true;
     bool showHiddenProg = true;
     unsigned int fileSelected = 0;
     unsigned int fileStartLoc = 0;
@@ -66,7 +65,7 @@ int main(void) {
         transitionSpeed = ceaShell[4];
         is24Hour = ceaShell[5];
         displayCEaShell = ceaShell[6];
-        programIconHook = ceaShell[7];
+        getCSCHook = ceaShell[7];
         editArchivedProg = ceaShell[8];
         editLockedProg = ceaShell[9];
         showHiddenProg = ceaShell[10];
@@ -78,16 +77,20 @@ int main(void) {
     }
 
     // Restore hooks
-    if (programIconHook && (!checkGetCSCHookInstalled())) {
-        installGetCSCHook();
-    } else if ((!programIconHook) && checkGetCSCHookInstalled()) {
-        removeGetCSCHook();
+    if (getCSCHook) {
+        installGetCSCHook(getCSCHook);
     }
 
-    if (editArchivedProg && (!checkMenuHookInstalled())) {
+    if (editArchivedProg) {
         installMenuHook();
-    } else if ((!editArchivedProg) && checkMenuHookInstalled()) {
-        removeMenuHook();
+        installHomescreenHook();
+    } else if (!editArchivedProg) {
+        if (checkMenuHookInstalled()) {
+            removeMenuHook();
+        }
+        if (checkHomescreenHookInstalled()) {
+            removeHomescreenHook();
+        }
     }
 
     buffer1->height = 193;
@@ -233,7 +236,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -246,7 +249,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
+                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
                 menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg, showHiddenProg); // This will store some file changes to the infoOps (Info Operations) array
                 if (infoOps[0]) {   // Takes care of deletions
                     fileNumbers[appvars]--;
@@ -292,7 +295,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Settings(colors, &programIconHook, &editArchivedProg, &editLockedProg, &showHiddenProg);
+                menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg);
                 util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg);
                 if (fileSelected >= fileNumbers[appvars]) {
                     fileSelected = fileNumbers[appvars] - 1;
@@ -319,7 +322,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -328,7 +331,7 @@ int main(void) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, fileSelected, fileStartLoc);
                     util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
                 }
             }
@@ -370,7 +373,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, programIconHook, editArchivedProg, editLockedProg, showHiddenProg, 0, 0);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, 0, 0);
     gfx_End();
     os_ClrHome();   // Clean screen
     return 0;

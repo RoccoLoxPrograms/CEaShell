@@ -248,6 +248,8 @@ hook_app_change:
 	pop de
 	pop de
 	pop de ; sort the stack for proper return?
+	cp a, $05
+	jr z, .exitOS
 	ret
 .close_editor:
 	push	af, bc, hl
@@ -271,3 +273,9 @@ hook_app_change:
 .exitApp:
 	pop af
 	jp _reloadApp
+
+.exitOS:
+	ld a, ti.cxCmd
+	call ti.NewContext0
+	ld a, ti.kClear
+	jp ti.JForceCmd

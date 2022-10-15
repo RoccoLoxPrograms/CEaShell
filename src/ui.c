@@ -197,27 +197,19 @@ void ui_BottomBar(const uint8_t color) {
 }
 
 bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y) {
+    gfx_SetDrawBuffer();
     bool retVal = true;
     while (kb_AnyKey());
     shapes_RoundRectangleFill(colors[0], 8, 208, 20, x, y);
     gfx_PrintStringXY("Are you sure?", x + 28, y + 6);
     gfx_BlitBuffer();
     gfx_SetColor(colors[2]);
-    gfx_FillRectangle_NoClip(x + 160, y + 5, 27, 9);
+    shapes_PixelIndentRectangle(colors[2], colors[0], x + 159, y + 4, 29, 11);
     gfx_PrintStringXY("Yes    No", x + 130, y + 6);
     gfx_SetDrawScreen();
-    gfx_FillRectangle_NoClip(x + 128, y + 5, 27, 9);
+    shapes_PixelIndentRectangle(colors[2], colors[0], x + 127, y + 4, 29, 11);
     gfx_PrintStringXY("Yes    No", x + 130, y + 6);
-    gfx_SetColor(colors[0]);
-    gfx_SetPixel(x + 128, y + 5);
-    gfx_SetPixel(x + 128, y + 13);
-    gfx_SetPixel(x + 154, y + 5);
-    gfx_SetPixel(x + 154, y + 13);
     gfx_SetDrawBuffer();
-    gfx_SetPixel(x + 160, y + 5);
-    gfx_SetPixel(x + 160, y + 13);
-    gfx_SetPixel(x + 186, y + 5);
-    gfx_SetPixel(x + 186, y + 13);
     while (!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_Key1) && !kb_IsDown(kb_KeyLog) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
         if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {

@@ -22,6 +22,7 @@ include 'include/ti84pceg.inc'
     extern hook_show_labels
     public _installHomescreenHook
     public _removeHomescreenHook
+    public _checkHomescreenHookInstalled
     public _installMenuHook
     public _removeMenuHook
     public _checkMenuHookInstalled
@@ -35,6 +36,96 @@ returnIsAsm := ti.appData + 9
 returnEditLocked := returnIsAsm + 1
 returnCEaShell := returnEditLocked + 1
 tempAppVarSize := 1
+
+_iconHookStart: ; the user only has the icon hook enabled
+    db $83
+    push bc
+    cp a, $1a
+    jr nz, .keyPress
+    pop bc
+    push af
+    ld a, (ti.menuCurrent)
+    cp a, 3 ; check for program menu
+    jr nz, .return
+    ld a, (ti.menuCurrentSub)
+    cp a, ti.mPrgm_Run ; check for run menu
+    jr z, .update
+    cp a, ti.mPrgm_Edit
+    jr nz, .returnOther
+
+.update:
+    bit updateProgInfo, (iy + ti.asm_Flag2)
+    jr nz, .return
+    call ti.os.ClearStatusBarLow
+    ld a, (ti.menuNumItems)
+    cp a, 0
+    jr z, .returnOther
+    call _showIcons
+    call _showDescription
+    set updateProgInfo, (iy + ti.asm_Flag2)
+    jr .return
+
+.keyPress: ; keypress event
+    ld a, ti.skPrgm
+    cp a, b
+    call z, _sortVAT
+    res updateProgInfo, (iy + ti.asm_Flag2) ; reset flag on keypress
+
+.return:
+    pop bc
+    or a, 1
+    ld a, b
+    ret
+
+.returnOther: ; draw over artifact when switching to create menu
+    call ti.os.ClearStatusBarLow
+	bit updateProgInfo, (iy + ti.asm_Flag2)
+    jr nz, .return
+    ld hl, $ffff
+	ld (ti.fillRectColor), hl
+	ld hl, 152
+	ld de, 168
+	ld b, 58
+	ld c, 234
+	call ti.FillRect
+    set updateProgInfo, (iy + ti.asm_Flag2)
+	jr .return
+
+_onHookStart: ; the user only has the on shortcut hook enabled
+    db $83
+    push bc
+    cp a, $1a
+    jr z, .return
+    ld	hl,$f0202c
+	ld	(hl),l
+	ld	l,h
+	bit	0,(hl)
+    jr z, .return
+
+.onShortcut:
+    ld a, ti.skGraph
+    cp a, b
+    pop ix
+    jp z, hook_show_labels
+    ld a, ti.skPrgm
+    cp a, b
+    jp z, _openShellHook
+    ld a, ti.skStat
+    cp a, b
+    jp z, _apdHook
+    ld a, ti.skStore
+    cp a, b
+    jp z, _invertOn
+    ld a, ti.skLn
+    cp a, b
+    jp z, _invertOff
+    push ix
+
+.return:
+    pop bc
+    or a, 1
+    ld a, b
+    ret
 
 _homescreenHookStart: ; handle OS programs using our code
     db $83
@@ -132,7 +223,7 @@ _menuHookStart:
     cp a, a
     ret
 
-_getCSCHookStart: ; icons in [prgm] menu
+_getCSCHookStart: ; icons and on shortcuts
     db $83
     push bc
     cp a, $1a
@@ -294,6 +385,19 @@ _removeHomescreenHook:
     ld iy, ti.flags
     jp ti.ClrHomescreenHook
 
+_checkHomescreenHookInstalled:
+    ld iy, ti.flags
+    bit ti.homescreenHookActive, (iy + ti.hookflags2) ; check if a menu hook is installed
+    ld a, 0
+    ret z
+    ld hl, (ti.homescreenHookPtr)
+    ld de, _homescreenHookStart
+    or a, a
+    sbc hl, de
+    ret nz
+    inc a
+    ret
+
 _installMenuHook:
     ld iy, ti.flags
     ld hl, _menuHookStart
@@ -317,7 +421,31 @@ _checkMenuHookInstalled:
     ret
 
 _installGetCSCHook:
+    push ix
+    ld ix, 0
+    add ix, sp
+    ld a, (ix + 6) ; which hook to install
+    pop ix
+    cp a, 1
+    jr z, .both
+    cp a, 2
+    jr z, .icon
+    cp a, 3
+    jr z, .onShorts
+    ret
+
+.icon:
+    ld hl, _iconHookStart
+    jr .install
+
+.onShorts:
+    ld hl, _onHookStart
+    jr .install
+
+.both:
     ld hl, _getCSCHookStart
+
+.install:
     ld iy, ti.flags
     jp ti.SetGetCSCHook
 
@@ -330,8 +458,32 @@ _checkGetCSCHookInstalled:
     bit ti.getCSCHookActive, (iy + ti.hookflags2) ; check if a get csc hook is installed
     ld a, 0
     ret z
-    ld hl, (ti.getKeyHookPtr)
+    push ix
+    ld ix, 0
+    add ix, sp
+    ld a, (ix + 6) ; which hook to install
+    pop ix
+    cp a, 1
+    jr z, .both
+    cp a, 2
+    jr z, .icon
+    cp a, 3
+    jr z, .onShorts
+    ret
+
+.icon:
+    ld de, _iconHookStart
+    jr .check
+
+.onShorts:
+    ld de, _onHookStart
+    jr .check
+
+.both:
     ld de, _getCSCHookStart
+
+.check:
+    ld hl, (ti.getKeyHookPtr)
     or a, a
     sbc hl, de
     ret nz

@@ -18,9 +18,17 @@
 extern "C" {
 #endif
 
+// GetCSC hook codes
+#define NONE            0
+#define BOTH            1
+#define ICON_HOOK       2
+#define ON_SHORTS_HOOK  3
+
 void installHomescreenHook(void);
 
 void removeHomescreenHook(void);
+
+bool checkHomescreenHookInstalled(void);
 
 void installMenuHook(void);
 
@@ -28,11 +36,11 @@ void removeMenuHook(void);
 
 bool checkMenuHookInstalled(void);
 
-void installGetCSCHook(void);
+void installGetCSCHook(uint8_t);
 
 void removeGetCSCHook(void);
 
-bool checkGetCSCHookInstalled(void);
+bool checkGetCSCHookInstalled(uint8_t);
 
 void installStopHook(void);
 
