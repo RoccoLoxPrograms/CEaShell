@@ -40,6 +40,7 @@ include 'include/ti84pceg.inc'
     extern _appMainStart
 	extern _checkPrgmType
 	extern edit_basic_program_goto
+	extern _installHomescreenHook
 	public _reloadApp
 
 backupPrgmName := ti.appData
@@ -47,6 +48,11 @@ returnIsAsm := backupPrgmName + 9
 returnEditLocked := returnIsAsm + 1
 returnCEaShell := returnEditLocked + 1
 lockStatus := ti.pixelShadow2 + 3
+
+sysHookFlg := 52
+appInpPrmptInit := 0
+appInpPrmptDone := 1
+appWantHome := 4
 
 _runProgram:
     push ix
@@ -68,6 +74,8 @@ _runProgram:
     ld de, ti.OP1 + 1
     ld bc, 8
     ldir ; move name to OP1
+	ld	hl,execute_hook
+	call	ti.SetHomescreenHook
 
 _continueRun:
 	call _utilBackupPrgmName
@@ -130,10 +138,9 @@ _asmProgram:
 _asmProgram.run:
     call ti.DisableAPD
 	set	ti.appAutoScroll, (iy + ti.appFlags)
-    call _clearUsedMem
-	call ti.DrawStatusBar
-	ld hl, _return.error
-	call ti.PushErrorHandler
+    call execute_setup_vectors
+	;call _clearUsedMem
+	;call ti.DrawStatusBar
     call ti.userMem
     jp _return
 
@@ -299,8 +306,7 @@ _basicProgram:
 	set	ti.cmdExec, (iy + ti.cmdFlags)
 	set	ti.allowProgTokens, (iy + ti.newDispF)
 	call _clearUsedMem
-	ld hl, _return.error
-	call ti.PushErrorHandler
+	call execute_setup_vectors
 	call ti.EnableAPD
 	ei
 	ld hl, _return
@@ -312,7 +318,7 @@ _return:
 	call ti.PopErrorHandler
 	xor a, a
 
-_return.error:
+.error:
 	push af
 	res ti.progExecuting, (iy + ti.newDispF)
 	res	ti.cmdExec, (iy + ti.cmdFlags)
@@ -432,6 +438,52 @@ _utilSquishyCheckByte:
 	cp a, $47
 	jp nc, ti.ErrSyntax
 	;sub	a,$37
+	ret
+
+execute_setup_vectors:
+	xor	a,a
+	ld	(ti.appErr1),a
+	ld	(ti.kbdGetKy),a
+	ld	hl,execute_vectors
+	call	ti.AppInit
+	call	ti.ForceFullScreen
+	call	ti.ClrScrn
+	call	ti.HomeUp
+	ld	hl,ti.pixelShadow
+	ld	bc,8400 * 3
+	call	ti.MemClear
+	call	ti.ClrTxtShd
+	ld	hl,ti.textShadow
+	ld	de,ti.cmdShadow
+	ld	bc,$104
+	ldir
+	ld	hl, _return.error
+	jp	ti.PushErrorHandler
+
+execute_vectors:
+	dl	.ret
+	dl	ti.SaveShadow
+	dl	.putway
+	dl	.restore
+	dl	.ret
+	dl	.ret
+.restore:
+	call	ti.HomeUp
+	call	ti.ClrScrn
+	jp	ti.RStrShadow
+.ret:
+	ret
+.putway:
+	xor	a,a
+	ld	(ti.currLastEntry),a
+	bit	appInpPrmptInit,(iy + ti.apiFlg2)
+	jr	nz,.aipi
+	call	ti.ClrHomescreenHook
+	call	ti.ForceFullScreen
+.aipi:
+	call	ti.ReloadAppEntryVecs
+	call	ti.PutAway
+	ld	b,0
 	ret
 
 _showError:
@@ -600,6 +652,46 @@ _reloadApp:
 	add	hl, de
 	jp (hl)
 
+execute_hook:
+	add	a,e
+	cp	a,3
+	ret	nz
+	ld iy, ti.flags
+	call ti.ClrHomescreenHook
+	ld hl, appVarName ; restore other homescreen hook if need be
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	jr c, .continue
+	call ti.ChkInRam
+	jr z, .inRam
+    ld hl, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ex de, hl
+
+.inRam:
+    ld hl, 10
+	add hl, de
+	ld a, 1
+	cp a, (hl)
+	jr nz, .continue
+	call _installHomescreenHook
+
+.continue:
+	bit	appInpPrmptDone,(iy + ti.apiFlg2)
+	res	appInpPrmptDone,(iy + ti.apiFlg2)
+	jp	z, _reloadApp
+	call	ti.ReloadAppEntryVecs
+	ld	hl,execute_vectors
+	call	ti.AppInit
+	or	a,1
+	ld	a,$58
+	ld	(ti.cxCurApp),a
+	ret
+
 tempProgram:
 	db	ti.TempProgObj, 'CEASHTMP', 0
 
@@ -610,3 +702,6 @@ data_string_quit2:
 
 prgmEx:
 	db 5, '!', 0
+
+appVarName:
+    db ti.AppVarObj, 'CEaShell', 0

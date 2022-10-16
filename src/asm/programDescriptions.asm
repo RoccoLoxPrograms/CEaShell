@@ -80,8 +80,8 @@ _asmDesc:
     ld hl, 290
     or a, a
     sbc hl, bc
-    jr c, .continue
     pop hl
+    jr c, .continue
     jr .copy
 
 .continue:
