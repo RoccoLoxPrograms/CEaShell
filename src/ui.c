@@ -403,3 +403,15 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
         }
     }
 }
+
+void ui_MiniCursor(uint8_t color, int x, uint8_t y) {
+    gfx_SetColor(color);
+    gfx_Line_NoClip(x, y + 1, x, y + 4);
+    gfx_Line_NoClip(x + 1, y, x + 4, y);
+    gfx_Line_NoClip(x + 1, y + 5, x + 4, y + 5);
+    gfx_Line_NoClip(x + 5, y + 1, x + 5, y + 4);
+    gfx_SetPixel(x + 1, y + 1);
+    gfx_SetPixel(x + 4, y + 4);
+    gfx_SetPixel(x + 1, y + 4);
+    gfx_SetPixel(x + 4, y + 1);
+}

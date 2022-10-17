@@ -43,10 +43,127 @@ static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_
     gfx_SetTextFGColor(255 * !(defaultThemes[color] > 131 && defaultThemes[color] % 8 > 3));
 }
 
+static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors) {
+    gfx_SetColor(colors[1]);
+    gfx_FillRectangle_NoClip(165, 96, 140, 19);
+    gfx_SetTextScale(1, 1);
+    shapes_RoundRectangleFill(colors[0], 8, 140, 92, 165, 109);
+    bool redraw = true;
+    bool keyPressed = false;
+    uint8_t colorSelected = colors[0];
+    uint8_t colorModifying = 0;
+    while (kb_AnyKey());
+    while (!kb_IsDown(kb_KeyYequ) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha)) { // Key detection loop
+        kb_Scan();
+        if (!kb_AnyKey()) {
+            keyPressed = false;
+            timer_Set(1, 0);
+        }
+        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyMode)) && (!keyPressed || timer_Get(1) > 3000)) {
+            redraw = true;
+            if (kb_IsDown(kb_KeyLeft)) {
+                if (colorSelected != 0) {
+                    colorSelected -= 1;
+                } else {
+                    colorSelected = 255;
+                }
+            } else if (kb_IsDown(kb_KeyRight)) {
+                if (colorSelected != 255) {
+                    colorSelected += 1;
+                } else {
+                    colorSelected = 0;
+                }
+            }
+            if (kb_IsDown(kb_KeyUp)) {
+                if (colorSelected > 32) {
+                    colorSelected -= 32;
+                } else {
+                    colorSelected += 224;
+                }
+            } else if (kb_IsDown(kb_KeyDown)) {
+                if (colorSelected < 225) {
+                    colorSelected += 32;
+                } else {
+                    colorSelected -= 224;
+                }
+            }
+            if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+                newColors[colorModifying] = colorSelected;
+                while (kb_AnyKey());
+                if (colorModifying != 2) {
+                    colorModifying++;
+                } else {
+                    break;
+                }
+                colorSelected = colors[colorModifying];
+            }
+            if (kb_IsDown(kb_KeyMode)) {
+                while (kb_AnyKey());
+                if (colorModifying < 2) {
+                    colorModifying++;
+                } else {
+                    colorModifying = 0;
+                }
+                colorSelected = newColors[colorModifying];
+            }
+            if (!keyPressed) {
+                while (timer_Get(1) < 9000 && kb_Data[7]) {
+                    kb_Scan();
+                }
+            }
+            keyPressed = true;
+            timer_Set(1,0);
+        }
+        if (redraw) {
+            redraw = false;
+            shapes_RoundRectangleFill(colors[0], 8, 140, 56, 165, 46);
+            gfx_ScaledSprite_NoClip(xlibc, 171, 52, 4, 4);
+            gfx_SetColor(colors[0]);
+            gfx_SetPixel(171, 52);
+            gfx_SetPixel(171, 83);
+            gfx_SetPixel(298, 52);
+            gfx_SetPixel(298, 83);
+            ui_MiniCursor(colors[2], 170 + ((colorSelected % 32) * 4), 51 + ((colorSelected / 32) * 4));
+            if (colorModifying) {
+                shapes_RoundRectangleFill(newColors[0], 7, 134, 86, 168, 112);
+            } else {
+                shapes_RoundRectangleFill(colorSelected, 7, 134, 86, 168, 112);
+            }
+            if (colorModifying != 1) {
+                shapes_RoundRectangleFill(newColors[1], 6, 61, 67, 172, 116);
+            } else {
+                shapes_RoundRectangleFill(colorSelected, 6, 61, 67, 172, 116);
+            }
+            if (colorModifying != 2) {
+                shapes_RoundRectangleFill(newColors[2], 6, 61, 39, 237, 116);
+            } else {
+                shapes_RoundRectangleFill(colorSelected, 6, 61, 39, 237, 116);
+            }
+            switch (colorModifying) {
+                case 0:
+                    gfx_PrintStringXY("BG color", 172, 87);
+                    break;
+                case 1:
+                    gfx_PrintStringXY("Secondary color", 172, 87);
+                    break;
+                case 2:
+                    gfx_PrintStringXY("Highlight color", 172, 87);
+                    break;
+                default:
+                    break;
+            }
+            gfx_SetTextFGColor(255 * !(newColors[0] > 131 && newColors[0] % 8 > 3));
+            gfx_PrintStringXY("Alpha: Return", 173, 186);
+            gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
+            gfx_BlitBuffer();
+        }
+    }
+}
+
 static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const uint8_t option) {
     if (!themePicker) {
         shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
-        if (option != 2 && option != 4) {
+        if (option != 2 && option < 4) {
             shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
         } else {
             gfx_SetColor(colors[1]);
@@ -89,6 +206,13 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
                 break;
             case 4:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 19, 142, 132, 11);
+                gfx_PrintStringXY("Create your own", 171, 69);
+                gfx_PrintStringXY("color theme", 171, 81);
+                gfx_PrintStringXY("for CEaShell to", 171, 93);
+                gfx_PrintStringXY("use.", 171, 105);
+                break;
+            case 5:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 159, 132, 11);
                 gfx_PrintStringXY("Select a preset", 171, 69);
                 gfx_PrintStringXY("color theme", 171, 81);
                 gfx_PrintStringXY("for CEaShell to", 171, 93);
@@ -118,7 +242,8 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_PrintStringXY("CEaShell:", 21, 127);
         gfx_PrintStringXY("<", 114, 127);
         gfx_PrintStringXY(">", 144, 127);
-        gfx_PrintStringXY("Change Theme", 21, 144);
+        gfx_PrintStringXY("Custom Theme", 21, 144);
+        gfx_PrintStringXY("Preset Themes", 21, 161);
         if (transitionSpeed) {
             gfx_PrintStringXY("On", 124, 69);
             if (transitionSpeed == 1) {
@@ -210,7 +335,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                 }
             } else {
                 if (kb_IsDown(kb_KeyDown)) {
-                    if (option < 4) {
+                    if (option < 5) {
                         option++;
                     } else {
                         option = 0;
@@ -219,7 +344,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                     if (option) {
                         option--;
                     } else {
-                        option = 4;
+                        option = 5;
                     }
                 } else if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
                     switch (option) {
@@ -255,9 +380,28 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                     }
                 } else if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                     if (option == 4) {
+                        uint8_t newColors[3];
+                        newColors[0] = colors[0];
+                        newColors[1] = colors[1];
+                        newColors[2] = colors[2];
+                        menu_ColorPicker(colors, newColors);
+                        colors[0] = newColors[0];
+                        colors[1] = newColors[1];
+                        colors[2] = newColors[2];
+                        gfx_FillScreen(colors[0]);
+                        ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+                        shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
+                        gfx_SetColor(colors[1]);
+                        gfx_FillRectangle_NoClip(165, 130, 140, 82);
+                        menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+                        ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
+                        gfx_BlitBuffer();
+                    } else if (option == 5) {
                         themePicker = true;
                     }
-                    while (kb_AnyKey());
+                    if (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyYequ)) {
+                        while (kb_AnyKey());
+                    }
                 }
                 if (themePicker) {
                     menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
