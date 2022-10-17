@@ -41,7 +41,7 @@ void ui_Clock(const bool);
 
 void ui_Battery(const uint8_t, const uint8_t, const bool);
 
-void ui_StatusBar(const uint8_t, const bool, const uint8_t, const char *);
+void ui_StatusBar(const uint8_t, const bool, const uint8_t, const char *, const unsigned int, const bool);
 
 void ui_DescriptionWrap(const char *, const uint8_t, const int, const uint8_t);
 

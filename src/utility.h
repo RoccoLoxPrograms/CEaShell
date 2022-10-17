@@ -33,7 +33,7 @@ extern "C" {
 
 uint8_t util_SpaceSearch(const char *, const uint8_t);
 
-void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const uint8_t, const bool, const bool, const bool, const unsigned int, const unsigned int);
+void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const uint8_t, const bool, const bool, const bool, const bool, const unsigned int, const unsigned int);
 
 void util_FilesInit(unsigned int *, const bool, const bool);
 

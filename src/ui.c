@@ -152,7 +152,7 @@ void ui_Battery(const uint8_t color, const uint8_t batteryStatus, const bool isC
     }
 }
 
-void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
+void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName, const unsigned int fileCount, const bool showFileCount) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
     gfx_SetColor(color);
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
 
@@ -162,6 +162,11 @@ void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batter
     gfx_SetTextScale(2, 2);
     const int x = 160 - gfx_GetStringWidth(menuName) / 2;
     gfx_PrintStringXY(menuName, x, 8);
+    if (showFileCount) {
+        gfx_SetTextScale(1, 1);
+        gfx_SetTextXY(250, 12);
+        gfx_PrintInt(fileCount, 4);
+    }
 }
 
 void ui_DescriptionWrap(const char *description, const uint8_t charPerLine, const int x, const uint8_t y) {

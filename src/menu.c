@@ -281,7 +281,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const bool appvars, bool *displayCEaShell, const bool showHiddenProg) {
+void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const bool appvars, bool *displayCEaShell, const bool showHiddenProg, const bool showFileCount) {
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
     menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, 0);
@@ -350,7 +350,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                     switch (option) {
                         case 0:
                             *is24Hour = !*is24Hour;
-                            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
+                            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
                             gfx_BlitBuffer();
                             break;
                         case 1:
@@ -394,7 +394,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                         gfx_SetColor(colors[1]);
                         gfx_FillRectangle_NoClip(165, 130, 140, 82);
                         menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
-                        ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
+                        ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
                         gfx_BlitBuffer();
                     } else if (option == 5) {
                         themePicker = true;
@@ -434,7 +434,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
             gfx_SetColor(colors[1]);
             gfx_FillRectangle_NoClip(165, 130, 140, 82);
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
-            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize");
+            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
             gfx_BlitBuffer();
         } else if (kb_IsDown(kb_KeyAlpha) && themePicker) {
             themePicker = false;
@@ -735,7 +735,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     ti_Close(slot);
 }
 
-static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg) {
+static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount) {
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
     shapes_RoundRectangleFill(colors[1], 8, 140, 155, 165, 46);
     if (option == 0) {  // big about box
@@ -791,6 +791,13 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
             gfx_PrintStringXY("CEaShell program", 171, 93);
             gfx_PrintStringXY("list.", 171, 105);
             break;
+        case 5:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183, 132, 11);
+            gfx_PrintStringXY("Display the", 171, 69);
+            gfx_PrintStringXY("number of files", 171, 81);
+            gfx_PrintStringXY("in the current", 171, 93);
+            gfx_PrintStringXY("directory.", 171, 105);
+            break;
         default:
             break;
     }
@@ -838,15 +845,23 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
     } else {
         gfx_PrintStringXY("Off", 120, 168);
     }
+    gfx_PrintStringXY("File count", 21, 185);
+    gfx_PrintStringXY("<", 114, 185);
+    gfx_PrintStringXY(">", 144, 185);
+    if (showFileCount) {
+        gfx_PrintStringXY("On", 124, 185);
+    } else {
+        gfx_PrintStringXY("Off", 120, 185);
+    }
 }
 
-void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg) {    // Add more options later
+void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount) {    // Add more options later
     shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     bool keyPressed = false;
     bool redraw = false;
     uint8_t option = 0;
-    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg);
+    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg, *showFileCount);
     gfx_BlitBuffer();
     while (kb_AnyKey());
     while (!kb_IsDown(kb_KeyGraph) && !kb_IsDown(kb_KeyClear)) {
@@ -910,12 +925,15 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
                     case 4:
                         *showHiddenProg = !*showHiddenProg;
                         break;
+                    case 5:
+                        *showFileCount = !*showFileCount;
+                        break;
                     default:
                         break;
                 }
             }
             if (kb_IsDown(kb_KeyDown)) {
-                if (option != 4) {
+                if (option != 5) {
                     option += 1;
                 } else {
                     option = 0; // Restart menu
@@ -924,7 +942,7 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
                 if (option != 0) {
                     option -= 1;
                 } else {
-                    option = 4; // Restart menu
+                    option = 5; // Restart menu
                 }
             }
             redraw = true;
@@ -938,7 +956,7 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
         }
         if (redraw) {
             redraw = false;
-            menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg);
+            menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg, *showFileCount);
             gfx_BlitBuffer();
         }
     }
