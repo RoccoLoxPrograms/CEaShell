@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 17, 2022
- * Version: 0.72
+ * Last Build: October 20, 2022
+ * Version: 0.73
  * 
  * --------------------------------------
 **/
@@ -20,6 +20,8 @@
 #include "asm/fileOps.h"
 #include "gfx/gfx.h"
 #include "asm/hooks.h"
+#include "asm/lowercase.h"
+#include "asm/runProgram.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -36,6 +38,7 @@ gfx_UninitedSprite(buffer2, 152, 193);
 int main(void) {
     removeStopHook();
     installMenuHook();
+    removeExecuteHookInstalled();
     while (kb_AnyKey());
     
     // Default settings
@@ -49,6 +52,8 @@ int main(void) {
     bool editLockedProg = true;
     bool showHiddenProg = true;
     bool showFileCount = false;
+    bool hideBusyIndicator = false;
+    bool lowercase = false;
     unsigned int fileSelected = 0;
     unsigned int fileStartLoc = 0;
 
@@ -57,8 +62,8 @@ int main(void) {
     // Restore preferences from appvar, if it exists
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
-        uint8_t ceaShell[12];
-        ti_Read(&ceaShell, 12, 1, slot);
+        uint8_t ceaShell[14];
+        ti_Read(&ceaShell, 14, 1, slot);
         colors[0] = ceaShell[0];
         colors[1] = ceaShell[1];
         colors[2] = ceaShell[2];
@@ -71,11 +76,19 @@ int main(void) {
         editLockedProg = ceaShell[9];
         showHiddenProg = ceaShell[10];
         showFileCount = ceaShell[11];
-        ti_Seek(12, SEEK_SET, slot);
+        hideBusyIndicator = ceaShell[12];
+        lowercase = ceaShell[13];
+        ti_Seek(14, SEEK_SET, slot);
         unsigned int scrollLoc[2];
         ti_Read(&scrollLoc, 6, 1, slot);
         fileSelected = scrollLoc[0];
         fileStartLoc = scrollLoc[1];
+    }
+
+    if (lowercase && !checkLowercase()) {   // Restore lowercase preferences
+        toggleLowercase(true);
+    } else if (checkLowercase() && !lowercase) {
+        lowercase = true;
     }
 
     // Restore hooks
@@ -238,7 +251,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -251,7 +264,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, fileSelected, fileStartLoc);
+                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, fileSelected, fileStartLoc);
                 menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg, showHiddenProg); // This will store some file changes to the infoOps (Info Operations) array
                 if (infoOps[0]) {   // Takes care of deletions
                     fileNumbers[appvars]--;
@@ -297,7 +310,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount);
+                menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase);
                 util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg);
                 if (fileSelected >= fileNumbers[appvars]) {
                     fileSelected = fileNumbers[appvars] - 1;
@@ -324,7 +337,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, fileSelected, fileStartLoc);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, fileSelected, fileStartLoc);
                 }
                 redraw = 2;
                 gfx_BlitBuffer();
@@ -333,7 +346,7 @@ int main(void) {
                     appvars = !appvars;
                     redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, fileSelected, fileStartLoc);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, fileSelected, fileStartLoc);
                     util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
                 }
             }
@@ -375,7 +388,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, 0, 0);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, 0, 0);
     gfx_End();
     os_ClrHome();   // Clean screen
     return 0;

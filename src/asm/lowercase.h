@@ -1,7 +1,7 @@
 /**
  * --------------------------------------
  * 
- * CEaShell Source Code - runProgram.h
+ * CEaShell Source Code - lowercase.h
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
@@ -9,18 +9,16 @@
  * --------------------------------------
 **/
 
-#ifndef RUNPROGRAM_H
-#define RUNPROGRAM_H
-
-#include <stdint.h>
+#ifndef LOWERCASE_H
+#define LOWERCASE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void runProgram(char *, uint8_t, uint8_t, bool);
+void toggleLowercase(bool);
 
-void removeExecuteHookInstalled(void);
+bool checkLowercase(void);
 
 #ifdef __cplusplus
 }

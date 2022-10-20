@@ -29,8 +29,8 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const unsigned int fileSelected, const unsigned int fileStartLoc) {
-    uint8_t ceaShell[12];
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const unsigned int fileSelected, const unsigned int fileStartLoc) {
+    uint8_t ceaShell[14];
     unsigned int scrollLoc[2];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
@@ -44,12 +44,14 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ceaShell[9] = editLockedProg;
     ceaShell[10] = showHiddenProg;
     ceaShell[11] = showFileCount;
+    ceaShell[12] = hideBusyIndicator;
+    ceaShell[13] = lowercase;
     scrollLoc[0] = fileSelected;
     scrollLoc[1] = fileStartLoc;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
-    ti_Write(&ceaShell, 12, 1, slot);
-    ti_Seek(12, SEEK_SET, slot);
+    ti_Write(&ceaShell, 14, 1, slot);
+    ti_Seek(14, SEEK_SET, slot);
     ti_Write(&scrollLoc, 6, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);

@@ -36,6 +36,7 @@ include 'include/ti84pceg.inc'
 
 	public _runProgram
 	public _continueRun
+	public _removeExecuteHookInstalled
     extern app
     extern _appMainStart
 	extern _checkPrgmType
@@ -312,6 +313,27 @@ _basicProgram:
 	ld hl, _return
 	push hl
 	call ti.DrawStatusBar
+	call ti.OP1ToOP4 ; preserve OP1
+	ld hl, appVarName
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	call ti.ChkInRam
+    jr z, .appVarInRam ; same as in getPrgmType
+    ld hl, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ex de, hl
+
+.appVarInRam:
+    ld hl, 14
+	add hl, de
+	ld a, 1
+	cp a, (hl)
+	call z, ti.RunIndicOff
+	call ti.OP4ToOP1
 	jp ti.ParseInp
 
 _return:
@@ -691,6 +713,19 @@ execute_hook:
 	ld	a,$58
 	ld	(ti.cxCurApp),a
 	ret
+
+_removeExecuteHookInstalled:
+	ld iy, ti.flags
+    bit ti.homescreenHookActive, (iy + ti.hookflags2) ; check if a menu hook is installed
+    ld a, 0
+    ret z
+    ld hl, (ti.homescreenHookPtr)
+    ld de, execute_hook
+    or a, a
+    sbc hl, de
+    ret nz
+    inc a
+    ret
 
 tempProgram:
 	db	ti.TempProgObj, 'CEASHTMP', 0

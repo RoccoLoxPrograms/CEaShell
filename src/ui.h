@@ -55,6 +55,10 @@ void ui_DrawAllFiles(uint8_t *, const uint8_t, const uint8_t, const unsigned int
 
 void ui_MiniCursor(uint8_t, int, uint8_t);
 
+void ui_DrawMenuItem(const char *, const int, const uint8_t, const bool);
+
+void ui_DrawDoubleMenuItem(const char *, const char *, const int, const uint8_t, const bool);
+
 #ifdef __cplusplus
 }
 #endif

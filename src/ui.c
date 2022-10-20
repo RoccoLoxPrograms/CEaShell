@@ -420,3 +420,26 @@ void ui_MiniCursor(uint8_t color, int x, uint8_t y) {
     gfx_SetPixel(x + 1, y + 4);
     gfx_SetPixel(x + 4, y + 1);
 }
+
+void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status) {
+    gfx_PrintStringXY(lineOne, x, y);
+    gfx_PrintStringXY("<", x + 92, y);
+    gfx_PrintStringXY(">", x + 122, y);
+    if (status) {
+        gfx_PrintStringXY("On", x + 102, y);
+    } else {
+        gfx_PrintStringXY("Off", x + 99, y);
+    }
+}
+
+void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status) {
+    gfx_PrintStringXY(lineOne, x, y);
+    gfx_PrintStringXY(lineTwo, x, y + 12);
+    gfx_PrintStringXY("<", x + 92, y + 12);
+    gfx_PrintStringXY(">", x + 122, y + 12);
+    if (status) {
+        gfx_PrintStringXY("On", x + 102, y + 12);
+    } else {
+        gfx_PrintStringXY("Off", x + 99, y + 12);
+    }
+}
