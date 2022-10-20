@@ -29,6 +29,8 @@ include 'include/ti84pceg.inc'
     public _installGetCSCHook
     public _removeGetCSCHook
     public _checkGetCSCHookInstalled
+    public _isGetCSCHookInstalled
+    public _installGetCSCHookCont
 
 ; CEaShell hook flags stuff
 updateProgInfo := 0
@@ -426,6 +428,8 @@ _installGetCSCHook:
     add ix, sp
     ld a, (ix + 6) ; which hook to install
     pop ix
+
+_installGetCSCHookCont:
     cp a, 1
     jr z, .both
     cp a, 2
@@ -489,6 +493,27 @@ _checkGetCSCHookInstalled:
     ret nz
     inc a
     ret
+
+_isGetCSCHookInstalled: ; this is different, yes
+    ld a, 1
+    ld hl, (ti.getKeyHookPtr)
+    ld de, _iconHookStart
+    or a, a
+    sbc hl, de
+    ret z
+    add hl, de
+    ld de, _onHookStart
+    or a, a
+    sbc hl, de
+    ret z
+    add hl, de
+    ld de, _getCSCHookStart
+    or a, a
+    sbc hl, de
+    ret z
+    ld a, 0
+    ret
+
 
 hashProg:
     db $05, '#', 0

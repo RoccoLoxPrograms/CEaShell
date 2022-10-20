@@ -42,6 +42,8 @@ include 'include/ti84pceg.inc'
 	extern _checkPrgmType
 	extern edit_basic_program_goto
 	extern _installHomescreenHook
+	extern _installGetCSCHookCont
+	extern _isGetCSCHookInstalled
 	public _reloadApp
 
 backupPrgmName := ti.appData
@@ -79,6 +81,9 @@ _runProgram:
 	call	ti.SetHomescreenHook
 
 _continueRun:
+	call _isGetCSCHookInstalled
+	cp a, 1
+	call z, ti.ClrGetKeyHook
 	call _utilBackupPrgmName
 	pop bc
 	ld a, c
@@ -317,8 +322,9 @@ _basicProgram:
 	ld hl, appVarName
 	call ti.Mov9ToOP1
 	call ti.ChkFindSym
+	jr c, .run
 	call ti.ChkInRam
-    jr z, .appVarInRam ; same as in getPrgmType
+    jr z, .appVarInRam
     ld hl, 10
     add hl, de
     ld a, c
@@ -333,10 +339,13 @@ _basicProgram:
 	ld a, 1
 	cp a, (hl)
 	call z, ti.RunIndicOff
+
+.run:
 	call ti.OP4ToOP1
 	jp ti.ParseInp
 
 _return:
+	call _reinstallGetCSCHook
 	call ti.PopErrorHandler
 	xor a, a
 
@@ -678,6 +687,7 @@ execute_hook:
 	add	a,e
 	cp	a,3
 	ret	nz
+	call _reinstallGetCSCHook
 	ld iy, ti.flags
 	call ti.ClrHomescreenHook
 	ld hl, appVarName ; restore other homescreen hook if need be
@@ -726,6 +736,33 @@ _removeExecuteHookInstalled:
     ret nz
     inc a
     ret
+
+_reinstallGetCSCHook:
+	push hl
+	ld hl, -1
+	ld (hl), 2
+	pop hl
+	; -----
+	ld hl, appVarName
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	ret c
+	call ti.ChkInRam
+    jr z, .inRam
+    ld hl, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ex de, hl
+
+.inRam:
+    ld hl, 9
+	add hl, de
+	ld a, (hl)
+	call _installGetCSCHookCont
+	ret
 
 tempProgram:
 	db	ti.TempProgObj, 'CEASHTMP', 0
