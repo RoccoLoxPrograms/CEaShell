@@ -757,6 +757,9 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
             gfx_FillRectangle_NoClip(16, 64, 2, 109);
             break;
         case 2:
+            gfx_FillRectangle_NoClip(16, 74, 2, 109);
+            break;
+        case 3:
             gfx_FillRectangle_NoClip(16, 84, 2, 109);
             break;
         default:
@@ -793,39 +796,46 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
             gfx_PrintStringXY("[prgm] edit menu.", 171, 105);
             break;
         case 3:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 125 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 23);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 125 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), 132, 23);
             gfx_PrintStringXY("Allow the editing", 171, 69);
             gfx_PrintStringXY("of locked BASIC", 171, 81);
             gfx_PrintStringXY("programs in", 171, 93);
             gfx_PrintStringXY("CEaShell.", 171, 105);
             break;
         case 4:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 154 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 23);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 154 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), 132, 23);
             gfx_PrintStringXY("Display hidden", 171, 69);
             gfx_PrintStringXY("programs in the", 171, 81);
             gfx_PrintStringXY("CEaShell program", 171, 93);
             gfx_PrintStringXY("list.", 171, 105);
             break;
         case 5:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 11);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), 132, 11);
             gfx_PrintStringXY("Display the", 171, 69);
             gfx_PrintStringXY("number of files", 171, 81);
             gfx_PrintStringXY("in the current", 171, 93);
             gfx_PrintStringXY("directory.", 171, 105);
             break;
         case 6:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (29 * (startOption == 2)), 132, 11);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (29 * (startOption == 2)) - (58 * (startOption == 3)), 132, 11);
             gfx_PrintStringXY("Enable lowercase", 171, 69);
             gfx_PrintStringXY("in TI-OS", 171, 81);
             gfx_PrintStringXY("by pressing", 171, 93);
             gfx_PrintStringXY("[alpha] twice.", 171, 105);
             break;
         case 7:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 171, 132, 23);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 171 - (29 * (startOption == 3)), 132, 23);
             gfx_PrintStringXY("Disable busy", 171, 69);
             gfx_PrintStringXY("indicator in", 171, 81);
             gfx_PrintStringXY("TI-BASIC", 171, 93);
             gfx_PrintStringXY("programs.", 171, 105);
+            break;
+        case 8:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 171, 132, 11);
+            gfx_PrintStringXY("Learn about the", 171, 69);
+            gfx_PrintStringXY("people who played", 171, 81);
+            gfx_PrintStringXY("a role in creating", 171, 93);
+            gfx_PrintStringXY("CEaShell!", 171, 105);
             break;
         default:
             break;
@@ -837,15 +847,20 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
     if (startOption < 2) {
         ui_DrawDoubleMenuItem("[on] key", "Shortcuts", 21, 69 - (17 * (startOption == 1)), (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
     }
-    ui_DrawDoubleMenuItem("Edit archived", "Programs", 21, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)), editArchivedProg);
-    ui_DrawDoubleMenuItem("Edit locked", "Programs", 21, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)), editLockedProg);
-    ui_DrawDoubleMenuItem("Show hidden", "Programs", 21, 156 - (17 * (startOption == 1)) - (46 * (startOption == 2)), showHiddenProg);
-    ui_DrawMenuItem("File count", 21, 185 - (17 * (startOption == 1)) - (46 * (startOption == 2)), showFileCount);
-    if (startOption) {
-        ui_DrawMenuItem("Lowercase", 21, 185 - (29 * (startOption == 2)), lowercase);
+    if (startOption < 3) {
+        ui_DrawDoubleMenuItem("Edit archived", "Programs", 21, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)), editArchivedProg);
     }
-    if (startOption == 2) {
-        ui_DrawDoubleMenuItem("Disable busy", "Indicator", 21, 173, hideBusyIndicator);
+    ui_DrawDoubleMenuItem("Edit locked", "Programs", 21, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), editLockedProg);
+    ui_DrawDoubleMenuItem("Show hidden", "Programs", 21, 156 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), showHiddenProg);
+    ui_DrawMenuItem("File count", 21, 185 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), showFileCount);
+    if (startOption) {
+        ui_DrawMenuItem("Lowercase", 21, 185 - (29 * (startOption == 2)) - (58 * (startOption == 3)), lowercase);
+    }
+    if (startOption > 1) {
+        ui_DrawDoubleMenuItem("Disable busy", "Indicator", 21, 173 - (29 * (startOption == 3)), hideBusyIndicator);
+    }
+    if (startOption == 3) {
+        gfx_PrintStringXY("About", 21, 173);
     }
 }
 
@@ -937,10 +952,10 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
                 if (option < 5) {
                     option++;
                 } else {
-                    if ((startOption == 0 && option == 5)  || (startOption == 1 & option == 6)) {
+                    if ((startOption == 0 && option == 5)  || (startOption == 1 && option == 6) || (startOption == 2 && option == 7)) {
                         startOption++;
                         option++;
-                    } else if (option == 7) { // Restart menu
+                    } else if (option == 8) { // Restart menu
                         startOption = 0;
                         option = 0;
                     } else {
@@ -948,12 +963,12 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
                     }
                 }
             } else if (kb_IsDown(kb_KeyUp)) {
-                if (option > 2) {
+                if (option > 3) {
                     option -= 1;
                 } else {
                     if (startOption == option && option == 0) {
-                        startOption = 2;
-                        option = 7;
+                        startOption = 3;
+                        option = 8;
                     } else if (startOption == option) {
                         startOption -= 1;
                         option -= 1;
@@ -971,6 +986,18 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
             }
             keyPressed = true;
             timer_Set(1,0);
+        }
+        if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+            if (option == 8) {
+                ui_AboutScreen(colors);
+                if (kb_IsDown(kb_KeyAlpha)) {
+                    while (kb_AnyKey());
+                    gfx_SetColor(colors[1]);
+                    gfx_FillRectangle_NoClip(149, 46, 22, 155);
+                    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg, *showFileCount, *hideBusyIndicator, *lowercase, startOption);
+                    gfx_BlitBuffer();
+                }
+            }
         }
     }
 }

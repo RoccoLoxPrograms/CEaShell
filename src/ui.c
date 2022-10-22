@@ -443,3 +443,48 @@ void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x
         gfx_PrintStringXY("Off", x + 99, y + 12);
     }
 }
+
+void ui_AboutScreen(uint8_t *colors) {
+    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, KermMartian, and the CEdev Discord."
+    " Inspiration/Feature Ideas: KermMartian, MateoConLechuga, Adriweb, epsilon5, NoahK, DJ Omnimaga. Beta Testing: Coming soon ;)."
+    "And a big thank you to the members of the discord for your support and ideas!";
+    unsigned int startDisplay = 0;
+    shapes_RoundRectangleFill(colors[0], 8, 290, 155, 15, 46);
+    gfx_SetTextScale(2, 2);
+    gfx_PrintStringXY("CEaShell", 21, 52);
+    gfx_SetTextScale(1, 1);
+    gfx_SetTextXY(21, 72);
+    gfx_PrintChar('v');
+    gfx_PrintString(VERSION_NO);
+    gfx_PrintStringXY("CEaShell (pronounced \"seashell\"), is a", 21, 89);
+    gfx_PrintStringXY("shell created by RoccoLox Programs and", 21, 102);
+    gfx_PrintStringXY("TIny_Hacker. CEaShell aims to provide an", 21, 115);
+    gfx_PrintStringXY("easy to use, modern interface for the", 21, 128);
+    gfx_PrintStringXY("TI-84 + CE calculator.", 21, 141);
+    gfx_PrintStringXY("(C) Copyright 2022", 21, 175);
+    gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 21, 188);
+    gfx_SetClipRegion(21, 52, 299, 196);
+    gfx_SetTextConfig(1);
+    gfx_PrintStringXY(&specialThanks[startDisplay], 21, 158);
+    gfx_BlitBuffer();
+    timer_Set(1, 0);
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph) && !(timer_Get(1) > 9000)) {
+        kb_Scan();
+    }
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
+        kb_Scan();
+        if (timer_Get(1) > 2500) {
+            gfx_SetColor(colors[0]);
+            gfx_FillRectangle_NoClip(21, 158, 278, 8);
+            gfx_PrintStringXY(&specialThanks[startDisplay], 21, 158);
+            startDisplay++;
+            gfx_BlitBuffer();
+            timer_Set(1, 0);
+        }
+        if (startDisplay > 332) {
+            startDisplay = 0; // restart
+        }
+    }
+    gfx_SetClipRegion(0, 0, 320, 240);
+    gfx_SetTextConfig(0);
+}

@@ -59,6 +59,8 @@ void ui_DrawMenuItem(const char *, const int, const uint8_t, const bool);
 
 void ui_DrawDoubleMenuItem(const char *, const char *, const int, const uint8_t, const bool);
 
+void ui_AboutScreen(uint8_t *);
+
 #ifdef __cplusplus
 }
 #endif
