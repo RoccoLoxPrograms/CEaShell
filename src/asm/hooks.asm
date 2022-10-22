@@ -132,7 +132,7 @@ _onHookStart: ; the user only has the on shortcut hook enabled
 _homescreenHookStart: ; handle OS programs using our code
     db $83
     cp a, 2
-    jr nz, .return
+    jp nz, .return
     ld hl, appVarName
     call ti.Mov9ToOP1
     call ti.ChkFindSym
@@ -161,6 +161,7 @@ _homescreenHookStart: ; handle OS programs using our code
     ld hl, hashProg ; prgm#
     call ti.Mov9ToOP1
     call ti.ChkFindSym
+    jr c, .return
     inc de
     inc de ; skip size
     ex de, hl
@@ -185,6 +186,7 @@ _homescreenHookStart: ; handle OS programs using our code
     ex de, hl
     ld (hl), 0
     call ti.ChkFindSym
+    jr c, .return
     call _checkPrgmType
     ld hl, returnIsAsm
     ld (hl), a
