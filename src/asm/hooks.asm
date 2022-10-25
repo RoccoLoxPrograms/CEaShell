@@ -20,6 +20,8 @@ include 'include/ti84pceg.inc'
     extern _continueRun
     extern edit_basic_program
     extern hook_show_labels
+    extern _reloadApp
+    public _triggerAPD
     public _installHomescreenHook
     public _removeHomescreenHook
     public _checkHomescreenHookInstalled
@@ -516,6 +518,16 @@ _isGetCSCHookInstalled: ; this is different, yes
     ld a, 0
     ret
 
+_triggerAPD:
+    ld de, (ti.asm_prgm_size)
+	ld hl, ti.userMem
+	call ti.DelMem
+	or a, a
+	sbc	hl, hl
+	ld (ti.asm_prgm_size), hl
+    call _apdHook
+    ld a, ti.kClear
+    jp ti.JForceCmd
 
 hashProg:
     db $05, '#', 0

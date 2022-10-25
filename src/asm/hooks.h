@@ -46,6 +46,8 @@ void installStopHook(void);
 
 void removeStopHook(void);
 
+void triggerAPD(void);
+
 #ifdef __cplusplus
 }
 #endif
