@@ -76,6 +76,9 @@ void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const
         if (!showHiddenProg && fileName[0] < 65) {
             continue;
         }
+        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {    // Program uses DCS "Hidden header"
+            continue;
+        }
         if (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) {
             NOPROGS++;
         } else if (fileType == OS_TYPE_APPVAR) {
@@ -187,6 +190,9 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                 continue;
             }
             if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+                continue;
+            }
+            if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
                 continue;
             }
             if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {

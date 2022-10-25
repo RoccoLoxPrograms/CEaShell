@@ -30,6 +30,7 @@ extern "C" {
 #define ICE_SRC_TYPE    4
 #define DIR_TYPE        5   // For appvars folder?
 #define APPVAR_TYPE     6
+#define HIDDEN_TYPE     7   // Top Secret Government Stuff
 
 uint8_t util_SpaceSearch(const char *, const uint8_t);
 

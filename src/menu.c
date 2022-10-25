@@ -546,6 +546,9 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
         if (!showHiddenProg && fileName[0] < 65) {
             continue;
         }
+        if ((osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, osFileType) == HIDDEN_TYPE) {
+            continue;
+        }
         if (appvars && osFileType == OS_TYPE_APPVAR) {
             if (fileSelected == filesSearched) {
                 break;

@@ -76,5 +76,41 @@ inRam:
     ld a, 0 ; ASM identifier
     ret z ; return if it's ASM
 
+    ; assume it is BASIC
+
+_checkIsHidden:
+    dec de
+    ex de, hl
+    ld a, $72 ; Ans token
+    cp a, (hl)
+    jr z, .maybeHidden
+    ld a, $ab ; rand token
+    cp a, (hl)
+    jr z, .maybeHidden
     ld a, 2 ; BASIC identifier
+    ret
+
+.maybeHidden:
+    ld bc, 0
+    dec hl
+    dec hl
+    ld c, (hl)
+    inc hl
+    ld b, (hl)
+    inc hl
+    inc hl
+    ld a, $3f ; newline
+    cp a, (hl)
+    jr z, .isHidden
+    ld a, $3e ; colon
+    cp a, (hl)
+    jr z, .isHidden
+    dec bc
+    call ti.ChkBCIs0
+    jr z, .isHidden
+    ld a, 2 ; BASIC identifier
+    ret
+
+.isHidden:
+    ld a, 7 ; Hidden identifier
     ret
