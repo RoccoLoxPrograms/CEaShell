@@ -515,7 +515,7 @@ void ui_NewUser(void) {
     gfx_PrintStringXY("on a file using the function keys or", 29, 166);
     gfx_PrintStringXY("[alpha].", 29, 180);
     gfx_BlitBuffer();
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyLeft)) {
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyRight)) {
         kb_Scan();
     }
     if (kb_IsDown(kb_KeyClear)) {
@@ -532,7 +532,7 @@ void ui_NewUser(void) {
     gfx_PrintStringXY("Thanks for using CEaShell!", 29, 172);
     gfx_BlitBuffer();
     while(kb_AnyKey());
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyLeft)) {
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyRight)) {
         kb_Scan();
     }
 }

@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: October 27, 2022
- * Version: 0.75
+ * Version: 0.75.1
  * 
  * --------------------------------------
 **/
@@ -234,7 +234,7 @@ int main(void) {
                 }
                 while (kb_AnyKey());
                 redraw = 1;
-            } else if (kb_IsDown(kb_KeyYequ) || kb_IsDown(kb_KeyGraphVar)) {    // Looks customization menu
+            } else if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[appvars], showFileCount);
                 gfx_BlitBuffer();
                 if (transitionSpeed) {  // If the user turns transitions off, this won't call at all

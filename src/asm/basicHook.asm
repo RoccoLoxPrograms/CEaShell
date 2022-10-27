@@ -41,6 +41,7 @@ hookTokenStop := $d9 - $ce
 
 _hookParser:
 	db $83 ; hook signifier
+	ld iy, ti.flags
 	push af
 	cp a, 2
 	jq z, .maybeStop
@@ -109,6 +110,7 @@ _installStopHook: ; hook chaining and installation
     jp ti.SetParserHook
 
 _removeStopHook:
+	ld iy, ti.flags
     bit	ti.parserHookActive, (iy + ti.hookflags4)
 	jq z, .clearParser
 	ld hl, (ti.parserHookPtr)

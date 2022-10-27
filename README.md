@@ -4,5 +4,6 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 
 ## Screenshots
 
-![Color themes](screenshots/themes.gif "Color themes")    ![Info Menu](screenshots/infoMenu.png "Info Menu")
-![Hidden programs](screenshots/hiddenProgs.png "Hidden programs")      ![AppVars](screenshots/appvarsFolder.png "AppVars")
+![Color themes](screenshots/colorpicker.gif "Color themes")    ![Info Menu](screenshots/fileInfo.png "Info menu")
+![Modern UI](screenshots/programs.png "Modern UI")      ![Program icons in the [prgm] menu](screenshots/appvarsFolder.png "Program Icons in the [prgm] menu")
+![Settings](screenshots/settings.png "Customization settings")
