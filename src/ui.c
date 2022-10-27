@@ -448,7 +448,7 @@ void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x
 }
 
 void ui_AboutScreen(uint8_t *colors) {
-    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, KermMartian, and the CEdev Discord."
+    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, KermMartian, Zeroko, and the CEdev Discord."
     " Inspiration/Feature Ideas: KermMartian, MateoConLechuga, Adriweb, epsilon5, NoahK, DJ Omnimaga. Beta Testing: Coming soon ;)."
     "And a big thank you to the members of the discord for your support and ideas!";
     unsigned int startDisplay = 0;
@@ -484,10 +484,55 @@ void ui_AboutScreen(uint8_t *colors) {
             gfx_BlitBuffer();
             timer_Set(1, 0);
         }
-        if (startDisplay > 332) {
+        if (startDisplay > 340) {
             startDisplay = 0; // restart
         }
     }
     gfx_SetClipRegion(0, 0, 320, 240);
     gfx_SetTextConfig(0);
+}
+
+void ui_NewUser(void) {
+    gfx_FillScreen(246);
+    shapes_RoundRectangleFill(237, 6, 272, 44, 24, 22);
+    gfx_SetTextScale(2, 2);
+    gfx_PrintStringXY("Welcome to CEaShell", 29, 27);
+    gfx_SetTextScale(1, 1);
+    gfx_PrintStringXY("v"VERSION_NO, 29, 44);
+    gfx_PrintStringXY("A new shell for the TI-84 Plus CE.", 29, 54);
+    shapes_RoundRectangleFill(237, 6, 272, 143, 24, 71);
+    shapes_RoundRectangleFill(236, 7, 86, 22, 206, 188);
+    gfx_PrintStringXY("Alpha to", 211, 191);
+    gfx_PrintStringXY("Continue", 211, 199);
+    gfx_TransparentSprite_NoClip(rArrow, 273, 191);
+    gfx_PrintStringXY("We try our best to make CEaShell as", 29, 76);
+    gfx_PrintStringXY("user-friendly as possible. Here's a", 29, 88);
+    gfx_PrintStringXY("quick guide to navigating the features", 29, 100);
+    gfx_PrintStringXY("and menus.", 29, 112);
+    gfx_PrintStringXY("Use the function keys to open the menu", 29, 130);
+    gfx_PrintStringXY("buttons on the bottom row. You can open", 29, 142);
+    gfx_PrintStringXY("the description button for more info", 29, 154);
+    gfx_PrintStringXY("on a file using the function keys or", 29, 166);
+    gfx_PrintStringXY("[alpha].", 29, 180);
+    gfx_BlitBuffer();
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyLeft)) {
+        kb_Scan();
+    }
+    if (kb_IsDown(kb_KeyClear)) {
+        return;
+    }
+    gfx_SetColor(237);
+    gfx_FillRectangle_NoClip(29, 76, 266, 112);
+    gfx_PrintStringXY("Navigate through menus and files", 29, 76);
+    gfx_PrintStringXY("using the arrow keys.", 29, 90);
+    gfx_PrintStringXY("Run programs using [enter] or [2nd].", 29, 108);
+    gfx_PrintStringXY("Toggle options in the settings", 29, 126);
+    gfx_PrintStringXY("using the arrow keys, and check", 29, 140);
+    gfx_PrintStringXY("boxes with [2nd] or [enter].", 29, 154);
+    gfx_PrintStringXY("Thanks for using CEaShell!", 29, 172);
+    gfx_BlitBuffer();
+    while(kb_AnyKey());
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyLeft)) {
+        kb_Scan();
+    }
 }

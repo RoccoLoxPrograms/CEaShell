@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 25, 2022
- * Version: 0.74.4
+ * Last Build: October 27, 2022
+ * Version: 0.75
  * 
  * --------------------------------------
 **/
@@ -63,6 +63,17 @@ int main(void) {
 
     uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
 
+    gfx_Begin();
+    ti_SetGCBehavior(&gfx_End, &reloadApp);
+    if (colors[3]) {
+        invertPalette();
+    }
+    gfx_SetTransparentColor(240);
+    gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
+    gfx_SetTextBGColor(240);
+    gfx_SetTextTransparentColor(240);
+
+    gfx_SetDrawBuffer();
     // Restore preferences from appvar, if it exists
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
@@ -88,6 +99,8 @@ int main(void) {
         ti_Read(&scrollLoc, 6, 1, slot);
         fileSelected = scrollLoc[0];
         fileStartLoc = scrollLoc[1];
+    } else {
+        ui_NewUser();
     }
 
     if (lowercase && !checkLowercase()) {   // Restore lowercase preferences
@@ -128,17 +141,6 @@ int main(void) {
     bool keyPressed = false;    // A very clever timer thingy by RoccoLox Programs
     timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
 
-    ti_SetGCBehavior(&gfx_End, &gfx_Begin);
-    gfx_Begin();
-    if (colors[3]) {
-        invertPalette();
-    }
-    gfx_SetTransparentColor(240);
-    gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
-    gfx_SetTextBGColor(240);
-    gfx_SetTextTransparentColor(240);
-
-    gfx_SetDrawBuffer();
     gfx_FillScreen(colors[0]);
     ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);  // Displays bar with battery and clock
     ui_BottomBar(colors[1]);

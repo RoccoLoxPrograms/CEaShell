@@ -22,6 +22,8 @@ void runProgram(char *, uint8_t, uint8_t, bool);
 
 void removeExecuteHookInstalled(void);
 
+void reloadApp(void);
+
 #ifdef __cplusplus
 }
 #endif

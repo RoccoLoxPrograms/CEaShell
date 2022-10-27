@@ -58,6 +58,7 @@ appInpPrmptDone := 1
 appWantHome := 4
 
 _runProgram:
+	ld iy, ti.flags
     push ix
     ld ix, 0
     add ix, sp
@@ -472,6 +473,7 @@ _utilSquishyCheckByte:
 	ret
 
 execute_setup_vectors:
+	call _lcdNormal
 	xor	a,a
 	ld	(ti.appErr1),a
 	ld	(ti.kbdGetKy),a
@@ -636,6 +638,7 @@ _showError:
 	ret
 
 _reloadApp:
+	ld sp, (ti.onSP) ; Don't bork the stack
 	call ti.ClrAppChangeHook
 	res	ti.useTokensInString, (iy + ti.clockFlags)
 	res	ti.onInterrupt, (iy + ti.onFlags)
@@ -738,11 +741,6 @@ _removeExecuteHookInstalled:
     ret
 
 _reinstallGetCSCHook:
-	push hl
-	ld hl, -1
-	ld (hl), 2
-	pop hl
-	; -----
 	ld hl, appVarName
 	call ti.Mov9ToOP1
 	call ti.ChkFindSym
@@ -763,6 +761,15 @@ _reinstallGetCSCHook:
 	ld a, (hl)
 	call _installGetCSCHookCont
 	ret
+
+_lcdNormal:
+	ld hl, ti.vRam
+	ld bc, ((ti.lcdWidth * ti.lcdHeight) * 2) + 0
+	ld a, 255
+	call ti.MemSet
+	ld a, $2d
+	ld (ti.mpLcdCtrl), a
+	jp ti.DrawStatusBar
 
 tempProgram:
 	db	ti.TempProgObj, 'CEASHTMP', 0

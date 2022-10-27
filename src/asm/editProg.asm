@@ -229,18 +229,17 @@ hook_app_change:
 	ld	a,c
 	or	a,a
 	ld iy, ti.flags
-	call ti.ClrAppChangeHook
-	jr	z,.close_editor
+	jr	z, .exitQuitMenu
 	cp	a,ti.cxMode
 	ret	z
 	cp	a,ti.cxFormat
 	ret	z
 	cp	a,ti.cxTableSet
 	ret	z
-	call	.close_editor
+	call .close_editor
 	push af
 	ld hl, returnCEaShell
-	ld a, 0
+	xor a, a
 	cp a, (hl)
 	jp nz, .exitApp
 	pop af
@@ -252,6 +251,7 @@ hook_app_change:
 	jr z, .exitOS
 	ret
 .close_editor:
+	call ti.ClrAppChangeHook
 	push	af, bc, hl
 	call	ti.CursorOff
 	call	ti.CloseEditEqu
@@ -272,6 +272,11 @@ hook_app_change:
 	ret
 .exitApp:
 	pop af
+	ld hl, ti.userMem
+	ld de, (ti.asm_prgm_size)
+	call ti.DelMem
+	ld hl, 0
+	ld (ti.asm_prgm_size), hl
 	jp _reloadApp
 
 .exitOS:
@@ -279,3 +284,12 @@ hook_app_change:
 	call ti.NewContext0
 	ld a, ti.kClear
 	jp ti.JForceCmd
+
+.exitQuitMenu:
+	call .close_editor
+	push af
+	ld hl, returnCEaShell
+	xor a, a
+	cp a, (hl)
+	jp nz, .exitApp
+	jr .exitOS

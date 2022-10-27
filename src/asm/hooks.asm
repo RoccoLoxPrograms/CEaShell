@@ -33,6 +33,7 @@ include 'include/ti84pceg.inc'
     public _checkGetCSCHookInstalled
     public _isGetCSCHookInstalled
     public _installGetCSCHookCont
+    public _openShellHook
 
 ; CEaShell hook flags stuff
 updateProgInfo := 0

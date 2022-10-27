@@ -10,7 +10,7 @@
 NAME = CEaShell
 APP_NAME = CEaShell
 APP_VERSION = 5.0.0.0000
-CEASHELL_VERSION = 0.74.4
+CEASHELL_VERSION = 0.75
 ICON = icon.png
 DESCRIPTION = (C)  2022  RoccoLox  +  TIny_Hacker
 COMPRESSED = NO
@@ -22,7 +22,3 @@ CXXFLAGS = -Wall -Wextra -Oz -DVERSION_NO=\"$(CEASHELL_VERSION)\"
 # ----------------------------
 
 include app_tools/makefile
-
-final:
-	make
-	convbin -r -e zx0 -k 8xp-compressed -u -n $(NAME) -i bin/$(NAME).bin -o bin/$(NAME).8xp

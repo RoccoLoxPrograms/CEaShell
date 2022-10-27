@@ -61,6 +61,8 @@ void ui_DrawDoubleMenuItem(const char *, const char *, const int, const uint8_t,
 
 void ui_AboutScreen(uint8_t *);
 
+void ui_NewUser(void);
+
 #ifdef __cplusplus
 }
 #endif
