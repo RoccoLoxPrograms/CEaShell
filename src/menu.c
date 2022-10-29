@@ -48,6 +48,7 @@ static void menu_ThemePreview(const uint8_t color, uint8_t *colors, const uint8_
 }
 
 static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTimer) {
+    timer_Set(1, 0);
     gfx_SetColor(colors[1]);
     gfx_FillRectangle_NoClip(165, 96, 140, 19);
     gfx_SetTextScale(1, 1);
@@ -290,6 +291,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
 }
 
 void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const bool appvars, bool *displayCEaShell, const bool showHiddenProg, const bool showFileCount, const uint8_t apdTimer) {
+    timer_Set(1, 0);
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
     menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, 0);
@@ -531,6 +533,7 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
 }
 
 void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, unsigned int *fileNumbers, const bool appvars, const bool displayCEaShell, const bool editLockedProg, const bool showHiddenProg, const uint8_t apdTimer) {
+    timer_Set(1, 0);
     uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned filesSearched = 0;
     char newName[9]= "\0";
@@ -900,6 +903,7 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
 }
 
 void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {    // Add more options later
+    timer_Set(1, 0);
     shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     uint8_t option = 0;

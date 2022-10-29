@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 27, 2022
- * Version: 0.75.1
+ * Last Build: October 29, 2022
+ * Version: 0.75.2
  * 
  * --------------------------------------
 **/
@@ -159,7 +159,7 @@ int main(void) {
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1] || kb_IsDown(kb_KeyGraphVar)) && (!keyPressed || timer_Get(1) > 3000)) { // File selecting (Probably very badly optimized)
+        if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) { // File selecting (Probably very badly optimized)
             if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[appvars]) {
                 if (fileSelected + 2 < fileNumbers[appvars]) {
                     fileSelected += 2;
@@ -244,6 +244,7 @@ int main(void) {
                     }
                 }
                 menu_Looks(colors, &fileSelected, fileNumbers[appvars], fileStartLoc, &is24Hour, &transitionSpeed, appvars, &displayCEaShell, showHiddenProg, showFileCount, apdTimer); // This function will store changed colors into the colors array
+                timer_Set(1, 0);
                 util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg);
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
@@ -279,6 +280,7 @@ int main(void) {
                 }
                 util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
                 menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg, showHiddenProg, apdTimer); // This will store some file changes to the infoOps (Info Operations) array
+                timer_Set(1, 0);
                 if (infoOps[0]) {   // Takes care of deletions
                     fileNumbers[appvars]--;
                     fileSelected--;
@@ -324,6 +326,7 @@ int main(void) {
                     }
                 }
                 menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase, &apdTimer);
+                timer_Set(1, 0);
                 util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg);
                 if (fileSelected >= fileNumbers[appvars]) {
                     fileSelected = fileNumbers[appvars] - 1;
