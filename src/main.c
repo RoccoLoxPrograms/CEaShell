@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: October 29, 2022
- * Version: 0.75.2
+ * Last Build: November 1, 2022
+ * Version: 0.75.3
  * 
  * --------------------------------------
 **/
@@ -61,7 +61,7 @@ int main(void) {
     unsigned int fileSelected = 0;
     unsigned int fileStartLoc = 0;
 
-    uint8_t redraw = 0; // 0 = Clock Redraw, 1 = Screen Redraw, 2 = Full Redraw w/ Battery Update
+    bool fullRedraw = false;
 
     gfx_Begin();
     ti_SetGCBehavior(&gfx_End, &reloadApp);
@@ -159,7 +159,10 @@ int main(void) {
             keyPressed = false;
             timer_Set(1, 0);
         }
-        if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 3000)) { // File selecting (Probably very badly optimized)
+        if (kb_AnyKey() && !keyPressed) {
+            timer_Set(1, 0);
+        }
+        if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 1000)) { // File selecting (Probably very badly optimized)
             if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[appvars]) {
                 if (fileSelected + 2 < fileNumbers[appvars]) {
                     fileSelected += 2;
@@ -169,7 +172,6 @@ int main(void) {
                 if (fileSelected - fileStartLoc > 7 && fileStartLoc + 1 < (fileNumbers[appvars] + fileNumbers[appvars] % 2) - 7) {
                     fileStartLoc += 2;
                 }
-                redraw = 1;
             } else if (kb_IsDown(kb_KeyLeft) && fileSelected != 0) {
                 if (fileSelected - fileStartLoc < 2 && fileStartLoc) {
                     fileStartLoc -= 2;
@@ -179,7 +181,6 @@ int main(void) {
                 } else if (fileSelected == 1) {
                     fileSelected -= 1;
                 }
-                redraw = 1;
             }
             if (kb_IsDown(kb_KeyDown)) {
                 if (fileSelected + 1 != fileNumbers[appvars]) {
@@ -187,10 +188,8 @@ int main(void) {
                 } else if (fileSelected) {
                     fileSelected -= !(fileSelected % 2) && (fileSelected - 1 >= 0);
                 }
-                redraw = 1;
             } else if (kb_IsDown(kb_KeyUp)) {
                 fileSelected -= fileSelected % 2;
-                redraw = 1;
             }
             if (kb_IsDown(kb_KeyDel) && fileSelected) {
                 unsigned int filesSearched = 0;
@@ -233,7 +232,6 @@ int main(void) {
                     gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                 }
                 while (kb_AnyKey());
-                redraw = 1;
             } else if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[appvars], showFileCount);
                 gfx_BlitBuffer();
@@ -267,7 +265,7 @@ int main(void) {
                 } else {    // We write the preferences before exiting, so this is fine
                     util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
                 }
-                redraw = 2;
+                fullRedraw = true;
                 gfx_BlitBuffer();
             } else if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected != 0) {   // Info menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[appvars], showFileCount);
@@ -292,8 +290,6 @@ int main(void) {
                     infoOps[0] = false;
                     while (kb_AnyKey());
                 }
-                redraw = 1;
-
                 gfx_FillScreen(colors[0]);
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
                 ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
@@ -355,39 +351,24 @@ int main(void) {
                 } else {    // Same as Customize menu
                     util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
                 }
-                redraw = 2;
+                fullRedraw = true;
                 gfx_BlitBuffer();
             } else if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                 if (fileSelected == 0) {
                     appvars = !appvars;
-                    redraw = 2; // By updating the battery we also make a short delay so the menu won't switch back
+                    fullRedraw = true;  // By updating the battery we also make a short delay so the menu won't switch back
                 } else {
                     util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
                     util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
                 }
             }
-            if (!keyPressed) {
-                while (timer_Get(1) < 9000 && (kb_Data[7] || kb_Data[1])) {
-                    kb_Scan();
-                }
+            if (kb_IsDown(kb_KeyClear)) {
+                continue;
             }
-            keyPressed = true;
-            timer_Set(1,0);
-        } else if (kb_AnyKey()) {
-            asm("ei");
-            if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars, displayCEaShell)) {
-                redraw = 1;
-            }
-            asm("di");
-            kb_Scan();
-        }
-        if (kb_IsDown(kb_KeyClear)) {
-            continue;
-        }
-        if (redraw) {
-            if (redraw == 2) {
+            if (fullRedraw) {
                 gfx_FillScreen(colors[0]);
                 batteryStatus = boot_GetBatteryStatus();
+                fullRedraw = false;
             } else {
                 gfx_SetColor(colors[0]);
                 gfx_FillRectangle_NoClip(8, 28, 304, 203);
@@ -395,12 +376,31 @@ int main(void) {
             ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
             ui_BottomBar(colors[1]);
             ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
-            redraw = false;
-        } else {
-            gfx_SetColor(colors[1]);
-            gfx_FillRectangle_NoClip(15, 12, 35, 7);
-            ui_Clock(is24Hour);
+            gfx_BlitBuffer();
+            if (!keyPressed) {
+                while (timer_Get(1) < 9000 && (kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1])) {
+                    kb_Scan();
+                }
+            }
+            keyPressed = true;
+            timer_Set(1, 0);
+            continue;
+        } else if (kb_AnyKey()) {
+            keyPressed = true;
+            asm("ei");
+            if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars, displayCEaShell)) {
+                gfx_SetColor(colors[0]);
+                gfx_FillRectangle_NoClip(8, 28, 304, 203);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
+                ui_BottomBar(colors[1]);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+            }
+            asm("di");
+            kb_Scan();
         }
+        gfx_SetColor(colors[1]);
+        gfx_FillRectangle_NoClip(15, 12, 35, 7);
+        ui_Clock(is24Hour);
         gfx_BlitBuffer();
     }
 

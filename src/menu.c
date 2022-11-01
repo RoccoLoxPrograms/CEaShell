@@ -321,6 +321,9 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
             keyPressed = false;
             timer_Set(1, 0);
         }
+        if (kb_AnyKey() && !keyPressed) {
+            timer_Set(1, 0);
+        }
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || timer_Get(1) > 3000)) {
             if (themePicker) {
                 prevCursorY = cursorY;
@@ -584,7 +587,6 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     gfx_BlitBuffer();
 
     bool keyPressed = false;
-    bool redraw = false;
 
     fileName[0] -= 64 * initialValue[2];    // The viewable file name becomes what the OS sees instead
     while (kb_AnyKey());
@@ -596,6 +598,9 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
         kb_Scan();
         if (!kb_AnyKey() && keyPressed) {
             keyPressed = false;
+            timer_Set(1, 0);
+        }
+        if (kb_AnyKey() && !keyPressed) {
             timer_Set(1, 0);
         }
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyDel)) && (!keyPressed || timer_Get(1) > 3000)) {
@@ -711,7 +716,8 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                 }
                 while (kb_AnyKey());
             }
-            redraw = true;
+            menu_InfoRedraw(false, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+            gfx_SwapDraw();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
                     kb_Scan();
@@ -719,11 +725,6 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
             }
             keyPressed = true;
             timer_Set(1,0);
-        }
-        if (redraw) {
-            menu_InfoRedraw(false, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
-            gfx_SwapDraw();
-            redraw = false;
         }
     }
 
@@ -920,6 +921,9 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
         kb_Scan();
         if (!kb_AnyKey() && keyPressed) {
             keyPressed = false;
+            timer_Set(1, 0);
+        }
+        if (kb_AnyKey() && !keyPressed) {
             timer_Set(1, 0);
         }
         if (kb_Data[7] && (!keyPressed || timer_Get(1) > 3000)) {
