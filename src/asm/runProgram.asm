@@ -114,7 +114,7 @@ _asmProgram:
     push de
     call _checkMemSpace
 	pop bc
-    ret c
+    jp c, _noMem
 	push bc
     ld de, ti.userMem
 	push hl
@@ -200,7 +200,7 @@ _basicProgram:
 	call _checkMemSpace
 	pop hl
 	pop bc
-	ret c
+	jp c, _noMem
 	push bc
 	ld de, ti.userMem
 	push hl
@@ -770,6 +770,38 @@ _lcdNormal:
 	ld a, $2d
 	ld (ti.mpLcdCtrl), a
 	jp ti.DrawStatusBar
+
+_noMem:
+	ld a, (returnCEaShell)
+	cp a, 1
+	jr nz, .exitOS
+	ld a, ti.E_Memory
+	ld (ti.errNo), a
+	call ti.boot.ClearVRAM
+	ld a, $2d
+	ld (ti.mpLcdCtrl), a
+	call ti.CursorOff
+	call ti.DrawStatusBar
+	call ti.DispErrorScreen
+	ld hl, 1
+	ld (ti.curRow), hl
+	ld hl, data_string_quit1
+	set	ti.textInverse, (iy + ti.textFlags)
+	call ti.PutS
+	res	ti.textInverse, (iy + ti.textFlags)
+	call ti.PutS
+
+.waitLoop:
+	call ti.GetCSC
+	cp a, ti.sk1
+	jp z, _reloadApp
+	cp a, ti.skEnter
+	jp z, _reloadApp
+	jr .waitLoop
+
+.exitOS:
+	ld a, ti.E_Memory
+	jp ti.JError
 
 tempProgram:
 	db	ti.TempProgObj, 'CEASHTMP', 0
