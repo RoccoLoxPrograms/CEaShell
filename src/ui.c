@@ -451,7 +451,7 @@ void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x
 
 void ui_AboutScreen(uint8_t *colors) {
     const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, KermMartian, Zeroko, and the CEdev Discord."
-    " Inspiration/Feature Ideas: KermMartian, MateoConLechuga, Adriweb, epsilon5, NoahK, DJ Omnimaga. Beta Testing: Coming soon ;)."
+    " Inspiration/Feature Ideas: KermMartian, MateoConLechuga, Adriweb, epsilon5, NoahK, DJ Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8."
     "And a big thank you to the members of the discord for your support and ideas!";
     unsigned int startDisplay = 0;
     shapes_RoundRectangleFill(colors[0], 8, 290, 155, 15, 46);
@@ -486,7 +486,7 @@ void ui_AboutScreen(uint8_t *colors) {
             gfx_BlitBuffer();
             timer_Set(1, 0);
         }
-        if (startDisplay > 340) {
+        if (startDisplay > 373) {
             startDisplay = 0; // restart
         }
     }
