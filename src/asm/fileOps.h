@@ -41,6 +41,8 @@ int getProgSize(char *, uint8_t);   // Gets the actual size of a program (ti_Get
 
 int getASMPrgmSize(void); 
 
+void copyProgram(char *, char *, uint8_t);
+
 #ifdef __cplusplus
 }
 #endif

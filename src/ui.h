@@ -63,6 +63,8 @@ void ui_AboutScreen(uint8_t *);
 
 void ui_NewUser(void);
 
+uint8_t ui_CopyNewMenu(uint8_t *, char *);
+
 #ifdef __cplusplus
 }
 #endif

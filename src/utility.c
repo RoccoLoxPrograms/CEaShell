@@ -234,3 +234,22 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
 
     return 0;
 }
+
+bool util_CheckNameExists(const char *name, const bool appvars) {
+    uint8_t fileType;
+    char *fileName;
+    void *vatPtr = NULL;
+
+    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
+        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
+            if (!strcmp(fileName, name)) {
+                return true;
+            }
+        } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
+            if (!strcmp(fileName, name)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}

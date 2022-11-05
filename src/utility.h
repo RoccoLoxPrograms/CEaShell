@@ -46,6 +46,8 @@ void util_RunPrgm(unsigned int, const bool, const bool);
 
 bool util_AlphaSearch(unsigned int *, unsigned int *, const uint8_t, const unsigned int, const bool, const bool);
 
+bool util_CheckNameExists(const char *, const bool);
+
 #ifdef __cplusplus
 }
 #endif

@@ -203,17 +203,19 @@ void ui_BottomBar(const uint8_t color) {
 
 bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y) {
     gfx_SetDrawBuffer();
-    bool retVal = true;
+    bool retVal = false;
     while (kb_AnyKey());
     shapes_RoundRectangleFill(colors[0], 8, 208, 20, x, y);
     gfx_PrintStringXY("Are you sure?", x + 28, y + 6);
     gfx_BlitBuffer();
     gfx_SetColor(colors[2]);
     shapes_PixelIndentRectangle(colors[2], colors[0], x + 159, y + 4, 29, 11);
-    gfx_PrintStringXY("Yes    No", x + 130, y + 6);
+    gfx_PrintStringXY("No", x + 134, y + 6);
+    gfx_PrintStringXY("Yes", x + 162, y + 6);
     gfx_SetDrawScreen();
     shapes_PixelIndentRectangle(colors[2], colors[0], x + 127, y + 4, 29, 11);
-    gfx_PrintStringXY("Yes    No", x + 130, y + 6);
+    gfx_PrintStringXY("No", x + 134, y + 6);
+    gfx_PrintStringXY("Yes", x + 162, y + 6);
     gfx_SetDrawBuffer();
     while (!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_Key1) && !kb_IsDown(kb_KeyLog) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
@@ -535,4 +537,108 @@ void ui_NewUser(void) {
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyRight)) {
         kb_Scan();
     }
+}
+
+uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
+    bool returnVal = false;
+    while (kb_AnyKey());
+    shapes_RoundRectangleFill(colors[0], 9, 208, 20, 56, 204);
+    gfx_BlitBuffer();
+    shapes_PixelIndentRectangle(colors[2], colors[0], 166, 208, 85, 11);
+    gfx_PrintStringXY("Copy File", 77, 210);
+    gfx_PrintStringXY("New File", 179, 210);
+    gfx_SetDrawScreen();
+    shapes_PixelIndentRectangle(colors[2], colors[0], 68, 208, 85, 11);
+    gfx_PrintStringXY("Copy File", 77, 210);
+    gfx_PrintStringXY("New File", 179, 210);
+    gfx_SetDrawBuffer();
+    while(!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter)) {
+        kb_Scan();
+        if (kb_IsDown(kb_KeyClear)) {
+            return 2;
+        }
+        if (kb_IsDown(kb_KeyMode)) {
+            return 3;
+        }
+        if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
+            gfx_SwapDraw();
+            returnVal = !returnVal;
+            while(kb_AnyKey());
+        }
+    }
+    while (kb_AnyKey());
+    gfx_SetColor(colors[0]);
+    gfx_FillRectangle_NoClip(68, 207, 183, 14);
+    gfx_PrintStringXY("Name:", 73, 211);
+    gfx_SetTextScale(2, 2);
+    gfx_SetTextXY(111, 207);
+    gfx_BlitBuffer();
+    const char *charAlpha = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
+    const char *charNums = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0""369\0\0\0\0\0""258\0\0\0\0""0147\0\0\0X\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    asm("ei");
+    uint8_t length = 0;
+    uint8_t key = os_GetCSC();
+    bool redraw;
+    bool alphaPressed;  // Number mode?
+    bool cursor = false;
+    timer_Set(1, 0);
+    while (key != sk_Clear && key != sk_Mode) {
+        key = os_GetCSC();
+        if (key == sk_Clear || key == sk_Mode) {
+            continue;
+        }
+        if (key) {
+            if ((key == sk_Left || key == sk_Del) && length) {
+                length -= 1;
+                name[length] = '\0';
+                redraw = true;
+            }
+            if (!alphaPressed) {
+                if (charAlpha[key] && length < 8) {
+                    name[length++] = charAlpha[key];
+                    redraw = true;
+                }
+            } else {
+                if (charNums[key] && length < 8 && length) {
+                    name[length++] = charNums[key];
+                    redraw = true;
+                }
+            }
+            if (redraw) {
+                redraw = false;
+                gfx_SetColor(colors[0]);
+                gfx_FillRectangle_NoClip(111, 207, 136, 14);
+                gfx_PrintStringXY(name, 111, 207);
+                gfx_BlitBuffer();
+            }
+            if (key == sk_Enter || key == sk_2nd) {
+                if (length) {
+                    break;
+                }
+            }
+            if (key == sk_Alpha) {
+                alphaPressed = !alphaPressed;
+            }
+        } else {
+            if (cursor) {
+                ui_DrawUISprite(colors[1], UI_CURSOR_A + alphaPressed, gfx_GetTextX() + 1, gfx_GetTextY());
+            } else {
+                gfx_SetColor(colors[0]);
+                gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);
+            }
+            gfx_BlitBuffer();
+            while (timer_Get(1) < 5000);
+            timer_Set(1, 0);
+            cursor = !cursor;
+        }
+    }
+    asm("di");
+    gfx_SetTextScale(1, 1);
+    if (key == sk_Enter || key == sk_2nd) {
+        while (kb_AnyKey());
+        return returnVal;
+    } else {
+        return 2;
+    }
+    return returnVal;
 }

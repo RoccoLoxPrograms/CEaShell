@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: November 1, 2022
- * Version: 0.75.5
+ * Last Build: November 5, 2022
+ * Version: 0.76
  * 
  * --------------------------------------
 **/
@@ -312,7 +312,7 @@ int main(void) {
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
                 gfx_BlitBuffer();
-            } else if (kb_IsDown(kb_KeyGraph) || kb_IsDown(kb_KeyMode)) {   // Settings menu
+            } else if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[appvars], showFileCount);
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
@@ -360,6 +360,52 @@ int main(void) {
                 } else {
                     util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
                     util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
+                }
+            } else if (kb_IsDown(kb_KeyMode) && fileSelected) {
+                fullRedraw = true;
+                char name[9] = "\0";
+                uint8_t copyMenu = ui_CopyNewMenu(colors, name);
+                if (copyMenu == 2) {
+                    while (kb_AnyKey());
+                }
+                name[8] = '\0';
+                if (copyMenu == 1) {
+                    if (!util_CheckNameExists(name, appvars)) {
+                        uint8_t newProg = ti_OpenVar(name, "w", OS_TYPE_PRGM);
+                        ti_Close(newProg);
+                    }
+                    gfx_End();
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
+                    editBasicProg(name, OS_TYPE_PRGM);
+                } else if (!copyMenu) {
+                    if (util_CheckNameExists(name, appvars)) {
+                        break;
+                    }
+                    uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
+                    unsigned int filesSearched = 0;
+                    char *fileName;
+                    void *vatPtr = NULL;
+                    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
+                        if (*fileName == '!' || *fileName == '#') {
+                            continue;
+                        }
+                        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
+                            continue;
+                        }
+                        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
+                            if (fileSelected - 1 == filesSearched) {
+                                break;
+                            }
+                            filesSearched++;
+                        } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
+                            if (fileSelected - 1 == filesSearched) {
+                                break;
+                            }
+                            filesSearched++;
+                        }
+                    }
+                    copyProgram(fileName, name, fileType);
+                    util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg); // Get number of programs and appvars
                 }
             }
             if (kb_IsDown(kb_KeyClear)) {
