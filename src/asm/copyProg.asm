@@ -16,11 +16,6 @@ include 'include/ti84pceg.inc'
     public _copyProgram
 
 _copyProgram:
-    push hl
-    ld hl, -1
-    ld (hl), 2
-    pop hl
-    ; ----------
     push ix
     ld ix, 0
     add ix, sp
