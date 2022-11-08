@@ -68,9 +68,6 @@ _getAppvarType:
     ld a, 1
     jr nz, .notCeltic
     inc hl
-    ld a, $3e ; ':' token
-    cp a, (hl)
-    jr z, .celtic
     ld a, $3f ; newline token
     cp a, (hl)
     jr z, .celtic
