@@ -29,7 +29,7 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer, const unsigned int fileSelected, const unsigned int fileStartLoc) {
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer, const unsigned int fileSelected, const unsigned int fileStartLoc, const bool appvars) {
     uint8_t ceaShell[15];
     unsigned int scrollLoc[2];
     ceaShell[0] = colors[0];
@@ -54,8 +54,11 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ti_Write(&ceaShell, 15, 1, slot);
     ti_Seek(15, SEEK_SET, slot);
     ti_Write(&scrollLoc, 6, 1, slot);
+    ti_Seek(6, SEEK_SET, slot);
+    ti_Write(&appvars, 1, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
+    sortVAT();
 }
 
 void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg) {
@@ -125,6 +128,13 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
                 fileTypeString = "VAR";
             } else {
                 fileTypeString = "Appvar";
+            }
+            break;
+        case CELTIC_TYPE:
+            if (abbreviated) {
+                fileTypeString = "CLV";
+            } else {
+                fileTypeString = "Celtic Appvar";
             }
             break;
         default:

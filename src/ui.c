@@ -390,7 +390,7 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
             filesSearched++;
         } else if (appvars && fileType == OS_TYPE_APPVAR) {
             if (fileStartLoc <= filesSearched) {
-                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, APPVAR_TYPE, OS_TYPE_APPVAR, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, getAppvarType(fileName), OS_TYPE_APPVAR, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {

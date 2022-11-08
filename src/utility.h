@@ -31,10 +31,13 @@ extern "C" {
 #define DIR_TYPE        5   // For appvars folder?
 #define APPVAR_TYPE     6
 #define HIDDEN_TYPE     7   // Top Secret Government Stuff
+#define CELTIC_TYPE     8   // Celtic appvar
+
+#define CELTIC_HEADER   0x3e, 0x43, 0x45, 0x4c, 0x3f
 
 uint8_t util_SpaceSearch(const char *, const uint8_t);
 
-void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const uint8_t, const bool, const bool, const bool, const bool, const bool, const bool, const uint8_t, const unsigned int, const unsigned int);
+void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const uint8_t, const bool, const bool, const bool, const bool, const bool, const bool, const uint8_t, const unsigned int, const unsigned int, const bool);
 
 void util_FilesInit(unsigned int *, const bool, const bool);
 

@@ -567,15 +567,28 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
             filesSearched++;
         }
     }
-    uint8_t fileType = getPrgmType(fileName, osFileType);
+    uint8_t fileType;
     if (osFileType == OS_TYPE_APPVAR) {
-        fileType = APPVAR_TYPE;
+        fileType = getAppvarType(fileName);
+    } else {
+        fileType = getPrgmType(fileName, osFileType);
     }
     char *fileTypeString = util_FileTypeToString(fileType, false);
     uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
     int fileSize = getProgSize(fileName, osFileType);
     bool isArchived = ti_IsArchived(slot);
-    bool isLocked = (osFileType == OS_TYPE_PROT_PRGM);
+    bool isLocked;
+    if (osFileType == OS_TYPE_PROT_PRGM) {
+        isLocked = true;
+    } else if (osFileType == OS_TYPE_APPVAR) {
+        if (getAppvarType(fileName) == APPVAR_TYPE) {
+            isLocked = true;
+        } else {
+            isLocked = false;
+        }
+    } else {
+        isLocked = false;
+    }
     bool isHidden = (fileName[0] < 65);
     const bool initialValue[3] = {isArchived, isLocked, isHidden};
     fileName[0] += 64 * (fileName[0] < 65);
@@ -702,7 +715,12 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                     } else {
                         while (kb_AnyKey());
                         if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE) {
-                            break;
+                            if (getAppvarType(fileName) == CELTIC_TYPE) {
+                                gfx_End();
+                                editCelticAppvar(fileName);
+                            } else {
+                                break;
+                            }
                         } else {
                             if (osFileType == OS_TYPE_PROT_PRGM && editLockedProg) {
                                 unlockBasic(fileName, osFileType);

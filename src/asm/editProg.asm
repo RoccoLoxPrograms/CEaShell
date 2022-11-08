@@ -41,14 +41,17 @@ include 'include/ti84pceg.inc'
 	extern _reloadApp
 
 returnCEaShell := ti.appData + 11
+isAppvar := returnCEaShell + 1
 edit_status := ti.pixelShadow2 + 1
 edit_mode := edit_status + 1
+edit_appvar := $cc
 edit_locked := $dd
 edit_goto := $ee
 edit_archived := $ff
 lock_status := edit_mode + 1
 string_temp := ti.mpLcdCrsrImage
 backup_prgm_name := edit_mode + 2
+backup_appvar_name := isAppvar + 1
 errorOffset := backup_prgm_name + 9
 
 _editBasicProg:
@@ -229,7 +232,7 @@ hook_app_change:
 	ld	a,c
 	or	a,a
 	ld iy, ti.flags
-	jr	z, .exitQuitMenu
+	jp	z, .exitQuitMenu
 	cp	a,ti.cxMode
 	ret	z
 	cp	a,ti.cxFormat
@@ -253,6 +256,10 @@ hook_app_change:
 .close_editor:
 	call ti.ClrAppChangeHook
 	push	af, bc, hl
+	ld hl, isAppvar
+	ld a, edit_appvar
+	cp a, (hl)
+	jr z, _restoreAppvar
 	call	ti.CursorOff
 	call	ti.CloseEditEqu
 	ld hl, backup_prgm_name
@@ -293,3 +300,69 @@ hook_app_change:
 	cp a, (hl)
 	jp nz, .exitApp
 	jr .exitOS
+
+_restoreAppvar:
+	pop	hl, bc, af
+	ld hl, tempProg
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	ld hl, 0
+	ld a, (de)
+	ld l, a
+	inc de
+	ld a, (de)
+	ld h, a
+	inc de
+	push hl
+	ld hl, backup_appvar_name
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	call ti.ChkInRam
+	jr z, .inRamCreate
+	pop ix ; size
+	ld bc, .rom
+	push bc
+	push ix
+	jr .inRamCreate
+
+.rom:
+	ld hl, backup_appvar_name
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	jp ti.Arc_Unarc
+
+.inRamCreate:
+	call ti.DelVarArc
+	pop hl
+	push hl
+	call ti.CreateAppVar
+
+.next:
+	call ti.OP4ToOP1
+	call ti.ChkFindSym
+	inc de
+	inc de
+	push de ; copy to this address
+	ld hl, tempProg
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	ex de, hl
+	inc hl
+	inc hl
+	pop de
+	pop bc
+
+.loop:
+	call ti.ChkBCIs0
+    jr z, .deleteTempProg
+    ldi ; don't use an ldir in case the program is 0 or 1 bytes
+    jr .loop
+
+.deleteTempProg:
+	ld hl, tempProg
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	jp ti.DelVar
+
+tempProg:
+    db ti.ProgObj, "appvar", 0

@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: November 5, 2022
- * Version: 0.76.1
+ * Last Build: November 8, 2022
+ * Version: 0.77
  * 
  * --------------------------------------
 **/
@@ -99,6 +99,8 @@ int main(void) {
         ti_Read(&scrollLoc, 6, 1, slot);
         fileSelected = scrollLoc[0];
         fileStartLoc = scrollLoc[1];
+        ti_Seek(6, SEEK_SET, slot);
+        ti_Read(&appvars, 1, 1, slot);
     } else {
         ui_NewUser();
     }
@@ -263,7 +265,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);   // Stores our data to the appvar before exiting
                 }
                 fullRedraw = true;
                 gfx_BlitBuffer();
@@ -276,7 +278,7 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
+                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);
                 menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg, showHiddenProg, apdTimer); // This will store some file changes to the infoOps (Info Operations) array
                 timer_Set(1, 0);
                 if (infoOps[0]) {   // Takes care of deletions
@@ -349,7 +351,7 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);
                 }
                 fullRedraw = true;
                 gfx_BlitBuffer();
@@ -357,8 +359,8 @@ int main(void) {
                 if (fileSelected == 0) {
                     appvars = !appvars;
                     fullRedraw = true;  // By updating the battery we also make a short delay so the menu won't switch back
-                } else {
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);
+                } else if (!appvars) {
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);
                     util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
                 }
             } else if (kb_IsDown(kb_KeyMode) && fileSelected) {
@@ -370,13 +372,25 @@ int main(void) {
                 }
                 name[8] = '\0';
                 if (copyMenu == 1) {
-                    if (!util_CheckNameExists(name, appvars)) {
-                        uint8_t newProg = ti_OpenVar(name, "w", OS_TYPE_PRGM);
-                        ti_Close(newProg);
+                    if (!appvars) {
+                        if (!util_CheckNameExists(name, appvars)) {
+                            uint8_t newProg = ti_OpenVar(name, "w", OS_TYPE_PRGM);
+                            ti_Close(newProg);
+                        }
+                        gfx_End();
+                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);   // Stores our data to the appvar before exiting
+                        editBasicProg(name, OS_TYPE_PRGM);
+                    } else {
+                        if (!util_CheckNameExists(name, appvars)) {
+                            uint8_t newVar = ti_Open(name, "w");
+                            const uint8_t celticHeader[5] = {CELTIC_HEADER};
+                            ti_Write(celticHeader, 5, 1, newVar);
+                            ti_Close(newVar);
+                        }
+                        gfx_End();
+                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);   // Stores our data to the appvar before exiting
+                        editCelticAppvar(name);
                     }
-                    gfx_End();
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc);   // Stores our data to the appvar before exiting
-                    editBasicProg(name, OS_TYPE_PRGM);
                 } else if (!copyMenu) {
                     if (util_CheckNameExists(name, appvars)) {
                         break;
@@ -450,7 +464,7 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false);
     gfx_End();
     os_ClrHome();   // Clean screen
     return 0;

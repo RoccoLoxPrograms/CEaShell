@@ -23,7 +23,11 @@ void unlockBasic(char *, uint8_t);  // Edit locked BASIC programs
 
 void editBasicProg(char *, uint8_t);    // Edit a program
 
+void editCelticAppvar(char *);  // Edit a celtic appvar
+
 uint8_t getPrgmType(char *, uint8_t);   // Gets the program's actual type (ASM, C, ICE, etc)
+
+uint8_t getAppvarType(char *);  // Checks if an Appvar is a Celtic Appvar
 
 void hidePrgm(char *, uint8_t); // Toggles a program's hidden status
 
