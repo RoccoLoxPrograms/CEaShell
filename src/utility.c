@@ -189,12 +189,13 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
     char *fileName;
     void *vatPtr = NULL;
     uint8_t alpha;
+    bool reverse = false;
     for (alpha = 0; alpha < 27; alpha++) {
         if (alphabetCSC[key] == alphabet[alpha]) {
             break;
         }
     }
-    while (alpha < 27) {
+    while (alpha != (27 * !reverse)) {
         while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
             if (*fileName == '!' || *fileName == '#') {
                 continue;
@@ -239,7 +240,10 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
         }
         vatPtr = NULL;
         filesSearched = 1;
-        alpha++;
+        alpha += 1 + (-2 * reverse);
+        if (alpha == 27) {
+            reverse = true;
+        } 
     }
 
     return 0;
@@ -262,4 +266,29 @@ bool util_CheckNameExists(const char *name, const bool appvars) {
         }
     }
     return false;
+}
+
+// code by jacobly from here:
+// https://ce-programming.github.io/toolchain/libraries/keypadc.html#getting-getcsc-codes-with-keypadc
+uint8_t util_GetSingleKeyPress(void) {
+    static uint8_t last_key;
+    uint8_t only_key = 0;
+    kb_Scan();
+    for (uint8_t key = 1, group = 7; group; --group) {
+        for (uint8_t mask = 1; mask; mask <<= 1, ++key) {
+            if (kb_Data[group] & mask) {
+                if (only_key) {
+                    last_key = 0;
+                    return 0;
+                } else {
+                    only_key = key;
+                }
+            }
+        }
+    }
+    if (only_key == last_key) {
+        return 0;
+    }
+    last_key = only_key;
+    return only_key;
 }

@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: November 8, 2022
- * Version: 0.77
+ * Last Build: November 11, 2022
+ * Version: 0.77.3
  * 
  * --------------------------------------
 **/
@@ -445,17 +445,14 @@ int main(void) {
             keyPressed = true;
             timer_Set(1, 0);
             continue;
-        } else if (kb_AnyKey()) {
-            keyPressed = true;
-            asm("ei");
-            if (util_AlphaSearch(&fileSelected, &fileStartLoc, os_GetCSC(), fileNumbers[appvars], appvars, displayCEaShell)) {
-                gfx_SetColor(colors[0]);
-                gfx_FillRectangle_NoClip(8, 28, 304, 203);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
-                ui_BottomBar(colors[1]);
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
-            }
-            asm("di");
+        }
+        if (util_AlphaSearch(&fileSelected, &fileStartLoc, util_GetSingleKeyPress(), fileNumbers[appvars], appvars, displayCEaShell)) {
+            gfx_SetColor(colors[0]);
+            gfx_FillRectangle_NoClip(8, 28, 304, 203);
+            ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
+            ui_BottomBar(colors[1]);
+            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+            while (kb_AnyKey());
             kb_Scan();
         }
         gfx_SetColor(colors[1]);

@@ -51,6 +51,8 @@ bool util_AlphaSearch(unsigned int *, unsigned int *, const uint8_t, const unsig
 
 bool util_CheckNameExists(const char *, const bool);
 
+uint8_t util_GetSingleKeyPress(void); // Returns a GetCSC code using the keypad.c stuff (written jacobly)
+
 #ifdef __cplusplus
 }
 #endif
