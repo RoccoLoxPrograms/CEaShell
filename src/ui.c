@@ -13,6 +13,7 @@
 #include "shapes.h"
 #include "utility.h"
 #include "asm/fileOps.h"
+#include "asm/apps.h"
 #include "gfx/gfx.h"
 
 #include <graphx.h>
@@ -48,7 +49,7 @@ void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden
     if (fileType == DIR_TYPE) {
         shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
         gfx_SetColor(255 * colorAlt);
-        gfx_FillRectangle_NoClip(28, 52, 36, 23);
+        gfx_FillRectangle_NoClip(x + 14, y + 22, 36, 23);
         shapes_Folder(255 * !colorAlt, colors[2], x + 11, y + 16);
     } else if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
         gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4); // Round the corners of the icon to match with the file icons
@@ -316,7 +317,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const bool appvars, const bool displayCEaShell, const bool showHiddenProg) {
+void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars) {
     int x = 14;
     uint8_t y = 30;
     unsigned int filesSearched = 0;
@@ -324,73 +325,64 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
     uint8_t fileType;
     uint8_t shellFileType;
     bool hidden;
-    char *fileName;
+    char *fileName = "\0";
     void *vatPtr = NULL;
     if (fileStartLoc == 0) {
-        if (appvars) {
-            fileName = "Programs";
+        if (directory == APPVARS_FOLDER || directory == APPS_FOLDER) {
+            ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Programs", DIR_TYPE, 0, x, y);
+            if (fileSelected == filesSearched) {
+                gfx_PrintStringXY("Programs folder", 82, 210);
+                gfx_SetTextScale(2, 2);
+                gfx_SetColor(colors[1]);
+                gfx_PrintStringXY("Programs", 96, 8);
+            }
+            y = 116;
+            filesSearched++;
         } else {
-            fileName = "Appvars";
-        }
-        ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, fileName, DIR_TYPE, 0, 14, 30);
-        y = 116;
-        if (fileSelected == filesSearched) {
-            gfx_PrintStringXY(fileName, 82, 210);
-            gfx_PrintString(" folder");
-            gfx_SetTextScale(2, 2);
-            gfx_SetColor(colors[1]);
-            uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
-            gfx_PrintStringXY(fileName, textX, 8);
-        }
-    }
-    filesSearched++;    // We have "Checked" for the folder
-    while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
-        if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
-            continue;
-        }
-        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
-            continue;
-        }
-        if (!showHiddenProg && fileName[0] < 65) {
-            continue;
-        }
-        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
-            continue;
-        }
-        hidden = (fileName[0] < 65);
-        if (!appvars && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
-            if (fileStartLoc <= filesSearched) {
-                shellFileType = getPrgmType(fileName, fileType);
-                fileName[0] += 64 * hidden;
-                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, shellFileType, fileType, x, y);
-                if (y == 30) {
-                    y = 116;
-                } else {
-                    x += 76;
-                    y = 30;
-                }
-                if (fileSelected == filesSearched) {    // Draws the name of the selected program
-                    char *description = malloc(52);
-                    fileName[0] -= 64 * hidden;
-                    if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE && getDescASM(fileName, fileType, shellFileType, description)) {
-                        ui_DescriptionWrap(description, 24, 82, 205);
-                    } else if (shellFileType == BASIC_TYPE && getDescBASIC(fileName, fileType, description)) {
-                        ui_DescriptionWrap(description, 24, 82, 205);
-                    } else {
-                        util_PrintFreeRamRom();
-                    }
-                    free(description);
-                    fileName[0] += 64 * hidden;
+            if (showApps) {
+                ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Apps", DIR_TYPE, 0, x, y);
+                if (fileSelected == filesSearched) {
+                    gfx_PrintStringXY("Apps folder", 82, 210);
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
-                    uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
-                    gfx_PrintStringXY(fileName, textX, 8);
+                    gfx_PrintStringXY("Apps", 128, 8);
                 }
+                y = 116;
+                filesSearched++;
             }
+            if (showAppvars) {
+                ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Appvars", DIR_TYPE, 0, x, y);
+                if (fileSelected == filesSearched) {
+                    gfx_PrintStringXY("Appvars folder", 82, 210);
+                    gfx_SetTextScale(2, 2);
+                    gfx_SetColor(colors[1]);
+                    gfx_PrintStringXY("Appvars", 104, 8);
+                }
+                if (y == 116) {
+                    y = 30;
+                    x = 90;
+                } else {
+                    y = 116;
+                }
+                filesSearched++;
+            }
+        }
+    } else {
+        if (directory == PROGRAMS_FOLDER) {
+            filesSearched += showApps + showAppvars;
+        } else {
             filesSearched++;
-        } else if (appvars && fileType == OS_TYPE_APPVAR) {
-            if (fileStartLoc <= filesSearched) {
-                ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, getAppvarType(fileName), OS_TYPE_APPVAR, x, y);
+        }
+    }
+    if (directory == APPS_FOLDER) {
+        char appName[9] = "\0";
+        unsigned int appPointer;
+        while ((detectApp(appName, &appPointer))) {
+            if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+                continue;
+            }
+            if (fileStartLoc <= filesSearched) {    // Wait till fileStartLoc to start drawing
+                ui_DrawFile((fileSelected == filesSearched), true, true, false, colors, appName, APP_TYPE, OS_TYPE_APP, x, y);
                 if (y == 30) {
                     y = 116;
                 } else {
@@ -399,20 +391,85 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
                 }
             }
             if (fileSelected == filesSearched) {
-                util_PrintFreeRamRom();
+                char *appDescription = getAppCopyrightInfo(appName);
+                ui_DescriptionWrap(appDescription, 24, 82, 205);
                 gfx_SetTextScale(2, 2);
                 gfx_SetColor(colors[1]);
-                uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
-                gfx_PrintStringXY(fileName, textX, 8);
+                uint8_t textX = 160 - gfx_GetStringWidth(appName) / 2;
+                gfx_PrintStringXY(appName, textX, 8);
             }
             filesSearched++;
+            if ((x > 242) || filesSearched > fileCount) {
+                break;
+            }
         }
-
-        if ((x > 242) || filesSearched > fileCount) {
-            break;
+    } else {
+        while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
+            if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
+                continue;
+            }
+            if (!showHiddenProg && fileName[0] < 65) {
+                continue;
+            }
+            if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
+                continue;
+            }
+            hidden = (fileName[0] < 65);
+            if (directory == PROGRAMS_FOLDER && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
+                if (fileStartLoc <= filesSearched) {
+                    shellFileType = getPrgmType(fileName, fileType);
+                    fileName[0] += 64 * hidden;
+                    ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, shellFileType, fileType, x, y);
+                    if (y == 30) {
+                        y = 116;
+                    } else {
+                        x += 76;
+                        y = 30;
+                    }
+                    if (fileSelected == filesSearched) {    // Draws the name of the selected program
+                        char *description = malloc(52);
+                        fileName[0] -= 64 * hidden;
+                        if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE && getDescASM(fileName, fileType, shellFileType, description)) {
+                            ui_DescriptionWrap(description, 24, 82, 205);
+                        } else if (shellFileType == BASIC_TYPE && getDescBASIC(fileName, fileType, description)) {
+                            ui_DescriptionWrap(description, 24, 82, 205);
+                        } else {
+                            util_PrintFreeRamRom();
+                        }
+                        free(description);
+                        fileName[0] += 64 * hidden;
+                        gfx_SetTextScale(2, 2);
+                        gfx_SetColor(colors[1]);
+                        uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
+                        gfx_PrintStringXY(fileName, textX, 8);
+                    }
+                }
+                filesSearched++;
+            } else if (directory == APPVARS_FOLDER && fileType == OS_TYPE_APPVAR) {
+                if (fileStartLoc <= filesSearched) {
+                    ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, getAppvarType(fileName), OS_TYPE_APPVAR, x, y);
+                    if (y == 30) {
+                        y = 116;
+                    } else {
+                        x += 76;
+                        y = 30;
+                    }
+                }
+                if (fileSelected == filesSearched) {
+                    util_PrintFreeRamRom();
+                    gfx_SetTextScale(2, 2);
+                    gfx_SetColor(colors[1]);
+                    uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
+                    gfx_PrintStringXY(fileName, textX, 8);
+                }
+                filesSearched++;
+            }
+            if ((x > 242) || filesSearched > fileCount) {
+                break;
+            }
         }
     }
-}
+}  
 
 void ui_MiniCursor(uint8_t color, int x, uint8_t y) {
     gfx_SetColor(color);
