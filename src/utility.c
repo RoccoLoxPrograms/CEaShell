@@ -14,6 +14,7 @@
 #include "asm/fileOps.h"
 #include "asm/hooks.h"
 #include "asm/runProgram.h"
+#include "asm/apps.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -29,8 +30,8 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer, const unsigned int fileSelected, const unsigned int fileStartLoc, const bool appvars) {
-    uint8_t ceaShell[15];
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer, const unsigned int fileSelected, const unsigned int fileStartLoc, const uint8_t directory, const bool showApps, const bool showAppvars) {
+    uint8_t ceaShell[17];
     unsigned int scrollLoc[2];
     ceaShell[0] = colors[0];
     ceaShell[1] = colors[1];
@@ -47,33 +48,33 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
     ceaShell[12] = hideBusyIndicator;
     ceaShell[13] = lowercase;
     ceaShell[14] = apdTimer;
+    ceaShell[15] = showApps;
+    ceaShell[16] = showAppvars;
     scrollLoc[0] = fileSelected;
     scrollLoc[1] = fileStartLoc;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
-    ti_Write(&ceaShell, 15, 1, slot);
-    ti_Seek(15, SEEK_SET, slot);
+    ti_Write(&ceaShell, 17, 1, slot);
+    ti_Seek(17, SEEK_SET, slot);
     ti_Write(&scrollLoc, 6, 1, slot);
-    ti_Seek(6, SEEK_SET, slot);
-    ti_Write(&appvars, 1, 1, slot);
+    ti_Seek(6, SEEK_CUR, slot);
+    ti_Write(&directory, 1, 1, slot);
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
     sortVAT();
 }
 
-void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg) {
+void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars) {
     uint8_t fileType;
     char *fileName;
     void *vatPtr = NULL;
     sortVAT();
-    NOPROGS = 1;    // Accounts for folder
+    NOPROGS = showApps + showAppvars;    // Accounts for folders
     NOAPPVARS = 1;
+    NOAPPS = 1;
 
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
         if (*fileName == '!' || *fileName == '#') {
-            continue;
-        }
-        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
             continue;
         }
         if (!showHiddenProg && fileName[0] < 65) {
@@ -86,6 +87,15 @@ void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const
             NOPROGS++;
         } else if (fileType == OS_TYPE_APPVAR) {
             NOAPPVARS++;
+        }
+    }
+    char appName[9] = "\0";
+    unsigned int appPointer;    // Just a number, not a "pointer" (But the number is the pointer)
+    while ((detectApp(appName, &appPointer))) {
+        if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+            continue;
+        } else {
+            NOAPPS++;
         }
     }
 }
@@ -120,9 +130,6 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
                 fileTypeString = "ICE Source";
             }
             break;
-        case DIR_TYPE:
-            fileTypeString = "Appvars"; // We'll use this for the Appvar folder later
-            break;
         case APPVAR_TYPE:
             if (abbreviated) {
                 fileTypeString = "VAR";
@@ -135,6 +142,13 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
                 fileTypeString = "CLV";
             } else {
                 fileTypeString = "Celtic Appvar";
+            }
+            break;
+        case APP_TYPE:
+            if (abbreviated) {
+                fileTypeString = "APP";
+            } else {
+                fileTypeString = "Application";
             }
             break;
         default:
@@ -153,21 +167,18 @@ void util_PrintFreeRamRom(void) {
     gfx_PrintInt(os_TempFreeArc, 7);
 }
 
-void util_RunPrgm(unsigned int fileSelected, const bool displayCEaShell, const bool editLockedProg) {
+void util_RunPrgm(unsigned int fileSelected, const bool editLockedProg, const bool showApps, const bool showAppvars) {
     gfx_End();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
-    unsigned int filesSearched = 0;
+    unsigned int filesSearched = showApps + showAppvars; // Account for folders
     char *fileName;
     void *vatPtr = NULL;
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
         if (*fileName == '!' || *fileName == '#') {
             continue;
         }
-        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
-            continue;
-        }
         if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
-            if (fileSelected - 1 == filesSearched) {
+            if (fileSelected == filesSearched) {
                 break;
             }
             filesSearched++;
@@ -181,11 +192,14 @@ void util_RunPrgm(unsigned int fileSelected, const bool displayCEaShell, const b
     return;
 }
 
-bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool appvars, const bool displayCEaShell) {
+bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool displayCEaShell, const uint8_t directory, const bool showApps, const bool showAppvars) {
     const char *alphabetCSC = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
     const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
     uint8_t fileType;
     unsigned int filesSearched = 1;  // ignore folder
+    if (directory == PROGRAMS_FOLDER) {
+        filesSearched = (showApps + showAppvars);
+    }
     char *fileName;
     void *vatPtr = NULL;
     uint8_t alpha;
@@ -196,33 +210,14 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
         }
     }
     while (alpha != (27 * !reverse)) {
-        while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
-            if (*fileName == '!' || *fileName == '#') {
-                continue;
-            }
-            if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
-                continue;
-            }
-            if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
-                continue;
-            }
-            if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
-                if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[alpha]) {
-                    *fileSelected = filesSearched;
-                    if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
-                        *fileStartLoc = filesSearched;
-                        if (*fileStartLoc > fileCount - 5) {
-                            *fileStartLoc = fileCount - 7;
-                        }
-                        if (*fileStartLoc % 2) {
-                            *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
-                        }
-                    }
-                    return 1;
+        if (directory == APPS_FOLDER) {
+            char appName[9] = "\0";
+            unsigned int appPointer;
+            while (detectApp(appName, &appPointer)) {
+                if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+                    continue;
                 }
-                filesSearched++;
-            } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
-                if (fileName[0] == alphabet[alpha]) {
+                if (appName[0] == alphabet[alpha]) {
                     *fileSelected = filesSearched;
                     if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                         *fileStartLoc = filesSearched;
@@ -237,9 +232,52 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                 }
                 filesSearched++;
             }
+        } else {
+            while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
+                if (*fileName == '!' || *fileName == '#') {
+                    continue;
+                }
+                if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
+                    continue;
+                }
+                if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && directory == PROGRAMS_FOLDER) {
+                    if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[alpha]) { // Check the first letter
+                        *fileSelected = filesSearched;
+                        if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
+                            *fileStartLoc = filesSearched;
+                            if (*fileStartLoc > fileCount - 5) {
+                                *fileStartLoc = fileCount - 7;
+                            }
+                            if (*fileStartLoc % 2) {
+                                *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
+                            }
+                        }
+                        return 1;
+                    }
+                    filesSearched++;
+                } else if ((fileType == OS_TYPE_APPVAR) && directory == APPVARS_FOLDER) {
+                    if (fileName[0] == alphabet[alpha]) {
+                        *fileSelected = filesSearched;
+                        if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
+                            *fileStartLoc = filesSearched;
+                            if (*fileStartLoc > fileCount - 5) {
+                                *fileStartLoc = fileCount - 7;
+                            }
+                            if (*fileStartLoc % 2) {
+                                *fileStartLoc = *fileStartLoc - 1;
+                            }
+                        }
+                        return 1;
+                    }
+                    filesSearched++;
+                }
+            }
         }
         vatPtr = NULL;
         filesSearched = 1;
+        if (directory == PROGRAMS_FOLDER) {
+            filesSearched = (showApps + showAppvars);
+        }
         alpha += 1 + (-2 * reverse);
         if (alpha == 27) {
             reverse = true;
@@ -291,4 +329,22 @@ uint8_t util_GetSingleKeyPress(void) {
     }
     last_key = only_key;
     return only_key;
+}
+
+void util_RunApp(const unsigned int fileSelected, const bool displayCEaShell) {
+    while (kb_AnyKey());
+    unsigned int filesSearched = 1; // account for folders
+    char appName[9] = "\0";
+    unsigned int appPointer;    // Will we ever use this? 🤷‍♂️
+    while (detectApp(appName, &appPointer)) {
+        if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+            continue;
+        }
+        if (fileSelected == filesSearched) {
+            break;
+        }
+        filesSearched++;
+    }
+    gfx_End();
+    executeApp(appName);
 }

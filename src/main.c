@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: November 11, 2022
- * Version: 0.77.3
+ * Last Build: November 22, 2022
+ * Version: 0.78
  * 
  * --------------------------------------
 **/
@@ -22,6 +22,7 @@
 #include "asm/hooks.h"
 #include "asm/lowercase.h"
 #include "asm/runProgram.h"
+#include "asm/apps.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -48,7 +49,9 @@ int main(void) {
     uint8_t colors[4] = {246, 237, 236, 0};    // If the appvar contains no theme it defaults to these settings
     uint8_t transitionSpeed = 2;    // 1 is slow, 2 is normal, 3 is fast, and 0 has no transitions
     bool is24Hour = true;
-    bool appvars = false;   // Whether the appvars are being displayed
+    uint8_t directory = PROGRAMS_FOLDER;
+    bool showAppvars = true;
+    bool showApps = true;
     bool displayCEaShell = false;   // Whether we display CEaShell
     uint8_t getCSCHook = BOTH;
     bool editArchivedProg = true;
@@ -77,8 +80,8 @@ int main(void) {
     // Restore preferences from appvar, if it exists
     uint8_t slot = ti_Open("CEaShell", "r");
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
-        uint8_t ceaShell[15];
-        ti_Read(&ceaShell, 15, 1, slot);
+        uint8_t ceaShell[17];
+        ti_Read(&ceaShell, 17, 1, slot);
         colors[0] = ceaShell[0];
         colors[1] = ceaShell[1];
         colors[2] = ceaShell[2];
@@ -94,13 +97,15 @@ int main(void) {
         hideBusyIndicator = ceaShell[12];
         lowercase = ceaShell[13];
         apdTimer = ceaShell[14];
-        ti_Seek(15, SEEK_SET, slot);
+        showApps = ceaShell[15];
+        showAppvars = ceaShell[16];
+        ti_Seek(17, SEEK_SET, slot);
         unsigned int scrollLoc[2];
         ti_Read(&scrollLoc, 6, 1, slot);
         fileSelected = scrollLoc[0];
         fileStartLoc = scrollLoc[1];
-        ti_Seek(6, SEEK_SET, slot);
-        ti_Read(&appvars, 1, 1, slot);
+        ti_Seek(6, SEEK_CUR, slot);
+        ti_Read(&directory, 1, 1, slot);
     } else {
         ui_NewUser();
     }
@@ -133,8 +138,8 @@ int main(void) {
     buffer2->height = 193;
     buffer2->width = 152;
 
-    unsigned int fileNumbers[2] = {0, 0};
-    util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg); // Get number of programs and appvars
+    unsigned int fileNumbers[3] = {0, 0, 0};
+    util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg, showApps, showAppvars); // Get number of programs and appvars
 
     bool infoOps[2] = {false, false}; // This will keep track of whether a program has been deleted or hidden
 
@@ -144,9 +149,9 @@ int main(void) {
     timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
 
     gfx_FillScreen(colors[0]);
-    ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);  // Displays bar with battery and clock
+    ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[directory], showFileCount);  // Displays bar with battery and clock
     ui_BottomBar(colors[1]);
-    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
+    ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);    // This is always called after ui_StatusBar and ui_BottomBar as it will draw the program name onto the status bar
     gfx_BlitBuffer();
 
     timer_Set(1, 0);
@@ -165,13 +170,13 @@ int main(void) {
             timer_Set(1, 0);
         }
         if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 1000)) { // File selecting (Probably very badly optimized)
-            if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[appvars]) {
-                if (fileSelected + 2 < fileNumbers[appvars]) {
+            if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[directory]) {
+                if (fileSelected + 2 < fileNumbers[directory]) {
                     fileSelected += 2;
                 } else {
                     fileSelected += 1;
                 }
-                if (fileSelected - fileStartLoc > 7 && fileStartLoc + 1 < (fileNumbers[appvars] + fileNumbers[appvars] % 2) - 7) {
+                if (fileSelected - fileStartLoc > 7 && fileStartLoc + 1 < (fileNumbers[directory] + fileNumbers[directory] % 2) - 7) {
                     fileStartLoc += 2;
                 }
             } else if (kb_IsDown(kb_KeyLeft) && fileSelected != 0) {
@@ -185,7 +190,7 @@ int main(void) {
                 }
             }
             if (kb_IsDown(kb_KeyDown)) {
-                if (fileSelected + 1 != fileNumbers[appvars]) {
+                if (fileSelected + 1 != fileNumbers[directory]) {
                     fileSelected += !(fileSelected % 2);
                 } else if (fileSelected) {
                     fileSelected -= !(fileSelected % 2) && (fileSelected - 1 >= 0);
@@ -193,49 +198,69 @@ int main(void) {
             } else if (kb_IsDown(kb_KeyUp)) {
                 fileSelected -= fileSelected % 2;
             }
-            if (kb_IsDown(kb_KeyDel) && fileSelected) {
-                unsigned int filesSearched = 0;
+            if (kb_IsDown(kb_KeyDel) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {
+                unsigned int filesSearched = 1; // account for folders
                 uint8_t osFileType;
                 char *delFileName;
                 void *vatPtr = NULL;
-                while ((delFileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
-                    if (*delFileName == '!' || *delFileName == '#') {
-                        continue;
-                    }
-                    if (!displayCEaShell && !strcmp(delFileName, "CEASHELL")) {
-                        continue;
-                    }
-                    if (appvars && osFileType == OS_TYPE_APPVAR) {
-                        if (fileSelected - 1 == filesSearched) {
+                char appName[9] = "\0";
+                unsigned int appPointer;    // Will we ever use this? 🤷‍♂️
+                if (directory == PROGRAMS_FOLDER) {
+                    filesSearched = (showApps + showAppvars);
+                }
+                if (directory == APPS_FOLDER) {
+                    while (detectApp(appName, &appPointer)) {
+                        if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+                            continue;
+                        }
+                        if (fileSelected == filesSearched) {
                             break;
                         }
                         filesSearched++;
-                    } else if (!appvars && (osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM)) {
-                        if (fileSelected - 1 == filesSearched) {
-                            break;
+                    }
+                } else {
+                    while ((delFileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
+                        if (*delFileName == '!' || *delFileName == '#') {
+                            continue;
                         }
-                        filesSearched++;
+                        if (directory == APPVAR_TYPE && osFileType == OS_TYPE_APPVAR) {
+                            if (fileSelected == filesSearched) {
+                                break;
+                            }
+                            filesSearched++;
+                        } else if (directory == PROGRAMS_FOLDER && (osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM)) {
+                            if (fileSelected == filesSearched) {
+                                break;
+                            }
+                            filesSearched++;
+                        }
                     }
                 }
                 if (ui_DeleteConf(colors, 56, 204)) {
-                    ti_DeleteVar(delFileName, osFileType);
-                    gfx_SetColor(colors[0]);
-                    gfx_FillRectangle_NoClip(12, 28, 296, 164);
-                    if (fileSelected >= fileNumbers[appvars] - 1) {
-                        fileSelected--;
-                    }
-                    fileNumbers[appvars]--;
-                    if (fileSelected + 1 >= fileNumbers[appvars] && fileStartLoc) {
-                        if (fileStartLoc + 7 > fileNumbers[appvars]) {
-                            fileStartLoc -= 2;
+                    if (directory == APPS_FOLDER) {
+                        // DO NOT DELETE APPS UNTIL THE ISSUES ARE FIXED
+                        // deleteApp(appName);
+                    } else {
+                        ti_DeleteVar(delFileName, osFileType);
+                        // Move all this out of the else later when it's fixed
+                        gfx_SetColor(colors[0]);
+                        gfx_FillRectangle_NoClip(12, 28, 296, 164);
+                        if (fileSelected >= fileNumbers[directory] - 1) {
+                            fileSelected--;
                         }
+                        fileNumbers[directory]--;
+                        if (fileSelected + 1 >= fileNumbers[directory] && fileStartLoc) {
+                            if (fileStartLoc + 7 > fileNumbers[directory]) {
+                                fileStartLoc -= 2;
+                            }
+                        }
+                        ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
+                        gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                     }
-                    ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
-                    gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                 }
                 while (kb_AnyKey());
             } else if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[appvars], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
                 if (transitionSpeed) {  // If the user turns transitions off, this won't call at all
                     for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
@@ -243,13 +268,13 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                menu_Looks(colors, &fileSelected, fileNumbers[appvars], fileStartLoc, &is24Hour, &transitionSpeed, appvars, &displayCEaShell, showHiddenProg, showFileCount, apdTimer); // This function will store changed colors into the colors array
+                menu_Looks(colors, &fileSelected, fileNumbers[directory], fileStartLoc, &is24Hour, &transitionSpeed, directory, &displayCEaShell, showHiddenProg, showFileCount, apdTimer, &showApps, &showAppvars); // This function will store changed colors into the colors array
                 timer_Set(1, 0);
-                util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg);
+                util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 ui_BottomBar(colors[1]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[appvars], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[directory], showFileCount);
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
                     gfx_GetSprite_NoClip(buffer2, 160, 38);
@@ -265,12 +290,12 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);   // Stores our data to the appvar before exiting
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);   // Stores our data to the appvar before exiting
                 }
                 fullRedraw = true;
                 gfx_BlitBuffer();
-            } else if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected != 0) {   // Info menu
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[appvars], showFileCount);
+            } else if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {   // Info menu
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
                     for (int8_t frame = 2; frame < 12 / transitionSpeed; frame++) {
@@ -278,14 +303,16 @@ int main(void) {
                         gfx_SwapDraw();
                     }
                 }
-                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);
-                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, appvars, displayCEaShell, editLockedProg, showHiddenProg, apdTimer); // This will store some file changes to the infoOps (Info Operations) array
+                shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
+                gfx_BlitBuffer();
+                util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);
+                menu_Info(colors, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, directory, displayCEaShell, editLockedProg, showHiddenProg, apdTimer, showApps, showAppvars); // This will store some file changes to the infoOps (Info Operations) array
                 timer_Set(1, 0);
                 if (infoOps[0]) {   // Takes care of deletions
-                    fileNumbers[appvars]--;
+                    fileNumbers[directory]--;
                     fileSelected--;
-                    if (fileSelected + 1 >= fileNumbers[appvars] && fileStartLoc) {
-                        if (fileStartLoc + 7 > fileNumbers[appvars]) {
+                    if (fileSelected + 1 >= fileNumbers[directory] && fileStartLoc) {
+                        if (fileStartLoc + 7 > fileNumbers[directory]) {
                             fileStartLoc -= 2;
                         }
                     }
@@ -293,10 +320,10 @@ int main(void) {
                     while (kb_AnyKey());
                 }
                 gfx_FillScreen(colors[0]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[directory], showFileCount);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 ui_BottomBar(colors[1]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[appvars], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[directory], showFileCount);
                 if (infoOps[1]) {
                     gfx_BlitScreen();
                     infoOps[1] = false;
@@ -315,7 +342,7 @@ int main(void) {
                 }
                 gfx_BlitBuffer();
             } else if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[appvars], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
                 if (transitionSpeed) {
                     for (int8_t frame = 3; frame < 16 / transitionSpeed; frame++) {
@@ -325,17 +352,17 @@ int main(void) {
                 }
                 menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase, &apdTimer);
                 timer_Set(1, 0);
-                util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg);
-                if (fileSelected >= fileNumbers[appvars]) {
-                    fileSelected = fileNumbers[appvars] - 1;
+                util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg, showApps, showAppvars);
+                if (fileSelected >= fileNumbers[directory]) {
+                    fileSelected = fileNumbers[directory] - 1;
                     if (fileSelected < fileStartLoc) {
                         fileStartLoc = (fileSelected - (fileSelected % 2)); 
                     }
                 }
                 gfx_FillScreen(colors[0]);
-                ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+                ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 ui_BottomBar(colors[1]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[appvars], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[directory], showFileCount);
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
                     gfx_GetSprite_NoClip(buffer2, 160, 38);
@@ -351,19 +378,41 @@ int main(void) {
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
                 } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);
                 }
                 fullRedraw = true;
                 gfx_BlitBuffer();
             } else if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
-                if (fileSelected == 0) {
-                    appvars = !appvars;
+                if (fileSelected == 0 && directory == PROGRAMS_FOLDER) {    // Toggle directories
+                    if (showApps) {
+                        directory = APPS_FOLDER;
+                    } else if (showAppvars) {
+                        directory = APPVARS_FOLDER;
+                    } else {
+                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);
+                        util_RunPrgm(fileSelected, editLockedProg, showApps, showAppvars);
+                    }
                     fullRedraw = true;  // By updating the battery we also make a short delay so the menu won't switch back
-                } else if (!appvars) {
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);
-                    util_RunPrgm(fileSelected, displayCEaShell, editLockedProg);
+                    fileStartLoc = 0;
+                    fileSelected = 0;
+                } else if (fileSelected == 1 && directory == PROGRAMS_FOLDER && showApps && showAppvars) {
+                    directory = APPVARS_FOLDER;
+                    fullRedraw = true;
+                    fileStartLoc = 0;
+                    fileSelected = 0;
+                } else if (directory == PROGRAMS_FOLDER) {  // Run program
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);
+                    util_RunPrgm(fileSelected, editLockedProg, showApps, showAppvars);
+                } else if (fileSelected == 0) {
+                    directory = PROGRAMS_FOLDER;
+                    fullRedraw = true;
+                    fileStartLoc = 0;
+                    fileSelected = 0;
+                } else if (directory == APPS_FOLDER) {  // Run app
+                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, PROGRAMS_FOLDER, showApps, showAppvars);    // We won't return after an app
+                    util_RunApp(fileSelected, displayCEaShell);
                 }
-            } else if (kb_IsDown(kb_KeyMode) && fileSelected) {
+            } else if (kb_IsDown(kb_KeyMode) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {
                 fullRedraw = true;
                 char name[9] = "\0";
                 uint8_t copyMenu = ui_CopyNewMenu(colors, name);
@@ -372,33 +421,36 @@ int main(void) {
                 }
                 name[8] = '\0';
                 if (copyMenu == 1) {
-                    if (!appvars) {
-                        if (!util_CheckNameExists(name, appvars)) {
+                    if (directory == PROGRAMS_FOLDER) {
+                        if (!util_CheckNameExists(name, directory)) {
                             uint8_t newProg = ti_OpenVar(name, "w", OS_TYPE_PRGM);
                             ti_Close(newProg);
                         }
                         gfx_End();
-                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);   // Stores our data to the appvar before exiting
+                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);   // Stores our data to the appvar before exiting
                         editBasicProg(name, OS_TYPE_PRGM);
-                    } else {
-                        if (!util_CheckNameExists(name, appvars)) {
+                    } else if (directory == APPVARS_FOLDER) {
+                        if (!util_CheckNameExists(name, directory)) {
                             uint8_t newVar = ti_Open(name, "w");
                             const uint8_t celticHeader[5] = {CELTIC_HEADER};
                             ti_Write(celticHeader, 5, 1, newVar);
                             ti_Close(newVar);
                         }
                         gfx_End();
-                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, appvars);   // Stores our data to the appvar before exiting
+                        util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);   // Stores our data to the appvar before exiting
                         editCelticAppvar(name);
                     }
                 } else if (!copyMenu) {
-                    if (util_CheckNameExists(name, appvars)) {
+                    if (util_CheckNameExists(name, directory)) {
                         break;
                     }
                     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
-                    unsigned int filesSearched = 0;
+                    unsigned int filesSearched = 1; // account for folders
                     char *fileName;
                     void *vatPtr = NULL;
+                    if (directory == PROGRAMS_FOLDER) {
+                        filesSearched = (showApps + showAppvars);
+                    }
                     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
                         if (*fileName == '!' || *fileName == '#') {
                             continue;
@@ -406,20 +458,20 @@ int main(void) {
                         if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
                             continue;
                         }
-                        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && !appvars) {
-                            if (fileSelected - 1 == filesSearched) {
+                        if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && directory == PROGRAMS_FOLDER) {
+                            if (fileSelected == filesSearched) {
                                 break;
                             }
                             filesSearched++;
-                        } else if ((fileType == OS_TYPE_APPVAR) && appvars) {
-                            if (fileSelected - 1 == filesSearched) {
+                        } else if ((fileType == OS_TYPE_APPVAR) && directory == APPVARS_FOLDER) {
+                            if (fileSelected == filesSearched) {
                                 break;
                             }
                             filesSearched++;
                         }
                     }
                     copyProgram(fileName, name, fileType);
-                    util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg); // Get number of programs and appvars
+                    util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg, showApps, showAppvars); // Get number of programs and appvars
                 }
             }
             if (kb_IsDown(kb_KeyClear)) {
@@ -433,9 +485,9 @@ int main(void) {
                 gfx_SetColor(colors[0]);
                 gfx_FillRectangle_NoClip(8, 28, 304, 203);
             }
-            ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
+            ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[directory], showFileCount);
             ui_BottomBar(colors[1]);
-            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+            ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
             gfx_BlitBuffer();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && (kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1])) {
@@ -446,12 +498,12 @@ int main(void) {
             timer_Set(1, 0);
             continue;
         }
-        if (util_AlphaSearch(&fileSelected, &fileStartLoc, util_GetSingleKeyPress(), fileNumbers[appvars], appvars, displayCEaShell)) {
+        if (util_AlphaSearch(&fileSelected, &fileStartLoc, util_GetSingleKeyPress(), fileNumbers[directory], displayCEaShell, directory, showApps, showAppvars)) {
             gfx_SetColor(colors[0]);
             gfx_FillRectangle_NoClip(8, 28, 304, 203);
-            ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[appvars], showFileCount);
+            ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[directory], showFileCount);
             ui_BottomBar(colors[1]);
-            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+            ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
             while (kb_AnyKey());
             kb_Scan();
         }
@@ -461,8 +513,9 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false);
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false, showApps, showAppvars);
     gfx_End();
     os_ClrHome();   // Clean screen
+    exitDefrag();
     return 0;
 }

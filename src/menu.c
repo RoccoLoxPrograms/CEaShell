@@ -19,6 +19,7 @@
 #include "asm/sortVat.h"
 #include "asm/hooks.h"
 #include "asm/lowercase.h"
+#include "asm/apps.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -169,7 +170,7 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
     }
 }
 
-static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const uint8_t option) {
+static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const bool showApps, const bool showAppvars, const uint8_t option) {
     if (!themePicker) {
         shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
         if (option != 2 && option < 4) {
@@ -227,6 +228,12 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
                 gfx_PrintStringXY("for CEaShell to", 171, 93);
                 gfx_PrintStringXY("use.", 171, 105);
                 break;
+            case 6:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 176, 132, 23);
+                gfx_PrintStringXY("Choose which (or", 171, 69);
+                gfx_PrintStringXY("if) the special", 171, 81);
+                gfx_PrintStringXY("directories are", 171, 93);
+                gfx_PrintStringXY("displayed.", 171, 105);
             default:
                 break;
         }
@@ -253,6 +260,10 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_PrintStringXY(">", 144, 127);
         gfx_PrintStringXY("Custom Theme", 21, 144);
         gfx_PrintStringXY("Preset Themes", 21, 161);
+        gfx_PrintStringXY("Show", 21, 178);
+        gfx_PrintStringXY("Folders:", 21, 190);
+        gfx_PrintStringXY("<", 82, 190);
+        gfx_PrintStringXY(">", 144, 190);
         if (transitionSpeed) {
             gfx_PrintStringXY("On", 124, 69);
             if (transitionSpeed == 1) {
@@ -270,6 +281,15 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
             gfx_PrintStringXY("On", 124, 127);
         } else {
             gfx_PrintStringXY("Off", 120, 127);
+        }
+        if (showApps && showAppvars) {
+            gfx_PrintStringXY("Both", 100, 190);
+        } else if (showApps) {
+            gfx_PrintStringXY("Apps", 100, 190);
+        } else if (showAppvars) {
+            gfx_PrintStringXY("Appvars", 88, 190);
+        } else {
+            gfx_PrintStringXY("None", 100, 190);
         }
     } else {
         gfx_SetColor(colors[1]);
@@ -290,11 +310,11 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const bool appvars, bool *displayCEaShell, const bool showHiddenProg, const bool showFileCount, const uint8_t apdTimer) {
+void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const uint8_t directory, bool *displayCEaShell, const bool showHiddenProg, const bool showFileCount, const uint8_t apdTimer, bool *showApps, bool *showAppvars) {
     timer_Set(1, 0);
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
-    menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, 0);
+    menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, *showApps, *showAppvars, 0);
     gfx_BlitBuffer();
 
     uint8_t color = 0;
@@ -352,7 +372,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                 }
             } else {
                 if (kb_IsDown(kb_KeyDown)) {
-                    if (option < 5) {
+                    if (option < 6) {
                         option++;
                     } else {
                         option = 0;
@@ -361,7 +381,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                     if (option) {
                         option--;
                     } else {
-                        option = 5;
+                        option = 6;
                     }
                 } else if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
                     switch (option) {
@@ -392,6 +412,32 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                         case 3:
                             *displayCEaShell = !*displayCEaShell;
                             break;
+                        case 6:
+                            if (kb_IsDown(kb_KeyRight)) {
+                                if (*showApps && *showAppvars) {  // Both
+                                    *showAppvars = false;
+                                } else if (*showApps) {  // Apps
+                                    *showApps = false;
+                                    *showAppvars = true;
+                                } else if (*showAppvars) {   // Appvars
+                                    *showAppvars = false;
+                                } else {    // Neither
+                                    *showApps = true;
+                                    *showAppvars = true;
+                                }
+                            } else {
+                                if (*showApps && *showAppvars) {  // Both
+                                    *showApps = false;
+                                    *showAppvars = false;
+                                } else if (*showApps) {  // Apps
+                                    *showAppvars = true;
+                                } else if (*showAppvars) {   // Appvars
+                                    *showApps = true;
+                                    *showAppvars = false;
+                                } else {    // Neither
+                                    *showAppvars = true;
+                                }
+                            }
                         default:
                             break;
                     }
@@ -406,11 +452,11 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                         colors[1] = newColors[1];
                         colors[2] = newColors[2];
                         gfx_FillScreen(colors[0]);
-                        ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+                        ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, directory, displayCEaShell, showHiddenProg, *showApps, *showAppvars);
                         shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
                         gfx_SetColor(colors[1]);
                         gfx_FillRectangle_NoClip(165, 130, 140, 82);
-                        menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+                        menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
                         ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
                         gfx_BlitBuffer();
                     } else if (option == 5) {
@@ -424,7 +470,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                     menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
                 }
             }
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
 
             gfx_BlitBuffer();
             if (!keyPressed) {
@@ -446,16 +492,16 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
                 colors[2] = defaultThemes[color + 2];
             }
             gfx_FillScreen(colors[0]);
-            ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+            ui_DrawAllFiles(colors, *fileSelected, fileCount, fileStartLoc, directory, displayCEaShell, showHiddenProg, *showApps, *showAppvars);
             shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
             gfx_SetColor(colors[1]);
             gfx_FillRectangle_NoClip(165, 130, 140, 82);
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
             ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
             gfx_BlitBuffer();
         } else if (kb_IsDown(kb_KeyAlpha) && themePicker) {
             themePicker = false;
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, option);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
             gfx_SetColor(colors[1]);
             gfx_FillRectangle_NoClip(165, 130, 140, 82);
             gfx_BlitBuffer();
@@ -464,7 +510,7 @@ void menu_Looks(uint8_t *colors, unsigned int *fileSelected, const unsigned int 
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
 }
 
-static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_t *colors, const int cursorX, const uint8_t cursorY, const bool isArchived, const bool isLocked, const bool isHidden, const char *fileTypeString, char *fileName, const int fileSize, const uint8_t fileType, const uint8_t osFileType) {
+static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_t *colors, const int cursorX, const uint8_t cursorY, const bool isArchived, const bool isLocked, const bool isHidden, const char *fileTypeString, char *fileName, const int fileSize, const uint8_t fileType, const uint8_t osFileType, const uint8_t directory) {
     if (fullRedraw) {   // Redraws most of the file information. (Comment is here since the line above is already quite long)
         shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
         shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
@@ -479,19 +525,24 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
         ui_DrawFile(false, false, false, isHidden, colors, fileName, fileType, osFileType, 200, 44);  // We don't draw a name here because it is drawn somewhere else
         shapes_DrawRoundCorners(corner1, 64, 64, 200, 44);  // We have to round the corners of the program icon a little more in this menu
 
-        char *description = malloc(52);
-        fileName[0] -= 64 * isHidden;
-        if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE && getDescASM(fileName, osFileType, fileType, description)) {
-            ui_DescriptionWrap(description, 27, 61, 121);
-        } else if (fileType == BASIC_TYPE && getDescBASIC(fileName, osFileType, description)) {
-            ui_DescriptionWrap(description, 27, 61, 121);
+        if (directory == APPS_FOLDER) {
+            char *appDescription = getAppCopyrightInfo(fileName);
+            ui_DescriptionWrap(appDescription, 27, 61, 121);
         } else {
-            gfx_PrintStringXY("No description.", 61, 126);
+            char *description = malloc(52);
+            fileName[0] -= 64 * isHidden;
+            if (fileType != BASIC_TYPE && fileType != ICE_SRC_TYPE && getDescASM(fileName, osFileType, fileType, description)) {
+                ui_DescriptionWrap(description, 27, 61, 121);
+            } else if (fileType == BASIC_TYPE && getDescBASIC(fileName, osFileType, description)) {
+                ui_DescriptionWrap(description, 27, 61, 121);
+            } else {
+                gfx_PrintStringXY("No description.", 61, 126);
+            }
+            if (osFileType != OS_TYPE_APPVAR) {
+                fileName[0] += 64 * isHidden;
+            }
+            free(description);
         }
-        if (osFileType != OS_TYPE_APPVAR) {
-            fileName[0] += 64 * isHidden;
-        }
-        free(description);
         free(corner1);
         gfx_SetColor(colors[0]);
         gfx_SetTextScale(2, 2);
@@ -502,9 +553,14 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
         gfx_PrintString(fileTypeString);
         gfx_PrintStringXY("Size: ", 61, 98);
         gfx_SetTextXY(99, 98);
-        gfx_PrintInt(fileSize, 5);
-        gfx_PrintStringXY("Description:", 61, 111);
-        gfx_PrintStringXY("Attributes:", 61, 145);
+        gfx_PrintInt(fileSize, 5 + (directory == APPS_FOLDER)); // Everything but apps will max at 65535, so we only use 6 digits in the apps folder
+        if (directory == APPS_FOLDER) {
+            gfx_PrintStringXY("Copyright:", 61, 111);
+            gfx_PrintStringXY("Minimum OS Version:", 61, 145);
+        } else {
+            gfx_PrintStringXY("Description:", 61, 111);
+            gfx_PrintStringXY("Attributes:", 61, 145);
+        }
         gfx_PrintStringXY("File Operations:", 61, 171);
         ui_DrawUISprite(colors[1], UI_DARROW, 152, 208);
     }
@@ -524,79 +580,117 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
             shapes_RoundRectangleFill(colors[2], 3, 62, 11, cursorX, cursorY);
         }
     }
-    ui_CheckBox(colors[1], gfx_GetPixel(64, 157), isArchived, 64, 157);
-    gfx_PrintStringXY("Archived", 74, 157);
-    ui_CheckBox(colors[1], gfx_GetPixel(140, 157), isLocked, 140, 157);
-    gfx_PrintStringXY("Locked", 150, 157);
-    ui_CheckBox(colors[1], gfx_GetPixel(203, 157), isHidden, 203, 157);
-    gfx_PrintStringXY("Hidden", 213, 157);
+    if (directory == APPS_FOLDER) {
+        gfx_PrintStringXY(getAppMinOSVersion(fileName), 61, 156);
+    } else {
+        ui_CheckBox(colors[1], gfx_GetPixel(64, 157), isArchived, 64, 157);
+        gfx_PrintStringXY("Archived", 74, 157);
+        ui_CheckBox(colors[1], gfx_GetPixel(140, 157), isLocked, 140, 157);
+        gfx_PrintStringXY("Locked", 150, 157);
+        ui_CheckBox(colors[1], gfx_GetPixel(203, 157), isHidden, 203, 157);
+        gfx_PrintStringXY("Hidden", 213, 157);
+    }
     gfx_PrintStringXY("Delete", 71, 184);
-    gfx_PrintStringXY("Rename", 136, 184);
-    gfx_PrintStringXY("Edit", 213, 184);
+    if (directory != APPS_FOLDER) {
+        gfx_PrintStringXY("Rename", 136, 184);
+        gfx_PrintStringXY("Edit", 213, 184);
+    }
 }
 
-void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsigned int fileStartLoc, unsigned int *fileNumbers, const bool appvars, const bool displayCEaShell, const bool editLockedProg, const bool showHiddenProg, const uint8_t apdTimer) {
+void menu_Info(uint8_t *colors, bool *infoOps, unsigned int fileSelected, const unsigned int fileStartLoc, unsigned int *fileNumbers, const uint8_t directory, const bool displayCEaShell, const bool editLockedProg, const bool showHiddenProg, const uint8_t apdTimer, const bool showApps, const bool showAppvars) {
     timer_Set(1, 0);
-    uint8_t osFileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
-    unsigned filesSearched = 0;
-    char newName[9]= "\0";
-    char *fileName;
+    uint8_t osFileType = '\0'; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
+    unsigned int filesSearched = 1;
+    if (directory == PROGRAMS_FOLDER) {
+        filesSearched = (showApps + showAppvars);
+    }
+    char newName[9] = "\0";
+    char appName[9] = "\0";
+    unsigned int appPointer;
+    char *fileName = NULL;
     void *vatPtr = NULL;
-    while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
-        if (*fileName == '!' || *fileName == '#') {
-            continue;
-        }
-        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
-            continue;
-        }
-        if (!showHiddenProg && fileName[0] < 65) {
-            continue;
-        }
-        if ((osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, osFileType) == HIDDEN_TYPE) {
-            continue;
-        }
-        if (appvars && osFileType == OS_TYPE_APPVAR) {
-            if (fileSelected == filesSearched) {
+    if (directory == APPS_FOLDER) {
+        while (detectApp(appName, &appPointer)) {
+            if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+                continue;
+            }
+            if (fileSelected + 1 == filesSearched) {
+                fileName = appName;
+                osFileType = OS_TYPE_APP;
                 break;
             }
             filesSearched++;
-        } else if (!appvars && (osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM)) {
-            if (fileSelected == filesSearched) {
-                break;
+        }
+    } else {
+        while ((fileName = ti_DetectAny(&vatPtr, NULL, &osFileType))) { // Suspiciously similar to the example in the docs :P
+            if (*fileName == '!' || *fileName == '#') {
+                continue;
             }
-            filesSearched++;
+            if (!showHiddenProg && fileName[0] < 65) {
+                continue;
+            }
+            if ((osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, osFileType) == HIDDEN_TYPE) {
+                continue;
+            }
+            if (directory == APPVARS_FOLDER && osFileType == OS_TYPE_APPVAR) {
+                if (fileSelected + 1 == filesSearched) {
+                    break;
+                }
+                filesSearched++;
+            } else if (directory == PROGRAMS_FOLDER && (osFileType == OS_TYPE_PRGM || osFileType == OS_TYPE_PROT_PRGM)) {
+                if (fileSelected + 1 == filesSearched) {
+                    break;
+                }
+                filesSearched++;
+            }
         }
     }
     uint8_t fileType;
-    if (osFileType == OS_TYPE_APPVAR) {
-        fileType = getAppvarType(fileName);
-    } else {
-        fileType = getPrgmType(fileName, osFileType);
-    }
-    char *fileTypeString = util_FileTypeToString(fileType, false);
-    uint8_t slot = ti_OpenVar(fileName, "r", osFileType);
-    int fileSize = getProgSize(fileName, osFileType);
-    bool isArchived = ti_IsArchived(slot);
+    uint8_t slot;
+    bool isArchived;
     bool isLocked;
-    if (osFileType == OS_TYPE_PROT_PRGM) {
+    bool isHidden;
+    unsigned int fileSize = 0;
+    if (osFileType == OS_TYPE_APP) {
+        fileType = APP_TYPE;
+        fileSize = getAppSize(appName);
+        isArchived = true;
         isLocked = true;
-    } else if (osFileType == OS_TYPE_APPVAR) {
-        if (getAppvarType(fileName) == APPVAR_TYPE) {
+        isHidden = false;
+    } else {
+        if (osFileType == OS_TYPE_APPVAR) {
+            fileType = getAppvarType(fileName);
+        } else {
+            fileType = getPrgmType(fileName, osFileType);
+        }
+        slot = ti_OpenVar(fileName, "r", osFileType);
+        fileSize = getProgSize(fileName, osFileType);
+        isArchived = ti_IsArchived(slot);
+        if (osFileType == OS_TYPE_PROT_PRGM) {
             isLocked = true;
+        } else if (osFileType == OS_TYPE_APPVAR) {
+            if (getAppvarType(fileName) == APPVAR_TYPE) {
+                isLocked = true;
+            } else {
+                isLocked = false;
+            }
         } else {
             isLocked = false;
         }
-    } else {
-        isLocked = false;
+        isHidden = (fileName[0] < 65);
+        fileName[0] += 64 * (fileName[0] < 65);
     }
-    bool isHidden = (fileName[0] < 65);
+    char *fileTypeString = util_FileTypeToString(fileType, false);
     const bool initialValue[3] = {isArchived, isLocked, isHidden};
-    fileName[0] += 64 * (fileName[0] < 65);
 
     int cursorX = 63;
-    uint8_t cursorY = 156;
-
-    menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+    uint8_t cursorY;
+    if (directory == APPS_FOLDER) { // Only delete option for Apps folder
+        cursorY = 182;
+    } else {
+        cursorY = 156;
+    }
+    menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, directory);
     gfx_BlitBuffer();
 
     bool keyPressed = false;
@@ -617,88 +711,96 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
             timer_Set(1, 0);
         }
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyDel)) && (!keyPressed || timer_Get(1) > 3000)) {
-            if (kb_IsDown(kb_KeyRight)) {
-                if (cursorX < 195) {
-                    if (cursorY == 182) {
-                        cursorX += 66;
+            if (directory != APPS_FOLDER) { // Only delete apps
+                if (kb_IsDown(kb_KeyRight)) {
+                    if (cursorX < 195) {
+                        if (cursorY == 182) {
+                            cursorX += 66;
+                        } else {
+                            cursorX = cursorX + 76 * (cursorX == 63) + 63 * (cursorX == 139);
+                        }
                     } else {
-                        cursorX = cursorX + 76 * (cursorX == 63) + 63 * (cursorX == 139);
+                        cursorX = 63;
+                        if (cursorY == 182) {
+                            cursorY = 156;
+                        } else {
+                            cursorY = 182; 
+                        }
                     }
-                } else {
-                    cursorX = 63;
-                    if (cursorY == 182) {
-                        cursorY = 156;
+                } else if (kb_IsDown(kb_KeyLeft)) {
+                    if (cursorX > 63) {
+                        if (cursorY == 182) {
+                            cursorX -= 66;
+                        } else {
+                            cursorX = cursorX - 76 * (cursorX == 139) - 63 * (cursorX == 202);
+                        }
                     } else {
-                        cursorY = 182; 
-                    }
-                }
-            } else if (kb_IsDown(kb_KeyLeft)) {
-                if (cursorX > 63) {
-                    if (cursorY == 182) {
-                        cursorX -= 66;
-                    } else {
-                        cursorX = cursorX - 76 * (cursorX == 139) - 63 * (cursorX == 202);
-                    }
-                } else {
-                    if (cursorY == 182) {
-                        cursorX = 202;
-                        cursorY = 156;
-                    } else {
-                        cursorX = 195;
-                        cursorY = 182; 
-                    }
-                }
-            }
-            if (kb_IsDown(kb_KeyUp) && cursorY == 182) {
-                if (cursorX > 63) {
-                    if (cursorX == 129) {
-                        cursorX = 139;
-                    } else {
-                        cursorX = 202;
+                        if (cursorY == 182) {
+                            cursorX = 202;
+                            cursorY = 156;
+                        } else {
+                            cursorX = 195;
+                            cursorY = 182; 
+                        }
                     }
                 }
-                cursorY = 156;
-            } else if (kb_IsDown(kb_KeyDown)) {
-                if (cursorX > 63) {
-                    if (cursorX == 139) {
-                        cursorX = 129;
-                    } else {
-                        cursorX = 195;
+                if (kb_IsDown(kb_KeyUp) && cursorY == 182) {
+                    if (cursorX > 63) {
+                        if (cursorX == 129) {
+                            cursorX = 139;
+                        } else {
+                            cursorX = 202;
+                        }
                     }
+                    cursorY = 156;
+                } else if (kb_IsDown(kb_KeyDown)) {
+                    if (cursorX > 63) {
+                        if (cursorX == 139) {
+                            cursorX = 129;
+                        } else {
+                            cursorX = 195;
+                        }
+                    }
+                    cursorY = 182;
                 }
-                cursorY = 182;
             }
             if (kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyDel)) {
                 if (cursorY == 156 && !kb_IsDown(kb_KeyDel)) {
                     if (cursorX == 63) {
                         isArchived = !isArchived;
-                    } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE) && !appvars) {
+                    } else if (cursorX == 139 && (fileType == BASIC_TYPE || fileType == ICE_SRC_TYPE) && directory == PROGRAMS_FOLDER) {
                         isLocked = !isLocked;
-                    } else if (cursorX == 202 && !appvars) {
+                    } else if (cursorX == 202 && directory == PROGRAMS_FOLDER) {
                         isHidden = !isHidden;
                     }
                 } else {
                     if (((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && cursorX == 63) || kb_IsDown(kb_KeyDel)) {
-                        menu_InfoRedraw(false, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                        menu_InfoRedraw(false, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, directory);
                         if (ui_DeleteConf(colors, 56, 206)) {
                             ti_Close(slot);
-                            ti_DeleteVar(fileName, osFileType);
-                            if (fileSelected >= fileNumbers[appvars] - 1) {
+                            if (directory == APPS_FOLDER) {
+                                // DO NOT DELETE APPS UNTIL THE ISSUES ARE FIXED
+                                // deleteApp(fileName);
+                                break;
+                            } else {
+                                ti_DeleteVar(fileName, osFileType);
+                            }
+                            if (fileSelected >= fileNumbers[directory] - 1) {
                                 fileSelected--;
                             }
                             gfx_SetColor(colors[0]);
                             gfx_FillRectangle_NoClip(12, 28, 296, 164);
-                            ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars] - 1, fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+                            ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory] - 1, fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                             gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
                             infoOps[0] = true;
                             return;
                         }
-                        menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                        menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, directory);
                         gfx_BlitBuffer();
                     } else if (cursorX == 129) {
                         memcpy(newName, fileName, strlen(fileName) + 1);   // Copy name into string to modify
                         newName[0] += 64 * (newName[0] < 65);
-                        menu_InfoRedraw(true, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, newName, fileSize, fileType, osFileType);
+                        menu_InfoRedraw(true, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, newName, fileSize, fileType, osFileType, directory);
                         if (ui_RenameBox(colors, newName)) {
                             ti_Close(slot);
                             ti_RenameVar(fileName, newName, osFileType);
@@ -706,7 +808,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                             memcpy(fileName, newName, strlen(newName) + 1);
                             ti_OpenVar(fileName, "r", osFileType);
                         }
-                        menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+                        menu_InfoRedraw(true, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, directory);
                         gfx_BlitBuffer();
                         kb_Scan();
                         if (kb_IsDown(kb_KeyClear)) {
@@ -734,7 +836,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
                 }
                 while (kb_AnyKey());
             }
-            menu_InfoRedraw(false, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType);
+            menu_InfoRedraw(false, true, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, fileName, fileSize, fileType, osFileType, directory);
             gfx_SwapDraw();
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
@@ -765,7 +867,7 @@ void menu_Info(uint8_t *colors, bool *infoOps, uint8_t fileSelected, const unsig
     }
     if (initialValue[2] != isHidden) {
         hidePrgm(fileName, osFileType);
-        ui_DrawAllFiles(colors, fileSelected, fileNumbers[appvars], fileStartLoc, appvars, displayCEaShell, showHiddenProg);
+        ui_DrawAllFiles(colors, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
         gfx_BlitRectangle(gfx_buffer, 12, 28, 296, 10);
         if (isHidden) {
             fileName[0] -= 64;
