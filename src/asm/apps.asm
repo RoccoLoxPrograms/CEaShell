@@ -149,12 +149,6 @@ _executeApp: ; mostly Cesium's code
 	call ti.ResetStacks
     ld hl, (appNamePtr)
     call ti.FindAppStart ; app pointer in hl
-    ; ----------
-    push hl
-    ld hl, -1
-    ld (hl), 2
-    pop hl
-    ; ----------
     ld de, $100
     add hl, de
 	push hl
