@@ -1025,7 +1025,7 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
 
 void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {    // Add more options later
     timer_Set(1, 0);
-    shapes_RoundRectangleFill(colors[1], 15, 304, 192, 8, 39);
+    shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     uint8_t option = 0;
     uint8_t startOption = 0;
