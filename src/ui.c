@@ -533,8 +533,21 @@ void ui_AboutScreen(uint8_t *colors) {
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph) && !(timer_Get(1) > 9000)) {
         kb_Scan();
     }
+    uint8_t phase = 0;
+    bool keypressed = false;
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
+        if (kb_IsDown(kb_Key1) && !keypressed) {
+            phase = 1;
+            keypressed = true;
+        } else if (kb_IsDown(kb_Key3) && (phase == 1 || phase == 2) && !keypressed) {
+            phase++;
+            keypressed = true;
+        } else if (kb_IsDown(kb_Key7) && phase == 3 && !keypressed) {
+            gfx_SetClipRegion(0, 0, 320, 240);
+            gfx_SetTextConfig(0);
+            util_Secret(colors);
+        }
         if (timer_Get(1) > 2500) {
             gfx_SetColor(colors[0]);
             gfx_FillRectangle_NoClip(21, 158, 278, 8);
@@ -545,6 +558,9 @@ void ui_AboutScreen(uint8_t *colors) {
         }
         if (startDisplay > 344) {
             startDisplay = 0; // restart
+        }
+        if (keypressed && !kb_AnyKey()) {
+            keypressed = false;
         }
     }
     gfx_SetClipRegion(0, 0, 320, 240);

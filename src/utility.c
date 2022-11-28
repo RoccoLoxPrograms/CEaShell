@@ -10,6 +10,8 @@
 **/
 
 #include "utility.h"
+#include "shapes.h"
+#include "ui.h"
 #include "asm/sortVat.h"
 #include "asm/fileOps.h"
 #include "asm/hooks.h"
@@ -20,6 +22,8 @@
 #include <keypadc.h>
 #include <fileioc.h>
 #include <string.h>
+#include <sys/timers.h>
+#include <sys/util.h>
 
 uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     for (int8_t k = charPerLine; k >= 0; k--) {
@@ -347,4 +351,54 @@ void util_RunApp(const unsigned int fileSelected, const bool displayCEaShell) {
     }
     gfx_End();
     executeApp(appName);
+}
+
+void util_Secret(uint8_t *colors) {
+    gfx_SetDrawBuffer();
+    gfx_SetTextScale(2, 2);
+    shapes_RoundRectangleFill(colors[0], 7, 290, 155, 15, 46);
+    gfx_SetColor(colors[1]);
+    gfx_FillRectangle_NoClip(101, 8, 116, 16);
+    gfx_PrintStringXY("Easter Egg", 87, 8);
+    gfx_BlitBuffer();
+    timer_Set(1, 0);
+    while(kb_AnyKey());
+    srandom(1337);
+    uint8_t radiusMax;
+    uint8_t radius;
+    unsigned int x;
+    unsigned int titleX;
+    uint8_t y;
+    while (!kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyGraph)) {
+        kb_Scan();
+        if (kb_IsDown(kb_KeyAlpha) || kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyGraph)) {
+            gfx_SetColor(colors[1]);
+            gfx_SetTextScale(2, 2);
+            gfx_FillRectangle_NoClip(87, 8, 146, 16);
+            gfx_PrintStringXY("Settings", 101, 8);
+            return;
+        }
+        if (kb_AnyKey()) {
+            shapes_RoundRectangleFill(colors[0], 7, 290, 155, 15, 46);
+            gfx_BlitBuffer();
+            while(kb_AnyKey());
+        }
+        if (timer_Get(1) > 1000) {
+            radiusMax = randInt(4, 22);
+            gfx_SetColor(colors[randInt(0, 2)]);
+            x = randInt(39, 281);
+            y = randInt(70, 177);
+            for (radius = 0; radius < radiusMax; radius++) {
+                gfx_FillCircle_NoClip(x, y, radius);
+                gfx_SetTextScale(2, 2);
+                titleX = 160 - gfx_GetStringWidth("CEaShell v"VERSION_NO) / 2;
+                gfx_PrintStringXY("CEaShell v"VERSION_NO, titleX, 100);
+                gfx_SetTextScale(1, 1);
+                gfx_PrintStringXY("By RoccoLox Programs", 85, 122);
+                gfx_PrintStringXY("and TIny_Hacker", 102, 135);
+                gfx_BlitBuffer();
+            }
+            timer_Set(1, 0);
+        }
+    }
 }

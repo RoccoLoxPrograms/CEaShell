@@ -64,6 +64,8 @@ uint8_t util_GetSingleKeyPress(void); // Returns a GetCSC code using the keypad.
 
 void util_RunApp(const unsigned int, const bool);   // Wrapper for executeApp
 
+void util_Secret(uint8_t *);
+
 #ifdef __cplusplus
 }
 #endif
