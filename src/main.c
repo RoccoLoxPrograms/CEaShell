@@ -5,7 +5,7 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: November 28, 2022
+ * Last Build: November 29, 2022
  * Version: 0.79
  * 
  * --------------------------------------
@@ -66,6 +66,7 @@ int main(void) {
 
     bool fullRedraw = false;
 
+    // Graphics setup
     gfx_Begin();
     ti_SetGCBehavior(&gfx_End, &reloadApp);
     if (colors[3]) {
@@ -110,7 +111,8 @@ int main(void) {
         ui_NewUser();
     }
 
-    if (lowercase && !checkLowercase()) {   // Restore lowercase preferences
+    // Restore lowercase preferences
+    if (lowercase && !checkLowercase()) {
         toggleLowercase(true);
     } else if (checkLowercase() && !lowercase) {
         lowercase = true;
@@ -133,6 +135,7 @@ int main(void) {
         }
     }
 
+    // Sprites we use to save the screen
     buffer1->height = 193;
     buffer1->width = 152;
     buffer2->height = 193;
@@ -156,11 +159,12 @@ int main(void) {
 
     timer_Set(1, 0);
     while(!kb_IsDown(kb_KeyClear)) {    // Key detection loop
-        if ((timer_Get(1) >= ONE_MINUTE * apdTimer) && apdTimer) {
+        if ((timer_Get(1) >= ONE_MINUTE * apdTimer) && apdTimer) {  // Power off the calculator after specified time of inactivity
             gfx_End();
             triggerAPD();
             timer_Set(1, 0);
         }
+
         kb_Scan();
         if (!kb_AnyKey() && keyPressed) {
             keyPressed = false;
@@ -169,6 +173,8 @@ int main(void) {
         if (kb_AnyKey() && !keyPressed) {
             timer_Set(1, 0);
         }
+
+        // Handle keypresses
         if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 1000)) { // File selecting (Probably very badly optimized)
             if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[directory]) {
                 if (fileSelected + 2 < fileNumbers[directory]) {
@@ -189,6 +195,7 @@ int main(void) {
                     fileSelected -= 1;
                 }
             }
+
             if (kb_IsDown(kb_KeyDown)) {
                 if (fileSelected + 1 != fileNumbers[directory]) {
                     fileSelected += !(fileSelected % 2);
@@ -198,6 +205,7 @@ int main(void) {
             } else if (kb_IsDown(kb_KeyUp)) {
                 fileSelected -= fileSelected % 2;
             }
+
             if (kb_IsDown(kb_KeyDel) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {
                 unsigned int filesSearched = 1; // account for folders
                 uint8_t osFileType;
@@ -205,12 +213,14 @@ int main(void) {
                 void *vatPtr = NULL;
                 char appName[9] = "\0";
                 unsigned int appPointer;    // Will we ever use this? 🤷‍♂️
+
                 if (directory == PROGRAMS_FOLDER) {
                     filesSearched = (showApps + showAppvars);
                 }
+
                 if (directory == APPS_FOLDER) {
                     while (detectApp(appName, &appPointer)) {
-                        if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
+                        if (!displayCEaShell && !strcmp(appName, "CEaShell")) { // Ignore CEaShell
                             continue;
                         }
                         if (fileSelected == filesSearched) {
@@ -236,6 +246,7 @@ int main(void) {
                         }
                     }
                 }
+
                 if (ui_DeleteConf(colors, 56, 204)) {
                     if (directory == APPS_FOLDER) {
                         // DO NOT DELETE APPS UNTIL THE ISSUES ARE FIXED
@@ -420,9 +431,9 @@ int main(void) {
                     while (kb_AnyKey());
                 }
                 name[8] = '\0';
-                if (copyMenu == 1) {
+                if (copyMenu == 1) {    // Create new
                     if (directory == PROGRAMS_FOLDER) {
-                        if (!util_CheckNameExists(name, directory)) {
+                        if (!util_CheckNameExists(name, directory)) {   // Check if the name exists before creating a new program with that name
                             uint8_t newProg = ti_OpenVar(name, "w", OS_TYPE_PRGM);
                             ti_Close(newProg);
                         }
@@ -440,7 +451,7 @@ int main(void) {
                         util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);   // Stores our data to the appvar before exiting
                         editCelticAppvar(name);
                     }
-                } else if (!copyMenu) {
+                } else if (!copyMenu) { // Copy
                     if (util_CheckNameExists(name, directory)) {
                         break;
                     }
@@ -453,9 +464,6 @@ int main(void) {
                     }
                     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
                         if (*fileName == '!' || *fileName == '#') {
-                            continue;
-                        }
-                        if (!displayCEaShell && !strcmp(fileName, "CEASHELL")) {
                             continue;
                         }
                         if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && directory == PROGRAMS_FOLDER) {
@@ -498,6 +506,7 @@ int main(void) {
             timer_Set(1, 0);
             continue;
         }
+
         if (util_AlphaSearch(&fileSelected, &fileStartLoc, util_GetSingleKeyPress(), fileNumbers[directory], displayCEaShell, directory, showApps, showAppvars)) {
             gfx_SetColor(colors[0]);
             gfx_FillRectangle_NoClip(8, 28, 304, 203);
@@ -513,7 +522,10 @@ int main(void) {
         gfx_BlitBuffer();
     }
 
-    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false, showApps, showAppvars);
+    // Very long function to write all the preferences to the appvar
+    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg,
+    editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false,
+    showApps, showAppvars);
     gfx_End();
     os_ClrHome();   // Clean screen
     exitDefrag();

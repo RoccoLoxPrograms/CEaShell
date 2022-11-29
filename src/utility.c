@@ -34,7 +34,13 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     return charPerLine - 2;
 }
 
-void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer, const unsigned int fileSelected, const unsigned int fileStartLoc, const uint8_t directory, const bool showApps, const bool showAppvars) {
+// This one is hideous but whatever
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell,
+const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg,
+const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer,
+const unsigned int fileSelected, const unsigned int fileStartLoc, const uint8_t directory,
+const bool showApps, const bool showAppvars) {
+
     uint8_t ceaShell[17];
     unsigned int scrollLoc[2];
     ceaShell[0] = colors[0];
@@ -93,6 +99,7 @@ void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const
             NOAPPVARS++;
         }
     }
+
     char appName[9] = "\0";
     unsigned int appPointer;    // Just a number, not a "pointer" (But the number is the pointer)
     while ((detectApp(appName, &appPointer))) {
@@ -106,6 +113,7 @@ void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const
 
 char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
     char *fileTypeString= NULL;
+
     switch (fileType) {
         case ASM_TYPE:
             if (abbreviated) {  // Abbreviations are shown on the desktop, while the full type is shown in the info menu
@@ -177,6 +185,7 @@ void util_RunPrgm(unsigned int fileSelected, const bool editLockedProg, const bo
     unsigned int filesSearched = showApps + showAppvars; // Account for folders
     char *fileName;
     void *vatPtr = NULL;
+
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
         if (*fileName == '!' || *fileName == '#') {
             continue;
@@ -188,22 +197,26 @@ void util_RunPrgm(unsigned int fileSelected, const bool editLockedProg, const bo
             filesSearched++;
         }
     }
+
     uint8_t shellType = getPrgmType(fileName, fileType);
     if (shellType == BASIC_TYPE) {
         installStopHook();
     }
+
     runProgram(fileName, fileType, shellType, editLockedProg);
     return;
 }
 
 bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool displayCEaShell, const uint8_t directory, const bool showApps, const bool showAppvars) {
     const char *alphabetCSC = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
-    const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
+    const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[";   // '[' is actually the 'θ' symbol, but graphx thinks it's '['
     uint8_t fileType;
     unsigned int filesSearched = 1;  // ignore folder
+
     if (directory == PROGRAMS_FOLDER) {
         filesSearched = (showApps + showAppvars);
     }
+
     char *fileName;
     void *vatPtr = NULL;
     uint8_t alpha;
@@ -213,6 +226,7 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
             break;
         }
     }
+
     while (alpha != (27 * !reverse)) {
         if (directory == APPS_FOLDER) {
             char appName[9] = "\0";
@@ -232,7 +246,7 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                             *fileStartLoc = *fileStartLoc - 1;
                         }
                     }
-                    return 1;
+                    return true;
                 }
                 filesSearched++;
             }
@@ -256,7 +270,7 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                                 *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
                             }
                         }
-                        return 1;
+                        return true;
                     }
                     filesSearched++;
                 } else if ((fileType == OS_TYPE_APPVAR) && directory == APPVARS_FOLDER) {
@@ -271,24 +285,25 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                                 *fileStartLoc = *fileStartLoc - 1;
                             }
                         }
-                        return 1;
+                        return true;
                     }
                     filesSearched++;
                 }
             }
         }
+
         vatPtr = NULL;
         filesSearched = 1;
+
         if (directory == PROGRAMS_FOLDER) {
             filesSearched = (showApps + showAppvars);
         }
-        alpha += 1 + (-2 * reverse);
+        alpha += 1 + (-2 * reverse);    // If the letter is after all existing filenames, go backwards to the last name
         if (alpha == 27) {
             reverse = true;
         } 
     }
-
-    return 0;
+    return false;
 }
 
 bool util_CheckNameExists(const char *name, const bool appvars) {
@@ -321,7 +336,7 @@ uint8_t util_GetSingleKeyPress(void) {
             if (kb_Data[group] & mask) {
                 if (only_key) {
                     last_key = 0;
-                    return 0;
+                    return false;
                 } else {
                     only_key = key;
                 }
@@ -329,7 +344,7 @@ uint8_t util_GetSingleKeyPress(void) {
         }
     }
     if (only_key == last_key) {
-        return 0;
+        return false;
     }
     last_key = only_key;
     return only_key;
@@ -353,7 +368,7 @@ void util_RunApp(const unsigned int fileSelected, const bool displayCEaShell) {
     executeApp(appName);
 }
 
-void util_Secret(uint8_t *colors) {
+void util_Secret(uint8_t *colors) { // 🤫
     gfx_SetDrawBuffer();
     gfx_SetTextScale(2, 2);
     shapes_RoundRectangleFill(colors[0], 7, 290, 155, 15, 46);
@@ -388,10 +403,10 @@ void util_Secret(uint8_t *colors) {
             gfx_SetColor(colors[randInt(0, 2)]);
             x = randInt(39, 281);
             y = randInt(70, 177);
-            for (radius = 0; radius < radiusMax; radius++) {
+            for (radius = 0; radius < radiusMax; radius++) {    // Circle fill animation
                 gfx_FillCircle_NoClip(x, y, radius);
                 gfx_SetTextScale(2, 2);
-                titleX = 160 - gfx_GetStringWidth("CEaShell v"VERSION_NO) / 2;
+                titleX = 160 - gfx_GetStringWidth("CEaShell v"VERSION_NO) / 2;  // Versions can be different, so we need to make sure it's properly centered
                 gfx_PrintStringXY("CEaShell v"VERSION_NO, titleX, 100);
                 gfx_SetTextScale(1, 1);
                 gfx_PrintStringXY("By RoccoLox Programs", 85, 122);

@@ -525,7 +525,7 @@ void ui_AboutScreen(uint8_t *colors) {
     gfx_PrintStringXY("TI-84 + CE calculator.", 21, 141);
     gfx_PrintStringXY("(C) Copyright 2022", 21, 175);
     gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 21, 188);
-    gfx_SetClipRegion(21, 52, 299, 196);
+    gfx_SetClipRegion(21, 52, 299, 196);    // Helps cut the text off in the scrolling animation
     gfx_SetTextConfig(1);
     gfx_PrintStringXY(&specialThanks[startDisplay], 21, 158);
     gfx_BlitBuffer();
@@ -537,6 +537,8 @@ void ui_AboutScreen(uint8_t *colors) {
     bool keypressed = false;
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
+
+        // Code
         if (kb_IsDown(kb_Key1) && !keypressed) {
             phase = 1;
             keypressed = true;
@@ -548,6 +550,7 @@ void ui_AboutScreen(uint8_t *colors) {
             gfx_SetTextConfig(0);
             util_Secret(colors);
         }
+
         if (timer_Get(1) > 2500) {
             gfx_SetColor(colors[0]);
             gfx_FillRectangle_NoClip(21, 158, 278, 8);
@@ -556,9 +559,11 @@ void ui_AboutScreen(uint8_t *colors) {
             gfx_BlitBuffer();
             timer_Set(1, 0);
         }
+
         if (startDisplay > 344) {
             startDisplay = 0; // restart
         }
+
         if (keypressed && !kb_AnyKey()) {
             keypressed = false;
         }
@@ -586,16 +591,20 @@ void ui_NewUser(void) {
     gfx_PrintStringXY("and menus.", 29, 112);
     gfx_PrintStringXY("Use the function keys to open the menu", 29, 130);
     gfx_PrintStringXY("buttons on the bottom row. You can open", 29, 142);
-    gfx_PrintStringXY("the description button for more info", 29, 154);
+    gfx_PrintStringXY("the description pill for more info", 29, 154);
     gfx_PrintStringXY("on a file using the function keys or", 29, 166);
     gfx_PrintStringXY("[alpha].", 29, 180);
     gfx_BlitBuffer();
+
+    // Wait to continue
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyRight)) {
         kb_Scan();
     }
+
     if (kb_IsDown(kb_KeyClear)) {
         return;
     }
+
     gfx_SetColor(237);
     gfx_FillRectangle_NoClip(29, 76, 266, 112);
     gfx_PrintStringXY("Navigate through menus and files", 29, 76);
@@ -625,6 +634,7 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
     gfx_PrintStringXY("Copy File", 77, 210);
     gfx_PrintStringXY("New File", 179, 210);
     gfx_SetDrawBuffer();
+
     while(!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter)) {
         kb_Scan();
         if (kb_IsDown(kb_KeyClear)) {
@@ -639,6 +649,7 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
             while(kb_AnyKey());
         }
     }
+
     while (kb_AnyKey());
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(68, 207, 183, 14);
@@ -655,6 +666,7 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
     bool alphaPressed;  // Number mode?
     bool cursor = false;
     timer_Set(1, 0);
+
     while (key != sk_Clear && key != sk_Mode) {
         key = os_GetCSC();
         if (key == sk_Clear || key == sk_Mode) {
@@ -705,6 +717,7 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
             cursor = !cursor;
         }
     }
+
     asm("di");
     gfx_SetTextScale(1, 1);
     if (key == sk_Enter || key == sk_2nd) {
