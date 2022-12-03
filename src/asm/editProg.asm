@@ -39,6 +39,7 @@ include 'include/ti84pceg.inc'
 	public edit_basic_program
 	public _editBasicProg
 	extern _reloadApp
+	extern _arcUnarc
 
 returnCEaShell := ti.appData + 11
 isAppvar := returnCEaShell + 1
@@ -92,7 +93,7 @@ edit_basic_program:
 	jr	z,.not_archived
 	ld	a,edit_archived
 	ld	(edit_status),a
-	call	ti.Arc_Unarc
+	call	_arcUnarc
 .not_archived:
 	ld	hl,hook_app_change
 	ld iy, ti.flags	; C toolchain messes up this
@@ -273,7 +274,7 @@ hook_app_change:
 .notLocked:
 	ld	a,(edit_status)
 	or	a,a
-	call	nz,ti.Arc_Unarc
+	call	nz,_arcUnarc
 .noarc:
 	pop	hl, bc, af
 	ret
@@ -329,7 +330,7 @@ _restoreAppvar:
 	ld hl, backup_appvar_name
 	call ti.Mov9ToOP1
 	call ti.ChkFindSym
-	jp ti.Arc_Unarc
+	jp _arcUnarc
 
 .inRamCreate:
 	call ti.DelVarArc
