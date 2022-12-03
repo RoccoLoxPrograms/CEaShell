@@ -19,33 +19,33 @@
 extern "C" {
 #endif
 
-void unlockBasic(char *, uint8_t);  // Edit locked BASIC programs
+void unlockBasic(char *name, uint8_t type);  // Edit locked BASIC programs
 
-void editBasicProg(char *, uint8_t);    // Edit a program
+void editBasicProg(char *name, uint8_t type);    // Edit a program
 
-void editCelticAppvar(char *);  // Edit a celtic appvar
+void editCelticAppvar(char *name);  // Edit a celtic appvar
 
-uint8_t getPrgmType(char *, uint8_t);   // Gets the program's actual type (ASM, C, ICE, etc)
+uint8_t getPrgmType(char *name, uint8_t type);   // Gets the program's actual type (ASM, C, ICE, etc)
 
-uint8_t getAppvarType(char *);  // Checks if an Appvar is a Celtic Appvar
+uint8_t getAppvarType(char *name);  // Checks if an Appvar is a Celtic Appvar
 
-void hidePrgm(char *, uint8_t); // Toggles a program's hidden status
+void hidePrgm(char *name, uint8_t type); // Toggles a program's hidden status
 
-void lockPrgm(char *, uint8_t); // Toggles a program's protected status
+void lockPrgm(char *name, uint8_t type); // Toggles a program's protected status
 
-bool getDescASM(char *, uint8_t, uint8_t, char *);  // Gets description from C, ICE, or ASM program
+bool getDescASM(char *name, uint8_t type, uint8_t shellType, char *outputDesc);  // Gets description from C, ICE, or ASM program
 
-bool getDescBASIC(char *, uint8_t, char *); // Gets a description from a BASIC program
+bool getDescBASIC(char *name, uint8_t type, char *outputDesc); // Gets a description from a BASIC program
 
-bool getIconASM(char *, uint8_t, uint8_t, gfx_sprite_t *);  // Gets an icon from a C, ICE, or ASM program and returns false if it does not have one
+bool getIconASM(char *name, uint8_t type, uint8_t shellType, gfx_sprite_t *outputIcon);  // Gets an icon from a C, ICE, or ASM program and returns false if it does not have one
 
-bool getIconDCS(char *, uint8_t, gfx_sprite_t *);   // Gets a DCS format icon
+bool getIconDCS(char *name, uint8_t type, gfx_sprite_t *outputIcon);   // Gets a DCS format icon
 
-int getProgSize(char *, uint8_t);   // Gets the actual size of a program (ti_GetSize is slightly off)
+int getProgSize(char *name, uint8_t type);   // Gets the actual size of a program (ti_GetSize is slightly off)
 
 int getASMPrgmSize(void); 
 
-void copyProgram(char *, char *, uint8_t);
+void copyProgram(char *name, char *copy, uint8_t);
 
 #ifdef __cplusplus
 }

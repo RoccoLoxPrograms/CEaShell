@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-void toggleLowercase(bool);
+void toggleLowercase(bool status);
 
 bool checkLowercase(void);
 

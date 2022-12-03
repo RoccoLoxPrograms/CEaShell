@@ -14,14 +14,13 @@
 #include "shapes.h"
 #include "ui.h"
 #include "utility.h"
-#include "asm/invert.h"
+#include "asm/misc.h"
 #include "asm/fileOps.h"
 #include "asm/sortVat.h"
 #include "asm/hooks.h"
 #include "asm/lowercase.h"
 #include "asm/apps.h"
 #include "asm/runProgram.h"
-#include "asm/archive.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -1033,7 +1032,7 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
     }
 }
 
-void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {    // Add more options later
+void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {
     timer_Set(1, 0);
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);

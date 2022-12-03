@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-void runProgram(char *, uint8_t, uint8_t, bool);
+void runProgram(char *name, uint8_t type, uint8_t shellType, bool editLockedPrgms);
 
 void removeExecuteHookInstalled(void);
 

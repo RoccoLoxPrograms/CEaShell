@@ -16,17 +16,17 @@
 extern "C" {
 #endif
 
-bool detectApp(char *, unsigned int *);
+bool detectApp(char *name, unsigned int *pointer);
 
-unsigned int getAppSize(char *);
+unsigned int getAppSize(char *name);
 
-char *getAppMinOSVersion(char *);
+char *getAppMinOSVersion(char *name);
 
-char *getAppCopyrightInfo(char *);
+char *getAppCopyrightInfo(char *name);
 
-void executeApp(char *);
+void executeApp(char *name);
 
-void deleteApp(char *);
+void deleteApp(char *name);
 
 void exitDefrag(void);
 

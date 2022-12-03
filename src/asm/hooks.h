@@ -36,11 +36,11 @@ void removeMenuHook(void);
 
 bool checkMenuHookInstalled(void);
 
-void installGetCSCHook(uint8_t);
+void installGetCSCHook(uint8_t hook);
 
 void removeGetCSCHook(void);
 
-bool checkGetCSCHookInstalled(uint8_t);
+bool checkGetCSCHookInstalled(uint8_t hook);
 
 void installStopHook(void);
 

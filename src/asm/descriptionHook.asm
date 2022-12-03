@@ -1,6 +1,6 @@
 ;--------------------------------------
 ;
-; CEaShell Source Code - programDescriptions.asm
+; CEaShell Source Code - descriptionHook.asm
 ; By RoccoLox Programs and TIny_Hacker
 ; Copyright 2022
 ; License: GPL-3.0

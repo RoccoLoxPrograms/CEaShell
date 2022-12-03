@@ -15,7 +15,7 @@
 #include "shapes.h"
 #include "menu.h"
 #include "utility.h"
-#include "asm/invert.h"
+#include "asm/misc.h"
 #include "asm/sortVat.h"
 #include "asm/fileOps.h"
 #include "gfx/gfx.h"

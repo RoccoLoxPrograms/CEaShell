@@ -25,14 +25,14 @@
 #include <sys/power.h>
 #include <ti/getcsc.h>
 
-void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {   // Takes care of drawing the sprite in white or black, depending on the theme
+void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
     const gfx_sprite_t *uiIcons[22] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorAlpha, cursorNumber, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorAlphaAlt, cursorNumberAlt};
     gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 11], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
-void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden, const bool hidden, uint8_t *colors, char *fileName, const uint8_t fileType, const uint8_t osFileType, const int x, const uint8_t y) {  // Draws a file, with the icon if it exists
+void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden, const bool hidden, uint8_t *colors, char *fileName, const uint8_t fileType, const uint8_t osFileType, const int x, const uint8_t y) {
     const bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
     gfx_sprite_t *icon = gfx_MallocSprite(16, 16);  // Malloc the sprite ahead of time
     gfx_sprite_t *tileSprite = gfx_MallocSprite(16, 16);
@@ -101,7 +101,7 @@ void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden
     free(tileSprite);
 }
 
-void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecked, const int x, const uint8_t y) {    // Draws a simple checkbox
+void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecked, const int x, const uint8_t y) {
     bool colorAlt = !(bgColor > 131 && bgColor % 8 > 3);
     if (colorAlt) {
         gfx_SetColor(148);
@@ -119,7 +119,7 @@ void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecke
     }
 }
 
-void ui_Clock(const bool is24Hour) {    // Displays time in either 24-Hour or AM/PM
+void ui_Clock(const bool is24Hour) {
     uint8_t time[3];
     bool isAfterNoon = boot_IsAfterNoon();
 
@@ -153,7 +153,7 @@ void ui_Battery(const uint8_t color, const uint8_t batteryStatus, const bool isC
     }
 }
 
-void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName, const unsigned int fileCount, const bool showFileCount) {  // Draws a 308 pixel long bar with rounded edges at 6, 6
+void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName, const unsigned int fileCount, const bool showFileCount) {
     gfx_SetColor(color);
     shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
 

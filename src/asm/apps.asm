@@ -27,8 +27,8 @@ _detectApp:
     push ix
     ld ix, 0
     add ix, sp
-    ld de, (ix + 9) ; pointer to var to store pointer to app in
     ld hl, (ix + 6) ; name of app (NULL first time)
+    ld de, (ix + 9) ; pointer to var to store pointer to app in
     pop ix
     push hl
     push de

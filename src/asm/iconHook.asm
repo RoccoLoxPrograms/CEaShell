@@ -1,6 +1,6 @@
 ;--------------------------------------
 ;
-; CEaShell Source Code - programIcons.asm
+; CEaShell Source Code - iconHook.asm
 ; By RoccoLox Programs and TIny_Hacker
 ; Copyright 2022
 ; License: GPL-3.0

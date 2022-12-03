@@ -1,3 +1,83 @@
+;--------------------------------------
+;
+; CEaShell Source Code - misc.asm
+; By RoccoLox Programs and TIny_Hacker
+; Copyright 2022
+; License: GPL-3.0
+;
+;--------------------------------------
+
+	assume adl=1
+
+	section .text
+
+include 'include/ti84pceg.inc'
+
+	public _willGarbageCollect
+	public _invertPalette
+	public _arcUnarc
+
+_willGarbageCollect:
+    push ix
+    ld ix, 0
+    add ix, sp
+    ld hl, (ix + 6) ; get name
+    ld a, (ix + 9)
+    pop ix
+    ld (ti.OP1), a ; move type to OP1
+    ld de, ti.OP1 + 1
+    ld bc, 8
+    ldir ; move name to OP1
+    call ti.ChkFindSym
+	ret	c
+	ex de, hl
+	push hl
+	add	hl, hl
+	pop	hl
+	ld a, 1
+    ret nc
+	ld hl, (hl)
+	ld a, c
+	add	a, 12
+	ld c, a
+	ld b, 0
+	add.s hl, bc
+	ld a, 0
+    ret c
+	push hl
+	pop	bc
+	call ti.FindFreeArcSpot
+    ld a, 1
+    ret nz
+    dec a
+    ret
+
+_invertPalette:
+    ld hl, $e30200 ; memory address of the palette
+    ld b, 255
+    ld d, 0
+
+_loop:
+    call _invertHex
+    djnz _loop
+    call _invertHex
+    inc d
+    ld b, 255
+    ld a, d
+    cp a, 2
+    jr nz, _loop
+    ret
+
+_invertHex:
+    ld a, 255
+    ld c, (hl)
+    sub a, c
+    ld (hl), a
+    inc hl
+    ret
+
+; -------------------------------------------------------------------------------
+
 ; Copyright 2015-2022 Matt "MateoConLechuga" Waltz
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -27,14 +107,6 @@
 ; POSSIBILITY OF SUCH DAMAGE.
 
 
-
-	assume adl=1
-
-	section .text
-
-include 'include/ti84pceg.inc'
-
-    public _arcUnarc
 
 ; safely unarchive a variable and restore screen mode
 ; in the case of a garbage collect

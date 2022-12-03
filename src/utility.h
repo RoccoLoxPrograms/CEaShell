@@ -44,27 +44,31 @@ extern "C" {
 #define APPVARS_FOLDER  1
 #define APPS_FOLDER     2
 
-uint8_t util_SpaceSearch(const char *, const uint8_t);
+uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine);
 
-void util_WritePrefs(uint8_t *, const uint8_t, const bool, const bool, const uint8_t, const bool, const bool, const bool, const bool, const bool, const bool, const uint8_t, const unsigned int, const unsigned int, const uint8_t, const bool, const bool);
+void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool is24Hour, const bool displayCEaShell,
+const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg,
+const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer,
+const unsigned int fileSelected, const unsigned int fileStartLoc, const uint8_t directory,
+const bool showApps, const bool showAppvars);
 
-void util_FilesInit(unsigned int *, const bool, const bool, const bool, const bool);
+void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
 
-char *util_FileTypeToString(const uint8_t, const bool);
+char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated);
 
 void util_PrintFreeRamRom(void);
 
-void util_RunPrgm(unsigned int, const bool, const bool, const bool);
+void util_RunPrgm(unsigned int fileSelected, const bool editLockedProg, const bool showApps, const bool showAppvars);
 
-bool util_AlphaSearch(unsigned int *, unsigned int *, const uint8_t, const unsigned int, const bool, const uint8_t, const bool, const bool);
+bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool displayCEaShell, const uint8_t directory, const bool showApps, const bool showAppvars);
 
-bool util_CheckNameExists(const char *, const bool);
+bool util_CheckNameExists(const char *name, const bool appvars);
 
 uint8_t util_GetSingleKeyPress(void); // Returns a GetCSC code using the keypad.c stuff (written jacobly)
 
-void util_RunApp(const unsigned int, const bool);   // Wrapper for executeApp
+void util_RunApp(const unsigned int fileSelected, const bool displayCEaShell);  // Wrapper for executeApp
 
-void util_Secret(uint8_t *);
+void util_Secret(uint8_t *colors);  // 🤫
 
 #ifdef __cplusplus
 }

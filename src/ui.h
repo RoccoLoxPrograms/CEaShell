@@ -31,39 +31,39 @@ extern "C" {
 #define UI_CURSOR_A     9
 #define UI_CURSOR_1     10
 
-void ui_DrawUISprite(const uint8_t, const uint8_t, const int, const uint8_t);
+void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y);    // Takes care of drawing the sprite in white or black, depending on the theme
 
-void ui_DrawFile(const bool, const bool, const bool, const bool, uint8_t *, char *, const uint8_t, const uint8_t, const int, const uint8_t);
+void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden, const bool hidden, uint8_t *colors, char *fileName, const uint8_t fileType, const uint8_t osFileType, const int x, const uint8_t y);  // Draws a file, with the icon if it exists
 
-void ui_CheckBox(const uint8_t, const uint8_t, const bool, const int, const uint8_t);
+void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecked, const int x, const uint8_t y);   // Draws a simple checkbox
 
-void ui_Clock(const bool);
+void ui_Clock(const bool is24Hour); // Displays time in either 24-Hour or AM/PM
 
-void ui_Battery(const uint8_t, const uint8_t, const bool);
+void ui_Battery(const uint8_t color, const uint8_t batteryStatus, const bool isCharging);
 
-void ui_StatusBar(const uint8_t, const bool, const uint8_t, const char *, const unsigned int, const bool);
+void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName, const unsigned int fileCount, const bool showFileCount); // Draws a 308 pixel long bar with rounded edges at 6, 6
 
-void ui_DescriptionWrap(const char *, const uint8_t, const int, const uint8_t);
+void ui_DescriptionWrap(const char *description, const uint8_t charPerLine, const int x, const uint8_t y);
 
-void ui_BottomBar(const uint8_t);
+void ui_BottomBar(const uint8_t color);
 
-bool ui_DeleteConf(uint8_t *, const int, const uint8_t);
+bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y);
 
-bool ui_RenameBox(uint8_t *, char *);
+bool ui_RenameBox(uint8_t *colors, char *newName);
 
-void ui_DrawAllFiles(uint8_t *, const uint8_t, const uint8_t, const unsigned int, const uint8_t, const bool, const bool, const bool, const bool);
+void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
 
-void ui_MiniCursor(uint8_t, int, uint8_t);
+void ui_MiniCursor(uint8_t color, int x, uint8_t y);
 
-void ui_DrawMenuItem(const char *, const int, const uint8_t, const bool);
+void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status);
 
-void ui_DrawDoubleMenuItem(const char *, const char *, const int, const uint8_t, const bool);
+void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status);
 
-void ui_AboutScreen(uint8_t *);
+void ui_AboutScreen(uint8_t *colors);
 
 void ui_NewUser(void);
 
-uint8_t ui_CopyNewMenu(uint8_t *, char *);
+uint8_t ui_CopyNewMenu(uint8_t *colors, char *name);
 
 #ifdef __cplusplus
 }

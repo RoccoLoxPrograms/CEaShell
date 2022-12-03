@@ -19,11 +19,11 @@
 extern "C" {
 #endif
 
-void menu_Looks(uint8_t *, unsigned int *, unsigned int, const unsigned int, bool *, uint8_t *, const uint8_t, bool *, const bool, const bool, const uint8_t, bool *, bool *);
+void menu_Looks(uint8_t *colors, unsigned int *fileSelected, unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const uint8_t directory, bool *displayCEaShell, const bool showHiddenProg, const bool showFileCount, const uint8_t apdTimer, bool *showApps, bool *showAppvars);
 
-void menu_Info(uint8_t *, bool *, const unsigned int, const unsigned int, unsigned int *, const uint8_t, const bool, const bool, const bool, const uint8_t, const bool, const bool);
+void menu_Info(uint8_t *colors, bool *infoOps, const unsigned int fileSelected, const unsigned int fileStartLoc, unsigned int *fileNumbers, const uint8_t directory, const bool displayCEaShell, const bool editLockedProg, const bool showHiddenProg, const uint8_t apdTimer, const bool showApps, const bool showAppvars);
 
-void menu_Settings(uint8_t *, uint8_t *, bool *, bool *, bool *, bool *, bool *, bool *, uint8_t *);
+void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer);
 
 #ifdef __cplusplus
 }
