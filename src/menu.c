@@ -20,6 +20,8 @@
 #include "asm/hooks.h"
 #include "asm/lowercase.h"
 #include "asm/apps.h"
+#include "asm/runProgram.h"
+#include "asm/archive.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -27,6 +29,7 @@
 #include <sys/timers.h>
 #include <sys/power.h>
 #include <string.h>
+#include <ti/ui.h>
 
 #define ONE_SECOND      32768
 #define ONE_MINUTE      (ONE_SECOND * 60)
@@ -853,8 +856,15 @@ void menu_Info(uint8_t *colors, bool *infoOps, unsigned int fileSelected, const 
             ti_Close(slot);
             slot = ti_OpenVar(fileName, "r+", osFileType);
         } else {
-            infoOps[1] = !ti_ArchiveHasRoom(fileSize + 18);
-            ti_SetArchiveStatus(true, slot);
+            if (willGarbageCollect(fileName, osFileType)) {
+                ti_SetArchiveStatus(true, slot);
+            } else {
+                gfx_End();
+                os_DrawStatusBar();
+                ti_SetArchiveStatus(true, slot);
+                ti_Close(slot);
+                reloadApp();
+            }
         }
     }
     if (initialValue[1] != isLocked) {

@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: November 29, 2022
- * Version: 0.79
+ * Last Build: December 3, 2022
+ * Version: 0.79.3
  * 
  * --------------------------------------
 **/
@@ -68,7 +68,6 @@ int main(void) {
 
     // Graphics setup
     gfx_Begin();
-    ti_SetGCBehavior(&gfx_End, &reloadApp);
     if (colors[3]) {
         invertPalette();
     }
