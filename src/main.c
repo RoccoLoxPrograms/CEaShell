@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 3, 2022
- * Version: 0.79.3
+ * Last Build: December 6, 2022
+ * Version: 0.80
  * 
  * --------------------------------------
 **/
@@ -75,6 +75,9 @@ int main(void) {
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
     gfx_SetTextBGColor(240);
     gfx_SetTextTransparentColor(240);
+
+    kb_EnableOnLatch();
+    kb_ClearOnLatch();
 
     gfx_SetDrawBuffer();
     // Restore preferences from appvar, if it exists
@@ -171,6 +174,14 @@ int main(void) {
         }
         if (kb_AnyKey() && !keyPressed) {
             timer_Set(1, 0);
+        }
+
+        if (kb_On) {
+            util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook,
+            editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase,
+            apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars);
+            gfx_End();
+            triggerAPD();
         }
 
         // Handle keypresses
@@ -528,5 +539,6 @@ int main(void) {
     gfx_End();
     os_ClrHome();   // Clean screen
     exitDefrag();
+    kb_DisableOnLatch();
     return 0;
 }

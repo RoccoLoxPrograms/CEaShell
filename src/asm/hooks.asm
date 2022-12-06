@@ -526,9 +526,16 @@ _triggerAPD:
 	or a, a
 	sbc	hl, hl
 	ld (ti.asm_prgm_size), hl
-    call _apdHook
+    ld hl, _reloadHook
+    call ti.SetGetCSCHook
     ld a, ti.kClear
     jp ti.JForceCmd
+
+_reloadHook:
+    db $83
+    call _apdHook
+    call ti.ClrGetKeyHook
+    jp _openShellHook
 
 hashProg:
     db $05, '#', 0

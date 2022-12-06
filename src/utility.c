@@ -386,6 +386,11 @@ void util_Secret(uint8_t *colors) { // 🤫
     uint8_t y;
     while (!kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
+
+        if (kb_On) {
+            triggerAPD();
+        }
+
         if (kb_IsDown(kb_KeyAlpha) || kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyGraph)) {
             gfx_SetColor(colors[1]);
             gfx_SetTextScale(2, 2);
@@ -393,16 +398,19 @@ void util_Secret(uint8_t *colors) { // 🤫
             gfx_PrintStringXY("Settings", 101, 8);
             return;
         }
+
         if (kb_AnyKey()) {
             shapes_RoundRectangleFill(colors[0], 7, 290, 155, 15, 46);
             gfx_BlitBuffer();
             while(kb_AnyKey());
         }
+
         if (timer_Get(1) > 1000) {
             radiusMax = randInt(4, 22);
             gfx_SetColor(colors[randInt(0, 2)]);
             x = randInt(39, 281);
             y = randInt(70, 177);
+
             for (radius = 0; radius < radiusMax; radius++) {    // Circle fill animation
                 gfx_FillCircle_NoClip(x, y, radius);
                 gfx_SetTextScale(2, 2);

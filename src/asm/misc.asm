@@ -53,27 +53,20 @@ _willGarbageCollect:
     ret
 
 _invertPalette:
-    ld hl, $e30200 ; memory address of the palette
-    ld b, 255
-    ld d, 0
+    ld hl, $E30200 ; memory address of the palette
+	ld c, 2
 
-_loop:
-    call _invertHex
-    djnz _loop
-    call _invertHex
-    inc d
-    ld b, 255
-    ld a, d
-    cp a, 2
-    jr nz, _loop
-    ret
+.loadLoop:
+	ld b, 0
 
-_invertHex:
-    ld a, 255
-    ld c, (hl)
-    sub a, c
-    ld (hl), a
-    inc hl
+.loop:
+	ld a, 255
+	sub a, (hl)
+	ld (hl), a
+	inc hl
+	djnz .loop
+	dec c
+	jr nz, .loadLoop
     ret
 
 ; -------------------------------------------------------------------------------
