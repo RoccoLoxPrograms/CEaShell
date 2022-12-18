@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-bool willGarbageCollect(char *name, uint8_t type);  // Check if archiving a file will garbage collect (since the toolchain function doesn't work)
+bool willNotGarbageCollect(char *name, uint8_t type);  // Check if archiving a file will garbage collect (since the toolchain function doesn't work)
 
 void invertPalette(void);
 

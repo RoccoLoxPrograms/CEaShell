@@ -18,6 +18,7 @@
 #include "asm/runProgram.h"
 #include "asm/apps.h"
 #include "asm/getVATPtrs.h"
+#include "asm/misc.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -25,6 +26,7 @@
 #include <string.h>
 #include <sys/timers.h>
 #include <sys/util.h>
+#include <ti/screen.h>
 
 uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
     for (int8_t k = charPerLine; k >= 0; k--) {
@@ -71,7 +73,17 @@ const bool showApps, const bool showAppvars, void ***programPtrs, void ***appvar
     ti_Write(&scrollLoc, 6, 1, slot);
     ti_Seek(6, SEEK_CUR, slot);
     ti_Write(&directory, 1, 1, slot);
-    ti_SetArchiveStatus(true, slot);
+
+    if (willNotGarbageCollect("CEaShell", OS_TYPE_APPVAR)) {
+        ti_SetArchiveStatus(true, slot);
+    } else {
+        gfx_End();
+        os_DrawStatusBar();
+        ti_SetArchiveStatus(true, slot);
+        ti_Close(slot);
+        reloadApp();
+    }
+
     ti_Close(slot);
     sortVAT();
 

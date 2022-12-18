@@ -951,7 +951,7 @@ void menu_Info(uint8_t *colors, void **programPtrs, void **appvarPtrs, bool *inf
             ti_Close(slot);
             slot = ti_OpenVar(fileName, "r+", osFileType);
         } else {
-            if (willGarbageCollect(fileName, osFileType)) {
+            if (willNotGarbageCollect(fileName, osFileType)) {
                 ti_SetArchiveStatus(true, slot);
             } else {
                 gfx_End();

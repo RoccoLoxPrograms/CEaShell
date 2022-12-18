@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: December 18, 2022
- * Version: 0.81
+ * Version: 0.81.1
  * 
  * --------------------------------------
 **/
@@ -202,7 +202,9 @@ int main(void) {
         }
 
         // Handle keypresses
-        if ((kb_Data[7] || kb_Data[6] || kb_Data[2] || kb_Data[1]) && (!keyPressed || timer_Get(1) > 1000)) { // File selecting (Probably very badly optimized)
+        if ((kb_Data[7] || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyAlpha) ||
+        kb_Data[1]) && (!keyPressed || timer_Get(1) > 1000)) {
+
             if (kb_IsDown(kb_KeyRight) && fileSelected + 1 < fileNumbers[directory]) {
                 if (fileSelected + 2 < fileNumbers[directory]) {
                     fileSelected += 2;

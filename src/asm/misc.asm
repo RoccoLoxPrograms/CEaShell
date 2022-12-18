@@ -13,11 +13,11 @@
 
 include 'include/ti84pceg.inc'
 
-	public _willGarbageCollect
+	public _willNotGarbageCollect
 	public _invertPalette
 	public _arcUnarc
 
-_willGarbageCollect:
+_willNotGarbageCollect:
     push ix
     ld ix, 0
     add ix, sp
