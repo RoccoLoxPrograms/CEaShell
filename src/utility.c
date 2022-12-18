@@ -284,7 +284,7 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                     if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                         *fileStartLoc = filesSearched;
 
-                        if (*fileStartLoc > fileCount - 5) {
+                        if (*fileStartLoc > fileCount - 7) {
                             *fileStartLoc = fileCount - 7;
                         }
 
@@ -315,12 +315,12 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                         if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                             *fileStartLoc = filesSearched;
 
-                            if (*fileStartLoc > fileCount - 5) {
+                            if (*fileStartLoc > fileCount - 7) {
                                 *fileStartLoc = fileCount - 7;
                             }
 
                             if (*fileStartLoc % 2) {
-                                *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
+                                *fileStartLoc = *fileStartLoc - 1;
                             }
                         }
 
@@ -335,7 +335,7 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                         if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                             *fileStartLoc = filesSearched;
 
-                            if (*fileStartLoc > fileCount - 5) {
+                            if (*fileStartLoc > fileCount - 7) {
                                 *fileStartLoc = fileCount - 7;
                             }
 
@@ -358,11 +358,14 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
         if (directory == PROGRAMS_FOLDER) {
             filesSearched = (showApps + showAppvars);
         }
+
         alpha += 1 + (-2 * reverse);    // If the letter is after all existing filenames, go backwards to the last name
+
         if (alpha == 27) {
             reverse = true;
         } 
     }
+
     return false;
 }
 
@@ -382,6 +385,7 @@ bool util_CheckNameExists(const char *name, const bool appvars) {
             }
         }
     }
+
     return false;
 }
 
@@ -391,6 +395,7 @@ uint8_t util_GetSingleKeyPress(void) {
     static uint8_t last_key;
     uint8_t only_key = 0;
     kb_Scan();
+
     for (uint8_t key = 1, group = 7; group; --group) {
         for (uint8_t mask = 1; mask; mask <<= 1, ++key) {
             if (kb_Data[group] & mask) {
@@ -403,9 +408,11 @@ uint8_t util_GetSingleKeyPress(void) {
             }
         }
     }
+
     if (only_key == last_key) {
         return false;
     }
+
     last_key = only_key;
     return only_key;
 }

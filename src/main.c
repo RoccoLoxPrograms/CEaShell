@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: December 18, 2022
- * Version: 0.81.1
+ * Version: 0.81.2
  * 
  * --------------------------------------
 **/
@@ -69,6 +69,20 @@ int main(void) {
 
     // Graphics setup
     gfx_Begin();
+    uint8_t defaultSpacing[160] = {
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    3, 4, 6, 8, 8, 8, 8, 5, 5, 5, 8, 7, 4, 7, 3, 8,
+	8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 3, 4, 6, 7, 6, 7,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 5, 8, 8,
+	4, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8,
+	8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 7, 3, 7, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+
+    const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
+    const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
 
     if (colors[3]) {
         invertPalette();
@@ -120,6 +134,10 @@ int main(void) {
         editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false,
         showApps, showAppvars, NULL, NULL, NULL, false);
     }
+
+    defaultSpacing[91] = 8;
+    gfx_SetFontSpacing(defaultSpacing);
+    gfx_SetCharData(91, thetaChar);
 
     // Restore lowercase preferences
     if (lowercase && !checkLowercase()) {
@@ -384,7 +402,9 @@ int main(void) {
                 shapes_RoundRectangleFill(colors[1], 15, 220, 192, 50, 38);
                 gfx_BlitBuffer();
                 util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars, &programPtrs, &appvarPtrs, fileNumbers, true);
+
                 menu_Info(colors, programPtrs, appvarPtrs, infoOps, fileSelected - 1, fileStartLoc, fileNumbers, directory, displayCEaShell, editLockedProg, showHiddenProg, apdTimer, showApps, showAppvars); // This will store some file changes to the infoOps (Info Operations) array
+
                 timer_Set(1, 0);
 
                 if (infoOps[0]) {   // Takes care of deletions
@@ -455,7 +475,16 @@ int main(void) {
                     }
                 }
 
+                defaultSpacing[91] = 5;
+                gfx_SetFontSpacing(defaultSpacing);
+                gfx_SetCharData(91, leftBracket);
+
                 menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase, &apdTimer);
+
+                defaultSpacing[91] = 8;
+                gfx_SetFontSpacing(defaultSpacing);
+                gfx_SetCharData(91, thetaChar);
+
                 timer_Set(1, 0);
                 util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg, showApps, showAppvars);
 
