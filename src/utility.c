@@ -17,6 +17,7 @@
 #include "asm/hooks.h"
 #include "asm/runProgram.h"
 #include "asm/apps.h"
+#include "asm/getVATPtrs.h"
 
 #include <graphx.h>
 #include <keypadc.h>
@@ -31,6 +32,7 @@ uint8_t util_SpaceSearch(const char *str, const uint8_t charPerLine) {
             return k + 1;
         }
     }
+
     return charPerLine - 2;
 }
 
@@ -39,7 +41,7 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
 const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg,
 const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer,
 const unsigned int fileSelected, const unsigned int fileStartLoc, const uint8_t directory,
-const bool showApps, const bool showAppvars) {
+const bool showApps, const bool showAppvars, void ***programPtrs, void ***appvarPtrs, unsigned int *fileNumbers, const bool updateVAT) {
 
     uint8_t ceaShell[17];
     unsigned int scrollLoc[2];
@@ -72,6 +74,17 @@ const bool showApps, const bool showAppvars) {
     ti_SetArchiveStatus(true, slot);
     ti_Close(slot);
     sortVAT();
+
+    if (updateVAT) {
+        free(*programPtrs);
+        free(*appvarPtrs);
+
+        *programPtrs = malloc(NOPROGS * 3);
+        *appvarPtrs = malloc(NOAPPVARS * 3);
+
+        getProgramPtrs(*programPtrs);
+        getAppVarPtrs(*appvarPtrs);
+    }
 }
 
 void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars) {
@@ -87,12 +100,15 @@ void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const
         if (*fileName == '!' || *fileName == '#') {
             continue;
         }
+
         if (!showHiddenProg && fileName[0] < 65) {
             continue;
         }
+
         if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {    // Program uses DCS "Hidden header"
             continue;
         }
+
         if (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) {
             NOPROGS++;
         } else if (fileType == OS_TYPE_APPVAR) {
@@ -121,6 +137,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
             } else {
                 fileTypeString = "eZ80";
             }
+
             break;
         case C_TYPE:
             fileTypeString = "C";   // C has no abbreviation, it's just "C"
@@ -131,6 +148,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
             } else {
                 fileTypeString = "TI-BASIC";
             }
+
             break;
         case ICE_TYPE:
             fileTypeString = "ICE";
@@ -141,6 +159,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
             } else {
                 fileTypeString = "ICE Source";
             }
+
             break;
         case APPVAR_TYPE:
             if (abbreviated) {
@@ -148,6 +167,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
             } else {
                 fileTypeString = "Appvar";
             }
+
             break;
         case CELTIC_TYPE:
             if (abbreviated) {
@@ -155,6 +175,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
             } else {
                 fileTypeString = "Celtic Appvar";
             }
+
             break;
         case APP_TYPE:
             if (abbreviated) {
@@ -162,6 +183,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
             } else {
                 fileTypeString = "Application";
             }
+
             break;
         default:
             break;
@@ -179,26 +201,34 @@ void util_PrintFreeRamRom(void) {
     gfx_PrintInt(os_TempFreeArc, 7);
 }
 
-void util_RunPrgm(unsigned int fileSelected, const bool editLockedProg, const bool showApps, const bool showAppvars) {
+void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc, void **programPtrs, const bool editLockedProg, const bool showApps, const bool showAppvars) {
     gfx_End();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned int filesSearched = showApps + showAppvars; // Account for folders
+
+    if (fileStartLoc != 0) {
+        filesSearched = fileStartLoc;
+    }
+
     char *fileName;
-    void *vatPtr = NULL;
+    void *vatPtr = programPtrs[fileStartLoc - ((showApps + showAppvars) * (fileStartLoc > 0))];
 
     while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) { // Suspiciously similar to the example in the docs :P
         if (*fileName == '!' || *fileName == '#') {
             continue;
         }
+
         if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
             if (fileSelected == filesSearched) {
                 break;
             }
+
             filesSearched++;
         }
     }
 
     uint8_t shellType = getPrgmType(fileName, fileType);
+
     if (shellType == BASIC_TYPE) {
         installStopHook();
     }
@@ -221,6 +251,7 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
     void *vatPtr = NULL;
     uint8_t alpha;
     bool reverse = false;
+
     for (alpha = 0; alpha < 27; alpha++) {
         if (alphabetCSC[key] == alphabet[alpha]) {
             break;
@@ -235,19 +266,24 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                 if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
                     continue;
                 }
+
                 if (appName[0] == alphabet[alpha]) {
                     *fileSelected = filesSearched;
                     if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                         *fileStartLoc = filesSearched;
+
                         if (*fileStartLoc > fileCount - 5) {
                             *fileStartLoc = fileCount - 7;
                         }
+
                         if (*fileStartLoc % 2) {
                             *fileStartLoc = *fileStartLoc - 1;
                         }
                     }
+
                     return true;
                 }
+
                 filesSearched++;
             }
         } else {
@@ -255,38 +291,50 @@ bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, co
                 if (*fileName == '!' || *fileName == '#') {
                     continue;
                 }
+
                 if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
                     continue;
                 }
+
                 if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && directory == PROGRAMS_FOLDER) {
                     if (fileName[0] + 64 * (fileName[0] < 65) == alphabet[alpha]) { // Check the first letter
                         *fileSelected = filesSearched;
+
                         if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                             *fileStartLoc = filesSearched;
+
                             if (*fileStartLoc > fileCount - 5) {
                                 *fileStartLoc = fileCount - 7;
                             }
+
                             if (*fileStartLoc % 2) {
                                 *fileStartLoc = *fileStartLoc - 1;  // I had to do this instead of fileStartLoc--
                             }
                         }
+
                         return true;
                     }
+
                     filesSearched++;
                 } else if ((fileType == OS_TYPE_APPVAR) && directory == APPVARS_FOLDER) {
                     if (fileName[0] == alphabet[alpha]) {
                         *fileSelected = filesSearched;
+
                         if (*fileSelected > *fileStartLoc + 7 || *fileSelected < *fileStartLoc) {
                             *fileStartLoc = filesSearched;
+
                             if (*fileStartLoc > fileCount - 5) {
                                 *fileStartLoc = fileCount - 7;
                             }
+
                             if (*fileStartLoc % 2) {
                                 *fileStartLoc = *fileStartLoc - 1;
                             }
                         }
+
                         return true;
                     }
+
                     filesSearched++;
                 }
             }
@@ -352,18 +400,23 @@ uint8_t util_GetSingleKeyPress(void) {
 
 void util_RunApp(const unsigned int fileSelected, const bool displayCEaShell) {
     while (kb_AnyKey());
+
     unsigned int filesSearched = 1; // account for folders
     char appName[9] = "\0";
     unsigned int appPointer;    // Will we ever use this? 🤷‍♂️
+
     while (detectApp(appName, &appPointer)) {
         if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
             continue;
         }
+
         if (fileSelected == filesSearched) {
             break;
         }
+
         filesSearched++;
     }
+
     gfx_End();
     executeApp(appName);
 }
@@ -377,13 +430,16 @@ void util_Secret(uint8_t *colors) { // 🤫
     gfx_PrintStringXY("Easter Egg", 87, 8);
     gfx_BlitBuffer();
     timer_Set(1, 0);
+
     while(kb_AnyKey());
-    srandom(1337);
+
+    srandom(1337);  // Secret number
     uint8_t radiusMax;
     uint8_t radius;
     unsigned int x;
     unsigned int titleX;
     uint8_t y;
+
     while (!kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
 
@@ -421,6 +477,7 @@ void util_Secret(uint8_t *colors) { // 🤫
                 gfx_PrintStringXY("and TIny_Hacker", 102, 135);
                 gfx_BlitBuffer();
             }
+
             timer_Set(1, 0);
         }
     }

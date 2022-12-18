@@ -51,7 +51,7 @@ bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y);
 
 bool ui_RenameBox(uint8_t *colors, char *newName);
 
-void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
+void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
 
 void ui_MiniCursor(uint8_t color, int x, uint8_t y);
 

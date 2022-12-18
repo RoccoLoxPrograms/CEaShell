@@ -50,7 +50,7 @@ void util_WritePrefs(uint8_t *colors, const uint8_t transitionSpeed, const bool 
 const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg,
 const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t apdTimer,
 const unsigned int fileSelected, const unsigned int fileStartLoc, const uint8_t directory,
-const bool showApps, const bool showAppvars);
+const bool showApps, const bool showAppvars, void ***programPtrs, void ***appvarPtrs, unsigned int *fileNumbers, const bool updateVAT);
 
 void util_FilesInit(unsigned int *fileNumbers, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
 
@@ -58,7 +58,7 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated);
 
 void util_PrintFreeRamRom(void);
 
-void util_RunPrgm(unsigned int fileSelected, const bool editLockedProg, const bool showApps, const bool showAppvars);
+void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc, void **programPtrs, const bool editLockedProg, const bool showApps, const bool showAppvars);
 
 bool util_AlphaSearch(unsigned int *fileSelected, unsigned int *fileStartLoc, const uint8_t key, const unsigned int fileCount, const bool displayCEaShell, const uint8_t directory, const bool showApps, const bool showAppvars);
 

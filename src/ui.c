@@ -349,16 +349,23 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     }
 }
 
-void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars) {
+void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars) {
     int x = 14;
     uint8_t y = 30;
     unsigned int filesSearched = 0;
+
+    void *vatPtr = NULL;
+
+    if (directory == PROGRAMS_FOLDER) {
+        vatPtr = programPtrs[fileStartLoc - ((showApps + showAppvars) * (fileStartLoc > 0))];
+    } else if (directory == APPVARS_FOLDER) {
+        vatPtr = appvarPtrs[fileStartLoc - (fileStartLoc > 0)];
+    }
 
     uint8_t fileType;
     uint8_t shellFileType;
     bool hidden;
     char *fileName = "\0";
-    void *vatPtr = NULL;
 
     if (fileStartLoc == 0) {
         if (directory == APPVARS_FOLDER || directory == APPS_FOLDER) {
@@ -405,8 +412,8 @@ void ui_DrawAllFiles(uint8_t *colors, const uint8_t fileSelected, const uint8_t 
             }
         }
     } else {
-        if (directory == PROGRAMS_FOLDER) {
-            filesSearched += showApps + showAppvars;
+        if (directory != APPS_FOLDER) {
+            filesSearched = fileStartLoc;
         } else {
             filesSearched++;
         }
