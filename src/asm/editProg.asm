@@ -257,12 +257,12 @@ hook_app_change:
 .close_editor:
 	call ti.ClrAppChangeHook
 	push	af, bc, hl
+	call	ti.CursorOff
+	call	ti.CloseEditEqu
 	ld hl, isAppvar
 	ld a, edit_appvar
 	cp a, (hl)
 	jr z, _restoreAppvar
-	call	ti.CursorOff
-	call	ti.CloseEditEqu
 	ld hl, backup_prgm_name
 	call ti.Mov9ToOP1
 	call	ti.ChkFindSym
@@ -303,6 +303,9 @@ hook_app_change:
 	jr .exitOS
 
 _restoreAppvar:
+	ld hl, isAppvar
+	ld a, 0
+	ld (hl), a
 	pop	hl, bc, af
 	ld hl, tempProg
 	call ti.Mov9ToOP1

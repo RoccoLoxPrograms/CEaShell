@@ -94,7 +94,7 @@ const bool showApps, const bool showAppvars, void ***programPtrs, void ***appvar
         *programPtrs = malloc(NOPROGS * 3);
         *appvarPtrs = malloc(NOAPPVARS * 3);
 
-        getProgramPtrs(*programPtrs);
+        getProgramPtrs(*programPtrs, !showHiddenProg);
         getAppVarPtrs(*appvarPtrs);
     }
 }

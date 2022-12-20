@@ -565,8 +565,9 @@ void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x
 
 void ui_AboutScreen(uint8_t *colors) {
     const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
-    " Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK, DJ Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8."
-    " And a big thank you to the members of the discord for your support and ideas!";
+    " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
+    " DJ Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8."
+    " And a big thank you to the members of our discord for your support and ideas!";
     unsigned int startDisplay = 0;
     shapes_RoundRectangleFill(colors[0], 8, 290, 155, 15, 46);
     gfx_SetTextScale(2, 2);
@@ -579,7 +580,7 @@ void ui_AboutScreen(uint8_t *colors) {
     gfx_PrintStringXY("shell created by RoccoLox Programs and", 21, 102);
     gfx_PrintStringXY("TIny_Hacker. CEaShell aims to provide an", 21, 115);
     gfx_PrintStringXY("easy to use, modern interface for the", 21, 128);
-    gfx_PrintStringXY("TI-84 + CE calculator.", 21, 141);
+    gfx_PrintStringXY("TI-84+ CE and TI-83 PCE calculators.", 21, 141);
     gfx_PrintStringXY("(C) Copyright 2022", 21, 175);
     gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 21, 188);
     gfx_SetClipRegion(21, 52, 299, 196);    // Helps cut the text off in the scrolling animation
@@ -619,7 +620,7 @@ void ui_AboutScreen(uint8_t *colors) {
             timer_Set(1, 0);
         }
 
-        if (startDisplay > 344) {
+        if (startDisplay > 372) {
             startDisplay = 0; // restart
         }
 
@@ -638,7 +639,7 @@ void ui_NewUser(void) {
     gfx_PrintStringXY("Welcome to CEaShell", 29, 27);
     gfx_SetTextScale(1, 1);
     gfx_PrintStringXY("v"VERSION_NO, 29, 44);
-    gfx_PrintStringXY("A new shell for the TI-84 Plus CE.", 29, 54);
+    gfx_PrintStringXY("A shell for the CE calculators.", 29, 54);
     shapes_RoundRectangleFill(237, 6, 272, 143, 24, 71);
     shapes_RoundRectangleFill(236, 7, 86, 22, 206, 188);
     gfx_PrintStringXY("Alpha to", 211, 191);
@@ -650,7 +651,7 @@ void ui_NewUser(void) {
     gfx_PrintStringXY("and menus.", 29, 112);
     gfx_PrintStringXY("Use the function keys to open the menu", 29, 130);
     gfx_PrintStringXY("buttons on the bottom row. You can open", 29, 142);
-    gfx_PrintStringXY("the description pill for more info", 29, 154);
+    gfx_PrintStringXY("the description bar for more info", 29, 154);
     gfx_PrintStringXY("on a file using the function keys or", 29, 166);
     gfx_PrintStringXY("[alpha].", 29, 180);
     gfx_BlitBuffer();

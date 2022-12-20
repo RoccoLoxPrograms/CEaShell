@@ -12,11 +12,13 @@
 #ifndef GETVATPTRS_H
 #define GETVATPTRS_H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void getProgramPtrs(void **programPtrs);
+void getProgramPtrs(void **programPtrs, bool hideHiddenPrograms);
 
 void getAppVarPtrs(void **appvarPtrs);
 

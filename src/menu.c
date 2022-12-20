@@ -60,7 +60,9 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
     bool keyPressed = false;
     uint8_t colorSelected = colors[0];
     uint8_t colorModifying = 0;
+
     while (kb_AnyKey());
+
     while (!kb_IsDown(kb_KeyYequ) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha)) { // Key detection loop
         if ((timer_Get(1) >= ONE_MINUTE * apdTimer) && apdTimer) {
             gfx_End();
@@ -68,6 +70,7 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
         }
 
         kb_Scan();
+
         if (!kb_AnyKey() && keyPressed) {
             keyPressed = false;
             timer_Set(1, 0);
@@ -80,6 +83,7 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
 
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyMode)) && (!keyPressed || timer_Get(1) > 3000)) {
             redraw = true;
+
             if (kb_IsDown(kb_KeyLeft)) {
                 if (colorSelected != 0) {
                     colorSelected -= 1;
@@ -110,22 +114,27 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
 
             if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                 newColors[colorModifying] = colorSelected;
+
                 while (kb_AnyKey());
+
                 if (colorModifying != 2) {
                     colorModifying++;
                 } else {
                     break;
                 }
+
                 colorSelected = colors[colorModifying];
             }
 
             if (kb_IsDown(kb_KeyMode)) {
                 while (kb_AnyKey());
+
                 if (colorModifying < 2) {
                     colorModifying++;
                 } else {
                     colorModifying = 0;
                 }
+
                 colorSelected = newColors[colorModifying];
             }
 
@@ -134,6 +143,7 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
                     kb_Scan();
                 }
             }
+
             keyPressed = true;
             timer_Set(1,0);
         }
@@ -327,14 +337,16 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         menu_ThemePreview(color, colors, defaultThemes);
 
         uint8_t drawBox = 0;    // Theme selector
+
         for (uint8_t y = 49; y < 78; y += 28) {
             for (int x = 168; x < 282; x += 28, drawBox += 3) {
                 shapes_RoundRectangleFill(defaultThemes[drawBox], 6, 22, 22, x, y);
             }
         }
+
         gfx_TransparentSprite_NoClip(invSwitch, 280, 77);   // Invert color icon
     }
-    
+
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
@@ -359,6 +371,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
     bool keyPressed = false;
     
     while (kb_AnyKey());
+
     while (!kb_IsDown(kb_KeyYequ) && !kb_IsDown(kb_KeyClear)) { // Key detection loop
         if ((timer_Get(1) >= ONE_MINUTE * apdTimer) && apdTimer) {
             gfx_End();
@@ -366,6 +379,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
         }
 
         kb_Scan();
+
         if (!kb_AnyKey() && keyPressed) {
             keyPressed = false;
             timer_Set(1, 0);
@@ -396,6 +410,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
 	    	        cursorY = cursorY - 28 * (kb_IsDown(kb_KeyUp) && cursorY > 47) + 28 * (kb_IsDown(kb_KeyDown) && cursorY < 75);
                     cursorX = cursorX - 28 * (kb_IsDown(kb_KeyLeft) && cursorX > 166) + 28 * (kb_IsDown(kb_KeyRight) && cursorX < 278);
                 }
+
                 color = 3 * ((cursorX - 166) / 28) + 15 * (cursorY > 47);    // Change the selected color/theme
 
                 shapes_RoundRectangleFill(colors[0], 8, 26, 26, prevCursorX, prevCursorY);    // Erase old color
@@ -445,6 +460,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                                     *transitionSpeed = 1;
                                 }
                             }
+
                             break;
                         case 3:
                             *displayCEaShell = !*displayCEaShell;
@@ -475,6 +491,8 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                                     *showAppvars = true;
                                 }
                             }
+
+                            break;
                         default:
                             break;
                     }
@@ -504,23 +522,28 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                         while (kb_AnyKey());
                     }
                 }
+
                 if (themePicker) {
                     menu_ThemePreview(color, colors, defaultThemes);    // Refresh the preview if a different theme is selected
                 }
             }
+
             menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
 
             gfx_BlitBuffer();
+
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
                     kb_Scan();
                 }
             }
+
             keyPressed = true;
             timer_Set(1,0);
         }
         if ((kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) && themePicker) {   // If you select a theme
             themePicker = false;
+
             if (color == 27) {
                 colors[3] = !colors[3];
                 invertPalette();
@@ -546,6 +569,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
             gfx_BlitBuffer();
         }
     }
+
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
 }
 
@@ -582,6 +606,7 @@ static void menu_InfoRedraw(const bool fullRedraw, const bool drawCursor, uint8_
             if (osFileType != OS_TYPE_APPVAR) {
                 fileName[0] += 64 * isHidden;
             }
+
             free(description);
         }
 
@@ -768,9 +793,10 @@ void menu_Info(uint8_t *colors, void **programPtrs, void **appvarPtrs, bool *inf
     gfx_BlitBuffer();
 
     bool keyPressed = false;
-
     fileName[0] -= 64 * initialValue[2];    // The viewable file name becomes what the OS sees instead
+
     while (kb_AnyKey());
+
     while (!kb_IsDown(kb_KeyWindow) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyTrace) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyClear)) {
         if ((timer_Get(1) >= ONE_MINUTE * apdTimer) && apdTimer) {
             gfx_End();
@@ -982,6 +1008,7 @@ void menu_Info(uint8_t *colors, void **programPtrs, void **appvarPtrs, bool *inf
             fileName[0] += 64;
         }
     }
+
     ti_Close(slot);
 }
 
@@ -1086,7 +1113,7 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
             gfx_PrintStringXY("Automatically turn", 171, 69);
             gfx_PrintStringXY("off the calculator", 171, 81);
             gfx_PrintStringXY("after a certain", 171, 93);
-            gfx_PrintStringXY("number of minutes", 171, 105);
+            gfx_PrintStringXY("lenght of inactivity", 171, 105);
             gfx_PrintStringXY("in CEaShell.", 171, 117);
             break;
         case 9:
@@ -1141,7 +1168,7 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
     }
 }
 
-void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {
+void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fileStartLoc, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {
     timer_Set(1, 0);
 
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
@@ -1211,6 +1238,7 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
                         } else {
                             removeGetCSCHook();
                         }
+
                         break;
                     case 2:
                         *editArchivedProg = !*editArchivedProg;
@@ -1226,12 +1254,19 @@ void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg,
                                 removeHomescreenHook();
                             }
                         }
+
                         break;
                     case 3:
                         *editLockedProg = !*editLockedProg;
                         break;
                     case 4:
                         *showHiddenProg = !*showHiddenProg;
+
+                        if (!(*showHiddenProg)) {
+                            *fileSelected = 0;
+                            *fileStartLoc = 0;
+                        }
+
                         break;
                     case 5:
                         *showFileCount = !*showFileCount;

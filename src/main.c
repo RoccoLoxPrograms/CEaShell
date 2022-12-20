@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 18, 2022
- * Version: 0.81.2
+ * Last Build: December 19, 2022
+ * Version: 0.82
  * 
  * --------------------------------------
 **/
@@ -176,7 +176,7 @@ int main(void) {
     void **programPtrs = malloc(NOPROGS * 3);
     void **appvarPtrs = malloc(NOAPPVARS * 3);
 
-    getProgramPtrs(programPtrs);
+    getProgramPtrs(programPtrs, !showHiddenProg);
     getAppVarPtrs(appvarPtrs);
 
     bool infoOps[2] = {false, false}; // This will keep track of whether a program has been deleted or hidden
@@ -338,7 +338,7 @@ int main(void) {
                     programPtrs = malloc(NOPROGS * 3);
                     appvarPtrs = malloc(NOAPPVARS * 3);
 
-                    getProgramPtrs(programPtrs);
+                    getProgramPtrs(programPtrs, !showHiddenProg);
                     getAppVarPtrs(appvarPtrs);
 
                     ui_DrawAllFiles(colors, programPtrs, appvarPtrs, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
@@ -380,14 +380,21 @@ int main(void) {
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
 
+                gfx_BlitBuffer();
+                fullRedraw = true;
+
                 if (kb_IsDown(kb_KeyClear)) {
                     continue;
-                } else {    // We write the preferences before exiting, so this is fine
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars, &programPtrs, &appvarPtrs, fileNumbers, true);   // Stores our data to the appvar before exiting
                 }
 
-                fullRedraw = true;
-                gfx_BlitBuffer();
+                free(programPtrs);
+                free(appvarPtrs);
+
+                programPtrs = malloc(NOPROGS * 3);
+                appvarPtrs = malloc(NOAPPVARS * 3);
+
+                getProgramPtrs(programPtrs, !showHiddenProg);
+                getAppVarPtrs(appvarPtrs);
             } else if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {   // Info menu
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
@@ -425,7 +432,7 @@ int main(void) {
                     programPtrs = malloc(NOPROGS * 3);
                     appvarPtrs = malloc(NOAPPVARS * 3);
 
-                    getProgramPtrs(programPtrs);
+                    getProgramPtrs(programPtrs, !showHiddenProg);
                     getAppVarPtrs(appvarPtrs);
 
                     while (kb_AnyKey());
@@ -436,7 +443,7 @@ int main(void) {
                     programPtrs = malloc(NOPROGS * 3);
                     appvarPtrs = malloc(NOAPPVARS * 3);
 
-                    getProgramPtrs(programPtrs);
+                    getProgramPtrs(programPtrs, !showHiddenProg);
                     getAppVarPtrs(appvarPtrs);
 
                     infoOps[1] = false;
@@ -479,7 +486,7 @@ int main(void) {
                 gfx_SetFontSpacing(defaultSpacing);
                 gfx_SetCharData(91, leftBracket);
 
-                menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase, &apdTimer);
+                menu_Settings(colors, &fileSelected, &fileStartLoc, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase, &apdTimer);
 
                 defaultSpacing[91] = 8;
                 gfx_SetFontSpacing(defaultSpacing);
@@ -515,14 +522,21 @@ int main(void) {
                     gfx_Sprite_NoClip(buffer2, 160, 38);
                 }
 
-                if (kb_IsDown(kb_KeyClear)) {
-                    continue;
-                } else {    // Same as Customize menu
-                    util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars, &programPtrs, &appvarPtrs, fileNumbers, true);
-                }
-
                 fullRedraw = true;
                 gfx_BlitBuffer();
+
+                if (kb_IsDown(kb_KeyClear)) {
+                    continue;
+                }
+
+                free(programPtrs);
+                free(appvarPtrs);
+
+                programPtrs = malloc(NOPROGS * 3);
+                appvarPtrs = malloc(NOAPPVARS * 3);
+
+                getProgramPtrs(programPtrs, !showHiddenProg);
+                getAppVarPtrs(appvarPtrs);
             } else if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                 if (fileSelected == 0 && directory == PROGRAMS_FOLDER) {    // Toggle directories
                     if (showApps) {
@@ -638,7 +652,7 @@ int main(void) {
                     programPtrs = malloc(NOPROGS * 3);
                     appvarPtrs = malloc(NOAPPVARS * 3);
 
-                    getProgramPtrs(programPtrs);
+                    getProgramPtrs(programPtrs, !showHiddenProg);
                     getAppVarPtrs(appvarPtrs);
                 }
             }

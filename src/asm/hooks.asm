@@ -526,6 +526,14 @@ _triggerAPD:
 	or a, a
 	sbc	hl, hl
 	ld (ti.asm_prgm_size), hl
+    ld hl, ti.pixelShadow
+	ld bc, 8400 * 3
+	call ti.MemClear
+	call ti.ClrTxtShd
+	ld hl, ti.textShadow
+	ld de, ti.cmdShadow
+	ld bc, $104
+	ldir
     ld hl, _reloadHook
     call ti.SetGetCSCHook
     ld a, ti.kClear

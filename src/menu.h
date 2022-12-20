@@ -23,7 +23,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
 
 void menu_Info(uint8_t *colors, void **programPtrs, void **appvarPtrs, bool *infoOps, unsigned int fileSelected, const unsigned int fileStartLoc, unsigned int *fileNumbers, const uint8_t directory, const bool displayCEaShell, const bool editLockedProg, const bool showHiddenProg, const uint8_t apdTimer, const bool showApps, const bool showAppvars);
 
-void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer);
+void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fileStartLoc, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer);
 
 #ifdef __cplusplus
 }

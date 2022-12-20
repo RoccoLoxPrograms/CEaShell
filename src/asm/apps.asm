@@ -137,6 +137,7 @@ _executeApp: ; mostly Cesium's code
 	ld bc, $fff
 	call ti.MemClear
     ; get proper stuff for the app
+    call ti.DrawStatusBar
     push ix
     ld ix, 0
     add ix, sp
