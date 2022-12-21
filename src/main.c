@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 19, 2022
- * Version: 0.82
+ * Last Build: December 20, 2022
+ * Version: 0.82.5
  * 
  * --------------------------------------
 **/
@@ -15,10 +15,10 @@
 #include "shapes.h"
 #include "menu.h"
 #include "utility.h"
+#include "gfx/gfx.h"
 #include "asm/misc.h"
 #include "asm/sortVat.h"
 #include "asm/fileOps.h"
-#include "gfx/gfx.h"
 #include "asm/hooks.h"
 #include "asm/lowercase.h"
 #include "asm/runProgram.h"
@@ -588,6 +588,7 @@ int main(void) {
 
                         gfx_End();
                         util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars, &programPtrs, &appvarPtrs, fileNumbers, true);   // Stores our data to the appvar before exiting
+                        kb_DisableOnLatch();
                         editBasicProg(name, OS_TYPE_PRGM);
                     } else if (directory == APPVARS_FOLDER) {
                         if (!util_CheckNameExists(name, directory)) {
@@ -599,6 +600,7 @@ int main(void) {
 
                         gfx_End();
                         util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg, editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, fileSelected, fileStartLoc, directory, showApps, showAppvars, &programPtrs, &appvarPtrs, fileNumbers, true);   // Stores our data to the appvar before exiting
+                        kb_DisableOnLatch();
                         editCelticAppvar(name);
                     }
                 } else if (!copyMenu) { // Copy

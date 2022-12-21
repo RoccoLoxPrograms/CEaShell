@@ -146,8 +146,6 @@ _asmProgram.run:
     call ti.DisableAPD
 	set	ti.appAutoScroll, (iy + ti.appFlags)
     call execute_setup_vectors
-	;call _clearUsedMem
-	;call ti.DrawStatusBar
     call ti.userMem
     jp _return
 
@@ -312,7 +310,6 @@ _basicProgram:
 	set	ti.progExecuting, (iy + ti.newDispF)
 	set	ti.cmdExec, (iy + ti.cmdFlags)
 	set	ti.allowProgTokens, (iy + ti.newDispF)
-	call _clearUsedMem
 	call execute_setup_vectors
 	call ti.EnableAPD
 	ei
@@ -365,6 +362,7 @@ _return:
 	call _showError
 
 .quit:
+	call ti.ReloadAppEntryVecs
 	call ti.DeleteTempPrograms
 	call ti.CleanAll
     ld de, (ti.asm_prgm_size)
@@ -373,9 +371,14 @@ _return:
     ld (ti.asm_prgm_size), hl
     ld hl, ti.userMem
     call ti.DelMem
-    ld a, (returnCEaShell)
+    bit ti.monAbandon, (iy + ti.monFlags)
+	jr nz, .quitNoApp
+	ld a, (returnCEaShell)
 	cp a, 1
 	jp z, _reloadApp
+
+.quitNoApp:
+	res	ti.onInterrupt, (iy + ti.onFlags)
 	call ti.ClrTxtShd
 	ld a, ti.cxCmd
 	call ti.NewContext0
@@ -496,7 +499,7 @@ execute_setup_vectors:
 execute_vectors:
 	dl	.ret
 	dl	ti.SaveShadow
-	dl	.putway
+	dl	.putaway
 	dl	.restore
 	dl	.ret
 	dl	.ret
@@ -506,7 +509,7 @@ execute_vectors:
 	jp	ti.RStrShadow
 .ret:
 	ret
-.putway:
+.putaway:
 	xor	a,a
 	ld	(ti.currLastEntry),a
 	bit	appInpPrmptInit,(iy + ti.apiFlg2)
@@ -687,11 +690,11 @@ _reloadApp:
 	jp (hl)
 
 execute_hook:
-	add	a,e
+	db $83
 	cp	a,3
 	ret	nz
-	call _reinstallGetCSCHook
 	ld iy, ti.flags
+	call _reinstallGetCSCHook
 	call ti.ClrHomescreenHook
 	ld hl, appVarName ; restore other homescreen hook if need be
 	call ti.Mov9ToOP1
@@ -712,13 +715,12 @@ execute_hook:
 	add hl, de
 	ld a, 1
 	cp a, (hl)
-	jr nz, .continue
-	call _installHomescreenHook
+	call z, _installHomescreenHook
 
 .continue:
 	bit	appInpPrmptDone,(iy + ti.apiFlg2)
 	res	appInpPrmptDone,(iy + ti.apiFlg2)
-	jp	z, _reloadApp
+	jp	z, _return.quit
 	call	ti.ReloadAppEntryVecs
 	ld	hl,execute_vectors
 	call	ti.AppInit
