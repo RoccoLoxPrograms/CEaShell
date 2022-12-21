@@ -150,6 +150,12 @@ _asmProgram.run:
     jp _return
 
 _basicProgram:
+	ld de, (ti.asm_prgm_size)
+	ld hl, ti.userMem
+	call ti.DelMem
+	or a, a
+	sbc hl, hl
+	ld (ti.asm_prgm_size), hl
 	call ti.ChkFindSym
 	call ti.ChkInRam
 	jr z, .continue
@@ -281,7 +287,10 @@ _basicProgram:
 	inc de
 	ld a, (de)
 	ld h, a
-	dec de
+	call _checkMemSpace
+	pop de
+    jp c, _noMem
+	push de
 	push hl
 	ld hl, tempProgram
 	call ti.Mov9ToOP1
@@ -300,7 +309,7 @@ _basicProgram:
 	inc hl
 	inc hl
 	ldi
-	jq po, .inRom
+	jp po, .inRom
 	ldir
 
 .inRom:
@@ -549,8 +558,8 @@ _showError:
 	cp a, 2
 	jp nz, .only_allow_quit
 	ld a, (returnEditLocked)
-	cp a, 1
-	jp nz, .only_allow_quit
+	bit 0, a
+	jp z, .only_allow_quit
 	ld hl, backupPrgmName
 	call ti.Mov9ToOP1
 	call ti.ChkFindSym

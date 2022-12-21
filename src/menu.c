@@ -464,6 +464,11 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                             break;
                         case 3:
                             *displayCEaShell = !*displayCEaShell;
+
+                            if ((*fileSelected == fileCount - 1) && !(*displayCEaShell) && (directory == APPS_FOLDER)) {
+                                *fileSelected -= 1;
+                            }
+
                             break;
                         case 6:
                             if (kb_IsDown(kb_KeyRight)) {
