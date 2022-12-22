@@ -215,6 +215,7 @@ void util_PrintFreeRamRom(void) {
 
 void util_RunPrgm(unsigned int fileSelected, unsigned int fileStartLoc, void **programPtrs, const bool editLockedProg, const bool showApps, const bool showAppvars) {
     gfx_End();
+    kb_DisableOnLatch();
     uint8_t fileType; // Different from C, ICE, ASM, etc. This is stuff like OS_TYPE_APPVAR and OS_TYPE_PRGM
     unsigned int filesSearched = showApps + showAppvars; // Account for folders
 
@@ -419,6 +420,7 @@ uint8_t util_GetSingleKeyPress(void) {
 
 void util_RunApp(const unsigned int fileSelected, const bool displayCEaShell) {
     while (kb_AnyKey());
+    kb_DisableOnLatch();
 
     unsigned int filesSearched = 1; // account for folders
     char appName[9] = "\0";

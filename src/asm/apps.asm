@@ -116,6 +116,11 @@ _getAppCopyrightInfo:
 	ret
 
 _executeApp: ; mostly Cesium's code
+    call ti.GetCSC
+	or a, a
+	jr nz, _executeApp ; debounce
+	xor	a, a
+	ld (ti.kbdGetKy), a
     ld de, ti.userMem
 	ld hl, (ti.asm_prgm_size)
     ex de, hl

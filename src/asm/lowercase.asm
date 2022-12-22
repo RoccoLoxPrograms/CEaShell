@@ -23,7 +23,7 @@ _toggleLowercase:
     ld a, (ix + 6) ; turn on or off lowercase
     pop ix
     ld iy, ti.flags
-    cp a, 0
+    bit 0, a
     jr z, .turnOff
     set ti.lwrCaseActive, (iy + ti.appLwrCaseFlag)
     ret
@@ -34,8 +34,8 @@ _toggleLowercase:
 
 _checkLowercase:
     ld iy, ti.flags
+    xor a, a
     bit ti.lwrCaseActive, (iy + ti.appLwrCaseFlag)
-    ld a, 0
     ret z
-    ld a, 1
+    inc a
     ret

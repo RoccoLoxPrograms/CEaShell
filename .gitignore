@@ -1,4 +1,3 @@
-app_tools/
 obj/
 bin/
 .vscode/
@@ -7,3 +6,4 @@ src/gfx/*.h
 .DS_Store
 convimg.out
 nul.d
+src/gfx/convimg.yaml.lst
