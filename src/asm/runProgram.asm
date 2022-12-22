@@ -37,6 +37,8 @@ include 'include/ti84pceg.inc'
 	public _runProgram
 	public _continueRun
 	public _removeExecuteHookInstalled
+	public _reinstallGetCSCHook
+	public _reloadApp
     extern app
     extern _appMainStart
 	extern _checkPrgmType
@@ -44,7 +46,6 @@ include 'include/ti84pceg.inc'
 	extern _installHomescreenHook
 	extern _installGetCSCHookCont
 	extern _isGetCSCHookInstalled
-	public _reloadApp
 
 backupPrgmName := ti.appData
 returnIsAsm := backupPrgmName + 9

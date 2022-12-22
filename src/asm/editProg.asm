@@ -40,6 +40,7 @@ include 'include/ti84pceg.inc'
 	public _editBasicProg
 	extern _reloadApp
 	extern _arcUnarc
+	extern _reinstallGetCSCHook
 
 returnCEaShell := ti.appData + 11
 isAppvar := returnCEaShell + 1
@@ -71,6 +72,11 @@ _editBasicProg:
 	jp edit_basic_program
 
 edit_basic_program_goto:
+	call ti.OP1ToOP4
+	call _reinstallGetCSCHook
+	call ti.OP4ToOP1
+	call ti.DeleteTempPrograms
+	call ti.CleanAll
 	call	compute_error_offset
 	ld	a,edit_goto
 	ld	(edit_mode),a
