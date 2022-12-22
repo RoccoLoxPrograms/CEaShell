@@ -199,16 +199,32 @@ static void menu_ColorPicker(uint8_t *colors, uint8_t *newColors, uint8_t apdTim
     }
 }
 
-static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool themePicker, const bool showApps, const bool showAppvars, const uint8_t option) {
+static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_t *defaultThemes, const int cursorX, const uint8_t cursorY, const bool is24Hour, const uint8_t transitionSpeed, const bool displayCEaShell, const bool showFileCount, const bool showHiddenProg, const bool themePicker, const bool showApps, const bool showAppvars, const uint8_t option, const uint8_t startOption) {
     if (!themePicker) {
         shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
 
-        if (option != 2 && option < 4) {
+        if (option != 1 && option < 4) {
             shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
         } else {
             gfx_SetColor(colors[1]);
             gfx_FillRectangle_NoClip(165, 111, 140, 19);
             shapes_RoundRectangleFill(colors[0], 8, 140, 72, 165, 46);
+        }
+
+        gfx_SetColor(colors[1]);
+
+        switch (startOption) {
+            case 0:
+                gfx_FillRectangle_NoClip(16, 54, 2, 109);
+                break;
+            case 1:
+                gfx_FillRectangle_NoClip(16, 69, 2, 109);
+                break;
+            case 2:
+                gfx_FillRectangle_NoClip(16, 84, 2, 109);
+                break;
+            default:
+                break;
         }
 
         gfx_SetTextScale(1, 1);
@@ -217,29 +233,29 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         switch (option) {
             case 0:
                 shapes_PixelIndentRectangle(colors[2], colors[0], 19, 50, 132, 11);
-                gfx_PrintStringXY("Choose whether", 171, 69);
-                gfx_PrintStringXY("the clock appears", 171, 81);
-                gfx_PrintStringXY("using 24-Hour", 171, 93);
-                gfx_PrintStringXY("time or using", 171, 105);
-                gfx_PrintStringXY("12-Hour time.", 171, 117);
-                break;
-            case 1:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 67, 132, 11);
                 gfx_PrintStringXY("Turn on/off the", 171, 69);
                 gfx_PrintStringXY("transition", 171, 81);
                 gfx_PrintStringXY("animations when", 171, 93);
                 gfx_PrintStringXY("opening or", 171, 105);
                 gfx_PrintStringXY("closing menus.", 171, 117);
                 break;
-            case 2:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 84, 132, 23);
+            case 1:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 67 - (17 * (startOption == 1)), 132, 23);
                 gfx_PrintStringXY("Choose the", 171, 69);
                 gfx_PrintStringXY("animation speed", 171, 81);
                 gfx_PrintStringXY("for transition", 171, 93);
                 gfx_PrintStringXY("animations.", 171, 105);
                 break;
+            case 2:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 96 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 11);
+                gfx_PrintStringXY("Choose whether", 171, 69);
+                gfx_PrintStringXY("the clock appears", 171, 81);
+                gfx_PrintStringXY("using 24-Hour", 171, 93);
+                gfx_PrintStringXY("time or using", 171, 105);
+                gfx_PrintStringXY("12-Hour time.", 171, 117);
+                break;
             case 3:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 113, 132, 23);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 113 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 23);
                 gfx_PrintStringXY("Choose whether", 171, 69);
                 gfx_PrintStringXY("to show CEaShell", 171, 81);
                 gfx_PrintStringXY("in the list of", 171, 93);
@@ -247,86 +263,138 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
                 gfx_PrintStringXY("in the shell.", 171, 117);
                 break;
             case 4:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 142, 132, 11);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 142 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 11);
                 gfx_PrintStringXY("Create your own", 171, 69);
                 gfx_PrintStringXY("color theme", 171, 81);
                 gfx_PrintStringXY("for CEaShell to", 171, 93);
                 gfx_PrintStringXY("use.", 171, 105);
                 break;
             case 5:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 159, 132, 11);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 159 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 11);
                 gfx_PrintStringXY("Select a preset", 171, 69);
                 gfx_PrintStringXY("color theme", 171, 81);
                 gfx_PrintStringXY("for CEaShell to", 171, 93);
                 gfx_PrintStringXY("use.", 171, 105);
                 break;
             case 6:
-                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 176, 132, 23);
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 176 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 23);
                 gfx_PrintStringXY("Choose which (or", 171, 69);
                 gfx_PrintStringXY("if) the special", 171, 81);
                 gfx_PrintStringXY("directories are", 171, 93);
                 gfx_PrintStringXY("displayed.", 171, 105);
+                break;
+            case 7:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 188 - (29 * (startOption == 2)), 132, 11);
+                gfx_PrintStringXY("Display the", 171, 69);
+                gfx_PrintStringXY("number of files", 171, 81);
+                gfx_PrintStringXY("in the current", 171, 93);
+                gfx_PrintStringXY("directory.", 171, 105);
+                break;
+            case 8:
+                shapes_PixelIndentRectangle(colors[2], colors[0], 19, 176, 132, 23);
+                gfx_PrintStringXY("Display hidden", 171, 69);
+                gfx_PrintStringXY("programs in the", 171, 81);
+                gfx_PrintStringXY("CEaShell program", 171, 93);
+                gfx_PrintStringXY("list.", 171, 105);
+                break;
             default:
                 break;
         }
 
         gfx_SetTextScale(1, 1); // Customizing options
-        gfx_PrintStringXY("Clock:", 21, 52);
-        gfx_PrintStringXY("<", 85, 52);
-        gfx_PrintStringXY(">", 144, 52);
 
-        if (is24Hour) {
-            gfx_PrintStringXY("24 Hour", 92, 52);
-        } else {
-            gfx_PrintStringXY("AM/PM", 97, 52);
+        if (startOption == 0) {
+            gfx_PrintStringXY("Transitions:", 21, 52);
+            gfx_PrintStringXY("<", 114, 52);
+            gfx_PrintStringXY(">", 144, 52);
+
+            if (transitionSpeed) {
+                gfx_PrintStringXY("On", 124, 52);
+            } else {
+                gfx_PrintStringXY("Off", 120, 52);
+            }
         }
 
-        gfx_PrintStringXY("Transitions:", 21, 69);  // Much text here
-        gfx_PrintStringXY("<", 114, 69);
-        gfx_PrintStringXY(">", 144, 69);
-        gfx_PrintStringXY("Transition", 21, 86);
-        gfx_PrintStringXY("Speed:", 21, 98);
-        gfx_PrintStringXY("<", 93, 98);
-        gfx_PrintStringXY(">", 144, 98);
-        gfx_PrintStringXY("Hide", 21, 115);
-        gfx_PrintStringXY("CEaShell:", 21, 127);
-        gfx_PrintStringXY("<", 114, 127);
-        gfx_PrintStringXY(">", 144, 127);
-        gfx_PrintStringXY("Custom Theme", 21, 144);
-        gfx_PrintStringXY("Preset Themes", 21, 161);
-        gfx_PrintStringXY("Show", 21, 178);
-        gfx_PrintStringXY("Folders:", 21, 190);
-        gfx_PrintStringXY("<", 82, 190);
-        gfx_PrintStringXY(">", 144, 190);
+        if (startOption < 2) {
+            gfx_PrintStringXY("Transition", 21, 69 - (17 * (startOption == 1)));
+            gfx_PrintStringXY("Speed:", 21, 81 - (17 * (startOption == 1)));
+            gfx_PrintStringXY("<", 93, 81 - (17 * (startOption == 1)));
+            gfx_PrintStringXY(">", 144, 81 - (17 * (startOption == 1)));
 
-        if (transitionSpeed) {
-            gfx_PrintStringXY("On", 124, 69);
             if (transitionSpeed == 1) {
-                gfx_PrintStringXY("Slow", 107, 98);
+                gfx_PrintStringXY("Slow", 107, 81 - (17 * (startOption == 1)));
             } else if (transitionSpeed == 2) {
-                gfx_PrintStringXY("Normal", 99, 98);
+                gfx_PrintStringXY("Normal", 99, 81 - (17 * (startOption == 1)));
             } else if (transitionSpeed == 3) {
-                gfx_PrintStringXY("Fast", 106, 98);
+                gfx_PrintStringXY("Fast", 106, 81 - (17 * (startOption == 1)));
+            } else {
+                gfx_PrintStringXY("Off", 109, 81 - (17 * (startOption == 1)));
             }
+        }
+
+        gfx_PrintStringXY("Clock:", 21, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY("<", 85, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY(">", 144, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+
+        gfx_PrintStringXY("Hide", 21, 115 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY("CEaShell:", 21, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY("<", 114, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY(">", 144, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+
+        gfx_PrintStringXY("Custom Theme", 21, 144 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+
+        gfx_PrintStringXY("Preset Themes", 21, 161 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+
+        gfx_PrintStringXY("Show", 21, 178 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY("Folders:", 21, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY("<", 82, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+        gfx_PrintStringXY(">", 144, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
+
+        if (startOption) {
+            gfx_PrintStringXY("File count", 21, 190  - (29 * (startOption == 2)));
+            gfx_PrintStringXY("<", 113, 190  - (29 * (startOption == 2)));
+            gfx_PrintStringXY(">", 143, 190  - (29 * (startOption == 2)));
+
+            if (showFileCount) {
+                gfx_PrintStringXY("On", 124, 190  - (29 * (startOption == 2)));
+            } else {
+                gfx_PrintStringXY("Off", 120, 190  - (29 * (startOption == 2)));
+            }
+        }
+
+        if (startOption == 2) {
+            gfx_PrintStringXY("Show hidden", 21, 178);
+            gfx_PrintStringXY("Programs", 21, 190);
+            gfx_PrintStringXY("<", 113, 190);
+            gfx_PrintStringXY(">", 143, 190);
+
+            if (showHiddenProg) {
+                gfx_PrintStringXY("On", 124, 190);
+            } else {
+                gfx_PrintStringXY("Off", 120, 190);
+            }
+        }
+
+        if (is24Hour) {
+            gfx_PrintStringXY("24 Hour", 92, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         } else {
-            gfx_PrintStringXY("Off", 120, 69);
-            gfx_PrintStringXY("Off", 109, 98);
+            gfx_PrintStringXY("AM/PM", 97, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         }
 
         if (!displayCEaShell) {
-            gfx_PrintStringXY("On", 124, 127);
+            gfx_PrintStringXY("On", 124, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         } else {
-            gfx_PrintStringXY("Off", 120, 127);
+            gfx_PrintStringXY("Off", 120, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         }
 
         if (showApps && showAppvars) {
-            gfx_PrintStringXY("Both", 100, 190);
+            gfx_PrintStringXY("Both", 100, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         } else if (showApps) {
-            gfx_PrintStringXY("Apps", 100, 190);
+            gfx_PrintStringXY("Apps", 100, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         } else if (showAppvars) {
-            gfx_PrintStringXY("Appvars", 88, 190);
+            gfx_PrintStringXY("Appvars", 88, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         } else {
-            gfx_PrintStringXY("None", 100, 190);
+            gfx_PrintStringXY("None", 100, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
         }
     } else {
         gfx_SetColor(colors[1]);
@@ -350,11 +418,11 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
     ui_DrawUISprite(colors[1], UI_LARROW, 15, 208);
 }
 
-void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned int *fileSelected, const unsigned int fileCount, const unsigned int fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const uint8_t directory, bool *displayCEaShell, const bool showHiddenProg, const bool showFileCount, const uint8_t apdTimer, bool *showApps, bool *showAppvars) {
+void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned int *fileSelected, const unsigned int fileCount, unsigned int *fileStartLoc, bool *is24Hour, uint8_t *transitionSpeed, const uint8_t directory, bool *displayCEaShell, bool *showHiddenProg, bool *showFileCount, const uint8_t apdTimer, bool *showApps, bool *showAppvars) {
     timer_Set(1, 0);
     const uint8_t defaultThemes[28] = {237, 246, 236, 74, 148, 0, 128, 137, 96, 226, 228, 162, 3, 100, 2, 28, 125, 58, 210, 243, 208, 81, 114, 48, 222, 255, 181, 222};
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);   // Background
-    menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, false, *showApps, *showAppvars, 0);
+    menu_LooksRefresh(0, colors, defaultThemes, 166, 47, *is24Hour, *transitionSpeed, *displayCEaShell, *showFileCount, *showHiddenProg, false, *showApps, *showAppvars, 0, 0);
     gfx_BlitBuffer();
 
     uint8_t color = 0;
@@ -364,6 +432,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
     int prevCursorX = 166;
     uint8_t pColor = 0;
     uint8_t option = 0;
+    uint8_t startOption = 0;
 
     uint8_t batteryStatus = boot_GetBatteryStatus();
 
@@ -424,29 +493,40 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                 }
             } else {
                 if (kb_IsDown(kb_KeyDown)) {
-                    if (option < 6) {
+                    if (option < 5) {
                         option++;
                     } else {
-                        option = 0;
+                        if ((startOption == 0 && option == 6)  || (startOption == 1 && option == 7)) {
+                            startOption++;
+                            option++;
+                        } else if (option == 8) { // Restart menu
+                            startOption = 0;
+                            option = 0;
+                        } else {
+                            option++;
+                        }
                     }
                 } else if (kb_IsDown(kb_KeyUp)) {
-                    if (option) {
-                        option--;
+                    if (option > 3) {
+                        option -= 1;
                     } else {
-                        option = 6;
+                        if (startOption == option && option == 0) {
+                            startOption = 2;
+                            option = 8;
+                        } else if (startOption == option) {
+                            startOption -= 1;
+                            option -= 1;
+                        } else {
+                            option -= 1;
+                        }
                     }
                 } else if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
                     switch (option) {
                         case 0:
-                            *is24Hour = !*is24Hour;
-                            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
-                            gfx_BlitBuffer();
-                            break;
-                        case 1:
                             *transitionSpeed = !*transitionSpeed;
                             *transitionSpeed = *transitionSpeed + *transitionSpeed;
                             break;
-                        case 2:
+                        case 1:
                             if (kb_IsDown(kb_KeyLeft)) {
                                 if (*transitionSpeed > 1) {
                                     *transitionSpeed = *transitionSpeed - 1;
@@ -461,6 +541,11 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                                 }
                             }
 
+                            break;
+                        case 2:
+                            *is24Hour = !*is24Hour;
+                            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, *showFileCount);
+                            gfx_BlitBuffer();
                             break;
                         case 3:
                             *displayCEaShell = !*displayCEaShell;
@@ -498,6 +583,18 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                             }
 
                             break;
+                        case 7:
+                            *showFileCount = !*showFileCount;
+                            break;
+                        case 8:
+                            *showHiddenProg = !*showHiddenProg;
+
+                            if (!(*showHiddenProg)) {
+                                *fileSelected = 0;
+                                *fileStartLoc = 0;
+                            }
+
+                            break;
                         default:
                             break;
                     }
@@ -512,12 +609,12 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                         colors[1] = newColors[1];
                         colors[2] = newColors[2];
                         gfx_FillScreen(colors[0]);
-                        ui_DrawAllFiles(colors, programPtrs, appvarPtrs, *fileSelected, fileCount, fileStartLoc, directory, displayCEaShell, showHiddenProg, *showApps, *showAppvars);
+                        ui_DrawAllFiles(colors, programPtrs, appvarPtrs, *fileSelected, fileCount, *fileStartLoc, directory, displayCEaShell, showHiddenProg, *showApps, *showAppvars);
                         shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
                         gfx_SetColor(colors[1]);
                         gfx_FillRectangle_NoClip(165, 130, 140, 82);
-                        menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
-                        ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
+                        menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, *showFileCount, *showHiddenProg, themePicker, *showApps, *showAppvars, option, startOption);
+                        ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, *showFileCount);
                         gfx_BlitBuffer();
                     } else if (option == 5) {
                         themePicker = true;
@@ -533,7 +630,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
                 }
             }
 
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, *showFileCount, *showHiddenProg, themePicker, *showApps, *showAppvars, option, startOption);
 
             gfx_BlitBuffer();
 
@@ -546,6 +643,7 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
             keyPressed = true;
             timer_Set(1,0);
         }
+
         if ((kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_Key2nd)) && themePicker) {   // If you select a theme
             themePicker = false;
 
@@ -559,16 +657,16 @@ void menu_Looks(uint8_t *colors, void **programPtrs, void **appvarPtrs, unsigned
             }
 
             gfx_FillScreen(colors[0]);
-            ui_DrawAllFiles(colors, programPtrs, appvarPtrs, *fileSelected, fileCount, fileStartLoc, directory, displayCEaShell, showHiddenProg, *showApps, *showAppvars);
+            ui_DrawAllFiles(colors, programPtrs, appvarPtrs, *fileSelected, fileCount, *fileStartLoc, directory, displayCEaShell, *showHiddenProg, *showApps, *showAppvars);
             shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
             gfx_SetColor(colors[1]);
             gfx_FillRectangle_NoClip(165, 130, 140, 82);
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
-            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, showFileCount);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, *showFileCount, *showHiddenProg, themePicker, *showApps, *showAppvars, option, startOption);
+            ui_StatusBar(colors[1], *is24Hour, batteryStatus, "Customize", fileCount, *showFileCount);
             gfx_BlitBuffer();
         } else if (kb_IsDown(kb_KeyAlpha) && themePicker) {
             themePicker = false;
-            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, themePicker, *showApps, *showAppvars, option);
+            menu_LooksRefresh(color, colors, defaultThemes, cursorX, cursorY, *is24Hour, *transitionSpeed, *displayCEaShell, *showFileCount, *showHiddenProg, themePicker, *showApps, *showAppvars, option, startOption);
             gfx_SetColor(colors[1]);
             gfx_FillRectangle_NoClip(165, 130, 140, 82);
             gfx_BlitBuffer();
@@ -1017,16 +1115,18 @@ void menu_Info(uint8_t *colors, void **programPtrs, void **appvarPtrs, bool *inf
     ti_Close(slot);
 }
 
-static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool showHiddenProg, const bool showFileCount, const bool hideBusyIndicator, const bool lowercase, const uint8_t startOption, const uint8_t apdTimer) {
+static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uint8_t getCSCHook, const bool editArchivedProg, const bool editLockedProg, const bool hideBusyIndicator, const bool lowercase, const uint8_t startOption, const uint8_t apdTimer) {
     shapes_RoundRectangleFill(colors[0], 8, 140, 155, 15, 46);
     shapes_RoundRectangleFill(colors[1], 8, 140, 155, 165, 46);
-    if (option == 0 || option == 8) {  // big about box
+
+    if (option == 0 || option == 6) {  // big about box
         shapes_RoundRectangleFill(colors[0], 8, 140, 84, 165, 46);
-    } else if (option == 1) {
+    } else if (option == 1) { // huge about box
         shapes_RoundRectangleFill(colors[0], 8, 140, 155, 165, 46);
     } else {    // small about box
         shapes_RoundRectangleFill(colors[0], 8, 140, 72, 165, 46);
     }
+
     gfx_SetTextScale(1, 1);
     gfx_PrintStringXY("About:", 171, 52);
     gfx_SetColor(colors[1]);
@@ -1036,12 +1136,9 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
             gfx_FillRectangle_NoClip(16, 54, 2, 109);
             break;
         case 1:
-            gfx_FillRectangle_NoClip(16, 64, 2, 109);
+            gfx_FillRectangle_NoClip(16, 69, 2, 109);
             break;
         case 2:
-            gfx_FillRectangle_NoClip(16, 74, 2, 109);
-            break;
-        case 3:
             gfx_FillRectangle_NoClip(16, 84, 2, 109);
             break;
         default:
@@ -1072,56 +1169,42 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
             gfx_PrintStringXY("Jump to lbl in prgms.", 171, 189);
             break;
         case 2:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 96 - (17 * (startOption == 1)) - (46 * (startOption == 2)), 132, 23);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 96 - (17 * (startOption == 1)) - (29 * (startOption == 2)), 132, 23);
             gfx_PrintStringXY("Allow the editing", 171, 69);
             gfx_PrintStringXY("of archived", 171, 81);
             gfx_PrintStringXY("programs in the OS", 171, 93);
             gfx_PrintStringXY("[prgm] edit menu.", 171, 105);
             break;
         case 3:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 125 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), 132, 23);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 125 - (17 * (startOption == 1)) - (29 * (startOption == 2)), 132, 23);
             gfx_PrintStringXY("Allow the editing", 171, 69);
             gfx_PrintStringXY("of locked BASIC", 171, 81);
             gfx_PrintStringXY("programs in", 171, 93);
             gfx_PrintStringXY("CEaShell.", 171, 105);
             break;
         case 4:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 154 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), 132, 23);
-            gfx_PrintStringXY("Display hidden", 171, 69);
-            gfx_PrintStringXY("programs in the", 171, 81);
-            gfx_PrintStringXY("CEaShell program", 171, 93);
-            gfx_PrintStringXY("list.", 171, 105);
-            break;
-        case 5:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), 132, 11);
-            gfx_PrintStringXY("Display the", 171, 69);
-            gfx_PrintStringXY("number of files", 171, 81);
-            gfx_PrintStringXY("in the current", 171, 93);
-            gfx_PrintStringXY("directory.", 171, 105);
-            break;
-        case 6:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (29 * (startOption == 2)) - (58 * (startOption == 3)), 132, 11);
-            gfx_PrintStringXY("Enable lowercase", 171, 69);
-            gfx_PrintStringXY("in TI-OS", 171, 81);
-            gfx_PrintStringXY("by pressing", 171, 93);
-            gfx_PrintStringXY("[alpha] twice.", 171, 105);
-            break;
-        case 7:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 171 - (29 * (startOption == 3)), 132, 23);
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 154 - (17 * (startOption == 1)) - (29 * (startOption == 2)), 132, 23);
             gfx_PrintStringXY("Disable busy", 171, 69);
             gfx_PrintStringXY("indicator in", 171, 81);
             gfx_PrintStringXY("TI-BASIC", 171, 93);
             gfx_PrintStringXY("programs.", 171, 105);
             break;
-        case 8:
-            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 171, 132, 11);
+        case 5:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (17 * (startOption == 1)) - (29 * (startOption == 2)), 132, 11);
+            gfx_PrintStringXY("Enable lowercase", 171, 69);
+            gfx_PrintStringXY("in TI-OS", 171, 81);
+            gfx_PrintStringXY("by pressing", 171, 93);
+            gfx_PrintStringXY("[alpha] twice.", 171, 105);
+            break;
+        case 6:
+            shapes_PixelIndentRectangle(colors[2], colors[0], 19, 183 - (12 * (startOption == 2)), 132, 11);
             gfx_PrintStringXY("Automatically turn", 171, 69);
             gfx_PrintStringXY("off the calculator", 171, 81);
             gfx_PrintStringXY("after a certain", 171, 93);
-            gfx_PrintStringXY("lenght of inactivity", 171, 105);
+            gfx_PrintStringXY("length of inactivity", 171, 105);
             gfx_PrintStringXY("in CEaShell.", 171, 117);
             break;
-        case 9:
+        case 7:
             shapes_PixelIndentRectangle(colors[2], colors[0], 19, 188, 132, 11);
             gfx_PrintStringXY("Learn about the", 171, 69);
             gfx_PrintStringXY("people who played", 171, 81);
@@ -1141,46 +1224,41 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
         ui_DrawDoubleMenuItem("[on] key", "Shortcuts", 21, 69 - (17 * (startOption == 1)), (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
     }
 
-    if (startOption < 3) {
-        ui_DrawDoubleMenuItem("Edit archived", "Programs", 21, 98 - (17 * (startOption == 1)) - (46 * (startOption == 2)), editArchivedProg);
+    if (startOption == 2) {
+        ui_DrawMenuItem("Shortcuts", 21, 52, (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
     }
 
-    ui_DrawDoubleMenuItem("Edit locked", "Programs", 21, 127 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), editLockedProg);
-    ui_DrawDoubleMenuItem("Show hidden", "Programs", 21, 156 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), showHiddenProg);
-    ui_DrawMenuItem("File count", 21, 185 - (17 * (startOption == 1)) - (46 * (startOption == 2)) - (75 * (startOption == 3)), showFileCount);
+    ui_DrawDoubleMenuItem("Edit archived", "Programs", 21, 98 - (17 * (startOption == 1)) - (29 * (startOption == 2)), editArchivedProg);
+    ui_DrawDoubleMenuItem("Edit locked", "Programs", 21, 127 - (17 * (startOption == 1)) - (29 * (startOption == 2)), editLockedProg);
+    ui_DrawDoubleMenuItem("Disable busy", "Indicator", 21, 156 - (17 * (startOption == 1)) - (29 * (startOption == 2)), hideBusyIndicator);
+    ui_DrawMenuItem("Lowercase", 21, 185 - (17 * (startOption == 1)) - (29 * (startOption == 2)), lowercase);
 
     if (startOption) {
-        ui_DrawMenuItem("Lowercase", 21, 185 - (29 * (startOption == 2)) - (58 * (startOption == 3)), lowercase);
-    }
-
-    if (startOption > 1) {
-        ui_DrawDoubleMenuItem("Disable busy", "Indicator", 21, 173 - (29 * (startOption == 3)), hideBusyIndicator);
-    }
-
-    if (startOption == 3) {
-        gfx_PrintStringXY("APD timer", 21, 173);
-        gfx_PrintStringXY("<", 113, 173);
-
+        gfx_PrintStringXY("APD timer", 21, 185 - (12 * (startOption == 2)));
+        gfx_PrintStringXY("<", 113, 185 - (12 * (startOption == 2)));
+        gfx_PrintStringXY(">", 143, 185 - (12 * (startOption == 2)));
+    
         if (!apdTimer) {
-            gfx_PrintStringXY("Off", 120, 173);
+            gfx_PrintStringXY("Off", 120, 185 - (12 * (startOption == 2)));
         } else {
-            gfx_SetTextXY(127, 173);
+            gfx_SetTextXY(127, 185 - (12 * (startOption == 2)));
             gfx_PrintUInt(apdTimer, 0);
         }
+    }
 
-        gfx_PrintStringXY(">", 143, 173);
+    if (startOption == 2) {
         gfx_PrintStringXY("About", 21, 190);
     }
 }
 
-void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fileStartLoc, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *showHiddenProg, bool *showFileCount, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {
+void menu_Settings(uint8_t *colors, uint8_t *getCSCHook, bool *editArchivedProg, bool *editLockedProg, bool *hideBusyIndicator, bool *lowercase, uint8_t *apdTimer) {
     timer_Set(1, 0);
 
     shapes_RoundRectangleFill(colors[1], 8, 304, 192, 8, 39);
     ui_DrawUISprite(colors[1], UI_RARROW, 290, 208);
     uint8_t option = 0;
     uint8_t startOption = 0;
-    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg, *showFileCount, *hideBusyIndicator, *lowercase, startOption, *apdTimer);
+    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *hideBusyIndicator, *lowercase, startOption, *apdTimer);
     gfx_BlitBuffer();
     bool keyPressed = false;
 
@@ -1265,25 +1343,13 @@ void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fi
                         *editLockedProg = !*editLockedProg;
                         break;
                     case 4:
-                        *showHiddenProg = !*showHiddenProg;
-
-                        if (!(*showHiddenProg)) {
-                            *fileSelected = 0;
-                            *fileStartLoc = 0;
-                        }
-
+                        *hideBusyIndicator = !*hideBusyIndicator;
                         break;
                     case 5:
-                        *showFileCount = !*showFileCount;
-                        break;
-                    case 6:
                         *lowercase = !*lowercase;
                         toggleLowercase(*lowercase);
                         break;
-                    case 7:
-                        *hideBusyIndicator = !*hideBusyIndicator;
-                        break;
-                    case 8:
+                    case 6:
                         if (kb_IsDown(kb_KeyLeft)) {
                             if (*apdTimer > 0) {
                                 *apdTimer = *apdTimer - 1;
@@ -1307,10 +1373,10 @@ void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fi
                 if (option < 5) {
                     option++;
                 } else {
-                    if ((startOption == 0 && option == 5)  || (startOption == 1 && option == 6) || (startOption == 2 && option == 7)) {
+                    if ((startOption == 0 && option == 5)  || (startOption == 1 && option == 6)) {
                         startOption++;
                         option++;
-                    } else if (option == 9) { // Restart menu
+                    } else if (option == 7) { // Restart menu
                         startOption = 0;
                         option = 0;
                     } else {
@@ -1318,12 +1384,12 @@ void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fi
                     }
                 }
             } else if (kb_IsDown(kb_KeyUp)) {
-                if (option > 3) {
+                if (option > 2) {
                     option -= 1;
                 } else {
                     if (startOption == option && option == 0) {
-                        startOption = 3;
-                        option = 9;
+                        startOption = 2;
+                        option = 7;
                     } else if (startOption == option) {
                         startOption -= 1;
                         option -= 1;
@@ -1333,8 +1399,9 @@ void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fi
                 }
             }
 
-            menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg, *showFileCount, *hideBusyIndicator, *lowercase, startOption, *apdTimer);
+            menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *hideBusyIndicator, *lowercase, startOption, *apdTimer);
             gfx_BlitBuffer();
+
             if (!keyPressed) {
                 while (timer_Get(1) < 9000 && kb_Data[7]) {
                     kb_Scan();
@@ -1344,14 +1411,15 @@ void menu_Settings(uint8_t *colors, unsigned int *fileSelected, unsigned int *fi
             keyPressed = true;
             timer_Set(1,0);
         }
+
         if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
-            if (option == 9) {
+            if (option == 7) {
                 ui_AboutScreen(colors);
                 if (kb_IsDown(kb_KeyAlpha)) {
                     while (kb_AnyKey());
                     gfx_SetColor(colors[1]);
                     gfx_FillRectangle_NoClip(149, 46, 22, 155);
-                    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *showHiddenProg, *showFileCount, *hideBusyIndicator, *lowercase, startOption, *apdTimer);
+                    menu_SettingsRedraw(colors, option, *getCSCHook, *editArchivedProg, *editLockedProg, *hideBusyIndicator, *lowercase, startOption, *apdTimer);
                     gfx_BlitBuffer();
                 }
             }

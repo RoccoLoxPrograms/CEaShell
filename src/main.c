@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 21, 2022
- * Version: 0.82.8
+ * Last Build: December 22, 2022
+ * Version: 0.83
  * 
  * --------------------------------------
 **/
@@ -357,7 +357,7 @@ int main(void) {
                     }
                 }
 
-                menu_Looks(colors, programPtrs, appvarPtrs, &fileSelected, fileNumbers[directory], fileStartLoc, &is24Hour, &transitionSpeed, directory, &displayCEaShell, showHiddenProg, showFileCount, apdTimer, &showApps, &showAppvars); // This function will store changed colors into the colors array
+                menu_Looks(colors, programPtrs, appvarPtrs, &fileSelected, fileNumbers[directory], &fileStartLoc, &is24Hour, &transitionSpeed, directory, &displayCEaShell, &showHiddenProg, &showFileCount, apdTimer, &showApps, &showAppvars); // This function will store changed colors into the colors array
                 timer_Set(1, 0);
                 util_FilesInit(fileNumbers, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 gfx_FillScreen(colors[0]);
@@ -486,7 +486,7 @@ int main(void) {
                 gfx_SetFontSpacing(defaultSpacing);
                 gfx_SetCharData(91, leftBracket);
 
-                menu_Settings(colors, &fileSelected, &fileStartLoc, &getCSCHook, &editArchivedProg, &editLockedProg, &showHiddenProg, &showFileCount, &hideBusyIndicator, &lowercase, &apdTimer);
+                menu_Settings(colors, &getCSCHook, &editArchivedProg, &editLockedProg, &hideBusyIndicator, &lowercase, &apdTimer);
 
                 defaultSpacing[91] = 8;
                 gfx_SetFontSpacing(defaultSpacing);
