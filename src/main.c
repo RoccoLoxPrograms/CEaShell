@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 22, 2022
- * Version: 0.83.2
+ * Last Build: December 23, 2022
+ * Version: 0.83.3
  * 
  * --------------------------------------
 **/
@@ -84,10 +84,6 @@ int main(void) {
     const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
     const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
 
-    if (colors[3]) {
-        invertPalette();
-    }
-
     gfx_SetTransparentColor(240);
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
     gfx_SetTextBGColor(240);
@@ -133,6 +129,10 @@ int main(void) {
         util_WritePrefs(colors, transitionSpeed, is24Hour, displayCEaShell, getCSCHook, editArchivedProg,
         editLockedProg, showHiddenProg, showFileCount, hideBusyIndicator, lowercase, apdTimer, 0, 0, false,
         showApps, showAppvars, NULL, NULL, NULL, false);
+    }
+
+    if (colors[3]) {
+        invertPalette();
     }
 
     defaultSpacing[91] = 8;
