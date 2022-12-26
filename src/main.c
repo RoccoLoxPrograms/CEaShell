@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 23, 2022
- * Version: 0.83.3
+ * Last Build: December 26, 2022
+ * Version: 0.84
  * 
  * --------------------------------------
 **/
@@ -76,13 +76,21 @@ int main(void) {
 	8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 3, 4, 6, 7, 6, 7,
 	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 5, 8, 8,
-	4, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8,
-	8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 7, 3, 7, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8,
+	8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
 
     const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
     const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
+
+    const uint8_t cedilla[8] = {0x00, 0x00, 0x7C, 0xC6, 0xC0, 0xC6, 0x7C, 0x30};        // ` = ç
+    const uint8_t circumflexU[8] = {0x7C, 0x82, 0xC6, 0xC6, 0xC6, 0xC6, 0x7E, 0x00};    // ^ = û
+    const uint8_t circumflexO[8] = {0x7C, 0x82, 0x7C, 0xC6, 0xC6, 0xC6, 0x7C, 0x00};    // @ = ô
+    const uint8_t circumflexE[8] = {0x7C, 0x82, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};          // | = ê
+    const uint8_t rightEAccent[8] = {0x1C, 0x00, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};         // } = é
+    const uint8_t leftEAccent[8] = {0x70, 0x00, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};          // { = è
+    const uint8_t leftAAccent[8] = {0x70, 0x00, 0x7C, 0x06, 0x7E, 0xC6, 0x7E, 0x00};    // ~ = à
 
     gfx_SetTransparentColor(240);
     gfx_SetTextFGColor(255 * !(colors[1] > 131 && colors[1] % 8 > 3));
@@ -96,6 +104,15 @@ int main(void) {
 
     // Restore preferences from appvar, if it exists
     uint8_t slot = ti_Open("CEaShell", "r");
+
+    gfx_SetFontSpacing(defaultSpacing);
+    gfx_SetCharData(123, rightEAccent);
+    gfx_SetCharData(124, circumflexE);
+    gfx_SetCharData(125, leftEAccent);
+    gfx_SetCharData(126, leftAAccent);
+    gfx_SetCharData(64, circumflexO);
+    gfx_SetCharData(94, circumflexU);
+    gfx_SetCharData(96, cedilla);
 
     if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
         uint8_t ceaShell[17];
@@ -347,7 +364,7 @@ int main(void) {
 
                 while (kb_AnyKey());
             } else if (kb_IsDown(kb_KeyYequ)) {    // Looks customization menu
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[directory], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customiser", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
 
                 if (transitionSpeed) {  // If the user turns transitions off, this won't call at all
@@ -363,7 +380,7 @@ int main(void) {
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, programPtrs, appvarPtrs, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 ui_BottomBar(colors[1]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customize", fileNumbers[directory], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Customiser", fileNumbers[directory], showFileCount);
 
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
@@ -396,7 +413,7 @@ int main(void) {
                 getProgramPtrs(programPtrs, !showHiddenProg);
                 getAppVarPtrs(appvarPtrs);
             } else if ((kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha)) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {   // Info menu
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[directory], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Infos fichier", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
 
                 if (transitionSpeed) {
@@ -453,7 +470,7 @@ int main(void) {
                 ui_StatusBar(colors[1], is24Hour, batteryStatus, "", fileNumbers[directory], showFileCount);
                 ui_DrawAllFiles(colors, programPtrs, appvarPtrs, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 ui_BottomBar(colors[1]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "File Info", fileNumbers[directory], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Infos fichier", fileNumbers[directory], showFileCount);
 
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background
@@ -472,7 +489,7 @@ int main(void) {
 
                 gfx_BlitBuffer();
             } else if (kb_IsDown(kb_KeyGraph)) {   // Settings menu
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[directory], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Param}tres", fileNumbers[directory], showFileCount);
                 gfx_BlitBuffer();
 
                 if (transitionSpeed) {
@@ -505,7 +522,7 @@ int main(void) {
                 gfx_FillScreen(colors[0]);
                 ui_DrawAllFiles(colors, programPtrs, appvarPtrs, fileSelected, fileNumbers[directory], fileStartLoc, directory, displayCEaShell, showHiddenProg, showApps, showAppvars);
                 ui_BottomBar(colors[1]);
-                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Settings", fileNumbers[directory], showFileCount);
+                ui_StatusBar(colors[1], is24Hour, batteryStatus, "Param}tres", fileNumbers[directory], showFileCount);
 
                 if (transitionSpeed) {
                     gfx_GetSprite_NoClip(buffer1, 8, 38);   // For redrawing the background

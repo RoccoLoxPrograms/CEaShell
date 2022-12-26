@@ -55,9 +55,9 @@ void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, con
 
 void ui_MiniCursor(uint8_t color, int x, uint8_t y);
 
-void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status);
+void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status, const bool useON);
 
-void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status);
+void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status, const bool useON);
 
 void ui_AboutScreen(uint8_t *colors);
 

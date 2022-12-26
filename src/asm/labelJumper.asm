@@ -411,17 +411,17 @@ hook_show_labels:
 .program_string:
 	db	"PROGRAM:",0
 .page_string:
-	db	"Use <> to switch page:     <"
+	db	"<> pour changer page:     <"
 .current_page_string:
 	db	"000"
-	db	" of "
+	db	" sur "
 .total_page_string:
 	db	"000"
 	db	">",0
 .top_label:
-	db	"0:PRGM TOP",0
+	db	"0:HAUT DE PRGM",0
 .bottom_label:
-	db	"1:PRGM BOTTOM",0
+	db	"1:BAS DU PRGM",0
 
 endRelocate := $-.program_string
 

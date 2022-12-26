@@ -207,9 +207,9 @@ char *util_FileTypeToString(const uint8_t fileType, const bool abbreviated) {
 void util_PrintFreeRamRom(void) {
     unsigned int ramFree = os_MemChk(NULL) + getASMPrgmSize();
     os_ArcChk();
-    gfx_PrintStringXY("RAM Free: ", 82, 205);
+    gfx_PrintStringXY("RAM Libre: ", 82, 205);
     gfx_PrintUInt(ramFree, 6);
-    gfx_PrintStringXY("ROM Free: ", 82, 216);
+    gfx_PrintStringXY("ROM Libre: ", 82, 216);
     gfx_PrintInt(os_TempFreeArc, 7);
 }
 
@@ -447,7 +447,7 @@ void util_Secret(uint8_t *colors) { // 🤫
     gfx_SetTextScale(2, 2);
     shapes_RoundRectangleFill(colors[0], 7, 290, 155, 15, 46);
     gfx_SetColor(colors[1]);
-    gfx_FillRectangle_NoClip(101, 8, 116, 16);
+    gfx_FillRectangle_NoClip(81, 8, 156, 14);
     gfx_PrintStringXY("Easter Egg", 87, 8);
     gfx_BlitBuffer();
     timer_Set(1, 0);
@@ -472,7 +472,7 @@ void util_Secret(uint8_t *colors) { // 🤫
             gfx_SetColor(colors[1]);
             gfx_SetTextScale(2, 2);
             gfx_FillRectangle_NoClip(87, 8, 146, 16);
-            gfx_PrintStringXY("Settings", 101, 8);
+            gfx_PrintStringXY("Param}tres", 101, 8);
             return;
         }
 
@@ -494,8 +494,8 @@ void util_Secret(uint8_t *colors) { // 🤫
                 titleX = 160 - gfx_GetStringWidth("CEaShell v"VERSION_NO) / 2;  // Versions can be different, so we need to make sure it's properly centered
                 gfx_PrintStringXY("CEaShell v"VERSION_NO, titleX, 100);
                 gfx_SetTextScale(1, 1);
-                gfx_PrintStringXY("By RoccoLox Programs", 85, 122);
-                gfx_PrintStringXY("and TIny_Hacker", 102, 135);
+                gfx_PrintStringXY("Par RoccoLox Programs", 85, 122);
+                gfx_PrintStringXY("et TIny_Hacker", 102, 135);
                 gfx_BlitBuffer();
             }
 

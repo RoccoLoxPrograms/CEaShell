@@ -222,16 +222,16 @@ bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y) {
     bool retVal = false;
     while (kb_AnyKey());
     shapes_RoundRectangleFill(colors[0], 8, 208, 20, x, y);
-    gfx_PrintStringXY("Are you sure?", x + 28, y + 6);
+    gfx_PrintStringXY("Etes-vous s^r?", x + 22, y + 6);
     gfx_BlitBuffer();
     gfx_SetColor(colors[2]);
     shapes_PixelIndentRectangle(colors[2], colors[0], x + 159, y + 4, 29, 11);
-    gfx_PrintStringXY("No", x + 134, y + 6);
-    gfx_PrintStringXY("Yes", x + 162, y + 6);
+    gfx_PrintStringXY("Non", x + 129, y + 6);
+    gfx_PrintStringXY("Oui", x + 162, y + 6);
     gfx_SetDrawScreen();
     shapes_PixelIndentRectangle(colors[2], colors[0], x + 127, y + 4, 29, 11);
-    gfx_PrintStringXY("No", x + 134, y + 6);
-    gfx_PrintStringXY("Yes", x + 162, y + 6);
+    gfx_PrintStringXY("Non", x + 129, y + 6);
+    gfx_PrintStringXY("Oui", x + 162, y + 6);
     gfx_SetDrawBuffer();
     while (!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_Key1) && !kb_IsDown(kb_KeyLog) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
@@ -269,7 +269,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     uint8_t length = strlen(newName);
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(129, 182, 62, 11);
-    gfx_PrintStringXY("Rename", 136, 184);
+    gfx_PrintStringXY("Renom.", 139, 184);
     gfx_SetTextScale(2, 2);
     uint8_t xOffset = gfx_GetStringWidth(newName) / 2;
     gfx_SetColor(colors[2]);
@@ -371,22 +371,22 @@ void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, con
         if (directory == APPVARS_FOLDER || directory == APPS_FOLDER) {
             ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Programs", DIR_TYPE, 0, x, y);
             if (fileSelected == filesSearched) {
-                gfx_PrintStringXY("Programs folder", 82, 210);
+                gfx_PrintStringXY("Dossier de programmes", 82, 210);
                 gfx_SetTextScale(2, 2);
                 gfx_SetColor(colors[1]);
-                gfx_PrintStringXY("Programs", 96, 8);
+                gfx_PrintStringXY("Programmes", 96, 8);
             }
 
             y = 116;
             filesSearched++;
         } else {
             if (showApps) {
-                ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Apps", DIR_TYPE, 0, x, y);
+                ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Applis", DIR_TYPE, 0, x, y);
                 if (fileSelected == filesSearched) {
-                    gfx_PrintStringXY("Apps folder", 82, 210);
+                    gfx_PrintStringXY("Dossier d'applications", 82, 210);
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
-                    gfx_PrintStringXY("Apps", 128, 8);
+                    gfx_PrintStringXY("Applications", 75, 8);
                 }
 
                 y = 116;
@@ -396,7 +396,7 @@ void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, con
             if (showAppvars) {
                 ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Appvars", DIR_TYPE, 0, x, y);
                 if (fileSelected == filesSearched) {
-                    gfx_PrintStringXY("Appvars folder", 82, 210);
+                    gfx_PrintStringXY("Dossier Appvars", 82, 210);
                     gfx_SetTextScale(2, 2);
                     gfx_SetColor(colors[1]);
                     gfx_PrintStringXY("Appvars", 104, 8);
@@ -538,36 +538,53 @@ void ui_MiniCursor(uint8_t color, int x, uint8_t y) {
     gfx_SetPixel(x + 4, y + 1);
 }
 
-void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status) {
+void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status, const bool useON) {
     gfx_PrintStringXY(lineOne, x, y);
     gfx_PrintStringXY("<", x + 92, y);
     gfx_PrintStringXY(">", x + 122, y);
 
     if (status) {
-        gfx_PrintStringXY("On", x + 102, y);
+        if (useON) {
+            gfx_PrintStringXY("Oui", x + 99, y);
+        } else {
+            gfx_PrintStringXY("Act", x + 99, y);
+        }
     } else {
-        gfx_PrintStringXY("Off", x + 99, y);
+        if (useON) {
+            gfx_PrintStringXY("Non", x + 99, y);
+        } else {
+            gfx_PrintStringXY("D{s", x + 99, y);
+        }
     }
 }
 
-void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status) {
+void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status, const bool useON) {
     gfx_PrintStringXY(lineOne, x, y);
     gfx_PrintStringXY(lineTwo, x, y + 12);
     gfx_PrintStringXY("<", x + 92, y + 12);
     gfx_PrintStringXY(">", x + 122, y + 12);
 
     if (status) {
-        gfx_PrintStringXY("On", x + 102, y + 12);
+        if (useON) {
+            gfx_PrintStringXY("Oui", x + 99, y + 12);
+        } else {
+            gfx_PrintStringXY("Act", x + 99, y + 12);
+        }
     } else {
-        gfx_PrintStringXY("Off", x + 99, y + 12);
+        if (useON) {
+            gfx_PrintStringXY("Non", x + 99, y + 12);
+        } else {
+            gfx_PrintStringXY("D{s", x + 99, y + 12);
+        }
     }
 }
 
 void ui_AboutScreen(uint8_t *colors) {
-    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
-    " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
-    " DJ Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe."
-    " And a big thank you to the members of our discord for your support and ideas!";
+    const char *specialThanks = "Remerciements : Code/Aide au codage : MateoConLechuga, calc84maniac, "
+    "commandblockguy, jacobly, Zeroko, et le Discord CEdev. Traduction fran`aise : Shadow. Inspiration/id{es "
+    "de fonctionnalit{s : KermMartian, Adriweb, epsilon5, NoahK, DJ Omnimaga. B|ta-test : Nanobot567, "
+    "ChuckyHecker, darkwater4213, Oxiti8. Et un grand merci aux membres de notre discord pour votre "
+    "soutien et vos id{es!";
     unsigned int startDisplay = 0;
     shapes_RoundRectangleFill(colors[0], 8, 290, 155, 15, 46);
     gfx_SetTextScale(2, 2);
@@ -576,11 +593,11 @@ void ui_AboutScreen(uint8_t *colors) {
     gfx_SetTextXY(21, 72);
     gfx_PrintChar('v');
     gfx_PrintString(VERSION_NO);
-    gfx_PrintStringXY("CEaShell (pronounced \"seashell\"), is a", 21, 89);
-    gfx_PrintStringXY("shell created by RoccoLox Programs and", 21, 102);
-    gfx_PrintStringXY("TIny_Hacker. CEaShell aims to provide an", 21, 115);
-    gfx_PrintStringXY("easy to use, modern interface for the", 21, 128);
-    gfx_PrintStringXY("TI-84+ CE and TI-83 PCE calculators.", 21, 141);
+    gfx_PrintStringXY("CEaShell (prononc{ \"seashell\"), est un", 21, 89);
+    gfx_PrintStringXY("shell cr{{ par RoccoLox Programs et", 21, 102);
+    gfx_PrintStringXY("TIny_Hacker. CEaShell vise ~ fournir une", 21, 115);
+    gfx_PrintStringXY("interface moderne et facile ~ utiliser", 21, 128);
+    gfx_PrintStringXY("pour les calculatrices CE.", 21, 141);
     gfx_PrintStringXY("(C) Copyright 2022", 21, 175);
     gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 21, 188);
     gfx_SetClipRegion(21, 52, 299, 196);    // Helps cut the text off in the scrolling animation
@@ -597,6 +614,11 @@ void ui_AboutScreen(uint8_t *colors) {
     bool keypressed = false;
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
+
+        if (kb_On) {
+            gfx_End();
+            triggerAPD();
+        }
 
         // Code
         if (kb_IsDown(kb_Key1) && !keypressed) {
@@ -620,7 +642,7 @@ void ui_AboutScreen(uint8_t *colors) {
             timer_Set(1, 0);
         }
 
-        if (startDisplay > 384) {
+        if (startDisplay > 386) {
             startDisplay = 0; // restart
         }
 
@@ -634,26 +656,28 @@ void ui_AboutScreen(uint8_t *colors) {
 
 void ui_NewUser(void) {
     gfx_FillScreen(246);
-    shapes_RoundRectangleFill(237, 6, 272, 44, 24, 22);
+    shapes_RoundRectangleFill(237, 6, 272, 60, 24, 6);
     gfx_SetTextScale(2, 2);
-    gfx_PrintStringXY("Welcome to CEaShell", 29, 27);
+    gfx_PrintStringXY("Bienvenue sur", 65, 11);
+    gfx_PrintStringXY("CEaShell", 103, 27);
     gfx_SetTextScale(1, 1);
     gfx_PrintStringXY("v"VERSION_NO, 29, 44);
-    gfx_PrintStringXY("A shell for the CE calculators.", 29, 54);
-    shapes_RoundRectangleFill(237, 6, 272, 143, 24, 71);
-    shapes_RoundRectangleFill(236, 7, 86, 22, 206, 188);
-    gfx_PrintStringXY("Alpha to", 211, 191);
-    gfx_PrintStringXY("Continue", 211, 199);
-    gfx_TransparentSprite_NoClip(rArrow, 273, 191);
-    gfx_PrintStringXY("We try our best to make CEaShell as", 29, 76);
-    gfx_PrintStringXY("user-friendly as possible. Here's a", 29, 88);
-    gfx_PrintStringXY("quick guide to navigating the features", 29, 100);
-    gfx_PrintStringXY("and menus.", 29, 112);
-    gfx_PrintStringXY("Use the function keys to open the menu", 29, 130);
-    gfx_PrintStringXY("buttons on the bottom row. You can open", 29, 142);
-    gfx_PrintStringXY("the description bar for more info", 29, 154);
-    gfx_PrintStringXY("on a file using the function keys or", 29, 166);
-    gfx_PrintStringXY("[alpha].", 29, 180);
+    gfx_PrintStringXY("Un shell pour les calculatrices CE.", 29, 54);
+    shapes_RoundRectangleFill(237, 6, 272, 163, 24, 71);
+    shapes_RoundRectangleFill(236, 7, 98, 22, 194, 208);
+    gfx_PrintStringXY("Alpha pour", 199, 211);
+    gfx_PrintStringXY("continuer", 199, 219);
+    gfx_TransparentSprite_NoClip(rArrow, 273, 211);
+    gfx_PrintStringXY("Nous faisons de notre mieux pour que", 29, 76);
+    gfx_PrintStringXY("CEaShell soit sympa ~ utiliser.", 29, 88);
+    gfx_PrintStringXY("Voici un guide pour naviguer dans les", 29, 100);
+    gfx_PrintStringXY("fonctionnalit{es et menus. Utilisez les", 29, 112);
+    gfx_PrintStringXY("touches  [f(x)] / [graphe] pour", 29, 124);
+    gfx_PrintStringXY("personnaliser / param{trer CEashell.", 29, 136);
+    gfx_PrintStringXY("Les touches [fen|tre], [zoom], [trace]", 29, 148);
+    gfx_PrintStringXY("et [alpha] vous permettent d'ouvrir la", 29, 160);
+    gfx_PrintStringXY("barre de description. Celle-ci offre", 29, 172);
+    gfx_PrintStringXY("plus d'informations sur les fichiers.", 29, 184);
     gfx_BlitBuffer();
 
     // Wait to continue
@@ -671,14 +695,15 @@ void ui_NewUser(void) {
     }
 
     gfx_SetColor(237);
-    gfx_FillRectangle_NoClip(29, 76, 266, 112);
-    gfx_PrintStringXY("Navigate through menus and files", 29, 76);
-    gfx_PrintStringXY("using the arrow keys.", 29, 90);
-    gfx_PrintStringXY("Run programs using [enter] or [2nd].", 29, 108);
-    gfx_PrintStringXY("Toggle options in the settings", 29, 126);
-    gfx_PrintStringXY("using the arrow keys, and check", 29, 140);
-    gfx_PrintStringXY("boxes with [2nd] or [enter].", 29, 154);
-    gfx_PrintStringXY("Thanks for using CEaShell!", 29, 172);
+    gfx_FillRectangle_NoClip(29, 76, 266, 128);
+    gfx_PrintStringXY("Naviguez dans les dossiers / fichiers ~", 29, 76);
+    gfx_PrintStringXY("l'aide des touches fl{ch{es. Ex{cutez", 29, 90);
+    gfx_PrintStringXY("Exécutez un programme en tappant sur", 29, 104);
+    gfx_PrintStringXY("[entrer] ou sur [2nde]. Basculer les", 29, 118);
+    gfx_PrintStringXY("options dans les param}tres en utilisant", 29, 132);
+    gfx_PrintStringXY("les touches fl{ch{es, et cochez les cases", 29, 146);
+    gfx_PrintStringXY("avec [2nde] ou [entrer].", 29, 160);
+    gfx_PrintStringXY("Merci pour utiliser CEaShell!", 29, 184);
     gfx_BlitBuffer();
 
     while(kb_AnyKey());
@@ -693,12 +718,12 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
     shapes_RoundRectangleFill(colors[0], 9, 208, 20, 56, 204);
     gfx_BlitBuffer();
     shapes_PixelIndentRectangle(colors[2], colors[0], 166, 208, 85, 11);
-    gfx_PrintStringXY("Copy File", 77, 210);
-    gfx_PrintStringXY("New File", 179, 210);
+    gfx_PrintStringXY("Copier", 88, 210);
+    gfx_PrintStringXY("Nouveau", 181, 210);
     gfx_SetDrawScreen();
     shapes_PixelIndentRectangle(colors[2], colors[0], 68, 208, 85, 11);
-    gfx_PrintStringXY("Copy File", 77, 210);
-    gfx_PrintStringXY("New File", 179, 210);
+    gfx_PrintStringXY("Copier", 88, 210);
+    gfx_PrintStringXY("Nouveau", 181, 210);
     gfx_SetDrawBuffer();
 
     while(!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter)) {
@@ -723,7 +748,7 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
     while (kb_AnyKey());
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(68, 207, 183, 14);
-    gfx_PrintStringXY("Name:", 73, 211);
+    gfx_PrintStringXY("Nom:", 73, 211);
     gfx_SetTextScale(2, 2);
     gfx_SetTextXY(111, 207);
     gfx_BlitBuffer();
