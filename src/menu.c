@@ -351,7 +351,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
         gfx_PrintStringXY(">", 144, 190 - (17 * (startOption == 1)) - (46 * (startOption == 2)));
 
         if (startOption) {
-            gfx_PrintStringXY("File count", 21, 190  - (29 * (startOption == 2)));
+            gfx_PrintStringXY("File count:", 21, 190  - (29 * (startOption == 2)));
             gfx_PrintStringXY("<", 113, 190  - (29 * (startOption == 2)));
             gfx_PrintStringXY(">", 143, 190  - (29 * (startOption == 2)));
 
@@ -364,7 +364,7 @@ static void menu_LooksRefresh(const uint8_t color, uint8_t *colors, const uint8_
 
         if (startOption == 2) {
             gfx_PrintStringXY("Show hidden", 21, 178);
-            gfx_PrintStringXY("Programs", 21, 190);
+            gfx_PrintStringXY("Programs:", 21, 190);
             gfx_PrintStringXY("<", 113, 190);
             gfx_PrintStringXY(">", 143, 190);
 
@@ -1217,24 +1217,24 @@ static void menu_SettingsRedraw(uint8_t *colors, const uint8_t option, const uin
 
     gfx_SetColor(colors[0]);
     if (startOption == 0) {
-        ui_DrawMenuItem("Icon Hook", 21, 52, (getCSCHook == BOTH || getCSCHook == ICON_HOOK));
+        ui_DrawMenuItem("Icon Hook:", 21, 52, (getCSCHook == BOTH || getCSCHook == ICON_HOOK));
     }
 
     if (startOption < 2) {
-        ui_DrawDoubleMenuItem("[on] key", "Shortcuts", 21, 69 - (17 * (startOption == 1)), (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
+        ui_DrawDoubleMenuItem("[on] key", "Shortcuts:", 21, 69 - (17 * (startOption == 1)), (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
     }
 
     if (startOption == 2) {
-        ui_DrawMenuItem("Shortcuts", 21, 52, (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
+        ui_DrawMenuItem("Shortcuts:", 21, 52, (getCSCHook == BOTH || getCSCHook == ON_SHORTS_HOOK));
     }
 
-    ui_DrawDoubleMenuItem("Edit archived", "Programs", 21, 98 - (17 * (startOption == 1)) - (29 * (startOption == 2)), editArchivedProg);
-    ui_DrawDoubleMenuItem("Edit locked", "Programs", 21, 127 - (17 * (startOption == 1)) - (29 * (startOption == 2)), editLockedProg);
-    ui_DrawDoubleMenuItem("Disable busy", "Indicator", 21, 156 - (17 * (startOption == 1)) - (29 * (startOption == 2)), hideBusyIndicator);
+    ui_DrawDoubleMenuItem("Edit archived", "Programs:", 21, 98 - (17 * (startOption == 1)) - (29 * (startOption == 2)), editArchivedProg);
+    ui_DrawDoubleMenuItem("Edit locked", "Programs:", 21, 127 - (17 * (startOption == 1)) - (29 * (startOption == 2)), editLockedProg);
+    ui_DrawDoubleMenuItem("Disable busy", "Indicator:", 21, 156 - (17 * (startOption == 1)) - (29 * (startOption == 2)), hideBusyIndicator);
     ui_DrawMenuItem("Lowercase", 21, 185 - (17 * (startOption == 1)) - (29 * (startOption == 2)), lowercase);
 
     if (startOption) {
-        gfx_PrintStringXY("APD timer", 21, 185 - (12 * (startOption == 2)));
+        gfx_PrintStringXY("APD timer:", 21, 185 - (12 * (startOption == 2)));
         gfx_PrintStringXY("<", 113, 185 - (12 * (startOption == 2)));
         gfx_PrintStringXY(">", 143, 185 - (12 * (startOption == 2)));
     

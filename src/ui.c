@@ -598,6 +598,11 @@ void ui_AboutScreen(uint8_t *colors) {
     while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
 
+        if (kb_On) {
+            gfx_End();
+            triggerAPD();
+        }
+
         // Code
         if (kb_IsDown(kb_Key1) && !keypressed) {
             phase = 1;

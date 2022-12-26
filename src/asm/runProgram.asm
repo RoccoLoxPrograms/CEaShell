@@ -46,6 +46,7 @@ include 'include/ti84pceg.inc'
 	extern _installHomescreenHook
 	extern _installGetCSCHookCont
 	extern _isGetCSCHookInstalled
+	extern _removeStopHook
 
 backupPrgmName := ti.appData
 returnIsAsm := backupPrgmName + 9
@@ -388,6 +389,7 @@ _return:
 	jp z, _reloadApp
 
 .quitNoApp:
+	call _removeStopHook
 	res	ti.onInterrupt, (iy + ti.onFlags)
 	call ti.ClrTxtShd
 	ld a, ti.cxCmd
