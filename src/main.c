@@ -6,7 +6,7 @@
  * Copyright 2022
  * License: GPL-3.0
  * Last Build: December 26, 2022
- * Version: 0.84
+ * Version: 0.84.1
  * 
  * --------------------------------------
 **/
@@ -96,8 +96,12 @@ int main(void) {
 
     // Restore preferences from appvar, if it exists
     uint8_t slot = ti_Open("CEaShell", "r");
+    uint8_t appvarVersion = 0;
+    ti_Seek(24, SEEK_CUR, slot);
+    ti_Read(&appvarVersion, 1, 1, slot);
+    ti_Seek(0, SEEK_SET, slot);
 
-    if (slot) { // If the appvar doesn't exist now, we'll just write the defaults into it later
+    if (slot && (appvarVersion == APPVAR_VERSION)) { // If the appvar doesn't exist now, we'll just write the defaults into it later
         uint8_t ceaShell[17];
         ti_Read(&ceaShell, 17, 1, slot);
         colors[0] = ceaShell[0];

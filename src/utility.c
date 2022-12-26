@@ -66,6 +66,7 @@ const bool showApps, const bool showAppvars, void ***programPtrs, void ***appvar
     ceaShell[16] = showAppvars;
     scrollLoc[0] = fileSelected;
     scrollLoc[1] = fileStartLoc;
+    uint8_t appvarVersion = APPVAR_VERSION;
 
     uint8_t slot = ti_Open("CEaShell", "w+");
     ti_Write(&ceaShell, 17, 1, slot);
@@ -73,6 +74,8 @@ const bool showApps, const bool showAppvars, void ***programPtrs, void ***appvar
     ti_Write(&scrollLoc, 6, 1, slot);
     ti_Seek(6, SEEK_CUR, slot);
     ti_Write(&directory, 1, 1, slot);
+    ti_Seek(1, SEEK_CUR, slot);
+    ti_Write(&appvarVersion, 1, 1, slot);
 
     if (willNotGarbageCollect("CEaShell", OS_TYPE_APPVAR)) {
         ti_SetArchiveStatus(true, slot);
