@@ -698,7 +698,7 @@ void ui_NewUser(void) {
     gfx_FillRectangle_NoClip(29, 76, 266, 128);
     gfx_PrintStringXY("Naviguez dans les dossiers / fichiers ~", 29, 76);
     gfx_PrintStringXY("l'aide des touches fl{ch{es. Ex{cutez", 29, 90);
-    gfx_PrintStringXY("Exécutez un programme en tappant sur", 29, 104);
+    gfx_PrintStringXY("Ex{cutez un programme en tappant sur", 29, 104);
     gfx_PrintStringXY("[entrer] ou sur [2nde]. Basculer les", 29, 118);
     gfx_PrintStringXY("options dans les param}tres en utilisant", 29, 132);
     gfx_PrintStringXY("les touches fl{ch{es, et cochez les cases", 29, 146);
