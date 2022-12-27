@@ -53,12 +53,12 @@ returnIsAsm := backupPrgmName + 9
 returnEditLocked := returnIsAsm + 1
 returnCEaShell := returnEditLocked + 1
 lockStatus := ti.pixelShadow2 + 3
+quitOrOff := lockStatus + 1
 
 sysHookFlg := 52
 appInpPrmptInit := 0
 appInpPrmptDone := 1
 appWantHome := 4
-quitOrOff := 0
 
 _runProgram:
 	ld iy, ti.flags
@@ -83,7 +83,8 @@ _runProgram:
     ldir ; move name to OP1
 
 _continueRun:
-	set quitOrOff, (iy + ti.asm_Flag2)
+	ld a, $bb
+	ld (quitOrOff), a
 	ld	hl,execute_hook
 	call	ti.SetHomescreenHook
 	call _isGetCSCHookInstalled
@@ -391,8 +392,9 @@ _return:
 	jp z, _reloadApp
 
 .quitNoApp:
-	bit quitOrOff, (iy + ti.asm_Flag2)
-	jp z, ti.JForceCmdNoChar
+	ld a, (quitOrOff)
+	cp a, $bb
+	jp nz, ti.JForceCmdNoChar
 	call _removeStopHook
 	res	ti.onInterrupt, (iy + ti.onFlags)
 	call ti.ClrTxtShd
@@ -727,7 +729,8 @@ execute_hook:
 	jr nz, .turningOff
 	bit	appInpPrmptDone,(iy + ti.apiFlg2)
 	res	appInpPrmptDone,(iy + ti.apiFlg2)
-	res quitOrOff, (iy + ti.asm_Flag2)
+	ld a, 0
+	ld (quitOrOff), a
 	jp	z, _return.quit
 	call	ti.ReloadAppEntryVecs
 	ld	hl,execute_vectors
