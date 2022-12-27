@@ -58,6 +58,7 @@ sysHookFlg := 52
 appInpPrmptInit := 0
 appInpPrmptDone := 1
 appWantHome := 4
+quitOrOff := 0
 
 _runProgram:
 	ld iy, ti.flags
@@ -80,10 +81,11 @@ _runProgram:
     ld de, ti.OP1 + 1
     ld bc, 8
     ldir ; move name to OP1
-	ld	hl,execute_hook
-	call	ti.SetHomescreenHook
 
 _continueRun:
+	set quitOrOff, (iy + ti.asm_Flag2)
+	ld	hl,execute_hook
+	call	ti.SetHomescreenHook
 	call _isGetCSCHookInstalled
 	cp a, 1
 	call z, ti.ClrGetKeyHook
@@ -354,12 +356,12 @@ _basicProgram:
 	jp ti.ParseInp
 
 _return:
-	call _reinstallGetCSCHook
 	call ti.PopErrorHandler
 	xor a, a
 
 .error:
 	push af
+	call _reinstallGetCSCHook
 	res ti.progExecuting, (iy + ti.newDispF)
 	res	ti.cmdExec, (iy + ti.cmdFlags)
 	res	ti.allowProgTokens, (iy + ti.newDispF)
@@ -389,6 +391,8 @@ _return:
 	jp z, _reloadApp
 
 .quitNoApp:
+	bit quitOrOff, (iy + ti.asm_Flag2)
+	jp z, ti.JForceCmdNoChar
 	call _removeStopHook
 	res	ti.onInterrupt, (iy + ti.onFlags)
 	call ti.ClrTxtShd
@@ -526,6 +530,8 @@ execute_vectors:
 	ld	(ti.currLastEntry),a
 	bit	appInpPrmptInit,(iy + ti.apiFlg2)
 	jr	nz,.aipi
+	bit ti.monAbandon, (iy + ti.monFlags)
+	jr nz, .reloadHooks
 	call	ti.ClrHomescreenHook
 	call	ti.ForceFullScreen
 .aipi:
@@ -533,6 +539,12 @@ execute_vectors:
 	call	ti.PutAway
 	ld	b,0
 	ret
+.reloadHooks:
+	call ti.DeleteTempPrograms
+	call ti.CleanAll
+	call _reinstallGetCSCHook
+	call _reinstallHomescreenHook
+	jr .aipi
 
 _showError:
 	xor a, a
@@ -705,33 +717,17 @@ execute_hook:
 	db $83
 	cp	a,3
 	ret	nz
+	call ti.ReleaseBuffer
 	ld iy, ti.flags
 	call _reinstallGetCSCHook
-	call ti.ClrHomescreenHook
-	ld hl, appVarName ; restore other homescreen hook if need be
-	call ti.Mov9ToOP1
-	call ti.ChkFindSym
-	jr c, .continue
-	call ti.ChkInRam
-	jr z, .inRam
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
-
-.inRam:
-    ld hl, 10
-	add hl, de
-	ld a, 1
-	cp a, (hl)
-	call z, _installHomescreenHook
+	call _reinstallHomescreenHook
 
 .continue:
+	bit ti.monAbandon, (iy + ti.monFlags)
+	jr nz, .turningOff
 	bit	appInpPrmptDone,(iy + ti.apiFlg2)
 	res	appInpPrmptDone,(iy + ti.apiFlg2)
+	res quitOrOff, (iy + ti.asm_Flag2)
 	jp	z, _return.quit
 	call	ti.ReloadAppEntryVecs
 	ld	hl,execute_vectors
@@ -740,6 +736,11 @@ execute_hook:
 	ld	a,$58
 	ld	(ti.cxCurApp),a
 	ret
+
+.turningOff:
+	bit	appInpPrmptDone,(iy + ti.apiFlg2)
+	res	appInpPrmptDone,(iy + ti.apiFlg2)
+	jp	z, _return.quit
 
 _removeExecuteHookInstalled:
 	ld iy, ti.flags
@@ -774,6 +775,30 @@ _reinstallGetCSCHook:
 	add hl, de
 	ld a, (hl)
 	call _installGetCSCHookCont
+	ret
+
+_reinstallHomescreenHook:
+	call ti.ClrHomescreenHook
+	ld hl, appVarName ; restore other homescreen hook if need be
+	call ti.Mov9ToOP1
+	call ti.ChkFindSym
+	ret c
+	call ti.ChkInRam
+	jr z, .inRam
+    ld hl, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ex de, hl
+
+.inRam:
+    ld hl, 10
+	add hl, de
+	ld a, 1
+	cp a, (hl)
+	call z, _installHomescreenHook
 	ret
 
 _lcdNormal:
