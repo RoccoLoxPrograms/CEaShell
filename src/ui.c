@@ -551,7 +551,7 @@ void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bo
         }
     } else {
         if (useON) {
-            gfx_PrintStringXY("Non", x + 99, y);
+            gfx_PrintStringXY("Non", x + 98, y);
         } else {
             gfx_PrintStringXY("D{s", x + 99, y);
         }
@@ -572,7 +572,7 @@ void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x
         }
     } else {
         if (useON) {
-            gfx_PrintStringXY("Non", x + 99, y + 12);
+            gfx_PrintStringXY("Non", x + 98, y + 12);
         } else {
             gfx_PrintStringXY("D{s", x + 99, y + 12);
         }
@@ -671,7 +671,7 @@ void ui_NewUser(void) {
     gfx_PrintStringXY("Nous faisons de notre mieux pour que", 29, 76);
     gfx_PrintStringXY("CEaShell soit sympa ~ utiliser.", 29, 88);
     gfx_PrintStringXY("Voici un guide pour naviguer dans les", 29, 100);
-    gfx_PrintStringXY("fonctionnalit{es et menus. Utilisez les", 29, 112);
+    gfx_PrintStringXY("fonctionnalit{s et menus. Utilisez les", 29, 112);
     gfx_PrintStringXY("touches  [f(x)] / [graphe] pour", 29, 124);
     gfx_PrintStringXY("personnaliser / param{trer CEashell.", 29, 136);
     gfx_PrintStringXY("Les touches [fen|tre], [zoom], [trace]", 29, 148);
@@ -697,13 +697,13 @@ void ui_NewUser(void) {
     gfx_SetColor(237);
     gfx_FillRectangle_NoClip(29, 76, 266, 128);
     gfx_PrintStringXY("Naviguez dans les dossiers / fichiers ~", 29, 76);
-    gfx_PrintStringXY("l'aide des touches fl{ch{es. Ex{cutez", 29, 90);
+    gfx_PrintStringXY("l'aide des touches fl{ch{es.", 29, 90);
     gfx_PrintStringXY("Ex{cutez un programme en tappant sur", 29, 104);
-    gfx_PrintStringXY("[entrer] ou sur [2nde]. Basculer les", 29, 118);
-    gfx_PrintStringXY("options dans les param}tres en utilisant", 29, 132);
-    gfx_PrintStringXY("les touches fl{ch{es, et cochez les cases", 29, 146);
+    gfx_PrintStringXY("[entrer] ou sur [2nde]. Basculez les", 29, 118);
+    gfx_PrintStringXY("options dans les param}tres avec les", 29, 132);
+    gfx_PrintStringXY("touches fl{ch{es, et cochez les cases", 29, 146);
     gfx_PrintStringXY("avec [2nde] ou [entrer].", 29, 160);
-    gfx_PrintStringXY("Merci pour utiliser CEaShell!", 29, 184);
+    gfx_PrintStringXY("Merci d'avoir choisi CEaShell!", 29, 184);
     gfx_BlitBuffer();
 
     while(kb_AnyKey());
