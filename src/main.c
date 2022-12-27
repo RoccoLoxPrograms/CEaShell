@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022
  * License: GPL-3.0
- * Last Build: December 26, 2022
- * Version: 0.84.1
+ * Last Build: December 27, 2022
+ * Version: 1.0
  * 
  * --------------------------------------
 **/
