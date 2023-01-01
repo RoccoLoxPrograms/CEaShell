@@ -90,4 +90,4 @@ You can find it [here](https://github.com/RoccoLoxPrograms/CEaShell/tree/french-
 
 A more detailed credits can be found in CEaShell. [**app_tools**](https://github.com/commandblockguy/app_tools) is created by [commandblockguy](https://github.com/commandblockguy/), and some of the assembly was written by [MateoConLechuga](https://github.com/mateoconlechuga/).
 
-© 2022 RoccoLox Programs and TIny_Hacker
+© 2022 - 2023 RoccoLox Programs and TIny_Hacker

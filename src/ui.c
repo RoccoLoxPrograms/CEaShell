@@ -3,7 +3,7 @@
  * 
  * CEaShell Source Code - ui.c
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022
+ * Copyright 2022 - 2023
  * License: GPL-3.0
  * 
  * --------------------------------------
@@ -581,7 +581,7 @@ void ui_AboutScreen(uint8_t *colors) {
     gfx_PrintStringXY("TIny_Hacker. CEaShell aims to provide an", 21, 115);
     gfx_PrintStringXY("easy to use, modern interface for the", 21, 128);
     gfx_PrintStringXY("TI-84+ CE and TI-83 PCE calculators.", 21, 141);
-    gfx_PrintStringXY("(C) Copyright 2022", 21, 175);
+    gfx_PrintStringXY("(C) Copyright 2022 - 2023", 21, 175);
     gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 21, 188);
     gfx_SetClipRegion(21, 52, 299, 196);    // Helps cut the text off in the scrolling animation
     gfx_SetTextConfig(1);

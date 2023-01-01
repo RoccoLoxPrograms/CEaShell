@@ -2,7 +2,7 @@
 #
 # CEaShell Source Code - makefile
 # By RoccoLox Programs and TIny_Hacker
-# Copyright 2022
+# Copyright 2022 - 2023
 # License: GPL-3.0
 #
 #--------------------------------------
@@ -12,7 +12,7 @@ APP_NAME = CEaShell
 APP_VERSION = 5.0.0.0000
 CEASHELL_VERSION = 1.0
 APPVAR_VERSION = 0
-DESCRIPTION = "(C)  2022  RoccoLox  &  TIny_Hacker"
+DESCRIPTION = "(C)  2022  -  2023  RoccoLox  &  TIny_Hacker"
 COMPRESSED = NO
 ARCHIVED = YES
 

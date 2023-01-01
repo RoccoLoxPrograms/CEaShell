@@ -3,7 +3,7 @@
  * 
  * CEaShell Source Code - hooks.h
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022
+ * Copyright 2022 - 2023
  * License: GPL-3.0
  * 
  * --------------------------------------
