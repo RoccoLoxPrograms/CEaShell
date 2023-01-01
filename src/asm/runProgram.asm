@@ -47,6 +47,7 @@ include 'include/ti84pceg.inc'
 	extern _installGetCSCHookCont
 	extern _isGetCSCHookInstalled
 	extern _removeStopHook
+	extern _removeAppChangeHook
 
 backupPrgmName := ti.appData
 returnIsAsm := backupPrgmName + 9
@@ -142,7 +143,12 @@ _asmProgram:
     inc hl
 	ld bc, (ti.asm_prgm_size)
     ld de, ti.userMem
-    ldir
+    
+.copy:
+	call ti.ChkBCIs0
+	jr z, _asmProgram.run
+	ldi
+	jr .copy
 
 _asmProgram.run:
     call ti.DisableAPD
@@ -310,9 +316,12 @@ _basicProgram:
 	pop hl ; get data pointer
 	inc hl
 	inc hl
+
+.copy:
+	call ti.ChkBCIs0
+	jr z, .inRom
 	ldi
-	jp po, .inRom
-	ldir
+	jr .copy
 
 .inRom:
 	call ti.OP4ToOP1
@@ -654,7 +663,7 @@ _showError:
 
 _reloadApp:
 	ld sp, (ti.onSP) ; Don't bork the stack
-	call ti.ClrAppChangeHook
+	call _removeAppChangeHook
 	res	ti.useTokensInString, (iy + ti.clockFlags)
 	res	ti.onInterrupt, (iy + ti.onFlags)
 	set	ti.graphDraw, (iy + ti.graphFlags)

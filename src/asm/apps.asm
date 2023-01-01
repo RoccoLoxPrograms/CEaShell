@@ -20,6 +20,7 @@ include 'include/ti84pceg.inc'
     public _executeApp
     public _deleteApp
     public _exitDefrag
+    extern _removeAppChangeHook
 
 appNamePtr := ti.appData
 
@@ -128,7 +129,7 @@ _executeApp: ; mostly Cesium's code
     ld hl, 0
     ld (ti.asm_prgm_size), hl
     ld iy, ti.flags
-	call ti.ClrAppChangeHook
+	call _removeAppChangeHook
 	res ti.useTokensInString, (iy + ti.clockFlags)
 	res	ti.onInterrupt, (iy + ti.onFlags)
 	set	ti.graphDraw, (iy + ti.graphFlags)

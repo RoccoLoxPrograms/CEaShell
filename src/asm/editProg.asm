@@ -38,6 +38,7 @@ include 'include/ti84pceg.inc'
 	public edit_basic_program_goto
 	public edit_basic_program
 	public _editBasicProg
+	public _removeAppChangeHook
 	extern _reloadApp
 	extern _arcUnarc
 	extern _reinstallGetCSCHook
@@ -101,9 +102,7 @@ edit_basic_program:
 	ld	(edit_status),a
 	call	_arcUnarc
 .not_archived:
-	ld	hl,hook_app_change
-	ld iy, ti.flags	; C toolchain messes up this
-	call	ti.SetAppChangeHook
+	call _setupAppChangeHook
 	xor	a,a
 	ld	(ti.menuCurrent),a
 	call	ti.CursorOff
@@ -261,7 +260,7 @@ hook_app_change:
 	jr z, .exitOS
 	ret
 .close_editor:
-	call ti.ClrAppChangeHook
+	call _removeAppChangeHook
 	push	af, bc, hl
 	call	ti.CursorOff
 	call	ti.CloseEditEqu
@@ -373,6 +372,69 @@ _restoreAppvar:
 	call ti.Mov9ToOP1
 	call ti.ChkFindSym
 	jp ti.DelVar
+
+_setupAppChangeHook: ; handle preservation of hooks (From Cesium)
+    xor	a, a
+	ld (ti.appErr1), a
+    ld iy, ti.flags
+	bit	ti.appChangeHookActive, (iy + ti.hookflags4)
+	jr z, .noChain
+	ld	hl, (ti.appChangeHookPtr)
+	ld de, hook_app_change
+	or a, a
+	sbc	hl, de
+	add	hl, de
+	jr z, .checkIfBadExit
+
+.chainHooks:
+	ld a, (hl)
+	cp a, $83
+	jr nz, .noChain
+	ex de, hl
+	inc	de
+	ld hl, ti.appErr1
+	ld (hl), $7f
+	inc	hl
+	ld (hl), de
+	jr .noChain
+
+.checkIfBadExit:
+	ld hl, ti.appErr1
+	ld a, (hl)
+	cp a, $7f
+	jr nz, .noChain
+	inc	hl
+	ld hl, (hl)
+	dec	hl
+	jr .chainHooks
+
+.noChain:
+    ld hl, hook_app_change
+    jp ti.SetAppChangeHook
+
+_removeAppChangeHook: ; also from Cesium
+	ld iy, ti.flags
+    bit	ti.appChangeHookActive, (iy + ti.hookflags4)
+	jr z, .clearAppChange
+	ld hl, (ti.appChangeHookPtr)
+	ld de, hook_app_change
+	or a, a
+	sbc	hl, de
+	add	hl, de
+	ret	nz
+	ld hl, ti.appErr1
+	ld a, (hl)
+	cp a, $7f
+	jr nz, .clearAppChange
+	inc	hl
+	ld hl, (hl)
+	dec	hl
+	xor	a, a
+	ld (ti.appErr1), a
+	jp ti.SetAppChangeHook
+
+.clearAppChange:
+	jp	ti.ClrAppChangeHook
 
 tempProg:
     db ti.ProgObj, "appvar", 0
