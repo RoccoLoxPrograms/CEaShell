@@ -104,4 +104,4 @@ Vous pouvez la trouver [ici](https://github.com/RoccoLoxPrograms/CEaShell/tree/f
 Les crédits en détails sont visibles sur CEaShell. [**app_tools**](https://github.com/commandblockguy/app_tools) a été crée par [commandblockguy](https://github.com/commandblockguy/),
 et une partie de l'assembleur a été codée par [MateoConLechuga](https://github.com/mateoconlechuga/).
 
-© 2022 RoccoLox Programs and TIny_Hacker
+© 2022 - 2023 RoccoLox Programs and TIny_Hacker
