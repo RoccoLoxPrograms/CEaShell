@@ -279,7 +279,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     while (kb_AnyKey());
     uint8_t key = os_GetCSC();
     bool redraw;
-    bool alphaPressed;  // Number mode?
+    bool alphaPressed = false;  // Number mode?
     bool cursor = false;
     timer_Set(1, 0);
 
