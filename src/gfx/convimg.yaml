@@ -1,14 +1,17 @@
-palettes:
-  - name: global_palette
-    fixed-entries:
-    images: automatic
+# --------------------------------------
+# 
+# CEaShell Source Code - convimg.yaml
+# By RoccoLox Programs and TIny_Hacker
+# Copyright 2022 - 2023
+# License: GPL-3.0
+#  
+# --------------------------------------
 
 converts:
   - name: sprites
-    palette: global_palette
+    palette: xlibc
     transparent-color-index: 0
     images:
-      - xlibc.png         # Keeps the shape of the original palette
       - battery.png
       - charging.png
       - paint.png
@@ -36,8 +39,6 @@ converts:
 outputs:
   - type: c
     include-file: gfx.h
-    palettes:
-      - global_palette
     converts:
       - sprites
     const: true
