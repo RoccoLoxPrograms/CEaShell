@@ -583,7 +583,7 @@ void ui_AboutScreen(uint8_t *colors) {
     const char *specialThanks = "Remerciements : Code/Aide au codage : MateoConLechuga, calc84maniac, "
     "commandblockguy, jacobly, Zeroko, et le Discord CEdev. Traduction fran`aise : Shadow. Inspiration/id{es "
     "de fonctionnalit{s : KermMartian, Adriweb, epsilon5, NoahK, DJ Omnimaga. B|ta-test : Nanobot567, "
-    "ChuckyHecker, darkwater4213, Oxiti8. Et un grand merci aux membres de notre discord pour votre "
+    "ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe. Et un grand merci aux membres de notre discord pour votre "
     "soutien et vos id{es!";
     unsigned int startDisplay = 0;
     shapes_RoundRectangleFill(colors[0], 8, 290, 155, 15, 46);
@@ -642,7 +642,7 @@ void ui_AboutScreen(uint8_t *colors) {
             timer_Set(1, 0);
         }
 
-        if (startDisplay > 386) {
+        if (startDisplay > 398) {
             startDisplay = 0; // restart
         }
 
