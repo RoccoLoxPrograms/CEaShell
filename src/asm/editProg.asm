@@ -260,26 +260,28 @@ hook_app_change:
 	jr z, .exitOS
 	ret
 .close_editor:
+	push af, bc, hl
 	call _removeAppChangeHook
-	push	af, bc, hl
-	call	ti.CursorOff
-	call	ti.CloseEditEqu
+	pop	hl, bc, af
+	push af, bc, hl
+	call ti.CursorOff
+	call ti.CloseEditEqu
 	ld hl, isAppvar
 	ld a, edit_appvar
 	cp a, (hl)
 	jr z, _restoreAppvar
 	ld hl, backup_prgm_name
 	call ti.Mov9ToOP1
-	call	ti.ChkFindSym
-	jr	c,.noarc
+	call ti.ChkFindSym
+	jr c, .noarc
 	ld a, (lock_status)
 	cp a, edit_locked ; check if locked
 	jr nz, .notLocked
 	ld (hl), 6
 .notLocked:
-	ld	a,(edit_status)
-	or	a,a
-	call	nz,_arcUnarc
+	ld a, (edit_status)
+	or a, a
+	call nz, _arcUnarc
 .noarc:
 	pop	hl, bc, af
 	ret
