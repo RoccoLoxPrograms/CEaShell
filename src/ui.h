@@ -19,6 +19,10 @@
 extern "C" {
 #endif
 
+#define INPUT_NUMBER    0
+#define INPUT_UPPER     1
+#define INPUT_LOWER     2
+
 #define UI_BATTERY	    0
 #define UI_CHARGING	    1
 #define UI_PAINT	    2
@@ -28,8 +32,9 @@ extern "C" {
 #define UI_RARROW	    6
 #define UI_DARROW       7
 #define UI_CHECK        8
-#define UI_CURSOR_A     9
-#define UI_CURSOR_1     10
+#define UI_CURSOR_1     9
+#define UI_CURSOR_UP    10
+#define UI_CURSOR_LOW   11
 
 void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y);    // Takes care of drawing the sprite in white or black, depending on the theme
 
@@ -49,7 +54,7 @@ void ui_BottomBar(const uint8_t color);
 
 bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y);
 
-bool ui_RenameBox(uint8_t *colors, char *newName);
+bool ui_RenameBox(uint8_t *colors, char *newName, bool useLower);
 
 void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
 
@@ -63,7 +68,7 @@ void ui_AboutScreen(uint8_t *colors);
 
 void ui_NewUser(void);
 
-uint8_t ui_CopyNewMenu(uint8_t *colors, char *name);
+uint8_t ui_CopyNewMenu(uint8_t *colors, char *name, bool useLower);
 
 #ifdef __cplusplus
 }

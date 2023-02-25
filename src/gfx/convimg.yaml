@@ -22,8 +22,9 @@ converts:
       - rArrow.png
       - dArrow.png
       - check.png
-      - cursorAlpha.png
       - cursorNumber.png
+      - cursorUpper.png
+      - cursorLower.png
       - batteryAlt.png
       - chargingAlt.png
       - paintAlt.png
@@ -33,8 +34,9 @@ converts:
       - rArrowAlt.png
       - dArrowAlt.png
       - checkAlt.png
-      - cursorAlphaAlt.png
       - cursorNumberAlt.png
+      - cursorUpperAlt.png
+      - cursorLowerAlt.png
       - invSwitch.png
 
 outputs:
