@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022 - 2023
  * License: GPL-3.0
- * Last Build: January 25, 2023
- * Version: 1.0.6
+ * Last Build: February 24, 2023
+ * Version: 1.1
  * 
  * --------------------------------------
 **/
@@ -574,7 +574,7 @@ int main(void) {
             } else if (kb_IsDown(kb_KeyMode) && fileSelected >= 0 + ((directory == PROGRAMS_FOLDER) * (showApps + showAppvars)) + (directory != PROGRAMS_FOLDER)) {
                 fullRedraw = true;
                 char name[9] = "\0";
-                uint8_t copyMenu = ui_CopyNewMenu(colors, name);
+                uint8_t copyMenu = ui_CopyNewMenu(colors, name, (directory == APPVARS_FOLDER));
 
                 if (copyMenu == 2) {
                     while (kb_AnyKey());

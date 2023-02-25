@@ -28,7 +28,7 @@
 
 void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
-    const gfx_sprite_t *uiIcons[22] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorAlpha, cursorNumber, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorAlphaAlt, cursorNumberAlt};
+    const gfx_sprite_t *uiIcons[24] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorNumber, cursorUpper, cursorLower, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorNumberAlt, cursorUpperAlt, cursorLowerAlt};
     gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 11], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
@@ -262,10 +262,14 @@ bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y) {
     return retVal;
 }
 
-bool ui_RenameBox(uint8_t *colors, char *newName) {
+bool ui_RenameBox(uint8_t *colors, char *newName, bool useLower) {
     gfx_BlitScreen();
-    const char *charAlpha = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
-    const char *charNums = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0""369\0\0\0\0\0""258\0\0\0\0""0147\0\0\0X\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+    static const char chars[3][56] = 
+    {{'\0', '\0', '\0', '\0', '\0','\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '^', '\0', '\0', '\0', '3', '6', '9', ')', '\0', '\0', '\0', '.', '2', '5', '8', '(', '\0', '\0', '\0', '0', '1', '4', '7', ',', '\0', '\0', 'X', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
+    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'W', 'R', 'M', 'H', '\0', '\0', '?', '[', 'V', 'Q', 'L', 'G', '\0', '\0', ':', 'Z', 'U', 'P', 'K', 'F', 'C', '\0', ' ', 'Y', 'T', 'O', 'J', 'E', 'B', 'X', '\0', 'X', 'S', 'N', 'I', 'D', 'A', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
+    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'w', 'r', 'm', 'h', '\0', '\0', '?', '[', 'v', 'q', 'l', 'g', '\0', '\0', ':', 'z', 'u', 'p', 'k', 'f', 'c', '\0', ' ', 'y', 't', 'o', 'j', 'e', 'b', '\0', '\0', 'x', 's', 'n', 'i', 'd' ,'a', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}};
+
     uint8_t length = strlen(newName);
     gfx_SetColor(colors[0]);
     gfx_FillRectangle_NoClip(129, 182, 62, 11);
@@ -279,7 +283,7 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
     while (kb_AnyKey());
     uint8_t key = os_GetCSC();
     bool redraw;
-    bool alphaPressed = false;  // Number mode?
+    uint8_t inputMode = INPUT_UPPER;
     bool cursor = false;
     timer_Set(1, 0);
 
@@ -296,16 +300,9 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
                 redraw = true;
             }
 
-            if (!alphaPressed) {
-                if (charAlpha[key] && length < 8) {
-                    newName[length++] = charAlpha[key];
-                    redraw = true;
-                }
-            } else {
-                if (charNums[key] && length < 8 && length) {
-                    newName[length++] = charNums[key];
-                    redraw = true;
-                }
+            if (chars[inputMode][key]) {
+                newName[length++] = chars[inputMode][key];
+                redraw = true;
             }
 
             if (redraw) {
@@ -323,11 +320,15 @@ bool ui_RenameBox(uint8_t *colors, char *newName) {
             }
 
             if (key == sk_Alpha) {
-                alphaPressed = !alphaPressed;
+                if (inputMode < 2 - !(useLower)) {
+                    inputMode++;
+                } else {
+                    inputMode = 0;
+                }
             }
         } else {
             if (cursor) {
-                ui_DrawUISprite(colors[1], UI_CURSOR_A + alphaPressed, gfx_GetTextX() + 1, gfx_GetTextY());
+                ui_DrawUISprite(colors[1], UI_CURSOR_1 + inputMode, gfx_GetTextX() + 1, gfx_GetTextY());
             } else {
                 gfx_SetColor(colors[2]);
                 gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);
@@ -692,7 +693,7 @@ void ui_NewUser(void) {
     }
 }
 
-uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
+uint8_t ui_CopyNewMenu(uint8_t *colors, char *name, bool useLower) {
     bool returnVal = false;
     while (kb_AnyKey());
     shapes_RoundRectangleFill(colors[0], 9, 208, 20, 56, 204);
@@ -732,13 +733,17 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
     gfx_SetTextScale(2, 2);
     gfx_SetTextXY(111, 207);
     gfx_BlitBuffer();
-    const char *charAlpha = "\0\0\0\0\0\0\0\0\0\0\0WRMH\0\0\0[VQLG\0\0\0ZUPKFC\0\0YTOJEBX\0XSNIDA\0\0\0\0\0\0\0\0";
-    const char *charNums = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0""369\0\0\0\0\0""258\0\0\0\0""0147\0\0\0X\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+    static const char chars[3][56] = 
+    {{'\0', '\0', '\0', '\0', '\0','\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '^', '\0', '\0', '\0', '3', '6', '9', ')', '\0', '\0', '\0', '.', '2', '5', '8', '(', '\0', '\0', '\0', '0', '1', '4', '7', ',', '\0', '\0', 'X', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
+    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'W', 'R', 'M', 'H', '\0', '\0', '?', '[', 'V', 'Q', 'L', 'G', '\0', '\0', ':', 'Z', 'U', 'P', 'K', 'F', 'C', '\0', ' ', 'Y', 'T', 'O', 'J', 'E', 'B', 'X', '\0', 'X', 'S', 'N', 'I', 'D', 'A', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
+    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'w', 'r', 'm', 'h', '\0', '\0', '?', '[', 'v', 'q', 'l', 'g', '\0', '\0', ':', 'z', 'u', 'p', 'k', 'f', 'c', '\0', ' ', 'y', 't', 'o', 'j', 'e', 'b', '\0', '\0', 'x', 's', 'n', 'i', 'd' ,'a', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}};
+
     asm("ei");
     uint8_t length = 0;
     uint8_t key = os_GetCSC();
     bool redraw;
-    bool alphaPressed;  // Number mode?
+    uint8_t inputMode = INPUT_UPPER;
     bool cursor = false;
     timer_Set(1, 0);
 
@@ -755,16 +760,9 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
                 redraw = true;
             }
 
-            if (!alphaPressed) {
-                if (charAlpha[key] && length < 8) {
-                    name[length++] = charAlpha[key];
-                    redraw = true;
-                }
-            } else {
-                if (charNums[key] && length < 8 && length) {
-                    name[length++] = charNums[key];
-                    redraw = true;
-                }
+            if (chars[inputMode][key]) {
+                name[length++] = chars[inputMode][key];
+                redraw = true;
             }
 
             if (redraw) {
@@ -782,11 +780,15 @@ uint8_t ui_CopyNewMenu(uint8_t *colors, char *name) {
             }
 
             if (key == sk_Alpha) {
-                alphaPressed = !alphaPressed;
+                if (inputMode < 2 - !(useLower)) {
+                    inputMode++;
+                } else {
+                    inputMode = 0;
+                }
             }
         } else {
             if (cursor) {
-                ui_DrawUISprite(colors[1], UI_CURSOR_A + alphaPressed, gfx_GetTextX() + 1, gfx_GetTextY());
+                ui_DrawUISprite(colors[1], UI_CURSOR_1 + inputMode, gfx_GetTextX() + 1, gfx_GetTextY());
             } else {
                 gfx_SetColor(colors[0]);
                 gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);

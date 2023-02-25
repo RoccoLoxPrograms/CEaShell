@@ -1022,7 +1022,7 @@ void menu_Info(uint8_t *colors, void **programPtrs, void **appvarPtrs, bool *inf
                         newName[0] += 64 * (newName[0] < 65);
                         menu_InfoRedraw(true, false, colors, cursorX, cursorY, isArchived, isLocked, isHidden, fileTypeString, newName, fileSize, fileType, osFileType, directory);
 
-                        if (ui_RenameBox(colors, newName)) {
+                        if (ui_RenameBox(colors, newName, (directory == APPVARS_FOLDER))) {
                             ti_Close(slot);
                             ti_RenameVar(fileName, newName, osFileType);
                             sortVAT();
