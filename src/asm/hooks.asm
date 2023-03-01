@@ -73,7 +73,19 @@ _iconHookStart: ; the user only has the icon hook enabled
 .keyPress: ; keypress event
     ld a, ti.skPrgm
     cp a, b
-    call z, _sortVAT
+    jr nz, .modified
+    ld a, (iy + ti.shiftFlags)
+    sla a
+    sla a ; shiftALock
+    jr c, .modified
+    sla a ; shiftLwrAlpha
+    jr c, .modified
+    sla a ; shiftAlpha
+    jr c, .modified
+    sla a ; shift2nd
+    call nc, _sortVAT
+
+.modified:
     res updateProgInfo, (iy + ti.asm_Flag2) ; reset flag on keypress
 
 .return:
@@ -239,12 +251,12 @@ _getCSCHookStart: ; icons and on shortcuts
     push af
     ld a, (ti.menuCurrent)
     cp a, 3 ; check for program menu
-    jr nz, .return
+    jp nz, .return
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Run ; check for run menu
     jr z, .update
     cp a, ti.mPrgm_Edit
-    jr nz, .returnOther
+    jp nz, .returnOther
 
 .update:
     bit updateProgInfo, (iy + ti.asm_Flag2)
@@ -266,7 +278,19 @@ _getCSCHookStart: ; icons and on shortcuts
     jr nz, .onShortcut
     ld a, ti.skPrgm
     cp a, b
-    call z, _sortVAT
+    jr nz, .modified
+    ld a, (iy + ti.shiftFlags)
+    sla a
+    sla a ; shiftALock
+    jr c, .modified
+    sla a ; shiftLwrAlpha
+    jr c, .modified
+    sla a ; shiftAlpha
+    jr c, .modified
+    sla a ; shift2nd
+    call nc, _sortVAT
+
+.modified:
     res updateProgInfo, (iy + ti.asm_Flag2) ; reset flag on keypress
     jr .return
 
