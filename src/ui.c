@@ -29,7 +29,7 @@
 void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
     const gfx_sprite_t *uiIcons[24] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorNumber, cursorUpper, cursorLower, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorNumberAlt, cursorUpperAlt, cursorLowerAlt};
-    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 11], x, y);
+    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 12], x, y);
     gfx_SetTextFGColor(colorAlt * 255);
 }
 
