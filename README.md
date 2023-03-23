@@ -94,13 +94,9 @@ Si vous rencontrez un bug lorsque vous utilisez CEaShell, n'hésitez pas à nous
 serveur [Discord](https://discord.gg/RDTtu258fW). Soyez libre de demander des fonctionnalités ou de demander
 de l'aide sur notre Discord ou sur notre sujet [Cemetech](https://ceme.tech/t18820) !
 
-## Traduction
-
-Il existe actuellement une traduction de CEaShell en français par [Shadow](https://github.com/Bryankaveen).
-Vous pouvez la trouver [ici](https://github.com/RoccoLoxPrograms/CEaShell/tree/french-translation).
-
 ## Credits
 
+La traduction française est écrite par [Shadow](https://github.com/Bryankaveen).
 Les crédits en détails sont visibles sur CEaShell. [**app_tools**](https://github.com/commandblockguy/app_tools) a été crée par [commandblockguy](https://github.com/commandblockguy/),
 et une partie de l'assembleur a été codée par [MateoConLechuga](https://github.com/mateoconlechuga/).
 
