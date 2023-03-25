@@ -549,6 +549,7 @@ _showError:
 	ld a, (ti.errNo)
 	cp a, ti.E_AppErr1
 	ret	z			; if stop token, ignore
+	call _reinstallGetCSCHook
 	call ti.boot.ClearVRAM
 	ld a, $2d
 	ld (ti.mpLcdCtrl), a
