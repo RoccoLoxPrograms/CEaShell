@@ -193,6 +193,7 @@ _asm_apps_getAppIcon:
     ret
 
 _asm_apps_executeApp:
+    ld iy, ti.flags
     call ti.GetCSC
     or a, a
     jr nz, _asm_apps_executeApp ; debounce
@@ -205,7 +206,6 @@ _asm_apps_executeApp:
     or a, a
     sbc hl, hl
     ld (ti.asm_prgm_size), hl
-    ld iy, ti.flags
     call _asm_hooks_removeAppChangeHook
     res ti.useTokensInString, (iy + ti.clockFlags)
     res ti.onInterrupt, (iy + ti.onFlags)
@@ -266,11 +266,13 @@ _asm_apps_deleteApp:
     pop de
     ex (sp), hl
     push de
+    ld iy, ti.flags
     call ti.DeleteApp
     set 3, (iy + $25) ; defrag thing?
     ret
 
 _asm_apps_exitDefrag:
+    ld iy, ti.flags
     bit 3, (iy + $25)
     ret z
     ld a, ti.cxErase
@@ -278,6 +280,7 @@ _asm_apps_exitDefrag:
 
 _asm_apps_reloadApp:
     ld sp, (ti.onSP) ; Don't bork the stack
+    ld iy, ti.flags
     call _asm_hooks_removeAppChangeHook
     res ti.useTokensInString, (iy + ti.clockFlags)
     res ti.onInterrupt, (iy + ti.onFlags)

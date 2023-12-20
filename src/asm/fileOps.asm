@@ -179,9 +179,10 @@ _asm_fileOps_hidePrgm:
     call ti.ChkFindSym
     call ti.ChkInRam
     jr z, .inRam
+    ld iy, ti.flags
     call ti.Arc_Unarc
     jr _asm_fileOps_hidePrgm
-    
+
 .inRam:
     ld de, -7
     add hl, de
