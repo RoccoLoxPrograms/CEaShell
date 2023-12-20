@@ -7,198 +7,322 @@
 ;
 ;--------------------------------------
 
-	assume adl=1
+    assume adl=1
 
-	section .text
+    section .text
 
-include 'include/ti84pceg.inc'
+include 'include/equates.inc'
 
-    public _detectApp
-    public _getAppSize
-    public _getAppMinOSVersion
-    public _getAppCopyrightInfo
-    public _executeApp
-    public _deleteApp
-    public _exitDefrag
-    extern _removeAppChangeHook
+    public _asm_apps_getAppPtrs
+    public _asm_apps_getAppName
+    public _asm_apps_findAllApps
+    public _asm_apps_getAppSize
+    public _asm_apps_getAppMinOSVersion
+    public _asm_apps_getAppCopyrightInfo
+    public _asm_apps_getAppIcon
+    public _asm_apps_executeApp
+    public _asm_apps_deleteApp
+    public _asm_apps_exitDefrag
+    public _asm_apps_reloadApp
 
-appNamePtr := ti.appData
+    extern app
+    extern _appMainStart
+    extern _asm_hooks_removeAppChangeHook
+    extern _asm_utils_clrScrnAndUsedRAM
+    extern _rodata_appName
 
-_detectApp:
-    push ix
-    ld ix, 0
-    add ix, sp
-    ld hl, (ix + 6) ; name of app (NULL first time)
-    ld de, (ix + 9) ; pointer to var to store pointer to app in
-    pop ix
-    push hl
+_asm_apps_getAppPtrs:
+    pop hl
+    pop de
+    pop bc
+    push bc
     push de
-    ld a, (hl)
-    cp a, 0
-    jr nz, .loadName
-
-.noName:
+    ex (sp), iy
+    push hl
     call ti.ZeroOP1
     ld a, ti.AppObj
     ld (ti.OP1), a
-    jr .search
 
-.loadName:
-    ex de, hl
-    ld hl, ti.OP1
-    ld (hl), ti.AppObj
-    inc hl
-    ld bc, 8
-    ex de, hl
-    ldir ; load char * into OP1
-
-.search:
-    call ti.FindAppUp
-    ld a, 0
-    pop hl
-    ld (hl), de
-    pop hl
+.findApp:
+    push bc
+    ld a, $0D
+    call ti.FindAppCustom
+    pop bc
     ret c
-    ex de, hl
+    bit 0, c
+    jr nz, .loop
+    push bc
+    push de
+    ld b, 8
     ld hl, ti.OP1 + 1
-    ld bc, 9 ; get the zero at the end
-    ldir ; copy in the name
-    ld a, 1 ; there was an app
+    ld de, _rodata_appName
+    call ti.StrCmpre
+    pop de
+    pop bc
+    jr z, .findApp
+
+.loop:
+    ld (iy), de
+    lea iy, iy + 3
+    jr .findApp
+
+_asm_apps_getAppName:
+    pop bc
+    pop de
+    ex (sp), hl
+    push de
+    push bc
+    ex de, hl
+    ld bc, $103
+    add hl, bc
+    ld bc, 8
+    ldir
+    xor a, a
+    ld (de), a
     ret
 
-_getAppSize:
-    push ix
-    ld ix, 0
-    add ix, sp
-    ld hl, (ix + 6)
-    pop ix
-    call ti.FindAppStart
+_asm_apps_findAllApps:
+    call ti.ZeroOP1
+    ld a, ti.AppObj
+    ld (ti.OP1), a
+    ld c, 0
+
+.findAllLoop:
+    push bc
+    call ti.FindAppUp
+    pop bc
+    ld a, c
+    ret c
+    inc c
+    jr .findAllLoop
+
+_asm_apps_getAppSize:
+    pop de
+    ex (sp), hl
+    push de
     push hl
-	call ti.NextFieldFromType
-	call ti.NextFieldFromType
-	pop	de
-	or a
-	sbc	hl, de ; end of app - start of app
-    inc	hl
-	inc	hl
-	inc	hl ; count app size bytes too
+    call ti.NextFieldFromType
+    call ti.NextFieldFromType
+    pop de
+    or a, a
+    sbc hl, de ; end of app - start of app
+    inc hl
+    inc hl
+    inc hl ; count app size bytes too
     ret
 
-_getAppMinOSVersion:
-    push ix
-    ld ix, 0
-    add ix, sp
-    ld hl, (ix + 6)
-    pop ix
-    call ti.FindAppStart
-    ld de, 13 ; let's hope this works
+_asm_apps_getAppMinOSVersion:
+    pop de
+    ex (sp), hl
+    push de
+    ld de, 13
     add hl, de
     ret
 
-_getAppCopyrightInfo:
-    push ix
-    ld ix, 0
-    add ix, sp
-    ld hl, (ix + 6)
-    pop ix
-    call ti.FindAppStart
-    ld bc, $100
-	add	hl, bc
-	push hl
-	pop	de
-	ld bc, $24
-	add	hl, bc
-	ld hl, (hl)
-	add	hl, de 
-	or a, a 
-	sbc hl, de
-	ret	z
-	add	hl, de
-	ret
-
-_executeApp: ; mostly Cesium's code
-    call ti.GetCSC
-	or a, a
-	jr nz, _executeApp ; debounce
-	xor	a, a
-	ld (ti.kbdGetKy), a
-    ld de, ti.userMem
-	ld hl, (ti.asm_prgm_size)
+_asm_apps_getAppCopyrightInfo:
+    pop bc
+    pop de
+    ex (sp), hl
+    push de
+    push bc
     ex de, hl
-	call ti.DelMem
-    ld hl, 0
+    push de
+    ld bc, $100
+    add hl, bc
+    push hl
+    pop de
+    ld bc, $24
+    add hl, bc
+    ld hl, (hl)
+    add hl, de
+    or a, a 
+    sbc hl, de
+    pop bc
+    ld a, 0
+    ret z
+    add hl, de
+    push bc
+    pop de
+    ld bc, 51
+    ldir
+    xor a, a
+    ld (de), a
+    inc a
+    ret
+
+_asm_apps_getAppIcon:
+    pop bc
+    pop de
+    pop hl
+    push hl
+    push de
+    push bc
+    inc hl
+    inc hl
+    ld a, $FF
+    ld bc, 256
+    call ti.MemSet
+    pop bc
+    pop de
+    ex (sp), hl
+    push de
+    push bc
+    ex de, hl
+    push de
+    ld de, $100
+    add hl, de
+    push hl
+    ld de, $12
+    add hl, de
+    ld hl, (hl)
+    pop de
+    add hl, de
+    ld a, (hl)
+    cp a, $01
+    ld a, 0
+    pop de
+    ret nz
+    inc hl
+    inc hl
+    inc hl
+    inc de
+    inc de
+    ld bc, 256
+    ldir
+    ld a, 1
+    ret
+
+_asm_apps_executeApp:
+    call ti.GetCSC
+    or a, a
+    jr nz, _asm_apps_executeApp ; debounce
+    xor a, a
+    ld (ti.kbdGetKy), a
+    ld de, ti.userMem
+    ld hl, (ti.asm_prgm_size)
+    ex de, hl
+    call ti.DelMem
+    or a, a
+    sbc hl, hl
     ld (ti.asm_prgm_size), hl
     ld iy, ti.flags
-	call _removeAppChangeHook
-	res ti.useTokensInString, (iy + ti.clockFlags)
-	res	ti.onInterrupt, (iy + ti.onFlags)
-	set	ti.graphDraw, (iy + ti.graphFlags)
-	call ti.ReloadAppEntryVecs
-	call ti.AppSetup
-	set	ti.appRunning, (iy + ti.APIFlg)
-	set	6, (iy + $28)
-	res	0, (iy + $2C)
-	set	ti.appAllowContext, (iy + ti.APIFlg)
-	ld hl, $d1787c
-	ld bc, $fff
-	call ti.MemClear
+    call _asm_hooks_removeAppChangeHook
+    res ti.useTokensInString, (iy + ti.clockFlags)
+    res ti.onInterrupt, (iy + ti.onFlags)
+    set ti.graphDraw, (iy + ti.graphFlags)
+    call ti.ReloadAppEntryVecs
+    call ti.AppSetup
+    set ti.appRunning, (iy + ti.APIFlg)
+    set 6, (iy + $28)
+    res 0, (iy + $2C)
+    set ti.appAllowContext, (iy + ti.APIFlg)
+    ld hl, $D1787C 
+    ld bc, $FFF
+    call ti.MemClear
     ; get proper stuff for the app
+    call ti.ClrScrn
+    call ti.HomeUp
     call ti.DrawStatusBar
-    push ix
-    ld ix, 0
-    add ix, sp
-    ld hl, (ix + 6)
-    pop ix
-    ld de, appNamePtr
+    pop de
+    ex (sp), hl
+    push de 
+    ld de, appPtr
     ex de, hl
     ld (hl), de ; save pointer
     ld sp, (ti.onSP) ; Don't bork the stack (safety first)
-	call ti.ResetStacks
-    ld hl, (appNamePtr)
-    call ti.FindAppStart ; app pointer in hl
+    call ti.ResetStacks
+    ld hl, (appPtr)
     ld de, $100
     add hl, de
-	push hl
-	ex de, hl ; code pointer in de
-	ld hl, $18
-	add	hl, de
-	ld hl, (hl)
-	add	hl, de
-	or a, a
-	sbc	hl, de
-	jr z, .noBss
-	push hl
-	pop	bc
-	ld hl, $15
-	add	hl, de
-	ld hl, (hl)
-	add	hl, de
-	ld de, $d1787c
-	ldir
+    push hl
+    ex de, hl ; code pointer in de
+    ld hl, $18
+    add hl, de
+    ld hl, (hl)
+    add hl, de
+    or a, a
+    sbc hl, de
+    jr z, .noBss
+    push hl
+    pop bc
+    ld hl, $15
+    add hl, de
+    ld hl, (hl)
+    add hl, de
+    ld de, $D1787C
+    ldir
 
 .noBss:
-	pop	hl
-	push hl
-	pop	de
-	ld bc, $1b
-	add	hl, bc
-	ld hl, (hl)
-	add	hl, de
-	jp (hl)
+    pop hl
+    push hl
+    pop de
+    ld bc, $1B
+    add hl, bc
+    ld hl, (hl)
+    add hl, de
+    jp (hl)
 
-_deleteApp:
-    push ix
-    ld ix, 0
-    add ix, sp
-    ld hl, (ix + 6)
-    pop ix
-    call ti.FindAppStart
+_asm_apps_deleteApp:
+    pop de
+    ex (sp), hl
+    push de
     call ti.DeleteApp
     set 3, (iy + $25) ; defrag thing?
     ret
 
-_exitDefrag:
+_asm_apps_exitDefrag:
     bit 3, (iy + $25)
     ret z
     ld a, ti.cxErase
     jp ti.NewContext0
+
+_asm_apps_reloadApp:
+    ld sp, (ti.onSP) ; Don't bork the stack
+    call _asm_hooks_removeAppChangeHook
+    res ti.useTokensInString, (iy + ti.clockFlags)
+    res ti.onInterrupt, (iy + ti.onFlags)
+    set ti.graphDraw, (iy + ti.graphFlags)
+    call ti.ResetStacks
+    call ti.ReloadAppEntryVecs
+    call ti.AppSetup
+    set ti.appRunning, (iy + ti.APIFlg) ; turn on apps
+    set 6, (iy + $28)
+    res 0, (iy + $2C) ; set some app flags
+    set ti.appAllowContext, (iy + ti.APIFlg) ; turn on apps
+    xor a, a
+    ld (ti.appErr1), a
+    ld (ti.kbdGetKy), a
+    call _asm_utils_clrScrnAndUsedRAM
+    ld hl, $D1787C ; copy to ram data location
+    ld bc, $FFF
+    call ti.MemClear ; zero out the ram data section
+    ld hl, _appMainStart ; hl -> start of app
+    ld bc, app + 256 - _appMainStart
+    add hl, bc
+    push hl ; de -> start of code for app
+    ex de, hl
+    ld hl, $18 ; find the start of the data to copy to ram
+    add hl, de
+    ld hl, (hl)
+    add hl, de
+    or a, a
+    sbc hl, de ; initialize the bss if it exists
+    jr z, .no_bss
+    push hl
+    pop bc
+    ld hl, $15
+    add hl, de
+    ld hl, (hl)
+    add hl, de
+    ld de, $D1787C ; copy it in
+    ldir
+
+.no_bss:
+    pop hl
+    push hl
+    pop de
+    ld bc, $1B ; offset
+    add hl, bc
+    ld hl, (hl)
+    add hl, de
+    jp (hl)

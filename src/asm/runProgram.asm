@@ -1,844 +1,586 @@
-; Copyright 2015-2021 Matt "MateoConLechuga" Waltz
+;--------------------------------------
 ;
-; Redistribution and use in source and binary forms, with or without
-; modification, are permitted provided that the following conditions are met:
+; CEaShell Source Code - asm_runProgram_run.asm
+; By RoccoLox Programs and TIny_Hacker
+; Copyright 2022 - 2023
+; License: GPL-3.0
 ;
-; 1. Redistributions of source code must retain the above copyright notice,
-;    this list of conditions and the following disclaimer.
-;
-; 2. Redistributions in binary form must reproduce the above copyright notice,
-;    this list of conditions and the following disclaimer in the documentation
-;    and/or other materials provided with the distribution.
-;
-; 3. Neither the name of the copyright holder nor the names of its contributors
-;    may be used to endorse or promote products derived from this software
-;    without specific prior written permission.
-;
-; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-; IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-; ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-; LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-; CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-; SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-; INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-; CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-; POSSIBILITY OF SUCH DAMAGE.
+;--------------------------------------
 
-; Running program stuff. A lot of the code is slightly modified from Cesium.
+    assume adl=1
 
-	assume adl=1
+    section .text
 
-	section .text
+include 'include/equates.inc'
 
-include 'include/ti84pceg.inc'
+    public _asm_runProgram_run
+    public _asm_runProgram_main
+    public _asm_runProgram_error
+    public _asm_runProgram_return.quit
+    public _asm_runProgram_vectors
 
-	public _runProgram
-	public _continueRun
-	public _removeExecuteHookInstalled
-	public _reinstallGetCSCHook
-	public _reloadApp
-    extern app
-    extern _appMainStart
-	extern _checkPrgmType
-	extern edit_basic_program_goto
-	extern _installHomescreenHook
-	extern _installGetCSCHookCont
-	extern _isGetCSCHookInstalled
-	extern _removeStopHook
-	extern _removeAppChangeHook
+    extern _asm_hooks_installStopHook
+    extern _asm_hooks_removeStopHook
+    extern _asm_hooks_installHomescreenHook
+    extern _asm_hooks_installGetCSCHookCont
+    extern _asm_editProgram_goto
+    extern _asm_hooks_removeAppChangeHook
+    extern _asm_hooks_removeBasicKeyHook
+    extern _asm_hooks_installBasicKeyHook
+    extern _asm_hooks_runPrgmHook
+    extern _asm_utils_findVar
+    extern _asm_utils_backupPrgmName
+    extern _asm_utils_lcdNormal
+    extern _asm_utils_clrScrnAndUsedRAM
+    extern _asm_apps_reloadApp
+    extern _rodata_errorQuit
+    extern _rodata_errorGoto
+    extern _rodata_basicPrgmName
 
-backupPrgmName := ti.appData
-returnIsAsm := backupPrgmName + 9
-returnEditLocked := returnIsAsm + 1
-returnCEaShell := returnEditLocked + 1
-lockStatus := ti.pixelShadow2 + 3
-
-sysHookFlg := 52
-appInpPrmptInit := 0
-appInpPrmptDone := 1
-appWantHome := 4
-
-_runProgram:
-	ld iy, ti.flags
-    push ix
-    ld ix, 0
-    add ix, sp
-	ld a, (ix + 15)	; edit locked programs?
-	ld hl, returnEditLocked
-	ld (hl), a
-    ld c, (ix + 12) ; get asm status
-	ld hl, returnIsAsm
-	ld (hl), c
-	ld hl, returnCEaShell
-	ld (hl), 1
-	ld a, (ix + 9) ; get type
-    ld hl, (ix + 6) ; get name
-    pop ix
-	push bc
-    ld (ti.OP1), a ; move type to OP1
-    ld de, ti.OP1 + 1
+_asm_runProgram_run:
+    ld iy, 0
+    add iy, sp
+    ld hl, (iy + 12)
+    ld de, 15
+    add hl, de
+    ld de, (hl)
+    ld (editArcProgs), de
+    ld a, returnCEaShell
+    ld (returnLoc), a
+    inc hl
+    inc hl
+    inc hl
+    ld a, (hl)
+    push iy
+    ld iy, ti.flags
+    set disableBusyIndicator, (iy + shellFlags)
+    or a, a
+    jr nz, $ + 6
+    res disableBusyIndicator, (iy + shellFlags)
+    pop iy
+    ld a, (iy + 6) ; program type
+    ld hl, ti.OP1
+    ld (hl), a
+    inc hl
+    ld de, (iy + 3)
     ld bc, 8
-    ldir ; move name to OP1
-	ld	hl,execute_hook
-	call	ti.SetHomescreenHook
-
-_continueRun:
-	call _isGetCSCHookInstalled
-	cp a, 1
-	call z, ti.ClrGetKeyHook
-	call _utilBackupPrgmName
-	pop bc
-	ld a, c
-    cp a, 2 ; check for a basic program
-    jp z, _basicProgram
-
-_asmProgram:
-    call ti.ChkFindSym
-    call ti.ChkInRam
-    jr z, .inRam ; same as in getPrgmType
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
     ex de, hl
+    ldir
+    ld a, (iy + 9)
 
-.inRam:
-    ex de, hl
-    ld de, 0
-    ld e, (hl)
-    inc hl
-    ld d, (hl) ; figure out the size
-    inc hl
-    ex de, hl
-    push de
-    call _checkMemSpace
-	pop bc
-    jp c, _noMem
-	push bc
-    ld de, ti.userMem
-	push hl
-	push de
-	ld hl, (ti.asm_prgm_size)
-	ex de, hl
-	call ti.DelMem
-	pop de
-	pop hl
-    ld (ti.asm_prgm_size), hl
-    call ti.InsertMem
-    pop hl
-	ex de, hl
-	call ti.ChkInRam
-	jp nz, .continue
-	call z, ti.ChkFindSym
-	inc de
-	inc de
+; OP1 = Program name
+; a = Shell type
 
-.continue:
-	ex de, hl
-    inc hl
-    inc hl
-	ld bc, (ti.asm_prgm_size)
-    ld de, ti.userMem
-    
-.copy:
-	call ti.ChkBCIs0
-	jr z, _asmProgram.run
-	ldi
-	jr .copy
-
-_asmProgram.run:
-    call ti.DisableAPD
-	set	ti.appAutoScroll, (iy + ti.appFlags)
-    call execute_setup_vectors
-    call ti.userMem
-    jp _return
-
-_basicProgram:
-	ld de, (ti.asm_prgm_size)
-	ld hl, ti.userMem
-	call ti.DelMem
-	or a, a
-	sbc hl, hl
-	ld (ti.asm_prgm_size), hl
-	call ti.ChkFindSym
-	call ti.ChkInRam
-	jr z, .continue
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-	ex de, hl
-
-.continue:
-	push de ; preserve data pointer
-	inc de
-	inc de
-	ld a, (de)
-	cp a, ti.tExtTok
-	jp nz, .notSquished
-	inc de
-	ld a, (de)
-	cp a, ti.tAsm84CePrgm
-	jp nz, .notSquished
-
-.squished:
-	ld de, ti.basic_prog
-	ld hl, ti.OP1
-	call ti.Mov9b
-	pop de
-	push de
-	ld bc, 0
-	ld a, (de)
-	ld c, a
-	inc de
-	ld a, (de)
-	ld b, a
-	dec bc
-	dec bc
-	push bc
-	bit 0, c
-	jp nz, ti.ErrSyntax
-	srl b
-	rr c
-	push bc
-	push bc
-	pop hl
-	call _checkMemSpace
-	pop hl
-	pop bc
-	jp c, _noMem
-	push bc
-	ld de, ti.userMem
-	push hl
-	push de
-	ld hl, (ti.asm_prgm_size)
-	ex de, hl
-	call ti.DelMem
-	pop de
-	pop hl
-	ld (ti.asm_prgm_size), hl
-	call ti.InsertMem
-	pop bc
-	pop hl ; get data pointer
-	push bc
-	call ti.SetAToHLU
-	cp a, $d0
-	jr c, .notRamSquishy
-	call ti.ChkFindSym
-	ex de, hl
-
-.notRamSquishy:
-	inc hl
-	inc hl
-	inc hl
-	inc hl
-	ld (ti.begPC), hl
-	ld (ti.curPC), hl
-	ld de, ti.userMem
-	pop bc
-
-.squishMe:
-	ld a, b
-	or a, c
-	jp z, _asmProgram.run
-	push hl
-	ld hl, (ti.curPC)
-	inc hl
-	ld (ti.curPC), hl
-	pop hl
-	dec bc
-	ld a, (hl)
-	inc hl
-	cp a, $3f
-	jr z, .squishMe
-	push de
-	call _utilSquishyCheckByte
-	ex de, hl
-	ld (hl), 0
-	call _utilSquishyConvertByte
-	push bc
-	sla a
-	sla a
-	sla a
-	sla a
-	push af
-	ld a, (de)
-	call _utilSquishyCheckByte
-	call _utilSquishyConvertByte
-	ld b, a
-	pop af
-	add a, b
-	ld (hl), a
-	pop bc
-	ex de, hl
-	inc de
-	inc hl
-	dec bc
-	jr .squishMe
-
-.notSquished:
-	call ti.RunIndicOn
-	call ti.DisableAPD
-	pop de
-	push de ; preserve data pointer
-
-.temp:
-	ld hl, 0
-	ld a, (de)
-	ld l, a
-	inc de
-	ld a, (de)
-	ld h, a
-	call _checkMemSpace
-	pop de
-    jp c, _noMem
-	push de
-	push hl
-	ld hl, tempProgram
-	call ti.Mov9ToOP1
-	call ti.ChkFindSym
-	call nc, ti.DelVarArc
-	pop hl
-	push hl ; preserve size
-	ld a, ti.TempProgObj
-	call ti.CreateVar
-	inc de
-	inc de
-	pop bc
-	call ti.ChkBCIs0
-	jr z, .inRom
-	pop hl ; get data pointer
-	inc hl
-	inc hl
-
-.copy:
-	call ti.ChkBCIs0
-	jr z, .inRom
-	ldi
-	jr .copy
-
-.inRom:
-	call ti.OP4ToOP1
-
-.inRam:
-	set	ti.progExecuting, (iy + ti.newDispF)
-	set	ti.cmdExec, (iy + ti.cmdFlags)
-	set	ti.allowProgTokens, (iy + ti.newDispF)
-	call execute_setup_vectors
-	call ti.EnableAPD
-	ei
-	ld hl, _return
-	push hl
-	call ti.DrawStatusBar
-	call ti.OP1ToOP4 ; preserve OP1
-	ld hl, appVarName
-	call ti.Mov9ToOP1
-	call ti.ChkFindSym
-	jr c, .run
-	call ti.ChkInRam
-    jr z, .appVarInRam
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
-
-.appVarInRam:
-    ld hl, 14
-	add hl, de
-	ld a, 1
-	cp a, (hl)
-	call z, ti.RunIndicOff
-
-.run:
-	call ti.OP4ToOP1
-	jp ti.ParseInp
-
-_return:
-	call _reinstallGetCSCHook
-	call ti.PopErrorHandler
-	xor a, a
-
-.error:
-	push af
-	res ti.progExecuting, (iy + ti.newDispF)
-	res	ti.cmdExec, (iy + ti.cmdFlags)
-	res	ti.allowProgTokens, (iy + ti.newDispF)
-	res	ti.textInverse, (iy + ti.textFlags)
-	res	ti.onInterrupt, (iy + ti.onFlags)
-	call ti.ReloadAppEntryVecs
-	pop	bc
-	ld a, b
-	or a,a
-	jr z, .quit
-	call _showError
-
-.quit:
-	call ti.ReloadAppEntryVecs
-	call ti.DeleteTempPrograms
-	call ti.CleanAll
+_asm_runProgram_main:
+    push af
+    ld iy, ti.flags
+    call ti.ClrGetKeyHook
+    call _asm_utils_backupPrgmName
     ld de, (ti.asm_prgm_size)
     or a, a
     sbc hl, hl
     ld (ti.asm_prgm_size), hl
     ld hl, ti.userMem
     call ti.DelMem
-    bit ti.monAbandon, (iy + ti.monFlags)
-	jr nz, .quitNoApp
-	ld a, (returnCEaShell)
-	cp a, 1
-	jp z, _reloadApp
-
-.quitNoApp:
-	call _removeStopHook
-	res	ti.onInterrupt, (iy + ti.onFlags)
-	call ti.ClrTxtShd
-	ld a, ti.cxCmd
-	call ti.NewContext0
-	call ti.PPutAway
-	or a, 1
-	ret
-
-_getRealSize: ; get the real size of the program in OP1, stored in hl
-	call ti.ChkFindSym
-    push bc
-    call ti.ChkInRam
-    jr z, .inRam
-    ld hl, 10
-    add hl, de
-    ld a, c
+    call _asm_utils_findVar + 4
     ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
-
-.inRam:
-    ld hl, 0
     ld a, (de)
-    ld l, a
+    ld c, a
     inc de
     ld a, (de)
-    ld h, a
+    ld b, a
+    pop af
+    or a, a
+    jr z, .runASM ; assembly program
+    dec a
+    jr z, .runASM ; C program
+    dec a
+    jp z, .runBasic ; BASIC program
+    dec a
+    jp nz, .runBasic ; ICE program
+
+.runASM:
+    ld hl, isASM
+    ld (hl), true
+    inc de
+    push bc
+    ld hl, 128
+    add hl, bc
+    call ti.EnoughMem
+    jr nc, $ + 9
+    pop hl
+    ld a, ti.E_Memory
+    jp _asm_runProgram_error
+    pop hl
+    ld (ti.asm_prgm_size), hl
+    push hl
+    push hl
+    ld de, ti.userMem
+    call ti.InsertMem
     pop bc
+    xor a, a
+    ld hl, ti.userMem
+    push hl
+    call ti.MemSet
+    call ti.ChkFindSym
+    call ti.ChkInRam
+    jr z, .inRamASM
+    ld hl, 10
+    add hl, de
     ld a, c
     ld bc, 0
     ld c, a
     add hl, bc
-    ld bc, 9
-    add hl, bc
-    ret
+    ex de, hl
 
-_checkMemSpace:
+.inRamASM:
+    inc de ; skip size + $EF7B
+    inc de
+    inc de
+    inc de
+    ex de, hl
+    pop de
+    pop bc
+
+.loadASM:
+    ld a, b
+    or a, c
+    jr z, .ASMLoaded
+    ldi
+    jr .loadASM
+
+.ASMLoaded:
+    call ti.DisableAPD
+    set ti.appAutoScroll, (iy + ti.appFlags)
+    call runProgram_vectorsSetup
+    ld hl, _asm_runProgram_return
     push hl
-	ld de, 128
-	add	hl, de ; do this for safety like Mateo
-	call ti.EnoughMem
-	pop	hl
-	ret	nc
-	scf
-	ret
+    jp ti.userMem
 
-_clearUsedMem:
-    xor	a, a
-	ld (ti.appErr1), a
-	ld (ti.kbdGetKy), a
-	call ti.ForceFullScreen
-	call ti.ClrScrn
-	call ti.HomeUp
-	ld hl, ti.pixelShadow
-	ld bc, 8400 * 3
-	call ti.MemClear
-	call ti.ClrTxtShd
-	ld hl, ti.textShadow
-	ld de, ti.cmdShadow
-	ld bc, $104
-	ldir
-	ret
+.runBasic:
+    ld hl, isASM
+    ld (hl), false
+    ex de, hl
+    inc hl
+    ld a, (hl)
+    cp a, ti.tExtTok
+    jr nz, .noSquish
+    inc hl
+    ld a, (hl)
+    cp a, ti.tAsm84CePrgm
+    jr z, .squish
+    dec hl
 
-_utilBackupPrgmName:
-	ld hl, ti.OP1
-.entry:
-	ld de, backupPrgmName
-	jp ti.Mov9b
+.noSquish:
+    call ti.ChkInRam
+    jr z, .loadComplete
+    push hl
+    ld hl, 128
+    add hl, bc
+    call ti.EnoughMem
+    jr nc, $ + 9
+    pop hl
+    ld a, ti.E_Memory
+    jp _asm_runProgram_error
+    push bc
+    push bc
+    ld hl, _rodata_basicPrgmName
+    call ti.Mov9ToOP1
+    pop hl
+    call ti.CreateProtProg
+    inc de
+    inc de
+    pop bc
+    pop hl
 
-_utilSquishyConvertByte:
-	sub a, $30
-	cp a, 10
-	ret c
-	sub a, 7
-	ret
+.load:
+    ld a, b
+    or a, c
+    jr z, .loadComplete
+    ldi
+    jr .load
 
-_utilSquishyCheckByte:
-	cp a, $30
-	jp c, .error
-	cp a, $3A
-	jr nc, .skip
-	;sub	a,$30
-	ret
+.loadComplete:
+    call ti.RunIndicOn
+    bit disableBusyIndicator, (iy + shellFlags)
+    call nz, ti.RunIndicOff
+    set ti.progExecuting, (iy + ti.newDispF)
+    set ti.cmdExec, (iy + ti.cmdFlags)
+    call runProgram_vectorsSetup
+    call _asm_hooks_installStopHook
+    call _asm_hooks_installBasicKeyHook
+    ei
+    ld hl, _asm_runProgram_return
+    push hl
+    jp ti.ParseInp
+
+.squish:
+    inc hl
+    dec bc
+    dec bc ; remove Asm84CEPrgm from un-squished size
+    push hl
+    push bc
+    push bc
+
+.loopNewlines:
+    ld a, (hl)
+    cp a, $3F
+    jr nz, .notNewline
+    pop de
+    dec de
+    push de
+
+.notNewline:
+    inc hl
+    dec bc
+    ld a, b
+    or a, c
+    jr nz, .loopNewlines
+    pop hl ; un-squished size minus newlines
+    ld a, h
+    or a, l
+    jr nz, .notEmpty
+    pop hl
+    pop hl
+    pop hl
+    ld a, ti.E_Syntax
+    jp _asm_runProgram_error
+
+.notEmpty:
+    ld (ti.asm_prgm_size), hl
+    push hl
+    ld de, ti.userMem
+    call ti.InsertMem
+    pop bc
+    xor a, a
+    ld hl, ti.userMem
+    push hl
+    call ti.MemSet
+    ld hl, backupPrgmName
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    call ti.ChkInRam
+    ex de, hl
+    jr z, .inRam2
+    ld de, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+
+.inRam2:
+    inc hl
+    inc hl
+    inc hl
+    inc hl
+    pop de ; userMem
+    pop bc ; original (un-squished) size
+
+.loopLoad:
+    ld a, b
+    or a, c
+    jp z, _asm_runProgram_main.ASMLoaded
+    ld a, (hl)
+    inc hl
+    dec bc
+    cp a, $3F
+    jr z, .loopLoad
+    push de
+    call runProgram_convertTokenToHex
+    add a, a
+    add a, a
+    add a, a
+    add a, a
+    ld e, a
+    ld a, (hl)
+    inc hl
+    dec bc
+    call runProgram_convertTokenToHex
+    add a, e
+    pop de
+    ld (de), a
+    inc de
+    jr .loopLoad
+
+_asm_runProgram_return:
+    call ti.PopErrorHandler
+    xor a, a
 
 .error:
-	call ti.DrawStatusBar
-	jp ti.ErrSyntax
-
-.skip:
-	cp a, $41
-	jp c, ti.ErrSyntax
-	cp a, $47
-	jp nc, ti.ErrSyntax
-	;sub	a,$37
-	ret
-
-execute_setup_vectors:
-	call _lcdNormal
-	xor	a,a
-	ld	(ti.appErr1),a
-	ld	(ti.kbdGetKy),a
-	ld	hl,execute_vectors
-	call	ti.AppInit
-	call	ti.ForceFullScreen
-	call	ti.ClrScrn
-	call	ti.HomeUp
-	ld	hl,ti.pixelShadow
-	ld	bc,8400 * 3
-	call	ti.MemClear
-	call	ti.ClrTxtShd
-	ld	hl,ti.textShadow
-	ld	de,ti.cmdShadow
-	ld	bc,$104
-	ldir
-	ld	hl, _return.error
-	jp	ti.PushErrorHandler
-
-execute_vectors:
-	dl	.ret
-	dl	ti.SaveShadow
-	dl	.putaway
-	dl	.restore
-	dl	.ret
-	dl	.ret
-.restore:
-	call	ti.HomeUp
-	call	ti.ClrScrn
-	jp	ti.RStrShadow
-.ret:
-	ret
-.putaway:
-	xor	a,a
-	ld	(ti.currLastEntry),a
-	bit	appInpPrmptInit,(iy + ti.apiFlg2)
-	jr	nz,.aipi
-	call	ti.ClrHomescreenHook
-	call	ti.ForceFullScreen
-.aipi:
-	call	ti.ReloadAppEntryVecs
-	call	ti.PutAway
-	ld	b,0
-	ret
-
-_showError:
-	xor a, a
-	ld (ti.menuCurrent), a
-	ld a, (ti.errNo)
-	cp a, ti.E_AppErr1
-	ret	z			; if stop token, ignore
-	call _reinstallGetCSCHook
-	call ti.boot.ClearVRAM
-	ld a, $2d
-	ld (ti.mpLcdCtrl), a
-	call ti.CursorOff
-	call ti.DrawStatusBar
-	call ti.DispErrorScreen
-	ld hl, 1
-	ld (ti.curRow), hl
-	ld hl, data_string_quit1
-	set	ti.textInverse, (iy + ti.textFlags)
-	call ti.PutS
-	res	ti.textInverse, (iy + ti.textFlags)
-	call ti.PutS
-	ld hl, backupPrgmName
-	ld a, (hl)
-	cp a, ti.ProtProgObj
-	jr nz, .next
-	ld a, (returnIsAsm)
-	cp a, 2
-	jp nz, .only_allow_quit
-	ld a, (returnEditLocked)
-	bit 0, a
-	jp z, .only_allow_quit
-	ld hl, backupPrgmName
-	call ti.Mov9ToOP1
-	call ti.ChkFindSym
-	ld (hl), 5
-    ld hl, lockStatus
-    ld (hl), $dd
-
-.next:
-	xor	a, a
-	ld (ti.curCol), a
-	ld a, 2
-	ld (ti.curRow), a
-	ld hl, data_string_quit2
-	call ti.PutS
-	call ti.PutS
-	call ti.GetCSC
-.input:
-	call ti.GetCSC
-	cp a, ti.skUp
-	jr z, .highlight_1
-	cp a, ti.skDown
-	jr z, .highlight_2
-	cp a, ti.sk2
-	jr z, .goto
-	cp a, ti.sk1
-	jp z, .exit
-	cp a, ti.skEnter
-	jr z, .get_option
-	jr .input
-.highlight_1:
-	ld hl, 1
-	ld de, 2
-	ld a, '1'
-	ld b, '2'
-	jr .highlight
-.highlight_2:
-	ld hl, 2
-	ld de, 1
-	ld a, '2'
-	ld b, '1'
-.highlight:
-	push bc
-	push de
-	ld.sis (ti.curRow and $ffff), hl
-	ld hl, ti.OP6
-	ld (hl), a
-	inc	hl
-	ld (hl), ':'
-	inc	hl
-	ld (hl), 0
-	dec	hl
-	dec	hl
-	push hl
-	scf
-	sbc	hl, hl
-	ld (ti.fillRectColor), hl
-	inc	hl
-	ld de, 25
-	ld bc, (55 shl 8) or 96
-	call ti.FillRect
-	pop	hl
-	set	ti.textInverse, (iy + ti.textFlags)
-	call ti.PutS
-	res	ti.textInverse, (iy + ti.textFlags)
-	pop	de
-	pop	bc
-	ld.sis (ti.curRow and $ffff), de
-	ld hl, ti.OP6
-	ld (hl), b
-	call ti.PutS
-	jr .input
-.get_option:
-	ld a, (ti.curRow)
-	dec	a
-	jr nz, .exit
-.goto:
-	ld hl, backupPrgmName
-	call ti.Mov9ToOP1
-	jp edit_basic_program_goto
-.only_allow_quit:
-	call ti.GetCSC
-	cp a, ti.sk1
-	jr z, .exit
-	cp a, ti.skEnter
-	jr z, .exit
-	jr .only_allow_quit
-.exit:
-	ret
-
-_reloadApp:
-	ld sp, (ti.onSP) ; Don't bork the stack
-	call _removeAppChangeHook
-	res	ti.useTokensInString, (iy + ti.clockFlags)
-	res	ti.onInterrupt, (iy + ti.onFlags)
-	set	ti.graphDraw, (iy + ti.graphFlags)
-	call ti.ResetStacks
-	call ti.ReloadAppEntryVecs
-	call ti.AppSetup
-	set	ti.appRunning, (iy + ti.APIFlg)		; turn on apps
-	set	6, (iy + $28)
-	res	0, (iy + $2C)				; set some app flags
-	set	ti.appAllowContext, (iy + ti.APIFlg)	; turn on apps
-	call _clearUsedMem
-	ld hl, $d1787c				; copy to ram data location
-	ld bc, $fff
-	call ti.MemClear				; zero out the ram data section
-	ld hl, _appMainStart				; hl -> start of app
-    ld bc, app+256-_appMainStart
-	add hl, bc
-    push hl					; de -> start of code for app
-	ex de, hl
-	ld hl, $18					; find the start of the data to copy to ram
-	add	hl, de
-	ld hl, (hl)
-    ; compare_hl_zero
-	add	hl, de
-	or a, a
-	sbc	hl, de					; initialize the bss if it exists
-	jr z, .no_bss
-	push hl
-	pop	bc
-	ld hl, $15
-	add	hl, de
-	ld hl, (hl)
-	add	hl, de
-	ld de, $d1787c				; copy it in
-	ldir
-
-.no_bss:
-	pop	hl
-	push hl
-	pop	de
-	ld bc, $1b					; offset
-	add	hl, bc
-	ld hl, (hl)
-	add	hl, de
-	jp (hl)
-
-execute_hook:
-	db $83
-	cp	a,3
-	ret	nz
-	ld iy, ti.flags
-	call ti.ReleaseBuffer
-	call _reinstallGetCSCHook
-	call _removeStopHook
-	call ti.ClrHomescreenHook
-	ld hl, appVarName ; restore other homescreen hook if need be
-	call ti.Mov9ToOP1
-	call ti.ChkFindSym
-	jr c, .continue
-	call ti.ChkInRam
-	jr z, .inRam
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
-
-.inRam:
-    ld hl, 10
-	add hl, de
-	ld a, 1
-	cp a, (hl)
-	call z, _installHomescreenHook
-
-.continue:
-	bit	appInpPrmptDone,(iy + ti.apiFlg2)
-	res	appInpPrmptDone,(iy + ti.apiFlg2)
-	jp	z, _return.quit
-	call	ti.ReloadAppEntryVecs
-	ld	hl,execute_vectors
-	call	ti.AppInit
-	or	a,1
-	ld	a,$58
-	ld	(ti.cxCurApp),a
-	ret
-
-_removeExecuteHookInstalled:
-	ld iy, ti.flags
-    bit ti.homescreenHookActive, (iy + ti.hookflags2) ; check if a menu hook is installed
-    ld a, 0
-    ret z
-    ld hl, (ti.homescreenHookPtr)
-    ld de, execute_hook
+    push af
+    res ti.progExecuting, (iy + ti.newDispF)
+    res ti.cmdExec, (iy + ti.cmdFlags)
+    res ti.textInverse, (iy + ti.textFlags)
+    res ti.onInterrupt, (iy + ti.onFlags)
+    call ti.ReloadAppEntryVecs
+    pop bc
+    ld a, b
     or a, a
-    sbc hl, de
-    ret nz
-    inc a
+    call nz, runProgram_showError
+
+.quit:
+    call ti.ReloadAppEntryVecs
+    call ti.ClrHomescreenHook
+    call ti.ForceFullScreen
+    call _asm_hooks_removeStopHook
+    call _asm_hooks_removeBasicKeyHook
+    ld hl, _rodata_basicPrgmName
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    call nc, ti.DelVarArc
+    ld de, (ti.asm_prgm_size)
+    or a, a
+    sbc hl, hl
+    ld (ti.asm_prgm_size), hl
+    ld hl, ti.userMem
+    call ti.DelMem
+    res appWantHome, (iy + sysHookFlg)
+
+.debounce:
+    call ti.GetCSC
+    or a, a
+    jr nz, .debounce
+    xor a, a
+    ld (ti.kbdGetKy), a
+    bit ti.monAbandon, (iy + ti.monFlags)
+    jr nz, runProgram_returnOS
+    ld a, (returnLoc)
+    or a, a
+    jp z, _asm_apps_reloadApp
+
+runProgram_returnOS:
+    ld a, (editArcProgs)
+    bit 0, a
+    call nz, _asm_hooks_installHomescreenHook
+    ld a, (getCSCHooks)
+    ld l, a
+    call _asm_hooks_installGetCSCHookCont
+    call ti.SaveCmdShadow
+    ld a, ti.cxCmd
+    call ti.NewContext0
+    call ti.PPutAway
+    xor a, a
+    or a, 2
     ret
 
-_reinstallGetCSCHook:
-	ld hl, appVarName
-	call ti.Mov9ToOP1
-	call ti.ChkFindSym
-	ret c
-	call ti.ChkInRam
-    jr z, .inRam
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
+runProgram_showError:
+    xor a, a
+    ld (ti.menuCurrent), a
+    ld a, (ti.errNo)
+    or a, a
+    ret z
+    call ti.boot.ClearVRAM
+    ld a, $2D
+    ld (ti.mpLcdCtrl), a
+    call ti.CursorOff
+    call ti.DrawStatusBar
+    call ti.DispErrorScreen
+    ld hl, 1
+    ld (ti.curRow), hl
+    ld hl, _rodata_errorQuit
+    set ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+    res ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+    ld hl, backupPrgmName
+    ld a, (hl)
+    cp a, ti.ProtProgObj
+    ld hl, lockOnExit
+    ld (hl), false
+    jr nz, .notProtected
+    ld a, (isASM)
+    or a, a
+    jp nz, .onlyAllowQuit
+    ld a, (editLockProgs)
+    bit 0, a
+    jp z, .onlyAllowQuit
 
-.inRam:
-    ld hl, 9
-	add hl, de
-	ld a, (hl)
-	call _installGetCSCHookCont
-	ret
+.notProtected:
+    xor a, a
+    ld (ti.curCol), a
+    ld a, 2
+    ld (ti.curRow), a
+    ld hl, _rodata_errorGoto
+    call ti.PutS
+    call ti.PutS
+    call ti.GetCSC
 
-_lcdNormal:
-	ld hl, ti.vRam
-	ld bc, ((ti.lcdWidth * ti.lcdHeight) * 2) + 0
-	ld a, 255
-	call ti.MemSet
-	ld a, $2d
-	ld (ti.mpLcdCtrl), a
-	jp ti.DrawStatusBar
+.input:
+    call ti.GetCSC
+    cp a, ti.skUp
+    jr z, .highlight1
+    cp a, ti.skDown
+    jr z, .highlight2
+    cp a, ti.sk2
+    jr z, .goto
+    cp a, ti.sk1
+    ret z
+    cp a, ti.skEnter
+    jr z, .get_option
+    jr .input
 
-_noMem:
-	ld a, (returnCEaShell)
-	cp a, 1
-	jr nz, .exitOS
-	ld a, ti.E_Memory
-	ld (ti.errNo), a
-	call ti.boot.ClearVRAM
-	ld a, $2d
-	ld (ti.mpLcdCtrl), a
-	call ti.CursorOff
-	call ti.DrawStatusBar
-	call ti.DispErrorScreen
-	ld hl, 1
-	ld (ti.curRow), hl
-	ld hl, data_string_quit1
-	set	ti.textInverse, (iy + ti.textFlags)
-	call ti.PutS
-	res	ti.textInverse, (iy + ti.textFlags)
-	call ti.PutS
+.highlight1:
+    ld hl, 1
+    ld de, 2
+    ld a, '1'
+    ld b, '2'
+    jr .highlight
+
+.highlight2:
+    ld hl, 2
+    ld de, 1
+    ld a, '2'
+    ld b, '1'
+
+.highlight:
+    push bc
+    push de
+    ld.sis (ti.curRow and $FFFF), hl
+    ld hl, ti.OP6
+    ld (hl), a
+    inc hl
+    ld (hl), ':'
+    inc hl
+    ld (hl), 0
+    dec hl
+    dec hl
+    push hl
+    scf
+    sbc hl, hl
+    ld (ti.fillRectColor), hl
+    inc hl
+    ld de, 25
+    ld bc, (55 shl 8) or 96
+    call ti.FillRect
+    pop hl
+    set ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+    res ti.textInverse, (iy + ti.textFlags)
+    pop de
+    pop bc
+    ld.sis (ti.curRow and $FFFF), de
+    ld hl, ti.OP6
+    ld (hl), b
+    call ti.PutS
+    jr .input
+
+.get_option:
+    ld a, (ti.curRow)
+    dec a
+    ret nz
+
+.goto:
+    ld hl, backupPrgmName
+    call ti.Mov9ToOP1
+    jp _asm_editProgram_goto
+
+.onlyAllowQuit:
+    call ti.GetCSC
+    cp a, ti.sk1
+    ret z
+    cp a, ti.skEnter
+    ret z
+    jr .onlyAllowQuit
+
+_asm_runProgram_error:
+    push af
+    ld a, (returnLoc)
+    or a, a
+    jr nz, .exitOS
+    pop af
+    ld (ti.errNo), a
+    call ti.boot.ClearVRAM
+    ld a, $2D
+    ld (ti.mpLcdCtrl), a
+    call ti.CursorOff
+    call ti.DrawStatusBar
+    call ti.DispErrorScreen
+    ld hl, 1
+    ld (ti.curRow), hl
+    ld hl, _rodata_errorQuit
+    set ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+    res ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
 
 .waitLoop:
-	call ti.GetCSC
-	cp a, ti.sk1
-	jp z, _reloadApp
-	cp a, ti.skEnter
-	jp z, _reloadApp
-	jr .waitLoop
+    call ti.GetCSC
+    cp a, ti.sk1
+    jp z, _asm_apps_reloadApp
+    cp a, ti.skEnter
+    jp z, _asm_apps_reloadApp
+    jr .waitLoop
 
 .exitOS:
-	ld a, ti.E_Memory
-	jp ti.JError
+    pop af
+    jp ti.JError
 
-tempProgram:
-	db	ti.TempProgObj, 'CEASHTMP', 0
+runProgram_vectorsSetup:
+    call _asm_utils_lcdNormal
+    xor a, a
+    ld (ti.appErr1), a
+    ld (ti.kbdGetKy), a
+    ;ld hl, _asm_hooks_runPrgmHook
+    ;call ti.SetHomescreenHook
+    ld hl, _asm_runProgram_vectors
+    call ti.AppInit
+    call _asm_utils_clrScrnAndUsedRAM
+    ld hl, _asm_runProgram_return.error
+    jp ti.PushErrorHandler
 
-data_string_quit1:
-	db	'1:', 0, 'Quit', 0
-data_string_quit2:
-	db	'2:',  0, 'Goto', 0
+_asm_runProgram_vectors:
+    dl .ret
+    dl ti.SaveShadow
+    dl .putway
+    dl .restore
+    dl .ret
+    dl .ret
 
-prgmEx:
-	db 5, '!', 0
+.restore:
+    call ti.HomeUp
+    call ti.ClrScrn
+    jp ti.RStrShadow
 
-appVarName:
-    db ti.AppVarObj, 'CEaShell', 0
+.ret:
+    ret
+
+.putway:
+    xor a, a
+    ld (ti.currLastEntry), a
+    bit appInpPrmptInit, (iy + ti.apiFlg2)
+    jr nz, .aipi
+    call ti.ClrHomescreenHook
+    call ti.ForceFullScreen
+
+.aipi:
+    call ti.ReloadAppEntryVecs
+    call ti.PutAway
+    ld b, 0
+    ret
+
+runProgram_convertTokenToHex:
+    cp a, ti.t1
+    jr c, .error
+    cp a, ti.t9 + 1
+    jr nc, .skip
+    jr .convert
+
+.error:
+    pop hl
+    pop hl
+    ld a, ti.E_Syntax
+    jp _asm_runProgram_error
+
+.skip:
+    cp a, ti.tA
+    jr c, .error
+    cp a, ti.tF + 1
+    jr nc, .error
+
+.convert:
+    sub a, $30
+    cp a, $0A
+    ret c
+    sub a, 7
+    ret

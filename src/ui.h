@@ -19,56 +19,106 @@
 extern "C" {
 #endif
 
-#define INPUT_NUMBER    0
-#define INPUT_UPPER     1
-#define INPUT_LOWER     2
+/**
+ * @brief Handles drawing dark vs. light sprites, depending on the color theme.
+ * 
+ * @param color Foreground color of the current color theme (shellPrefs->fgColor).
+ * @param spriteNo Number representing the CEaShell icon to display.
+ * @param x X coordinate to draw the sprite at.
+ * @param y Y coordinate to draw the sprite at.
+ */
+void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y);
 
-#define UI_BATTERY	    0
-#define UI_CHARGING	    1
-#define UI_PAINT	    2
-#define UI_INFO		    3
-#define UI_SETTINGS	    4
-#define UI_LARROW	    5
-#define UI_RARROW	    6
-#define UI_DARROW       7
-#define UI_CHECK        8
-#define UI_CURSOR_1     9
-#define UI_CURSOR_UP    10
-#define UI_CURSOR_LOW   11
+/**
+ * @brief Draws CEaShell's status bar.
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param shellContext Shell context struct.
+ * @param title Main title to display in the status bar.
+ */
+void ui_DrawStatusBar(struct preferences_t *shellPrefs, struct context_t *shellContext, char *title);
 
-void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y);    // Takes care of drawing the sprite in white or black, depending on the theme
+/**
+ * @brief Draws the buttons and info bar at the bottom of the main UI.
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param description Description text to display in the info bar.
+ */
+void ui_DrawBottomBar(struct preferences_t *shellPrefs, char *description);
 
-void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden, const bool hidden, uint8_t *colors, char *fileName, const uint8_t fileType, const uint8_t osFileType, const int x, const uint8_t y);  // Draws a file, with the icon if it exists
+/**
+ * @brief Draws a vertical or horizontal scrollbar.
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param x X coordinate of the start of the scrollbar window.
+ * @param y Y coordinate of the start of the scrollbar window.
+ * @param maxLength Length of the scrollbar window.
+ * @param total Total items in the current context.
+ * @param start Start item in the current context.
+ * @param countPerPage Number of items per page in the current context.
+ * @param horizontal True if the scrollbar should be horizontal, false for vertical.
+ */
+void ui_ScrollBar(struct preferences_t *shellPrefs, unsigned int x, uint8_t y, unsigned int maxLength, unsigned int total, unsigned int start, unsigned int countPerPage, bool horizontal);
 
-void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecked, const int x, const uint8_t y);   // Draws a simple checkbox
+/**
+ * @brief Draws a checked or unchecked check box.
+ * 
+ * @param isChecked Current state of the check box.
+ * @param x X coordinate to begin drawing the box at.
+ * @param y Y coordinate to begin drawing the box at.
+ */
+void ui_CheckBox(const bool isChecked, const int x, const uint8_t y);
 
-void ui_Clock(const bool is24Hour); // Displays time in either 24-Hour or AM/PM
+/**
+ * @brief Draws the files displayed in the main file manager context.
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param shellContext Shell context struct.
+ */
+void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellContext);
 
-void ui_Battery(const uint8_t color, const uint8_t batteryStatus, const bool isCharging);
+/**
+ * @brief Displays a string with word-wrapping.
+ * 
+ * @param string String to display.
+ * @param x X location to display the string at.
+ * @param y Y location to display the string at.
+ * @param charsPerLine Maximum number of characters on a line.
+ * @param maxLines Maximum number of lines to display.
+ * @return int Updated Y value
+ */
+int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines);
 
-void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName, const unsigned int fileCount, const bool showFileCount); // Draws a 308 pixel long bar with rounded edges at 6, 6
+/**
+ * @brief Print a string at double the scale (minimizes relocations to save space).
+ * 
+ * @param string String to print.
+ * @param centerX X location to center the string at.
+ * @param y Y location to display the string at.
+ */
+void ui_CenterStringBig(const char *string, unsigned int centerX, uint8_t y);
 
-void ui_DescriptionWrap(const char *description, const uint8_t charPerLine, const int x, const uint8_t y);
+/**
+ * @brief Gets an 8-character long string input (Used for file names).
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param shellContext Shell context struct.
+ * @param x X coordinate to begin drawing input box at.
+ * @param y Y coordinate to begin drawing input box at.
+ * @return char* User input.
+ */
+char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, uint8_t y);
 
-void ui_BottomBar(const uint8_t color);
-
-bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y);
-
-bool ui_RenameBox(uint8_t *colors, char *newName, bool useLower);
-
-void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars);
-
-void ui_MiniCursor(uint8_t color, int x, uint8_t y);
-
-void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status);
-
-void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status);
-
-void ui_AboutScreen(uint8_t *colors);
-
-void ui_NewUser(void);
-
-uint8_t ui_CopyNewMenu(uint8_t *colors, char *name, bool useLower);
+/**
+ * @brief Draws a frame of a transition.
+ * 
+ * @param radius Radius of the rounded corners.
+ * @param x X coordinate to draw the rectangle at.
+ * @param y Y coordinate to draw the rectangle at.
+ * @param width Width of the rectangle.
+ * @param height Height of the rectangle.
+ */
+void ui_TransitionDrawFrame(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height);
 
 #ifdef __cplusplus
 }

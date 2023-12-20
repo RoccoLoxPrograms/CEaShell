@@ -12,17 +12,21 @@
 #ifndef RUNPROGRAM_H
 #define RUNPROGRAM_H
 
-#include <stdint.h>
+#include <defines.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void runProgram(char *name, uint8_t type, uint8_t shellType, bool editLockedPrgms);
-
-void removeExecuteHookInstalled(void);
-
-void reloadApp(void);
+/**
+ * @brief Runs a program.
+ * 
+ * @param name Name of the program.
+ * @param type OS type for the program.
+ * @param shellType Shell type for the program.
+ * @param shellPrefs Shell preferences struct.
+ */
+void asm_runProgram_run(char *name, uint8_t type, uint8_t shellType, struct preferences_t *shellPrefs);
 
 #ifdef __cplusplus
 }

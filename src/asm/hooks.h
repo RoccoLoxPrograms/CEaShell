@@ -12,41 +12,67 @@
 #ifndef HOOKS_H
 #define HOOKS_H
 
-#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// GetCSC hook codes
-#define NONE            0
-#define BOTH            1
-#define ICON_HOOK       2
-#define ON_SHORTS_HOOK  3
+/**
+ * @brief Installs the TI-BASIC stop token detection hook.
+ * 
+ */
+void asm_hooks_installStopHook(void);
 
-void installHomescreenHook(void);
+/**
+ * @brief Removes the TI-BASIC stop token detection hook.
+ * 
+ */
+void asm_hooks_removeStopHook(void);
 
-void removeHomescreenHook(void);
+/**
+ * @brief Installs the homescreen hook to run programs from the homescreen.
+ * 
+ */
+void asm_hooks_installHomescreenHook(void);
 
-bool checkHomescreenHookInstalled(void);
+/**
+ * @brief Removes the homescreen hook.
+ * 
+ */
+void asm_hooks_removeHomescreenHook(void);
 
-void installMenuHook(void);
+/**
+ * @brief Detects which of the menu hooks needs to be installed and installs it.
+ * 
+ * @param hook Value for what hook to install.
+ */
+void asm_hooks_installMenuHook(uint8_t hook);
 
-void removeMenuHook(void);
+/**
+ * @brief Removes the all menu hooks.
+ * 
+ */
+void asm_hooks_removeMenuHook(void);
 
-bool checkMenuHookInstalled(void);
+/**
+ * @brief Detects which of the on shortcuts and icon/description GetCSC hooks to install and installs them.
+ * 
+ * @param hook Value for what hook to install.
+ */
+void asm_hooks_installGetCSCHook(uint8_t hook);
 
-void installGetCSCHook(uint8_t hook);
+/**
+ * @brief Removes all GetCSC hooks installed.
+ * 
+ */
+void asm_hooks_removeGetCSCHook(void);
 
-void removeGetCSCHook(void);
-
-bool checkGetCSCHookInstalled(uint8_t hook);
-
-void installStopHook(void);
-
-void removeStopHook(void);
-
-void triggerAPD(void);
+/**
+ * @brief Triggers APD to return to CEaShell after.
+ * 
+ */
+void asm_hooks_triggerAPD(void);
 
 #ifdef __cplusplus
 }

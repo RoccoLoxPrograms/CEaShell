@@ -9,806 +9,520 @@
  * --------------------------------------
 **/
 
-#include "ui.h"
+#include "defines.h"
+#include "menu.h"
 #include "shapes.h"
+#include "ui.h"
 #include "utility.h"
+
 #include "asm/fileOps.h"
-#include "asm/apps.h"
-#include "asm/hooks.h"
+#include "asm/utils.h"
+#include "asm/spi.h"
 #include "gfx/gfx.h"
 
-#include <graphx.h>
-#include <string.h>
 #include <fileioc.h>
+#include <graphx.h>
 #include <keypadc.h>
-#include <sys/rtc.h>
-#include <sys/timers.h>
+#include <string.h>
+#include <time.h>
+
 #include <sys/power.h>
-#include <ti/getcsc.h>
+#include <sys/rtc.h>
 
 void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
-    const gfx_sprite_t *uiIcons[24] = {battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorNumber, cursorUpper, cursorLower, batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorNumberAlt, cursorUpperAlt, cursorLowerAlt};
-    gfx_TransparentSprite_NoClip(uiIcons[spriteNo + colorAlt * 12], x, y);
-    gfx_SetTextFGColor(colorAlt * 255);
+
+    // Dark sprites first, then light sprites
+    static const gfx_sprite_t *uiIcons[24] = {
+    battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorNumber, cursorUpper, cursorLower,
+    batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorNumberAlt, cursorUpperAlt, cursorLowerAlt};
+
+    gfx_TransparentSprite(uiIcons[spriteNo + colorAlt * 12], x, y);
 }
 
-void ui_DrawFile(const bool selected, const bool drawName, const bool drawHidden, const bool hidden, uint8_t *colors, char *fileName, const uint8_t fileType, const uint8_t osFileType, const int x, const uint8_t y) {
-    const bool colorAlt = (colors[1] > 131 && colors[1] % 8 > 3);
-    gfx_sprite_t *icon = gfx_MallocSprite(16, 16);  // Malloc the sprite ahead of time
-    gfx_sprite_t *tileSprite = gfx_MallocSprite(16, 16);
+void ui_DrawStatusBar(struct preferences_t *shellPrefs, struct context_t *shellContext, char *title) {
+    gfx_SetColor(shellPrefs->fgColor);
+    gfx_FillRectangle(0, 0, 320, 20);
 
-    if (hidden) {
-        shapes_GetTransparentRect(tileSprite, colors[(selected)], x, y);
+    if (title[0] < 'A') {
+        title[0] += 64;
     }
 
-    if (fileType != DIR_TYPE) {
-        fileName[0] -= 64 * hidden;
+    // Draw status bar main title
+    if (title != NULL) {
+        ui_CenterStringBig(title, 160, 3);
     }
 
-    if (selected) {
-        shapes_RoundRectangleFill(colors[1], 6, 68, 78, x - 2, y - 2);
-    }
-
-    if (fileType == DIR_TYPE) {
-        shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);
-        gfx_SetColor(255 * colorAlt);
-        gfx_FillRectangle_NoClip(x + 14, y + 22, 36, 23);
-        shapes_Folder(255 * !colorAlt, colors[2], x + 11, y + 16);
-    } else if (fileType != ICE_SRC_TYPE && fileType != BASIC_TYPE && getIconASM(fileName, osFileType, fileType, icon)) {
-        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4); // Round the corners of the icon to match with the file icons
-        shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
-        gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
-        shapes_DrawRoundCorners(corner1, 64, 64, x, y);
-        free(corner1);
-    } else if (fileType == BASIC_TYPE && getIconDCS(fileName, osFileType, icon)) { // Possible optimizations with this bit and the above if statement?
-        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
-        shapes_GetRoundCorners(corner1, colors[(selected)], 4, x, y);
-        gfx_ScaledSprite_NoClip(icon, x, y, 4, 4);
-        shapes_DrawRoundCorners(corner1, 64, 64, x, y);
-        free(corner1);
-    } else {
-        shapes_RoundRectangleFill(colors[2], 4, 64, 64, x, y);  // If there isn't an icon we'll draw our own default file icon
-        gfx_SetColor(255 * colorAlt);
-        gfx_FillRectangle(x + 19, y + 14, 29, 39);
-        shapes_FileIcon(255 * !colorAlt, colors[2], x + 16, y + 11);
-        gfx_SetColor(255 * !colorAlt);
-        gfx_FillRectangle(x + 19, y + 36, 28, 9);
-        gfx_SetTextScale(1, 1);
-        char *fileTypeString = util_FileTypeToString(fileType, true);
-        gfx_SetTextFGColor(255 * colorAlt);
-        gfx_SetTextScale(1, 1);
-        uint8_t typeLength = gfx_GetStringWidth(fileTypeString);
-
-        if (typeLength) {
-            gfx_PrintStringXY(fileTypeString, x + (64 - typeLength) / 2, y + 37);
-        } else {
-            gfx_PrintStringXY("?", x + 29, y + 37);
-        }
-
-        gfx_SetTextFGColor(255 * !colorAlt);
-    }
-    
-    free(icon);    // We do not need this anymore
-    if (fileType != DIR_TYPE) {
-        fileName[0] += 64 * hidden; // Make the hidden name viewable (If it is hidden)
-    }
-
-    gfx_SetTextScale(1, 1);
-    if (drawName) { // In some places we do not draw the name
-        uint8_t stringLength = gfx_GetStringWidth(fileName);
-        if (stringLength) {
-            gfx_PrintStringXY(fileName, x + (64 - stringLength) / 2, y + 67);
-        }
-    }
-
-    if (drawHidden && hidden) {   // Hidden effect
-        shapes_DrawTransparentRect(tileSprite, x, y);
-    }
-    free(tileSprite);
-}
-
-void ui_CheckBox(const uint8_t color, const uint8_t bgColor, const bool isChecked, const int x, const uint8_t y) {
-    bool colorAlt = !(bgColor > 131 && bgColor % 8 > 3);
-    if (colorAlt) {
-        gfx_SetColor(148);
-    } else {
-        gfx_SetColor(181);
-    }
-
-    gfx_FillRectangle_NoClip(x, y, 7, 7);
-    gfx_SetColor(bgColor);
-    gfx_SetPixel(x, y);
-    gfx_SetPixel(x, y + 6);
-    gfx_SetPixel(x + 6, y + 6);
-    gfx_SetPixel(x + 6, y);
-
-    if (isChecked) {
-        ui_DrawUISprite(color, UI_CHECK, x + 1, y - 1);
-    }
-}
-
-void ui_Clock(const bool is24Hour) {
+    // Draw clock
     uint8_t time[3];
     bool isAfterNoon = boot_IsAfterNoon();
 
     boot_GetTime(&time[0], &time[1], &time[2]);
-    time[2] -= 12 * (!is24Hour && isAfterNoon);  // Add 12 to the hour if it's PM and 24-Hour Time, so that 1 PM becomes 13, etc.
-    if (!time[2] && !is24Hour) {
+    time[2] -= 12 * (!(shellPrefs->timeFormat) && isAfterNoon); // Add 12 to the hour if it's PM and 24-Hour Time, so that 1 PM becomes 13, etc.
+
+    if (!time[2] && !(shellPrefs->timeFormat)) {
         time[2] = 12;
     }
 
-    gfx_SetTextScale(1, 1);
-    gfx_SetTextXY(15, 12);
+    gfx_SetTextXY(9, 7);
     gfx_PrintUInt(time[2], 1);
     gfx_PrintString(":");
     gfx_PrintUInt(time[1], 2);
 
-    if (!is24Hour) {    // This draws the AM/PM if 24-Hour Time is not enabled
+    if (!(shellPrefs->timeFormat)) {
         if (isAfterNoon) {
             gfx_PrintString(" PM");
         } else {
             gfx_PrintString(" AM");
         }
     }
-}
 
-void ui_Battery(const uint8_t color, const uint8_t batteryStatus, const bool isCharging) {
-    ui_DrawUISprite(color, UI_BATTERY, 286, 10);
+    // Draw file count if the user has it enabled
+    if (shellPrefs->showFileCount) {
+        gfx_SetTextXY(256, 7);
+        gfx_PrintUInt(*(&(shellContext->programCount) + shellContext->directory), 4); // Print the current number of files in the active directory.
+    }
 
-    gfx_SetColor((255 * !(color > 131 && color % 8 > 3)) * (batteryStatus > 1) + 160 * (batteryStatus < 2));
-    gfx_FillRectangle_NoClip(291 + (12 - batteryStatus * 3), 12, batteryStatus * 3, 6);
+    // Draw battery
+    ui_DrawUISprite(shellPrefs->fgColor, UI_BATTERY, 292, 5);
+    gfx_SetColor((255 * !(shellPrefs->fgColor > 131 && shellPrefs->fgColor % 8 > 3)) * (shellContext->batteryLevel > 1) + 160 * (shellContext->batteryLevel < 2));
+    gfx_FillRectangle_NoClip(297 + (12 - shellContext->batteryLevel * 3), 7, shellContext->batteryLevel * 3, 6);
 
-    if (isCharging) {
-        ui_DrawUISprite(color, UI_CHARGING, 292, 12);  // Charging sprite instead of battery percentage
+    if (boot_BatteryCharging()) {
+        ui_DrawUISprite(shellPrefs->fgColor, UI_CHARGING, 298, 7);  // Charging sprite instead of battery percentage
     }
 }
 
-void ui_StatusBar(const uint8_t color, const bool is24Hour, const uint8_t batteryStatus, const char *menuName, const unsigned int fileCount, const bool showFileCount) {
-    gfx_SetColor(color);
-    shapes_RoundRectangleFill(color, 8, 308, 18, 6, 6);
+void ui_DrawBottomBar(struct preferences_t *shellPrefs, char *description) {
+    gfx_SetColor(shellPrefs->fgColor);
 
-    ui_Clock(is24Hour);
-    ui_Battery(color, batteryStatus, boot_BatteryCharging());
+    // Draw corner buttons and info bar
+    shapes_RoundRectangleFill(6, 8, 198, 34, 34);
+    shapes_RoundRectangleFill(15, 50, 199, 220, 32);
+    shapes_RoundRectangleFill(6, 278, 198, 34, 34);
 
-    gfx_SetTextScale(2, 2);
-    const int x = 160 - gfx_GetStringWidth(menuName) / 2;
-    gfx_PrintStringXY(menuName, x, 8);
+    ui_DrawUISprite(shellPrefs->fgColor, UI_PAINT, 14, 204);
+    ui_DrawUISprite(shellPrefs->fgColor, UI_INFO, 56, 205);
+    ui_DrawUISprite(shellPrefs->fgColor, UI_SETTINGS, 284, 204);
 
-    if (showFileCount) {
-        gfx_SetTextScale(1, 1);
-        gfx_SetTextXY(250, 12);
-        gfx_PrintInt(fileCount, 4);
-    }
-}
-
-void ui_DescriptionWrap(const char *description, const uint8_t charPerLine, const int x, const uint8_t y) {
-    gfx_SetTextScale(1, 1); // Description
-    char lineOne[30] = "\0";
-    char lineTwo[30] = "\0";
-    if (strlen(description) > charPerLine) { // Wraps text that is longer than 24, and cuts off anything longer than 48
-        int8_t cut = util_SpaceSearch(description, charPerLine); // If there is a space it will end the line there
-        int8_t descLen = strlen(description);
-        strncpy(lineOne, description, cut);
-
-        if (descLen - cut > charPerLine - 1) {
-            strncpy(lineTwo, description + cut, charPerLine - 3);
+    if (description != NULL) {
+        if (menu_CalculateLines(description, 24, 2) < 2) {
+            gfx_PrintStringXY(description, 82, 210);
         } else {
-            strncpy(lineTwo, description + cut, charPerLine - 1);
-        }
-
-        gfx_PrintStringXY(lineOne, x, y);
-        gfx_PrintStringXY(lineTwo, x, y + 11);
-
-        if (descLen - cut > charPerLine - 1) {
-            gfx_PrintString("...");
+            ui_PrintStringWrap(description, 82, 205, 24, 2);
         }
     } else {
-        gfx_PrintStringXY(description, x, y + 5);
+        os_ArcChk();
+
+        #ifdef FR
+        gfx_PrintStringXY("RAM Libre: ", 82, 205);
+        #else
+        gfx_PrintStringXY("RAM Free: ", 82, 205);
+        #endif
+
+        gfx_PrintUInt(asm_utils_getFreeRAM(), 6);
+
+        #ifdef FR
+        gfx_PrintStringXY("ROM Libre: ", 82, 216);
+        #else
+        gfx_PrintStringXY("ROM Free: ", 82, 216);
+        #endif
+
+        gfx_PrintInt(os_TempFreeArc, 7);
     }
 }
 
-void ui_BottomBar(const uint8_t color) {
-    shapes_RoundRectangleFill(color, 6, 34, 34, 8, 197);    // Background and sprite
-    shapes_RoundRectangleFill(color, 15, 220, 32, 50, 198);
-    shapes_RoundRectangleFill(color, 6, 34, 34, 278, 197);
-    ui_DrawUISprite(color, UI_PAINT, 14, 203);
-    ui_DrawUISprite(color, UI_INFO, 56, 204);
-    ui_DrawUISprite(color, UI_SETTINGS, 284, 203);
+void ui_ScrollBar(struct preferences_t *shellPrefs, unsigned int x, uint8_t y, unsigned int maxLength, unsigned int total, unsigned int start, unsigned int countPerPage, bool horizontal) {
+    if (total) {
+        unsigned int scrollBarLength = (float)maxLength / ((float)total / (float)countPerPage) + 1;
+
+        if (scrollBarLength > maxLength) {
+            scrollBarLength = maxLength;
+        } else if (scrollBarLength < 4) {
+            scrollBarLength = 4;
+        }
+
+        uint8_t scrollOffset = (float)maxLength / (float)total * (float)start;
+
+        gfx_SetColor(shellPrefs->bgColor);
+
+        unsigned int width;
+        uint8_t height;
+
+        if (horizontal) {
+            width = maxLength;
+            height = 4;
+        } else {
+            width = 4;
+            height = maxLength;
+        }
+
+        gfx_FillRectangle_NoClip(x, y, width, height);
+        gfx_SetColor(shellPrefs->hlColor);
+
+        if (horizontal) {
+            width = scrollBarLength;
+            x += scrollOffset;
+        } else {
+            height = scrollBarLength;
+            y += scrollOffset;
+        }
+
+        shapes_PixelIndentRectangle(x, y, width, height);
+    }
 }
 
-bool ui_DeleteConf(uint8_t *colors, const int x, const uint8_t y) {
-    gfx_SetDrawBuffer();
-    bool retVal = false;
-    while (kb_AnyKey());
-    shapes_RoundRectangleFill(colors[0], 8, 208, 20, x, y);
-    gfx_PrintStringXY("Are you sure?", x + 28, y + 6);
-    gfx_BlitBuffer();
-    gfx_SetColor(colors[2]);
-    shapes_PixelIndentRectangle(colors[2], colors[0], x + 159, y + 4, 29, 11);
-    gfx_PrintStringXY("No", x + 134, y + 6);
-    gfx_PrintStringXY("Yes", x + 162, y + 6);
-    gfx_SetDrawScreen();
-    shapes_PixelIndentRectangle(colors[2], colors[0], x + 127, y + 4, 29, 11);
-    gfx_PrintStringXY("No", x + 134, y + 6);
-    gfx_PrintStringXY("Yes", x + 162, y + 6);
-    gfx_SetDrawBuffer();
-    while (!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_Key1) && !kb_IsDown(kb_KeyLog) && !kb_IsDown(kb_KeyZoom) && !kb_IsDown(kb_KeyGraph)) {
-        kb_Scan();
+void ui_CheckBox(const bool isChecked, const int x, const uint8_t y) {
+    uint8_t bgColor = gfx_GetPixel(x, y);
 
-        if (kb_On) {
-            gfx_End();
-            triggerAPD();
-        }
+    if (!(bgColor > 131 && bgColor % 8 > 3)) {
+        gfx_SetColor(148);
+    } else {
+        gfx_SetColor(181);
+    }
 
-        if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
-            gfx_SwapDraw();
-            retVal = !retVal;
-            while (kb_AnyKey());
-        }
+    shapes_PixelIndentRectangle(x, y, 7, 7);
 
-        if (kb_IsDown(kb_Key1) || kb_IsDown(kb_KeyZoom)) {
-            retVal = true;
-        } else if (kb_IsDown(kb_KeyLog) || kb_IsDown(kb_KeyGraph)) {
-            retVal = false;
+    if (isChecked) {
+        ui_DrawUISprite(bgColor, UI_CHECK, x + 1, y - 1);
+    }
+}
+
+void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t *fileInfo, struct preferences_t *shellPrefs, struct context_t *shellContext) {
+    uint8_t scale = shellPrefs->uiScale;
+
+    util_GetFileInfo(file, fileInfo, shellPrefs, shellContext);
+    free(fileInfo->description); // Don't use this here
+    fileInfo->description = NULL;
+
+    if (fileInfo->hidden) {
+        fileInfo->name[0] += 64;
+        gfx_SetTextFGColor(shellPrefs->hiddenTextColor);
+    }
+
+    unsigned int textX = x + 19;
+    unsigned int textY = y + 4;
+    uint8_t background = gfx_GetPixel(x, y);
+
+    if (scale > 1) {
+        textX = (x + ((scale * 16) / 2)) - (gfx_GetStringWidth(fileInfo->name) / 2);
+        textY = y + (scale * 16) + 3;
+    }
+
+    gfx_PrintStringXY(fileInfo->name, textX, textY);
+    free(fileInfo->name);
+    fileInfo->name = NULL;
+    gfx_SetColor(shellPrefs->hlColor);
+    gfx_SetTextFGColor(shellPrefs->textColor);
+
+    if (fileInfo->icon != NULL) {
+        gfx_ScaledSprite_NoClip(fileInfo->icon, x, y, scale, scale);
+    } else {
+        gfx_FillRectangle_NoClip(x, y, 16 * scale, 16 * scale);
+
+        if (fileInfo->shellType == DIR_TYPE) {
+            shapes_Folder(scale, x + 3 * scale, y + 4 * scale);
+        } else {
+            shapes_FileIcon(scale, fileInfo->shellType, x + 4 * scale, y + 3 * scale);
         }
     }
 
-    if (kb_IsDown(kb_KeyClear)) {
-        return false;
-    }
+    free(fileInfo->icon);
+    fileInfo->icon = NULL;
 
-    shapes_RoundRectangleFill(colors[1], 8, 208, 20, x, y);
-    return retVal;
+    // Round corners
+    if (scale == 1) {
+        gfx_SetColor(background);
+        gfx_SetPixel(x, y);
+        gfx_SetPixel(x + 15, y);
+        gfx_SetPixel(x, y + 15);
+        gfx_SetPixel(x + 15, y + 15);
+    } else {
+        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
+        shapes_GetRoundCorners(corner1, background, 4, x, y);
+        shapes_DrawRoundCorners(corner1, 16 * scale, 16 * scale, x, y);
+        free(corner1);
+    }
 }
 
-bool ui_RenameBox(uint8_t *colors, char *newName, bool useLower) {
-    gfx_BlitScreen();
+void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellContext) {
+    struct file_t *fileInfo = malloc(sizeof(struct file_t));
+    uint8_t scale = shellPrefs->uiScale; // Might be faster this way?
+    unsigned int fileDrawing = shellContext->fileStartLoc;
+    unsigned int fileCount = *(&(shellContext->programCount) + shellContext->directory); // This should save us from doing math a lot
 
-    static const char chars[3][56] = 
-    {{'\0', '\0', '\0', '\0', '\0','\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '^', '\0', '\0', '\0', '3', '6', '9', ')', '\0', '\0', '\0', '.', '2', '5', '8', '(', '\0', '\0', '\0', '0', '1', '4', '7', ',', '\0', '\0', 'X', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
-    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'W', 'R', 'M', 'H', '\0', '\0', '?', '[', 'V', 'Q', 'L', 'G', '\0', '\0', ':', 'Z', 'U', 'P', 'K', 'F', 'C', '\0', ' ', 'Y', 'T', 'O', 'J', 'E', 'B', 'X', '\0', 'X', 'S', 'N', 'I', 'D', 'A', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
-    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'w', 'r', 'm', 'h', '\0', '\0', '?', '[', 'v', 'q', 'l', 'g', '\0', '\0', ':', 'z', 'u', 'p', 'k', 'f', 'c', '\0', ' ', 'y', 't', 'o', 'j', 'e', 'b', '\0', '\0', 'x', 's', 'n', 'i', 'd' ,'a', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}};
+    unsigned int iconX = 20;
 
-    uint8_t length = strlen(newName);
-    gfx_SetColor(colors[0]);
-    gfx_FillRectangle_NoClip(129, 182, 62, 11);
-    gfx_PrintStringXY("Rename", 136, 184);
+    switch (scale) {
+        case 3:
+            iconX = 23;
+            break;
+        case 2:
+            iconX = 36;
+            break;
+        case 1:
+            iconX = 22;
+            break;
+        default:
+            break;
+    }
+
+    uint8_t iconY;
+    uint8_t rows = 2;
+
+    if (scale < 4) {
+        rows = 6 / scale;
+    }
+
+    uint8_t columns = 4 - (scale == 1);
+
+    /*
+     * Icons drawn in this order:
+     *
+     * +-+-+-+-+
+     * |1|3|5|7|
+     * +-+-+-+-+
+     * |2|4|6|8|
+     * +-+-+-+-+
+     * 
+    **/
+
+    for (uint8_t i = 0; i < columns; i++) {
+        iconY = 30; // Reset Y value at the start of each column
+
+        if (scale == 3) {
+            iconY = 39;
+        }
+
+        for (uint8_t j = 0; j < rows; j++) {
+            if (fileDrawing >= fileCount) { // Only draw files that actually exist on the calculator. Do this first in case there are no files in the active directory.
+                free(fileInfo);
+                fileInfo = NULL;
+                return;
+            }
+
+            if (fileDrawing == shellContext->fileSelected) {
+                gfx_SetColor(shellPrefs->fgColor);
+
+                if (scale > 1) {
+                    shapes_RoundRectangleFill(6, iconX - (2 + 8 * (4 - scale)), iconY - 2, 68, 78 - (16 * (4 - scale)));
+                } else {
+                    shapes_PixelIndentRectangle(iconX - 2, iconY - 2, 87, 20);
+                }
+            }
+
+            ui_File(iconX, iconY, fileDrawing, fileInfo, shellPrefs, shellContext);
+
+            switch (scale) {
+                case 4:
+                    iconY += 82;
+                    break;
+                case 3:
+                    iconY += 75;
+                    break;
+                case 2:
+                    iconY += 52;
+                    break;
+                case 1:
+                    iconY += 27;
+                    break;
+                default:
+                    break;
+            }
+
+            fileDrawing++; // Move on to the next file
+        }
+
+        iconX += 72 + 5 * (scale & 1) + 10 * (scale == 1); // If scale is 2 or 4, add 72. If 3, add 77, and if 1, add 87
+    }
+
+    free(fileInfo);
+    fileInfo = NULL;
+}
+
+int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines) {
+    unsigned int offset = 0;
+    uint8_t line = 1;
+    unsigned int end = 0;
+
+    while (line <= maxLines && y + 8 <= 240) {
+        gfx_SetTextXY(x, y);
+
+        if (strlen(string + offset) <= charsPerLine || line == maxLines) {
+            end = charsPerLine;
+        } else {
+            end = util_SpaceSearch(string + offset, charsPerLine);
+        }
+
+        for (unsigned int byte = 0; byte < end; byte++) {
+            if ((string + offset)[byte] == '\0') {
+                return y;
+            }
+
+            if (line == maxLines && byte == end - 1 && (string + offset)[byte + 1] != '\0') {
+                gfx_PrintString("...");
+            } else if ((string + offset)[byte] != '\n'){
+                gfx_PrintChar((string + offset)[byte]);
+            }
+        }
+
+        offset += end;
+
+        if (*(string + offset) == '\0') {
+            return y;
+        }
+
+        y += 12;
+        line++;
+    }
+
+    return y;
+}
+
+void ui_CenterStringBig(const char *string, unsigned int centerX, uint8_t y) {
     gfx_SetTextScale(2, 2);
-    uint8_t xOffset = gfx_GetStringWidth(newName) / 2;
-    gfx_SetColor(colors[2]);
-    gfx_FillRectangle_NoClip(60, 52, 129, 14);
-    gfx_PrintStringXY(newName, 121 - xOffset, 52);
-    gfx_BlitBuffer();
-    while (kb_AnyKey());
-    uint8_t key = os_GetCSC();
-    bool redraw;
+    gfx_PrintStringXY(string, centerX - gfx_GetStringWidth(string) / 2, y);
+    gfx_SetTextScale(1, 1);
+}
+
+char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, uint8_t y) {
+    bool cursorActive = true;
+    uint8_t currentOffset = 0;
+    uint8_t charCount = 0;
+    unsigned int cursorX = x;
+    static const char *modeChars = "1Aa";
+
+    char *input = malloc(9);
+    char inputChar = '\0';
     uint8_t inputMode = INPUT_UPPER;
-    bool cursor = false;
-    timer_Set(1, 0);
 
-    while (key != sk_Clear && key != sk_Window && key != sk_Zoom && key != sk_Trace) {
-        key = os_GetCSC();
-        if (key == sk_Clear) {
-            continue;
-        }
+    for (uint8_t i = 0; i <= 9; i++) {
+        input[i] = '\0';
+    }
 
-        if (key) {
-            if ((key == sk_Left || key == sk_Del) && length) {
-                length -= 1;
-                newName[length] = '\0';
-                redraw = true;
-            }
+    bool keyPressed = false;
+    clock_t clockOffset = clock();
 
-            if (chars[inputMode][key]) {
-                newName[length++] = chars[inputMode][key];
-                redraw = true;
-            }
+    gfx_SetColor(shellPrefs->fgColor);
+    gfx_Rectangle_NoClip(245, 206, 2, 18);
 
-            if (redraw) {
-                redraw = false;
-                shapes_RoundRectangleFill(colors[2], 8, 138, 30, 56, 44);
-                xOffset = gfx_GetStringWidth(newName) / 2;
-                gfx_PrintStringXY(newName, 121 - xOffset, 52);
-                gfx_BlitBuffer();
-            }
+    while (!kb_IsDown(kb_KeyClear)) {
+        kb_Scan();
+        util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
-            if (key == sk_Enter || key == sk_2nd) {
-                if (length) {
+        if (kb_AnyKey() && !kb_IsDown(kb_KeyClear) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 20)) {
+            cursorActive = true;
+
+            gfx_SetColor(shellPrefs->bgColor);
+            gfx_FillRectangle_NoClip(x, y, charCount * 16 + 2, 16);
+            gfx_SetTextScale(2, 2);
+
+            if ((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && charCount != 0 && asm_utils_isNameValid(input, shellContext->directory == APPVARS_FOLDER)) {
+                uint8_t slot = ti_OpenVar(input, "r", OS_TYPE_PRGM + (OS_TYPE_APPVAR - OS_TYPE_PRGM) * (shellContext->directory == APPVARS_FOLDER)); // Check if file exists
+                ti_Close(slot);
+
+                if (!slot) {
                     break;
                 }
-            }
+            } else if (kb_IsDown(kb_KeyLeft)) {
+                if (currentOffset) {
+                    currentOffset--;
+                    cursorX -= gfx_GetCharWidth(input[currentOffset]);
+                }
+            } else if (kb_IsDown(kb_KeyRight)) {
+                if (currentOffset < charCount) {
+                    cursorX += gfx_GetCharWidth(input[currentOffset]);
+                    currentOffset++;
+                }
+            } else if (kb_IsDown(kb_KeyUp)) {
+                currentOffset = 0;
+            } else if (kb_IsDown(kb_KeyDown)) {
+                currentOffset = charCount;
+                cursorX = x;
+            } else if (kb_IsDown(kb_KeyMode)) { // Backspace
+                if (currentOffset && charCount) {
+                    charCount--;
+                    currentOffset--;
+                    cursorX -= gfx_GetCharWidth(input[currentOffset]);
 
-            if (key == sk_Alpha) {
-                if (inputMode < 2 - !(useLower)) {
-                    inputMode++;
-                } else {
+                    for (uint8_t i = currentOffset + 1; input[i - 1] != '\0'; i++) {
+                        input[i - 1] = input[i];
+                    }
+                }
+            } else if (kb_IsDown(kb_KeyDel)) {
+                if (currentOffset < charCount && charCount) {
+                    for (uint8_t i = currentOffset; input[i] != '\0'; i++) {
+                        input[i] = input[i + 1];
+                    }
+
+                    charCount--;
+                }
+            } else if (kb_IsDown(kb_KeyAlpha)) {
+                if (inputMode == INPUT_LOWER) {
                     inputMode = 0;
-                }
-            }
-        } else {
-            if (cursor) {
-                ui_DrawUISprite(colors[1], UI_CURSOR_1 + inputMode, gfx_GetTextX() + 1, gfx_GetTextY());
-            } else {
-                gfx_SetColor(colors[2]);
-                gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);
-            }
-
-            gfx_BlitBuffer();
-            while (timer_Get(1) < 5000);
-            timer_Set(1, 0);
-            cursor = !cursor;
-        }
-    }
-
-    gfx_SetTextScale(1, 1);
-    if (key == sk_Enter || key == sk_2nd) {
-        while (kb_AnyKey());
-        return true;
-    } else {
-        return false;
-    }
-}
-
-void ui_DrawAllFiles(uint8_t *colors, void **programPtrs, void **appvarPtrs, const uint8_t fileSelected, const uint8_t fileCount, const unsigned int fileStartLoc, const uint8_t directory, const bool displayCEaShell, const bool showHiddenProg, const bool showApps, const bool showAppvars) {
-    int x = 14;
-    uint8_t y = 30;
-    unsigned int filesSearched = 0;
-
-    void *vatPtr = NULL;
-
-    if (directory == PROGRAMS_FOLDER) {
-        vatPtr = programPtrs[fileStartLoc - ((showApps + showAppvars) * (fileStartLoc > 0))];
-    } else if (directory == APPVARS_FOLDER) {
-        vatPtr = appvarPtrs[fileStartLoc - (fileStartLoc > 0)];
-    }
-
-    uint8_t fileType;
-    uint8_t shellFileType;
-    bool hidden;
-    char *fileName = "\0";
-
-    if (fileStartLoc == 0) {
-        if (directory == APPVARS_FOLDER || directory == APPS_FOLDER) {
-            ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Programs", DIR_TYPE, 0, x, y);
-            if (fileSelected == filesSearched) {
-                gfx_PrintStringXY("Programs folder", 82, 210);
-                gfx_SetTextScale(2, 2);
-                gfx_SetColor(colors[1]);
-                gfx_PrintStringXY("Programs", 96, 8);
-            }
-
-            y = 116;
-            filesSearched++;
-        } else {
-            if (showApps) {
-                ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Apps", DIR_TYPE, 0, x, y);
-                if (fileSelected == filesSearched) {
-                    gfx_PrintStringXY("Apps folder", 82, 210);
-                    gfx_SetTextScale(2, 2);
-                    gfx_SetColor(colors[1]);
-                    gfx_PrintStringXY("Apps", 128, 8);
-                }
-
-                y = 116;
-                filesSearched++;
-            }
-
-            if (showAppvars) {
-                ui_DrawFile((fileSelected == filesSearched), true, false, false, colors, "Appvars", DIR_TYPE, 0, x, y);
-                if (fileSelected == filesSearched) {
-                    gfx_PrintStringXY("Appvars folder", 82, 210);
-                    gfx_SetTextScale(2, 2);
-                    gfx_SetColor(colors[1]);
-                    gfx_PrintStringXY("Appvars", 104, 8);
-                }
-
-                if (y == 116) {
-                    y = 30;
-                    x = 90;
                 } else {
-                    y = 116;
-                }
-                filesSearched++;
-            }
-        }
-    } else {
-        if (directory != APPS_FOLDER) {
-            filesSearched = fileStartLoc;
-        } else {
-            filesSearched++;
-        }
-    }
-
-    if (directory == APPS_FOLDER) {
-        char appName[9] = "\0";
-        unsigned int appPointer;
-        while ((detectApp(appName, &appPointer))) {
-            if (!displayCEaShell && !strcmp(appName, "CEaShell")) {
-                continue;
-            }
-
-            if (fileStartLoc <= filesSearched) {    // Wait till fileStartLoc to start drawing
-                ui_DrawFile((fileSelected == filesSearched), true, true, false, colors, appName, APP_TYPE, OS_TYPE_APP, x, y);
-                if (y == 30) {
-                    y = 116;
-                } else {
-                    x += 76;
-                    y = 30;
-                }
-            }
-
-            if (fileSelected == filesSearched) {
-                char *appDescription = getAppCopyrightInfo(appName);
-                ui_DescriptionWrap(appDescription, 24, 82, 205);
-                gfx_SetTextScale(2, 2);
-                gfx_SetColor(colors[1]);
-                uint8_t textX = 160 - gfx_GetStringWidth(appName) / 2;
-                gfx_PrintStringXY(appName, textX, 8);
-            }
-
-            filesSearched++;
-            if ((x > 242) || filesSearched > fileCount) {
-                break;
-            }
-        }
-    } else {
-        while ((fileName = ti_DetectAny(&vatPtr, NULL, &fileType))) {
-            if (*fileName == '!' || *fileName =='#') {  // We skip these two OS files
-                continue;
-            } else if (!showHiddenProg && fileName[0] < 65) {
-                continue;
-            } else if ((fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM) && getPrgmType(fileName, fileType) == HIDDEN_TYPE) {
-                continue;
-            }
-
-            hidden = (fileName[0] < 65);
-            if (directory == PROGRAMS_FOLDER && (fileType == OS_TYPE_PRGM || fileType == OS_TYPE_PROT_PRGM)) {
-                if (fileStartLoc <= filesSearched) {
-                    shellFileType = getPrgmType(fileName, fileType);
-                    fileName[0] += 64 * hidden;
-                    ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, shellFileType, fileType, x, y);
-
-                    if (y == 30) {
-                        y = 116;
-                    } else {
-                        x += 76;
-                        y = 30;
-                    }
-
-                    if (fileSelected == filesSearched) {    // Draws the name of the selected program
-                        char *description = malloc(52);
-                        fileName[0] -= 64 * hidden;
-
-                        if (shellFileType != BASIC_TYPE && shellFileType != ICE_SRC_TYPE && getDescASM(fileName, fileType, shellFileType, description)) {
-                            ui_DescriptionWrap(description, 24, 82, 205);
-                        } else if (shellFileType == BASIC_TYPE && getDescBASIC(fileName, fileType, description)) {
-                            ui_DescriptionWrap(description, 24, 82, 205);
-                        } else {
-                            util_PrintFreeRamRom();
-                        }
-
-                        free(description);
-                        fileName[0] += 64 * hidden;
-                        gfx_SetTextScale(2, 2);
-                        gfx_SetColor(colors[1]);
-                        uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
-                        gfx_PrintStringXY(fileName, textX, 8);
-                    }
-                }
-
-                filesSearched++;
-            } else if (directory == APPVARS_FOLDER && fileType == OS_TYPE_APPVAR) {
-                if (fileStartLoc <= filesSearched) {
-                    ui_DrawFile((fileSelected == filesSearched), true, true, hidden, colors, fileName, getAppvarType(fileName), OS_TYPE_APPVAR, x, y);
-                    if (y == 30) {
-                        y = 116;
-                    } else {
-                        x += 76;
-                        y = 30;
-                    }
-                }
-
-                if (fileSelected == filesSearched) {
-                    util_PrintFreeRamRom();
-                    gfx_SetTextScale(2, 2);
-                    gfx_SetColor(colors[1]);
-                    uint8_t textX = 160 - gfx_GetStringWidth(fileName) / 2;
-                    gfx_PrintStringXY(fileName, textX, 8);
-                }
-
-                filesSearched++;
-            }
-
-            if ((x > 242) || filesSearched > fileCount) {
-                break;
-            }
-        }
-    }
-}  
-
-void ui_MiniCursor(uint8_t color, int x, uint8_t y) {
-    gfx_SetColor(color);
-    gfx_Line_NoClip(x, y + 1, x, y + 4);
-    gfx_Line_NoClip(x + 1, y, x + 4, y);
-    gfx_Line_NoClip(x + 1, y + 5, x + 4, y + 5);
-    gfx_Line_NoClip(x + 5, y + 1, x + 5, y + 4);
-    gfx_SetPixel(x + 1, y + 1);
-    gfx_SetPixel(x + 4, y + 4);
-    gfx_SetPixel(x + 1, y + 4);
-    gfx_SetPixel(x + 4, y + 1);
-}
-
-void ui_DrawMenuItem(const char *lineOne, const int x, const uint8_t y, const bool status) {
-    gfx_PrintStringXY(lineOne, x, y);
-    gfx_PrintStringXY("<", x + 92, y);
-    gfx_PrintStringXY(">", x + 122, y);
-
-    if (status) {
-        gfx_PrintStringXY("On", x + 102, y);
-    } else {
-        gfx_PrintStringXY("Off", x + 99, y);
-    }
-}
-
-void ui_DrawDoubleMenuItem(const char *lineOne, const char *lineTwo, const int x, const uint8_t y, const bool status) {
-    gfx_PrintStringXY(lineOne, x, y);
-    gfx_PrintStringXY(lineTwo, x, y + 12);
-    gfx_PrintStringXY("<", x + 92, y + 12);
-    gfx_PrintStringXY(">", x + 122, y + 12);
-
-    if (status) {
-        gfx_PrintStringXY("On", x + 102, y + 12);
-    } else {
-        gfx_PrintStringXY("Off", x + 99, y + 12);
-    }
-}
-
-void ui_AboutScreen(uint8_t *colors) {
-    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
-    " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
-    " DJ Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe."
-    " And a big thank you to the members of our discord for your support and ideas!";
-    unsigned int startDisplay = 0;
-    shapes_RoundRectangleFill(colors[0], 8, 290, 155, 15, 46);
-    gfx_SetTextScale(2, 2);
-    gfx_PrintStringXY("CEaShell", 21, 52);
-    gfx_SetTextScale(1, 1);
-    gfx_SetTextXY(21, 72);
-    gfx_PrintChar('v');
-    gfx_PrintString(VERSION_NO);
-    gfx_PrintStringXY("CEaShell (pronounced \"seashell\"), is a", 21, 89);
-    gfx_PrintStringXY("shell created by RoccoLox Programs and", 21, 102);
-    gfx_PrintStringXY("TIny_Hacker. CEaShell aims to provide an", 21, 115);
-    gfx_PrintStringXY("easy to use, modern interface for the", 21, 128);
-    gfx_PrintStringXY("TI-84+ CE and TI-83 PCE calculators.", 21, 141);
-    gfx_PrintStringXY("(C) Copyright 2022 - 2023", 21, 175);
-    gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 21, 188);
-    gfx_SetClipRegion(21, 52, 299, 196);    // Helps cut the text off in the scrolling animation
-    gfx_SetTextConfig(1);
-    gfx_PrintStringXY(&specialThanks[startDisplay], 21, 158);
-    gfx_BlitBuffer();
-    timer_Set(1, 0);
-
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph) && !(timer_Get(1) > 9000)) {
-        kb_Scan();
-    }
-
-    uint8_t phase = 0;
-    bool keypressed = false;
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
-        kb_Scan();
-
-        if (kb_On) {
-            gfx_End();
-            triggerAPD();
-        }
-
-        // Code
-        if (kb_IsDown(kb_Key1) && !keypressed) {
-            phase = 1;
-            keypressed = true;
-        } else if (kb_IsDown(kb_Key3) && (phase == 1 || phase == 2) && !keypressed) {
-            phase++;
-            keypressed = true;
-        } else if (kb_IsDown(kb_Key7) && phase == 3 && !keypressed) {
-            gfx_SetClipRegion(0, 0, 320, 240);
-            gfx_SetTextConfig(0);
-            util_Secret(colors);
-        }
-
-        if (timer_Get(1) > 2500) {
-            gfx_SetColor(colors[0]);
-            gfx_FillRectangle_NoClip(21, 158, 278, 8);
-            gfx_PrintStringXY(&specialThanks[startDisplay], 21, 158);
-            startDisplay++;
-            gfx_BlitBuffer();
-            timer_Set(1, 0);
-        }
-
-        if (startDisplay > 384) {
-            startDisplay = 0; // restart
-        }
-
-        if (keypressed && !kb_AnyKey()) {
-            keypressed = false;
-        }
-    }
-    gfx_SetClipRegion(0, 0, 320, 240);
-    gfx_SetTextConfig(0);
-}
-
-void ui_NewUser(void) {
-    gfx_FillScreen(246);
-    shapes_RoundRectangleFill(237, 6, 272, 44, 24, 22);
-    gfx_SetTextScale(2, 2);
-    gfx_PrintStringXY("Welcome to CEaShell", 29, 27);
-    gfx_SetTextScale(1, 1);
-    gfx_PrintStringXY("v"VERSION_NO, 29, 44);
-    gfx_PrintStringXY("A shell for the CE calculators.", 29, 54);
-    shapes_RoundRectangleFill(237, 6, 272, 143, 24, 71);
-    shapes_RoundRectangleFill(236, 7, 86, 22, 206, 188);
-    gfx_PrintStringXY("Alpha to", 211, 191);
-    gfx_PrintStringXY("Continue", 211, 199);
-    gfx_TransparentSprite_NoClip(rArrow, 273, 191);
-    gfx_PrintStringXY("We try our best to make CEaShell as", 29, 76);
-    gfx_PrintStringXY("user-friendly as possible. Here's a", 29, 88);
-    gfx_PrintStringXY("quick guide to navigating the features", 29, 100);
-    gfx_PrintStringXY("and menus.", 29, 112);
-    gfx_PrintStringXY("Use the function keys to open the menu", 29, 130);
-    gfx_PrintStringXY("buttons on the bottom row. You can open", 29, 142);
-    gfx_PrintStringXY("the description bar for more info", 29, 154);
-    gfx_PrintStringXY("on a file using the function keys or", 29, 166);
-    gfx_PrintStringXY("[alpha].", 29, 180);
-    gfx_BlitBuffer();
-
-    // Wait to continue
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyRight)) {
-        kb_Scan();
-
-        if (kb_On) {
-            gfx_End();
-            triggerAPD();
-        }
-    }
-
-    if (kb_IsDown(kb_KeyClear)) {
-        return;
-    }
-
-    gfx_SetColor(237);
-    gfx_FillRectangle_NoClip(29, 76, 266, 112);
-    gfx_PrintStringXY("Navigate through menus and files", 29, 76);
-    gfx_PrintStringXY("using the arrow keys.", 29, 90);
-    gfx_PrintStringXY("Run programs using [enter] or [2nd].", 29, 108);
-    gfx_PrintStringXY("Toggle options in the settings", 29, 126);
-    gfx_PrintStringXY("using the arrow keys, and check", 29, 140);
-    gfx_PrintStringXY("boxes with [2nd] or [enter].", 29, 154);
-    gfx_PrintStringXY("Thanks for using CEaShell!", 29, 172);
-    gfx_BlitBuffer();
-
-    while(kb_AnyKey());
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_KeyRight)) {
-        kb_Scan();
-    }
-}
-
-uint8_t ui_CopyNewMenu(uint8_t *colors, char *name, bool useLower) {
-    bool returnVal = false;
-    while (kb_AnyKey());
-    shapes_RoundRectangleFill(colors[0], 9, 208, 20, 56, 204);
-    gfx_BlitBuffer();
-    shapes_PixelIndentRectangle(colors[2], colors[0], 166, 208, 85, 11);
-    gfx_PrintStringXY("Copy File", 77, 210);
-    gfx_PrintStringXY("New File", 179, 210);
-    gfx_SetDrawScreen();
-    shapes_PixelIndentRectangle(colors[2], colors[0], 68, 208, 85, 11);
-    gfx_PrintStringXY("Copy File", 77, 210);
-    gfx_PrintStringXY("New File", 179, 210);
-    gfx_SetDrawBuffer();
-
-    while(!kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyEnter)) {
-        kb_Scan();
-
-        if (kb_On) {
-            gfx_End();
-            triggerAPD();
-        }
-
-        if (kb_IsDown(kb_KeyClear)) {
-            return 2;
-        } else if (kb_IsDown(kb_KeyMode)) {
-            return 3;
-        } else if (kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) {
-            gfx_SwapDraw();
-            returnVal = !returnVal;
-            while(kb_AnyKey());
-        }
-    }
-
-    while (kb_AnyKey());
-    gfx_SetColor(colors[0]);
-    gfx_FillRectangle_NoClip(68, 207, 183, 14);
-    gfx_PrintStringXY("Name:", 73, 211);
-    gfx_SetTextScale(2, 2);
-    gfx_SetTextXY(111, 207);
-    gfx_BlitBuffer();
-
-    static const char chars[3][56] = 
-    {{'\0', '\0', '\0', '\0', '\0','\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '^', '\0', '\0', '\0', '3', '6', '9', ')', '\0', '\0', '\0', '.', '2', '5', '8', '(', '\0', '\0', '\0', '0', '1', '4', '7', ',', '\0', '\0', 'X', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
-    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'W', 'R', 'M', 'H', '\0', '\0', '?', '[', 'V', 'Q', 'L', 'G', '\0', '\0', ':', 'Z', 'U', 'P', 'K', 'F', 'C', '\0', ' ', 'Y', 'T', 'O', 'J', 'E', 'B', 'X', '\0', 'X', 'S', 'N', 'I', 'D', 'A', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}, 
-    {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\"', 'w', 'r', 'm', 'h', '\0', '\0', '?', '[', 'v', 'q', 'l', 'g', '\0', '\0', ':', 'z', 'u', 'p', 'k', 'f', 'c', '\0', ' ', 'y', 't', 'o', 'j', 'e', 'b', '\0', '\0', 'x', 's', 'n', 'i', 'd' ,'a', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}};
-
-    asm("ei");
-    uint8_t length = 0;
-    uint8_t key = os_GetCSC();
-    bool redraw;
-    uint8_t inputMode = INPUT_UPPER;
-    bool cursor = false;
-    timer_Set(1, 0);
-
-    while (key != sk_Clear && key != sk_Mode) {
-        key = os_GetCSC();
-        if (key == sk_Clear || key == sk_Mode) {
-            continue;
-        }
-
-        if (key) {
-            if ((key == sk_Left || key == sk_Del) && length) {
-                length -= 1;
-                name[length] = '\0';
-                redraw = true;
-            }
-
-            if (chars[inputMode][key]) {
-                name[length++] = chars[inputMode][key];
-                redraw = true;
-            }
-
-            if (redraw) {
-                redraw = false;
-                gfx_SetColor(colors[0]);
-                gfx_FillRectangle_NoClip(111, 207, 136, 14);
-                gfx_PrintStringXY(name, 111, 207);
-                gfx_BlitBuffer();
-            }
-
-            if (key == sk_Enter || key == sk_2nd) {
-                if (length) {
-                    break;
-                }
-            }
-
-            if (key == sk_Alpha) {
-                if (inputMode < 2 - !(useLower)) {
                     inputMode++;
-                } else {
-                    inputMode = 0;
+                }
+
+                while (kb_AnyKey());
+            } else if (charCount < 8) {
+                if (!keyPressed) {
+                    inputChar = asm_utils_getCharFromKey(inputMode);
+                }
+
+                if (inputChar != '\0') {
+                    for (uint8_t i = 8; i != currentOffset; i--) {
+                        input[i] = input[i - 1];
+                    }
+
+                    input[currentOffset] = inputChar;
+                    charCount++;
+                    cursorX += gfx_GetCharWidth(input[currentOffset]);
+                    currentOffset++;
                 }
             }
-        } else {
-            if (cursor) {
-                ui_DrawUISprite(colors[1], UI_CURSOR_1 + inputMode, gfx_GetTextX() + 1, gfx_GetTextY());
-            } else {
-                gfx_SetColor(colors[0]);
-                gfx_FillRectangle_NoClip(gfx_GetTextX() + 1, gfx_GetTextY(), 7, 14);
-            }
+
+            gfx_SetColor(shellPrefs->textColor);
+            gfx_FillRectangle_NoClip(cursorX, y, 2, 14); // Draw new cursor
+            gfx_PrintStringXY(input, x + 2, y);
+            gfx_SetTextScale(1, 1);
+            gfx_SetColor(shellPrefs->bgColor);
+            gfx_FillRectangle_NoClip(251, 211, 7, 7);
+            gfx_SetTextXY(251, 211);
+            gfx_PrintChar(modeChars[inputMode]);
 
             gfx_BlitBuffer();
-            while (timer_Get(1) < 5000);
-            timer_Set(1, 0);
-            cursor = !cursor;
+
+            util_WaitBeforeKeypress(&clockOffset, &keyPressed);
+        }
+
+        if (clock() - clockOffset > CLOCKS_PER_SEC / 4 && !keyPressed) {
+            if (cursorActive) {
+                gfx_SetColor(shellPrefs->textColor);
+            } else {
+                gfx_SetColor(shellPrefs->bgColor);
+            }
+
+            gfx_FillRectangle_NoClip(cursorX, y, 2, 14);
+
+            cursorActive = !cursorActive;
+            clockOffset = clock();
+
+            gfx_BlitBuffer();
         }
     }
 
-    asm("di");
-    gfx_SetTextScale(1, 1);
-
-    if (key == sk_Enter || key == sk_2nd) {
-        while (kb_AnyKey());
-        return returnVal;
-    } else {
-        return 2;
+    if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+        return input;
     }
-    return returnVal;
+
+    free(input);
+    return NULL;
+}
+
+void ui_TransitionDrawFrame(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height) {
+    asm_spi_beginFrame();
+    gfx_BlitBuffer();
+    shapes_RoundRectangleFill(radius, x, y, width, height);
+    asm_spi_endFrame();
 }

@@ -13,35 +13,29 @@ converts:
     transparent-color-index: 0
     images:
       - xlibc.png
-      - battery.png
-      - charging.png
-      - paint.png
-      - info.png
-      - settings.png
-      - lArrow.png
-      - rArrow.png
-      - dArrow.png
-      - check.png
-      - cursorNumber.png
-      - cursorUpper.png
-      - cursorLower.png
-      - batteryAlt.png
-      - chargingAlt.png
-      - paintAlt.png
-      - infoAlt.png
-      - settingsAlt.png
-      - lArrowAlt.png
-      - rArrowAlt.png
-      - dArrowAlt.png
-      - checkAlt.png
-      - cursorNumberAlt.png
-      - cursorUpperAlt.png
-      - cursorLowerAlt.png
+      - battery*.png
+      - charging*.png
+      - paint*.png
+      - info*.png
+      - settings*.png
+      - lArrow*.png
+      - rArrow*.png
+      - dArrow*.png
+      - check*.png
+      - cursorNumber*.png
+      - cursorUpper*.png
+      - cursorLower*.png
       - invSwitch.png
+  - name: fileTypes
+    palette: xlibc
+    transparent-color-index: 0
+    images:
+      - type*.png
 
 outputs:
   - type: c
     include-file: gfx.h
     converts:
       - sprites
+      - fileTypes
     const: true
