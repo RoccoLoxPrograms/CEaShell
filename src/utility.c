@@ -25,6 +25,7 @@
 #include <string.h>
 #include <time.h>
 
+#include <sys/power.h>
 #include <ti/ui.h>
 
 void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellContext) {
@@ -366,7 +367,11 @@ void util_AlphaSearch(struct preferences_t *shellPrefs, struct context_t *shellC
 void util_UpdateKeyTimer(struct preferences_t *shellPrefs, struct context_t *shellContext, clock_t *clockOffset, bool *keyPressed) {
     // Power off the calculator after specified time of inactivity or if the [on] key is pressed
     if ((clock() - *clockOffset >= ONE_MINUTE * shellPrefs->apdTimer && shellPrefs->apdTimer) || kb_On) {
-        util_PowerOff(shellPrefs, shellContext);
+        if (!boot_BatteryCharging()) {
+            util_PowerOff(shellPrefs, shellContext);
+        } else {
+            kb_ClearOnLatch();
+        }
     }
 
     if (!kb_AnyKey() && *keyPressed) {

@@ -346,8 +346,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
             uint8_t slot = ti_OpenVar(newName, "w+", OS_TYPE_PRGM + (OS_TYPE_APPVAR - OS_TYPE_PRGM) * (shellContext->directory == APPVARS_FOLDER));
 
             if (shellContext->directory == APPVARS_FOLDER) { // Add Celtic header
-                const uint8_t celticHeader[5] = {CELTIC_HEADER};
-                ti_Write(celticHeader, 5, 1, slot);
+                ti_Write(&rodata_celticAppVarHeader, 5, 1, slot);
             }
 
             ti_Close(slot);

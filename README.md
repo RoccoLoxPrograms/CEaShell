@@ -4,27 +4,32 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 
 ## Screenshots
 
-![Modern UI](screenshots/hideProgAndScroll.gif "Modern UI")    ![OS Enhancements](screenshots/programs.png "OS Enhancements")
-![Manage File Properties](screenshots/fileInfo.png "Manage File Properties")      ![Run OS Apps](screenshots/runApp.gif "Run OS Apps")
+![Modern UI](screenshots/shell.gif "Modern UI")    ![OS Enhancements](screenshots/osFileInfo.gif "OS Enhancements")
+![Manage File Properties](screenshots/fileInfo.png "Manage File Properties")      ![Scalable UI](screenshots/scalableUI.gif "Scalable UI")
 ![Custom Themes](screenshots/customTheme.gif "Custom Themes")      ![Personalized Settings](screenshots/settings.gif "Personalized Settings")
 
 ## Features
 
-* Program and OS app running
-* Custom color themes and visual preferences
-* Viewing of program information
-* Modifying of file properties (Archiving/Unarchiving, Hiding/Unhiding, etc.)
-* Editing of TI-BASIC programs
-* Creating of programs and appvars
-* OS enhancements
-* Program icons and descriptions in the OS programs menu
-* And many more!
+* Customizable color themes, including preset themes and the ability to create fully custom themes.
+* Four scales for displaying files in the shell, allowing for viewing up to 18 files at once.
+* Program and OS app running.
+* Viewing and modifying of file information. (Archiving / unarchiving, hiding / unhiding, locking / unlocking, renaming, deleting, editing)
+* Creating and copying of programs and AppVars.
+* Turning off the calculator while in the shell, and returning to the shell after turning the calculator back on.
+* Option to view icons and descriptions in the TI-OS [apps] and [prgm] menus.
+* [Shortcuts](#shortcuts) in TI-OS to launch the shell, invert OS colors, trigger APD, and jump to labels in the TI-OS program editor.
+* Option to allow editing of archived programs in TI-OS.
+* Option to allow editing of locked programs in CEaShell.
+* Option to hide the "Programming" menu on Python calculators, skipping directly to a TI-BASIC menu like non-Python calcs.
+* Option to disable the busy indicator when running TI-BASIC programs through CEaShell.
+* Option to enable lowercase in TI-OS.
 
 ## Installation
 
-1. Download the latest version of CEaShell from [the GitHub releases page](https://github.com/roccoloxprograms/CEaShell/releases/latest).
-2. Send **APPINST.8xp**, **AppInstA.8xv**, and **AppInstB.8xv** to your calculator using TI-Connect CE or TiLP.
-3. Run **prgmAPPINST** from the programs menu (You will need to use the [arTIfiCE jailbreak](https://yvantt.github.io/arTIfiCE) if you are on an OS version 5.5 and above).
+~~1. Download the latest version of CEaShell from [the GitHub releases page](https://github.com/roccoloxprograms/CEaShell/releases/latest).~~
+1. Clone and build CEaShell, following [these instructions](#building-ceashell).
+2. Send **CEASHELL.8xp** and **AppInstA.8xv** to your calculator using TI-Connect CE or TiLP.
+3. Run **prgmCEASHELL** from the programs menu (You will need to use the [arTIfiCE jailbreak](https://yvantt.github.io/arTIfiCE) if you are on an OS version 5.5 and above).
 4. CEaShell will be installed in the apps menu.
 
 ## Uninstalling
@@ -39,22 +44,29 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 
 Below is a table with keys and their various usage in CEaShell:
 
-| Key                                                                       | Action performed                                       |
-|---------------------------------------------------------------------------|--------------------------------------------------------|
-| <kbd>2nd</kbd> / <kbd>enter</kbd>                                           | Run programs, toggle/select items in menus.            |
-| <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>←</kbd>, <kbd>→</kbd>                    | Scroll through options or menus.                       |
-| <kbd>y=</kbd>                                                             | Open/exit customization menu.                          |
-| <kbd>graph</kbd>                                                          | Open/exit settings menu.                               |
-| <kbd>alpha</kbd> / <kbd>window</kbd> / <kbd>zoom</kbd> / <kbd>trace</kbd> | View and modify file properites.                       |
-| <kbd>del</kbd>                                                            | Delete currently selected file.                        |
-| <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one.  |
-| <kbd>clear</kbd>                                                          | Exit CEaShell.                                         |
-| <kbd>a</kbd> - <kbd>z</kbd>                                               | Jump to the program beginning with the letter pressed. |
-| <kbd>on</kbd>                                                             | Turn off the calculator while remaining in the shell.  |
+| Key                                                                       | Action performed                                             |
+|---------------------------------------------------------------------------|--------------------------------------------------------------|
+| <kbd>2nd</kbd> / <kbd>enter</kbd>                                         | Run programs, toggle/select items in menus.                  |
+| <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>←</kbd>, <kbd>→</kbd>                    | Scroll through options or menus.                             |
+| <kbd>y=</kbd>                                                             | Open/exit customization menu.                                |
+| <kbd>graph</kbd>                                                          | Open/exit settings menu.                                     |
+| <kbd>alpha</kbd> / <kbd>window</kbd> / <kbd>zoom</kbd> / <kbd>trace</kbd> | View and modify file properites.                             |
+| <kbd>del</kbd>                                                            | Delete currently selected file.                              |
+| <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one.        |
+| <kbd>clear</kbd>                                                          | Exit CEaShell, or in some cases return to the previous menu. |
+| <kbd>a</kbd> - <kbd>z</kbd>, <kbd>θ</kbd>                                 | Jump to the program beginning with the letter pressed.       |
+| <kbd>on</kbd>                                                             | Turn off the calculator while remaining in the shell.        |
+
+## Creating custom themes
+
+1. To create a custom theme, first open the customization menu using <kbd>y=</kbd>.
+2. Scroll and find "Custom theme", then press <kbd>2nd</kbd> or <kbd>enter</kbd> to open the theme creator.
+3. While in the theme creator, use the <kbd>mode</kbd> button to toggle which UI element's color is being modified. Move the color selector using the <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>←</kbd>, or <kbd>→</kbd> keys.
+4. When you are satisfied with your color choices, press either <kbd>2nd</kbd> or <kbd>enter</kbd> to save the changes. If you wish to exit the theme picker without saving your changes, press <kbd>clear</kbd> instead.
 
 ## Shortcuts
 
-If the option **[on] key shortcuts** is enabled in CEaShell, the follow key combinations will preform specific utilities in the OS:
+If the option **[on] Shortcuts** is enabled in CEaShell, the follow key combinations will preform specific utilities in the OS:
 
 | Key combination                  | Action performed                                                |
 |----------------------------------|-----------------------------------------------------------------|
@@ -66,14 +78,15 @@ If the option **[on] key shortcuts** is enabled in CEaShell, the follow key comb
 
 ## Building CEaShell
 
-Make sure you have installed the linker relocations branch of the [CE C Toolchain](https://github.com/ce-programming/toolchain). CEaShell will not be able to compile using the main version. You will also need to use the latest version of [convimg](https://github.com/mateoconlechuga/convimg).
+To build CEaShell, you will need to install the latest version of the [CE C toolchain](https://ce-programming.github.io/toolchain/index.html). Instructions to install the toolchain can be found [here](https://ce-programming.github.io/toolchain/static/getting-started.html#installing-the-ce-toolchain). You will also need to use the latest version of [convimg](https://github.com/mateoconlechuga/convimg).
 
 <br />
 
 1. Clone CEaShell with the **app_tools** submodule by running `git clone --recurse-submodules https://github.com/RoccoLoxPrograms/CEaShell`
 2. If you are using an OS that uses `python3` insead of `python`, open **app_tools/makefile** and change `PYTHON_VER := python` to `PYTHON_VER := python3`.
-3. `cd` into the cloned repository, and run `make gfx`.
-4. Once complete, run `make`. The compiled binaries will be in the newly created **bin** directory.
+3. If you would like to build the French version of CEaShell (translation not yet completed), open CEaShell's **makefile** (not the **app_tools** one) and change `LANGUAGE = EN` to `LANGUAGE = FR`.
+4. In a command line, `cd` into the cloned repository, and run `make gfx`.
+5. Once complete, run `make`. The compiled binaries will be in the newly created **bin** directory.
 
 
 ## Bugs
@@ -83,8 +96,7 @@ Feel free to request features or ask for help on the discord or in the [Cemetech
 
 ## Translation
 
-Currently, there is a French translation of CEaShell which is translated by [Shadow](https://github.com/Bryankaveen).
-You can find it [here](https://github.com/RoccoLoxPrograms/CEaShell/tree/french-translation).
+CEaShell 1.1.5 (the latest GitHub release) has also been translated to French by [Shadow](https://github.com/Bryankaveen). The rewritten CEaShell (v2.0.0+) has not been translated yet.
 
 ## Credits
 

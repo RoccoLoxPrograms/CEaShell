@@ -19,6 +19,12 @@ extern "C" {
 #endif
 
 /**
+ * CelticCE AppVar header, which can be added to AppVars created using
+ * Celtic's CreateVar command.
+ */
+extern char *rodata_celticAppVarHeader;
+
+/**
  * @brief Opens an edit buffer to edit a program or AppVar.
  * 
  * @param name Name of the file to edit.

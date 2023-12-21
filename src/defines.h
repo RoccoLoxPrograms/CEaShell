@@ -116,12 +116,6 @@ struct menu_t {
 #define UNKNOWN_TYPE    10      /** Unknown file type. */
 
 /**
- * CelticCE AppVar header, which can be added to AppVars created using
- * Celtic's CreateVar command.
- */
-#define CELTIC_HEADER   0x3e, 0x43, 0x45, 0x4c, 0x3f
-
-/**
  * Type byte for apps (ti.AppObj), which is not included in the CE C
  * toolchain.
  */

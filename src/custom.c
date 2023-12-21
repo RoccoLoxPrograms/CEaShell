@@ -124,7 +124,7 @@ void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shel
             gfx_SetPixel(170, 41);
             gfx_SetPixel(297, 41);
             gfx_SetPixel(170, 72);
-            gfx_SetPixel(297, 41);
+            gfx_SetPixel(297, 72);
 
             custom_ThemePreview(newTheme);
 
