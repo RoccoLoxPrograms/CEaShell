@@ -94,6 +94,15 @@ bool asm_utils_isFileArchived(char *fileName, uint8_t type);
  */
 bool asm_utils_isNameValid(char *name, bool appvarDir);
 
+/**
+ * @brief Sets up Ans for HexaEdit headless start.
+ * 
+ * @param name Name of variable to edit.
+ * @param nameLength Length of name of variable to edit.
+ * @param type Type of variable to edit.
+ */
+void asm_utils_initHexaEditStart(char *name, uint8_t nameLength, uint8_t type);
+
 #ifdef __cplusplus
 }
 #endif

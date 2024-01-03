@@ -18,11 +18,13 @@
 
 #include "asm/apps.h"
 #include "asm/fileOps.h"
+#include "asm/runProgram.h"
 #include "asm/utils.h"
 
 #include <fileioc.h>
 #include <graphx.h>
 #include <keypadc.h>
+#include <string.h>
 #include <time.h>
 
 #include <ti/ui.h>
@@ -176,6 +178,9 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
     gfx_BlitScreen();
     gfx_SwapDraw();
 
+    uint8_t hexaEdit = ti_OpenVar("HEXAEDIT", "r", OS_TYPE_PROT_PRGM);
+    ti_Close(hexaEdit);
+
     uint8_t option = 0 + 3 * (fileInfo->shellType == APP_TYPE);
     shapes_RoundRectangleFill(15, 50, 39, 220, 192);
     info_Redraw(shellPrefs, fileInfo, 0);
@@ -252,10 +257,32 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
                         break;
                     case 5:
-                        if (fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE || fileInfo->shellType == CELTIC_TYPE) {
+                        if (hexaEdit || fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE || fileInfo->shellType == CELTIC_TYPE) {
                             ti_Close(slot);
-                            util_WritePrefs(shellPrefs, shellContext, false);
+                            util_WritePrefs(shellPrefs, shellContext, true);
                             while (kb_AnyKey());
+
+                            if (hexaEdit) {
+                                if (fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE || fileInfo->shellType == CELTIC_TYPE) {
+                                    gfx_SetColor(shellPrefs->bgColor);
+                                    shapes_RoundRectangleFill(9, 56, 205, 208, 20);
+                                    hexaEdit = menu_YesNo(shellPrefs, shellContext, 92, 67, "TI-OS", "HexaEdit");
+
+                                    if (kb_IsDown(kb_KeyClear)) {
+                                        gfx_SetColor(shellPrefs->fgColor);
+                                        gfx_FillRectangle_NoClip(56, 205, 208, 20);
+                                        ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
+                                        while (kb_AnyKey());
+                                        break;
+                                    }
+                                }
+
+                                if (hexaEdit) {
+                                    asm_utils_initHexaEditStart(fileInfo->name, strlen(fileInfo->name), fileInfo->type);
+                                    asm_runProgram_run("HEXAEDIT", OS_TYPE_PROT_PRGM, C_TYPE, shellPrefs);
+                                }
+                            }
+
                             asm_editProgram_edit(fileInfo->name, fileInfo->shellType == CELTIC_TYPE, shellPrefs);
                         }
 

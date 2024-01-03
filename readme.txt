@@ -14,6 +14,8 @@ Features
 * Program and OS app running.
 * Viewing and modifying of file information. (Archiving / unarchiving, hiding / unhiding, locking / unlocking,
   renaming, deleting, editing)
+* Integration with HexaEdit (https://github.com/captain-calc/HexaEdit-CE) to open files in hex editor, if the
+  user has HexaEdit installed on their calculator.
 * Creating and copying of programs and AppVars.
 * Turning off the calculator while in the shell, and returning to the shell after turning the calculator back
   on.

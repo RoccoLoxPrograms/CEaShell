@@ -21,6 +21,7 @@ include 'include/equates.inc'
     public _rodata_errorQuit
     public _rodata_errorGoto
     public _rodata_basicPrgmName
+    public _rodata_hexaEditHeader
     public _rodata_osColorToXlibC
     public _rodata_characters
     public _rodata_sizeOfCharsLUT
@@ -46,6 +47,9 @@ _rodata_errorGoto:
 
 _rodata_basicPrgmName:
     db ti.ProtProgObj, "CEaShTmp", 0
+
+_rodata_hexaEditHeader:
+    db "HexaEdit", 1 shl 2
 
 _rodata_osColorToXlibC: ; lines up with xlibc color picker
     db 255 ; white (transparent but not)

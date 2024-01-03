@@ -32,10 +32,12 @@ include 'include/equates.inc'
     public _asm_utils_isNameValid
     public _asm_utils_findCEaShellAppVar
     public _asm_utils_dispTextToolbar
+    public _asm_utils_initHexaEditStart
 
     extern _rodata_appVarName
     extern _rodata_characters
     extern _rodata_sizeOfCharsLUT
+    extern _rodata_hexaEditHeader
     extern _exit.sp
 
 _asm_utils_checkEOF: ; bc = current address being read; destroys hl
@@ -380,4 +382,39 @@ _asm_utils_dispTextToolbar:
     call ti.VPutS
     ld de, $FFFF
     ld.sis (ti.drawBGColor and $FFFF), de
+    ret
+
+_asm_utils_initHexaEditStart:
+    call ti.AnsName
+    ld a, ti.StrngObj
+    ld (ti.OP1), a
+    ;call ti.PushOP1
+    call ti.ChkFindSym
+    jr c, .notFound
+    call ti.DelVar
+
+.notFound:
+    ;call ti.PopOP1
+    ld hl, 22
+    call ti.CreateStrng
+    inc de
+    inc de
+    ld hl, _rodata_hexaEditHeader
+    call ti.Mov9b
+    pop bc
+    ex (sp), hl
+    push bc
+    call ti.Mov8b
+    ld iy, 0
+    add iy, sp
+    ld a, (iy + 6)
+    ld (de), a
+    inc de
+    ld a, (iy + 9)
+    ld (de), a
+    inc de
+    or a, a
+    sbc hl, hl
+    ex de, hl
+    ld (hl), de
     ret

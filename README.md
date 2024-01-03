@@ -14,6 +14,7 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 * Four scales for displaying files in the shell, allowing for viewing up to 18 files at once.
 * Program and OS app running.
 * Viewing and modifying of file information. (Archiving / unarchiving, hiding / unhiding, locking / unlocking, renaming, deleting, editing)
+* Integration with [HexaEdit](https://github.com/captain-calc/HexaEdit-CE) to open files in hex editor, if the user has HexaEdit installed on their calculator.
 * Creating and copying of programs and AppVars.
 * Turning off the calculator while in the shell, and returning to the shell after turning the calculator back on.
 * Option to view icons and descriptions in the TI-OS [apps] and [prgm] menus.
