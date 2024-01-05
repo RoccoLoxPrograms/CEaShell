@@ -2,7 +2,7 @@
 ;
 ; CEaShell Source Code - utils.asm
 ; By RoccoLox Programs and TIny_Hacker
-; Copyright 2022 - 2023
+; Copyright 2022 - 2024
 ; License: GPL-3.0
 ;
 ;--------------------------------------
@@ -388,13 +388,8 @@ _asm_utils_initHexaEditStart:
     call ti.AnsName
     ld a, ti.StrngObj
     ld (ti.OP1), a
-    ;call ti.PushOP1
     call ti.ChkFindSym
-    jr c, .notFound
-    call ti.DelVar
-
-.notFound:
-    ;call ti.PopOP1
+    call nc, ti.DelVar
     ld hl, 22
     call ti.CreateStrng
     inc de

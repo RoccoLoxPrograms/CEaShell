@@ -3,7 +3,7 @@
  * 
  * CEaShell Source Code - settings.c
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022 - 2023
+ * Copyright 2022 - 2024
  * License: GPL-3.0
  * 
  * --------------------------------------
@@ -261,7 +261,7 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
         "CEaShell aims to provide an easy to use, modern interface "
         "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 40, 6);
     #endif
-    gfx_PrintStringXY("(C) Copyright 2022 - 2023", 18, 179);
+    gfx_PrintStringXY("(C) Copyright 2022 - 2024", 18, 179);
     gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 18, 192);
     gfx_SetClipRegion(18, 38, 302, 202); // Helps cut the text off in the scrolling animation
     gfx_SetTextConfig(1);

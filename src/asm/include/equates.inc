@@ -2,7 +2,7 @@
 ;
 ; CEaShell Source Code - equates.inc
 ; By RoccoLox Programs and TIny_Hacker
-; Copyright 2022 - 2023
+; Copyright 2022 - 2024
 ; License: GPL-3.0
 ;
 ;--------------------------------------

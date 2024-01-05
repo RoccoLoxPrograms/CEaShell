@@ -3,7 +3,7 @@
 ; CEaShell Source Code - spi.asm
 ; By RoccoLox Programs and TIny_Hacker
 ; Some code from: https://github.com/Zaalan3/AnotherWorldCE/blob/main/src/spi.asm
-; Copyright 2022 - 2023
+; Copyright 2022 - 2024
 ; License: GPL-3.0
 ;
 ;--------------------------------------
@@ -70,37 +70,30 @@ _asm_spi_endFrame:
     ret
 
 _asm_spi_setupSPI: ; set these defaults for the SPI so everything works on Python models (this seems to work instead of using boot.InitializeHardware)
-    ld hl, $02000B
-    ld ($F80004), hl
-    ld hl, $001828
-    ld (ti.mpSpiRange), hl
-    ld hl, $00000C
-    ld ($F80008), hl
-    nop
-    ld hl, $000040
-    ld ($F80008), hl
     push af
-    call ti.Delay10ms
-    ;call $0061C2
-    ;call $0061C2
-    ;call $0061C2
-    ld hl, $00182B
+    ld hl, $2000B
+    ld (ti.mpSpiRange + ti.spiCtrl1), hl
+    ld hl, $1828
     ld (ti.mpSpiRange), hl
-    ld hl, $00000C
-    ld ($F80008), hl
+    ld hl, $0C
+    ld (ti.mpSpiRange + ti.spiCtrl2), hl
     nop
-    ld hl, $000040
-    ld ($F80008), hl
-    ;nop
-    ;nop
-    ;nop
+    ld hl, $40
+    ld (ti.mpSpiRange + ti.spiCtrl2), hl
     call ti.Delay10ms
+    ld hl, $182B
+    ld (ti.mpSpiRange), hl
+    ld hl, $0C
+    ld (ti.mpSpiRange + ti.spiCtrl2), hl
+    nop
+    ld hl, $40
+    ld (ti.mpSpiRange + ti.spiCtrl2), hl
+    call ti.Delay10ms
+    ld hl, $21
+    ld (ti.mpSpiRange + ti.spiIntCtrl), hl
+    ld hl, $100
+    ld (ti.mpSpiRange + ti.spiCtrl2), hl
     pop af
-    ld hl, $000021
-    ld ($F80010), hl
-    ld hl, $000100
-    ld ($F80008), hl
-    ;ld a, ($F80014)
     ret
 
 ;--------------------------------------
