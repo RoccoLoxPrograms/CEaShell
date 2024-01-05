@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include <sys/power.h>
+#include <sys/util.h>
 
 static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, struct preferences_t *shellPrefs, struct context_t *shellContext) {
     struct file_t *fileInfo = malloc(sizeof(struct file_t));
@@ -56,6 +57,7 @@ static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, 
 }
 
 void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext) {
+    uint8_t dimension  = 0;
     const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
     const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
 
@@ -271,6 +273,19 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
             files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
             gfx_BlitBuffer();
             keyPressed = true;
+        } else if (fileCount == 1 && !strcmp(asm_utils_getFileName(shellContext->programPtrs[0]), "CAESHELL")) {
+            gfx_SetColor(randInt(0, 255));
+            dimension = randInt(10, 37);
+
+            if (randInt(0, 1)) {
+                shapes_RoundRectangleFill(dimension / 2, randInt(0, 320 - dimension * 2), randInt(0, 240 - dimension * 2), dimension * 2, dimension * 2);
+            } else {
+                gfx_FillCircle_NoClip(randInt(0 + dimension, 320 - dimension), randInt(0 + dimension, 240 - dimension), dimension);
+            }
+
+            clockOffset = clock();
+            while (clock() - clockOffset < CLOCKS_PER_SEC / 16 && !kb_AnyKey());
+            gfx_BlitBuffer();
         }
     }
 }

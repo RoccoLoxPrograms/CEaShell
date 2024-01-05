@@ -5,7 +5,7 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022 - 2023
  * License: GPL-3.0
- * Last Build: January 3, 2023
+ * Last Build: January 4, 2023
  * Version: 2.0.0-dev
  * 
  * --------------------------------------
@@ -24,9 +24,12 @@
 #include <graphx.h>
 #include <keypadc.h>
 
+#include <sys/rtc.h>
 #include <ti/screen.h>
 
 int main(void) {
+    srand(rtc_Time());
+
     // Remove TI-BASIC stop hook just for safety reasons to ensure it gets removed.
     asm_hooks_removeStopHook();
 
