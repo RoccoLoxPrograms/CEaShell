@@ -83,7 +83,7 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
         asm_hooks_removeMenuHook();
     }
 
-    if (shellPrefs->editArchivedProgs) {
+    if (shellPrefs->editArchivedProgs || shellPrefs->editLockedProgs) {
         asm_hooks_installHomescreenHook();
     } else {
         asm_hooks_removeHomescreenHook();

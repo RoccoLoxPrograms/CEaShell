@@ -72,7 +72,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         "[on] + [stat]: Trigger APD.\n"
         "[on] + [graph]: Jump to lbl in programs.";
     menuContext->details[2] = "Allow the editing of archived programs in TI-OS.";
-    menuContext->details[3] = "Allow the editing of locked TI-BASIC programs in CEaShell.";
+    menuContext->details[3] = "Allow the editing of locked TI-BASIC programs in CEaShell and when going to an error.";
     menuContext->details[4] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
     menuContext->details[5] = "Disable busy indicator in TI-BASIC programs.";
     menuContext->details[6] = "Enable lowercase in TI-OS by pressing [alpha] twice.";
@@ -95,7 +95,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         "[on] + [stat]: Trigger APD.\n"
         "[on] + [graph]: Jump to lbl in programs.";
     menuContext->details[2] = "Allow the editing of archived programs in TI-OS.";
-    menuContext->details[3] = "Allow the editing of locked TI-BASIC programs in CEaShell.";
+    menuContext->details[3] = "Allow the editing of locked TI-BASIC programs in CEaShell and when going to an error.";
     menuContext->details[4] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
     menuContext->details[5] = "Disable busy indicator in TI-BASIC programs.";
     menuContext->details[6] = "Enable lowercase in TI-OS by pressing [alpha] twice.";
