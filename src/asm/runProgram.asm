@@ -160,33 +160,34 @@ _asm_runProgram_main:
 .runBasic:
     ld hl, isASM
     ld (hl), false
-    ex de, hl
-    inc hl
-    ld a, (hl)
+    inc de
+    ld a, (de)
     cp a, ti.tExtTok
     jr nz, .noSquish
-    inc hl
-    ld a, (hl)
+    inc de
+    ld a, (de)
     cp a, ti.tAsm84CePrgm
     jr z, .squish
-    dec hl
+    dec de
+    dec de
 
 .noSquish:
     call ti.ChkInRam
     jr z, .loadComplete
-    push hl
+    push de
+    push bc
     ld hl, 128
     add hl, bc
     call ti.EnoughMem
-    jr nc, $ + 9
-    pop hl
+    jr nc, $ + 10
+    pop bc
+    pop de
     ld a, ti.E_Memory
     jp _asm_runProgram_error
-    push bc
-    push bc
     ld hl, _rodata_basicPrgmName
     call ti.Mov9ToOP1
     pop hl
+    push hl
     call ti.CreateProtProg
     inc de
     inc de
