@@ -67,11 +67,6 @@ _asm_editProgram_edit: ; editing from CEaShell
     jr _asm_editProgram_main + 5
 
 _asm_editProgram_goto:
-    ld hl, (ti.curPC)
-    ld bc, (ti.begPC)
-    or a, a
-    sbc hl, bc
-    ld (errorOffset), hl
     ld a, true
     ld (editMode), a
     xor a, a
@@ -165,6 +160,20 @@ editProgram_editHelper:
     ld (ti.editTail), hl
     ld (ti.editCursor), de
     call ti.cursorImage + 256 + (.newLineGoto - editProgram_editHelper)
+    call ti.DispEOW
+    ld hl, $100
+    ld.sis (ti.curRow and $FFFF), hl
+
+.correctCursor:
+    ld hl, (ti.editCursor)
+    ld de, (ti.editTop)
+    or a, a
+    sbc hl, de
+    ld de, (errorOffset)
+    sbc hl, de
+    jr nc, .skip
+    call ti.CursorRight
+    jr .correctCursor
 
 .endGoto:
     call ti.DispEOW

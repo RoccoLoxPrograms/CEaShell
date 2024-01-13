@@ -50,6 +50,7 @@ _asm_runProgram_run:
     inc hl
     inc hl
     inc hl
+    inc hl
     ld a, (hl)
     push iy
     ld iy, ti.flags
@@ -169,11 +170,10 @@ _asm_runProgram_main:
     cp a, ti.tAsm84CePrgm
     jr z, .squish
     dec de
-    dec de
 
 .noSquish:
     call ti.ChkInRam
-    jr z, .loadComplete
+    jr z, .loadComplete + 4
     push de
     push bc
     ld hl, 128
@@ -202,6 +202,7 @@ _asm_runProgram_main:
     jr .load
 
 .loadComplete:
+    call ti.OP4ToOP1
     call ti.RunIndicOn
     bit disableBusyIndicator, (iy + shellFlags)
     call nz, ti.RunIndicOff
@@ -315,17 +316,19 @@ _asm_runProgram_return:
     res ti.textInverse, (iy + ti.textFlags)
     res ti.onInterrupt, (iy + ti.onFlags)
     call ti.ReloadAppEntryVecs
+    call _asm_hooks_removeStopHook
+    call _asm_hooks_removeBasicKeyHook
     pop bc
     ld a, b
     or a, a
     call nz, runProgram_showError
 
 .quit:
+    call ti.DeleteTempPrograms
+    call ti.CleanAll
     call ti.ReloadAppEntryVecs
     call ti.ClrHomescreenHook
     call ti.ForceFullScreen
-    call _asm_hooks_removeStopHook
-    call _asm_hooks_removeBasicKeyHook
     ld hl, _rodata_basicPrgmName
     call ti.Mov9ToOP1
     call ti.ChkFindSym
@@ -353,6 +356,9 @@ _asm_runProgram_return:
 runProgram_returnOS:
     ld a, (editArcProgs)
     bit 0, a
+    jr z, $ + 12
+    ld a, (editLockProgs)
+    bit 0, a
     call nz, _asm_hooks_installHomescreenHook
     ld a, (getCSCHooks)
     ld l, a
@@ -376,6 +382,21 @@ runProgram_showError:
     ld (ti.mpLcdCtrl), a
     call ti.CursorOff
     call ti.DrawStatusBar
+    call runProgram_getErrorOffset
+    ld hl, _rodata_basicPrgmName
+    push hl
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    call nc, ti.DelVarArc
+    ld hl, ti.basic_prog
+    pop de
+    push hl
+    ld b, 9
+    call ti.StrCmpre
+    pop de
+    jr nz, $ + 10
+    ld hl, backupPrgmName
+    call ti.Mov9b
     call ti.DispErrorScreen
     ld hl, 1
     ld (ti.curRow), hl
@@ -384,7 +405,7 @@ runProgram_showError:
     call ti.PutS
     res ti.textInverse, (iy + ti.textFlags)
     call ti.PutS
-    ld hl, backupPrgmName
+    ld hl, ti.basic_prog
     ld a, (hl)
     cp a, ti.ProtProgObj
     ld hl, lockOnExit
@@ -472,7 +493,7 @@ runProgram_showError:
     ret nz
 
 .goto:
-    ld hl, backupPrgmName
+    ld hl, ti.basic_prog
     call ti.Mov9ToOP1
     jp _asm_editProgram_goto
 
@@ -585,3 +606,55 @@ runProgram_convertTokenToHex:
     ret c
     sub a, 7
     ret
+
+runProgram_getErrorOffset:
+    ld hl, ti.basic_prog
+    call ti.Mov9ToOP1
+    ld de, (ti.begPC)
+    ld hl, (ti.curPC)
+    or a, a
+    sbc hl, de
+
+.loop:
+    ld (errorOffset), hl
+    ld a, (ti.OP1 + 1)
+    cp a, $24
+    jr nz, .notTempParser
+    call ti.FindSym
+    ex de, hl
+    inc hl
+    inc hl
+    ld a, (hl)
+    or a, a
+    ret z
+    inc hl
+    push af
+    push hl
+    call ti.ZeroOP1
+    pop hl
+    ld b, (hl)
+    ld c, b
+    inc hl
+    ld de, ti.OP1
+    pop af
+    ld (de), a
+    inc de
+
+.loadName:
+    ldi
+    djnz .loadName
+    ld e, (hl)
+    inc hl
+    ld d, (hl)
+    ld hl, (errorOffset)
+    add.sil hl, de
+    jr .loop
+
+.notTempParser:
+    push hl
+    ld de, ti.basic_prog
+    call ti.MovFrOP1
+    pop hl
+    ld (errorOffset), hl
+    call ti.DeleteTempPrograms
+    jp ti.CleanAll
