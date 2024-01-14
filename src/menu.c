@@ -341,7 +341,6 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_FillRectangle_NoClip(56, 205, 208, 20);
 
     if (newName != NULL) {
-
         if (createNew) {
             uint8_t slot = ti_OpenVar(newName, "w+", OS_TYPE_PRGM + (OS_TYPE_APPVAR - OS_TYPE_PRGM) * (shellContext->directory == APPVARS_FOLDER));
 
@@ -350,7 +349,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
             }
 
             ti_Close(slot);
-            util_WritePrefs(shellPrefs, shellContext, false);
+            util_WritePrefs(shellPrefs, shellContext, true);
             while (kb_AnyKey());
             asm_editProgram_edit(newName, shellContext->directory == APPVARS_FOLDER, shellPrefs);
         } else {
