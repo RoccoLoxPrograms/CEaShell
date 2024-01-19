@@ -20,15 +20,13 @@ include 'include/equates.inc'
     public _asm_apps_getAppMinOSVersion
     public _asm_apps_getAppCopyrightInfo
     public _asm_apps_getAppIcon
+    public _asm_apps_reloadApp
     public _asm_apps_executeApp
     public _asm_apps_deleteApp
     public _asm_apps_exitDefrag
-    public _asm_apps_reloadApp
 
-    extern app
-    extern _appMainStart
     extern _asm_hooks_removeAppChangeHook
-    extern _asm_hooks_appChangeHook
+    extern _asm_hooks_editorHook
     extern _asm_utils_clrScrnAndUsedRAM
     extern _rodata_appName
 
@@ -193,6 +191,12 @@ _asm_apps_getAppIcon:
     ld a, 1
     ret
 
+_asm_apps_reloadApp:
+    ld hl, _rodata_appName
+    call ti.FindAppStart
+    push hl
+    push hl
+
 _asm_apps_executeApp:
     ld iy, ti.flags
     call ti.GetCSC
@@ -207,7 +211,7 @@ _asm_apps_executeApp:
     or a, a
     sbc hl, hl
     ld (ti.asm_prgm_size), hl
-    ld de, _asm_hooks_appChangeHook
+    ld de, _asm_hooks_editorHook
     call _asm_hooks_removeAppChangeHook
     res ti.useTokensInString, (iy + ti.clockFlags)
     res ti.onInterrupt, (iy + ti.onFlags)
@@ -222,8 +226,7 @@ _asm_apps_executeApp:
     ld bc, $FFF
     call ti.MemClear
     ; get proper stuff for the app
-    call ti.ClrScrn
-    call ti.HomeUp
+    call _asm_utils_clrScrnAndUsedRAM
     call ti.DrawStatusBar
     pop de
     ex (sp), hl
@@ -279,56 +282,3 @@ _asm_apps_exitDefrag:
     ret z
     ld a, ti.cxErase
     jp ti.NewContext0
-
-_asm_apps_reloadApp:
-    ld sp, (ti.onSP) ; Don't bork the stack
-    ld iy, ti.flags
-    ld de, _asm_hooks_appChangeHook
-    call _asm_hooks_removeAppChangeHook
-    res ti.useTokensInString, (iy + ti.clockFlags)
-    res ti.onInterrupt, (iy + ti.onFlags)
-    set ti.graphDraw, (iy + ti.graphFlags)
-    call ti.ResetStacks
-    call ti.ReloadAppEntryVecs
-    call ti.AppSetup
-    set ti.appRunning, (iy + ti.APIFlg) ; turn on apps
-    set 6, (iy + $28)
-    res 0, (iy + $2C) ; set some app flags
-    set ti.appAllowContext, (iy + ti.APIFlg) ; turn on apps
-    xor a, a
-    ld (ti.appErr1), a
-    ld (ti.kbdGetKy), a
-    call _asm_utils_clrScrnAndUsedRAM
-    ld hl, $D1787C ; copy to ram data location
-    ld bc, $FFF
-    call ti.MemClear ; zero out the ram data section
-    ld hl, _appMainStart ; hl -> start of app
-    ld bc, app + 256 - _appMainStart
-    add hl, bc
-    push hl ; de -> start of code for app
-    ex de, hl
-    ld hl, $18 ; find the start of the data to copy to ram
-    add hl, de
-    ld hl, (hl)
-    add hl, de
-    or a, a
-    sbc hl, de ; initialize the bss if it exists
-    jr z, .no_bss
-    push hl
-    pop bc
-    ld hl, $15
-    add hl, de
-    ld hl, (hl)
-    add hl, de
-    ld de, $D1787C ; copy it in
-    ldir
-
-.no_bss:
-    pop hl
-    push hl
-    pop de
-    ld bc, $1B ; offset
-    add hl, bc
-    ld hl, (hl)
-    add hl, de
-    jp (hl)

@@ -24,11 +24,11 @@ include 'include/equates.inc'
     public _asm_hooks_removeGetCSCHook
     public _asm_hooks_installAppChangeHook
     public _asm_hooks_removeAppChangeHook
-    public _asm_hooks_appChangeHook
+    public _asm_hooks_editorHook
     public _asm_hooks_installGetCSCHookCont
     public _asm_hooks_removeBasicKeyHook
     public _asm_hooks_installBasicKeyHook
-    public _asm_hooks_inpPromptHook
+    public _asm_hooks_basicPrgmHook
 
     extern _asm_editProgram_restoreAppVar
     extern _asm_editProgram_main
@@ -569,7 +569,6 @@ _asm_hooks_removeAppChangeHook:
     bit ti.appChangeHookActive, (iy + ti.hookflags4)
     ret z
     ld hl, (ti.appChangeHookPtr)
-    ;ld de, _asm_hooks_appChangeHook
     or a, a
     sbc hl, de
     ret nz
@@ -579,7 +578,7 @@ _asm_hooks_removeAppChangeHook:
     ld hl, (appChangeHookLoc + 1)
     jp ti.SetAppChangeHook
 
-_asm_hooks_appChangeHook:
+_asm_hooks_editorHook:
     db $83
     ld c, a
     ld a, b
@@ -609,7 +608,7 @@ _asm_hooks_appChangeHook:
     ret z
 
 .exitEditor:
-    ld de, _asm_hooks_appChangeHook
+    ld de, _asm_hooks_editorHook
     call _asm_hooks_removeAppChangeHook
     call ti.CursorOff
     call ti.CloseEditEqu
@@ -831,7 +830,7 @@ _asm_hooks_installBasicKeyHook:
     ld hl, hooks_basicKeyHook
     jp ti.SetGetKeyHook
 
-_asm_hooks_inpPromptHook:
+_asm_hooks_basicPrgmHook:
     db $83
     push hl
     ld hl, ti.mpLcdCtrl + 1
@@ -850,7 +849,7 @@ _asm_hooks_inpPromptHook:
     push af
     push hl
     push bc
-    ld de, _asm_hooks_inpPromptHook
+    ld de, _asm_hooks_basicPrgmHook
     call _asm_hooks_removeAppChangeHook
     call _asm_hooks_removeStopHook
     call _asm_hooks_removeBasicKeyHook

@@ -29,7 +29,7 @@ include 'include/equates.inc'
     extern _asm_hooks_removeAppChangeHook
     extern _asm_hooks_removeBasicKeyHook
     extern _asm_hooks_installBasicKeyHook
-    extern _asm_hooks_inpPromptHook
+    extern _asm_hooks_basicPrgmHook
     extern _asm_utils_findVar
     extern _asm_utils_backupPrgmName
     extern _asm_utils_lcdNormal
@@ -214,7 +214,7 @@ _asm_runProgram_main:
     call runProgram_vectorsSetup
     call _asm_hooks_installStopHook
     call _asm_hooks_installBasicKeyHook
-    ld de, _asm_hooks_inpPromptHook
+    ld de, _asm_hooks_basicPrgmHook
     call _asm_hooks_installAppChangeHook
     ei
     ld hl, _asm_runProgram_return
@@ -323,7 +323,7 @@ _asm_runProgram_return:
     call ti.ReloadAppEntryVecs
     call _asm_hooks_removeStopHook
     call _asm_hooks_removeBasicKeyHook
-    ld de, _asm_hooks_inpPromptHook
+    ld de, _asm_hooks_basicPrgmHook
     call _asm_hooks_removeAppChangeHook
     pop bc
     ld a, b

@@ -18,7 +18,7 @@ include 'include/equates.inc'
     public _asm_editProgram_main
     public _asm_editProgram_restoreAppVar
 
-    extern _asm_hooks_appChangeHook
+    extern _asm_hooks_editorHook
     extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_removeAppChangeHook
     extern _asm_hooks_installHomescreenHook
@@ -103,7 +103,7 @@ _asm_editProgram_main: ; OP1 = File name to edit
 
 .inRam:
     call _asm_utils_backupPrgmName
-    ld de, _asm_hooks_appChangeHook
+    ld de, _asm_hooks_editorHook
     call _asm_hooks_installAppChangeHook
     xor a, a
     ld (ti.menuCurrent), a
