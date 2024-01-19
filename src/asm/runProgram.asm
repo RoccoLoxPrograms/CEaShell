@@ -573,7 +573,7 @@ _asm_runProgram_vectors:
     ld (ti.currLastEntry), a
     bit appInpPrmptInit, (iy + ti.apiFlg2)
     jr nz, .aipi
-    call ti.ClrHomescreenHook
+    ;call ti.ClrHomescreenHook
     call ti.ForceFullScreen
 
 .aipi:
