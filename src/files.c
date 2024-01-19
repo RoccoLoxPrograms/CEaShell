@@ -45,7 +45,13 @@ static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, 
     ui_DrawBottomBar(shellPrefs, fileInfo->description);
 
     if (fileCount > rows * columns) {
-        ui_ScrollBar(shellPrefs, 20, 191, 280, fileCount + (rows - (fileCount % rows)), shellContext->fileStartLoc, rows * columns, true);
+        unsigned int dummyFiles = fileCount % rows; // Correctly draw scrollbar
+
+        if (dummyFiles) {
+            dummyFiles = rows - dummyFiles;
+        }
+
+        ui_ScrollBar(shellPrefs, 20, 191, 280, fileCount + dummyFiles, shellContext->fileStartLoc, rows * columns, true);
     }
 
     free(fileInfo->description);
