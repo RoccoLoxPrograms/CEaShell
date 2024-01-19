@@ -859,18 +859,3 @@ _asm_hooks_basicPrgmHook:
     pop hl
     pop af
     ret
-
-; _asm_hooks_runPrgmHook:
-;     db $83
-;     cp a, 3
-;     ret nz
-;     bit appInpPrmptDone, (iy + ti.apiFlg2)
-;     res appInpPrmptDone, (iy + ti.apiFlg2)
-;     jp z, _asm_runProgram_return.quit
-;     call ti.ReloadAppEntryVecs
-;     ld hl, _asm_runProgram_vectors
-;     call ti.AppInit
-;     or a, 1
-;     ld a, $58
-;     ld (ti.cxCurApp), a
-;     ret

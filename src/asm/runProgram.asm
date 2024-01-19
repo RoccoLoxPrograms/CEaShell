@@ -334,7 +334,6 @@ _asm_runProgram_return:
     call ti.DeleteTempPrograms
     call ti.CleanAll
     call ti.ReloadAppEntryVecs
-    ;call ti.ClrHomescreenHook
     call ti.ForceFullScreen
     call _asm_utils_deleteTempRunner
     ld de, (ti.asm_prgm_size)
@@ -549,8 +548,6 @@ runProgram_vectorsSetup:
     xor a, a
     ld (ti.appErr1), a
     ld (ti.kbdGetKy), a
-    ;ld hl, _asm_hooks_runPrgmHook
-    ;call ti.SetHomescreenHook
     ld hl, _asm_runProgram_vectors
     call ti.AppInit
     call _asm_utils_clrScrnAndUsedRAM
@@ -572,11 +569,7 @@ _asm_runProgram_vectors:
     xor a, a
     ld (ti.currLastEntry), a
     bit appInpPrmptInit, (iy + ti.apiFlg2)
-    jr nz, .aipi
-    ;call ti.ClrHomescreenHook
-    call ti.ForceFullScreen
-
-.aipi:
+    call z, ti.ForceFullScreen
     call ti.ReloadAppEntryVecs
     call ti.PutAway
     ld b, 0
