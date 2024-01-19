@@ -28,6 +28,7 @@ include 'include/equates.inc'
     extern app
     extern _appMainStart
     extern _asm_hooks_removeAppChangeHook
+    extern _asm_hooks_appChangeHook
     extern _asm_utils_clrScrnAndUsedRAM
     extern _rodata_appName
 
@@ -206,6 +207,7 @@ _asm_apps_executeApp:
     or a, a
     sbc hl, hl
     ld (ti.asm_prgm_size), hl
+    ld de, _asm_hooks_appChangeHook
     call _asm_hooks_removeAppChangeHook
     res ti.useTokensInString, (iy + ti.clockFlags)
     res ti.onInterrupt, (iy + ti.onFlags)
@@ -281,6 +283,7 @@ _asm_apps_exitDefrag:
 _asm_apps_reloadApp:
     ld sp, (ti.onSP) ; Don't bork the stack
     ld iy, ti.flags
+    ld de, _asm_hooks_appChangeHook
     call _asm_hooks_removeAppChangeHook
     res ti.useTokensInString, (iy + ti.clockFlags)
     res ti.onInterrupt, (iy + ti.onFlags)

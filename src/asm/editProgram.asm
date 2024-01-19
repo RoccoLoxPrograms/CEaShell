@@ -19,13 +19,14 @@ include 'include/equates.inc'
     public _asm_editProgram_restoreAppVar
 
     extern _asm_hooks_appChangeHook
+    extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_removeAppChangeHook
+    extern _asm_hooks_installHomescreenHook
     extern _asm_utils_arcUnarc
     extern _asm_utils_backupPrgmName
-    extern _asm_runProgram_error
     extern _asm_utils_lcdNormal
+    extern _asm_runProgram_error
     extern _asm_apps_reloadApp
-    extern _asm_hooks_installHomescreenHook
     extern _rodata_tempAppVarPrgm
 
 _asm_editProgram_edit: ; editing from CEaShell
@@ -82,7 +83,7 @@ _asm_editProgram_main: ; OP1 = File name to edit
     ld (ti.asm_prgm_size), hl
     ld hl, ti.userMem
     call ti.DelMem
-    ; make these flags are these values, for Celtic compatibility
+    ; make sure these flags are these values, for Celtic compatibility
     res 3, (iy + ti.asm_Flag2)
     set 5, (iy + ti.asm_Flag1)
     call ti.ChkFindSym
@@ -102,18 +103,8 @@ _asm_editProgram_main: ; OP1 = File name to edit
 
 .inRam:
     call _asm_utils_backupPrgmName
-    xor a, a
-    ld (appChangeHookLoc), a
-    bit ti.appChangeHookActive, (iy + ti.hookflags4)
-    jr z, .install
-    inc a
-    ld (appChangeHookLoc), a
-    ld hl, (ti.appChangeHookPtr)
-    ld (appChangeHookLoc + 1), hl
-
-.install:
-    ld hl, _asm_hooks_appChangeHook
-    call ti.SetAppChangeHook
+    ld de, _asm_hooks_appChangeHook
+    call _asm_hooks_installAppChangeHook
     xor a, a
     ld (ti.menuCurrent), a
     call ti.CursorOff

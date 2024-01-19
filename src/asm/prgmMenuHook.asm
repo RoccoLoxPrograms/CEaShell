@@ -23,8 +23,8 @@ include 'include/equates.inc'
     extern _asm_utils_checkEOF
     extern _asm_utils_getEOF
     extern _asm_utils_findVar
-    extern _asm_apps_getAppIcon
     extern _asm_utils_dispTextToolbar
+    extern _asm_apps_getAppIcon
 
 _asm_prgmMenuHook_showDescription:
     ld hl, ti.progCurrent

@@ -22,14 +22,16 @@ include 'include/equates.inc'
     public _asm_hooks_removeMenuHook
     public _asm_hooks_installGetCSCHook
     public _asm_hooks_removeGetCSCHook
+    public _asm_hooks_installAppChangeHook
     public _asm_hooks_removeAppChangeHook
     public _asm_hooks_appChangeHook
     public _asm_hooks_installGetCSCHookCont
     public _asm_hooks_removeBasicKeyHook
     public _asm_hooks_installBasicKeyHook
-    public _asm_hooks_runPrgmHook
+    public _asm_hooks_inpPromptHook
 
     extern _asm_editProgram_restoreAppVar
+    extern _asm_editProgram_main
     extern _asm_fileSystem_sortVAT
     extern _asm_prgmMenuHook_icons
     extern _asm_prgmMenuHook_showAppInfo
@@ -37,13 +39,14 @@ include 'include/equates.inc'
     extern _asm_runProgram_main
     extern _asm_runProgram_vectors
     extern _asm_runProgram_return.quit
-    extern _asm_editProgram_main
+    extern _asm_runProgram_returnOS.restoreHooks
     extern _asm_labelJumper_showLabels
     extern _asm_apps_reloadApp
     extern _asm_utils_arcUnarc
     extern _asm_utils_findVar
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_findCEaShellAppVar
+    extern _asm_utils_deleteTempRunner
     extern _asm_spi_setupSPI
     extern _rodata_hashProg
     extern _rodata_appName
@@ -548,11 +551,25 @@ _asm_hooks_removeGetCSCHook:
 .clearHook:
     jp ti.ClrGetKeyHook
 
+_asm_hooks_installAppChangeHook:
+    xor a, a
+    ld (appChangeHookLoc), a
+    bit ti.appChangeHookActive, (iy + ti.hookflags4)
+    jr z, .install
+    inc a
+    ld (appChangeHookLoc), a
+    ld hl, (ti.appChangeHookPtr)
+    ld (appChangeHookLoc + 1), hl
+
+.install:
+    ex de, hl
+    jp ti.SetAppChangeHook
+
 _asm_hooks_removeAppChangeHook:
     bit ti.appChangeHookActive, (iy + ti.hookflags4)
     ret z
     ld hl, (ti.appChangeHookPtr)
-    ld de, _asm_hooks_appChangeHook
+    ;ld de, _asm_hooks_appChangeHook
     or a, a
     sbc hl, de
     ret nz
@@ -592,6 +609,7 @@ _asm_hooks_appChangeHook:
     ret z
 
 .exitEditor:
+    ld de, _asm_hooks_appChangeHook
     call _asm_hooks_removeAppChangeHook
     call ti.CursorOff
     call ti.CloseEditEqu
@@ -778,10 +796,7 @@ _asm_hooks_removeBasicKeyHook:
 
 hooks_basicKeyHook:
     db $83
-    set ti.appRetKeyOff, (iy + ti.APIFlg)
     push af
-    cp a, ti.kOff
-    jr z, .returnCancel
     ld a, (ti.cxCurApp)
     cp a, ti.kPrgmInput
     jr nz, .returnAlt
@@ -815,6 +830,36 @@ _asm_hooks_installBasicKeyHook:
 .install:
     ld hl, hooks_basicKeyHook
     jp ti.SetGetKeyHook
+
+_asm_hooks_inpPromptHook:
+    db $83
+    push hl
+    ld hl, ti.mpLcdCtrl + 1
+    bit 3, (hl)
+    pop hl
+    jr z, .exit
+    ld e, a
+    ld a, b
+    cp a, ti.kError
+    ld a, e
+    ret nz
+    cp a, ti.kQuit
+    ret nz
+
+.exit:
+    push af
+    push hl
+    push bc
+    ld de, _asm_hooks_inpPromptHook
+    call _asm_hooks_removeAppChangeHook
+    call _asm_hooks_removeStopHook
+    call _asm_hooks_removeBasicKeyHook
+    call _asm_runProgram_returnOS.restoreHooks
+    call _asm_utils_deleteTempRunner
+    pop bc
+    pop hl
+    pop af
+    ret
 
 ; _asm_hooks_runPrgmHook:
 ;     db $83

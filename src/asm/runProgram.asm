@@ -17,21 +17,24 @@ include 'include/equates.inc'
     public _asm_runProgram_main
     public _asm_runProgram_error
     public _asm_runProgram_return.quit
+    public _asm_runProgram_returnOS.restoreHooks
     public _asm_runProgram_vectors
 
+    extern _asm_editProgram_goto
     extern _asm_hooks_installStopHook
     extern _asm_hooks_removeStopHook
     extern _asm_hooks_installHomescreenHook
     extern _asm_hooks_installGetCSCHookCont
-    extern _asm_editProgram_goto
+    extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_removeAppChangeHook
     extern _asm_hooks_removeBasicKeyHook
     extern _asm_hooks_installBasicKeyHook
-    extern _asm_hooks_runPrgmHook
+    extern _asm_hooks_inpPromptHook
     extern _asm_utils_findVar
     extern _asm_utils_backupPrgmName
     extern _asm_utils_lcdNormal
     extern _asm_utils_clrScrnAndUsedRAM
+    extern _asm_utils_deleteTempRunner
     extern _asm_apps_reloadApp
     extern _rodata_errorQuit
     extern _rodata_errorGoto
@@ -211,6 +214,8 @@ _asm_runProgram_main:
     call runProgram_vectorsSetup
     call _asm_hooks_installStopHook
     call _asm_hooks_installBasicKeyHook
+    ld de, _asm_hooks_inpPromptHook
+    call _asm_hooks_installAppChangeHook
     ei
     ld hl, _asm_runProgram_return
     push hl
@@ -318,6 +323,8 @@ _asm_runProgram_return:
     call ti.ReloadAppEntryVecs
     call _asm_hooks_removeStopHook
     call _asm_hooks_removeBasicKeyHook
+    ld de, _asm_hooks_inpPromptHook
+    call _asm_hooks_removeAppChangeHook
     pop bc
     ld a, b
     or a, a
@@ -327,12 +334,9 @@ _asm_runProgram_return:
     call ti.DeleteTempPrograms
     call ti.CleanAll
     call ti.ReloadAppEntryVecs
-    call ti.ClrHomescreenHook
+    ;call ti.ClrHomescreenHook
     call ti.ForceFullScreen
-    ld hl, _rodata_basicPrgmName
-    call ti.Mov9ToOP1
-    call ti.ChkFindSym
-    call nc, ti.DelVarArc
+    call _asm_utils_deleteTempRunner
     ld de, (ti.asm_prgm_size)
     or a, a
     sbc hl, hl
@@ -348,12 +352,18 @@ _asm_runProgram_return:
     xor a, a
     ld (ti.kbdGetKy), a
     bit ti.monAbandon, (iy + ti.monFlags)
-    jr nz, runProgram_returnOS
+    jr nz, _asm_runProgram_returnOS
     ld a, (returnLoc)
     or a, a
     jp z, _asm_apps_reloadApp
 
-runProgram_returnOS:
+_asm_runProgram_returnOS:
+    call ti.SaveCmdShadow
+    ld a, ti.cxCmd
+    call ti.NewContext0
+    call ti.PPutAway
+
+.restoreHooks:
     ld a, (editArcProgs)
     bit 0, a
     jr z, $ + 12
@@ -363,10 +373,6 @@ runProgram_returnOS:
     ld a, (getCSCHooks)
     ld l, a
     call _asm_hooks_installGetCSCHookCont
-    call ti.SaveCmdShadow
-    ld a, ti.cxCmd
-    call ti.NewContext0
-    call ti.PPutAway
     xor a, a
     or a, 2
     ret
@@ -553,21 +559,16 @@ runProgram_vectorsSetup:
 
 _asm_runProgram_vectors:
     dl .ret
-    dl ti.SaveShadow
-    dl .putway
+    dl ti.SaveCmdShadow
+    dl .putaway
     dl .restore
     dl .ret
     dl .ret
 
-.restore:
-    call ti.HomeUp
-    call ti.ClrScrn
-    jp ti.RStrShadow
-
 .ret:
     ret
 
-.putway:
+.putaway:
     xor a, a
     ld (ti.currLastEntry), a
     bit appInpPrmptInit, (iy + ti.apiFlg2)
@@ -580,6 +581,11 @@ _asm_runProgram_vectors:
     call ti.PutAway
     ld b, 0
     ret
+
+.restore:
+    call ti.HomeUp
+    call ti.ClrScrn
+    jp ti.RStrShadow
 
 runProgram_convertTokenToHex:
     cp a, ti.t1

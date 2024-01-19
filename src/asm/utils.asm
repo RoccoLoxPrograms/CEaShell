@@ -33,11 +33,13 @@ include 'include/equates.inc'
     public _asm_utils_findCEaShellAppVar
     public _asm_utils_dispTextToolbar
     public _asm_utils_initHexaEditStart
+    public _asm_utils_deleteTempRunner
 
     extern _rodata_appVarName
     extern _rodata_characters
     extern _rodata_sizeOfCharsLUT
     extern _rodata_hexaEditHeader
+    extern _rodata_basicPrgmName
     extern _exit.sp
 
 _asm_utils_checkEOF: ; bc = current address being read; destroys hl
@@ -412,4 +414,11 @@ _asm_utils_initHexaEditStart:
     sbc hl, hl
     ex de, hl
     ld (hl), de
+    ret
+
+_asm_utils_deleteTempRunner:
+    ld hl, _rodata_basicPrgmName
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    call nc, ti.DelVarArc
     ret
