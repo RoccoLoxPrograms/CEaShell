@@ -429,7 +429,6 @@ runProgram_showError:
     ld hl, _rodata_errorGoto
     call ti.PutS
     call ti.PutS
-    call ti.GetCSC
 
 .input:
     call ti.GetCSC
@@ -515,11 +514,8 @@ _asm_runProgram_error:
     jr nz, .exitOS
     pop af
     ld (ti.errNo), a
-    call ti.boot.ClearVRAM
-    ld a, $2D
-    ld (ti.mpLcdCtrl), a
+    call _asm_utils_lcdNormal
     call ti.CursorOff
-    call ti.DrawStatusBar
     call ti.DispErrorScreen
     ld hl, 1
     ld (ti.curRow), hl
@@ -532,7 +528,7 @@ _asm_runProgram_error:
 .waitLoop:
     call ti.GetCSC
     cp a, ti.sk1
-    jp z, _asm_apps_reloadApp
+    jr z, $ + 4
     cp a, ti.skEnter
     jp z, _asm_apps_reloadApp
     jr .waitLoop
