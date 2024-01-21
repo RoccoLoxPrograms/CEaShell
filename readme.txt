@@ -11,7 +11,7 @@ Features
 
 * Customizable color themes, including preset themes and the ability to create fully custom themes.
 * Four scales for displaying files in the shell, allowing for viewing up to 18 files at once.
-* Program and OS app running.
+* Program and app running.
 * Viewing and modifying of file information. (Archiving / unarchiving, hiding / unhiding, locking / unlocking,
   renaming, deleting, editing)
 * Integration with HexaEdit (https://github.com/captain-calc/HexaEdit-CE) to open files in hex editor, if the
