@@ -12,7 +12,6 @@ converts:
     palette: xlibc
     transparent-color-index: 0
     images:
-      - xlibc.png
       - battery*.png
       - charging*.png
       - paint*.png
