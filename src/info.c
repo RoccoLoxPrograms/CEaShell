@@ -16,16 +16,13 @@
 #include "ui.h"
 #include "utility.h"
 
-#include "asm/apps.h"
 #include "asm/fileOps.h"
 #include "asm/runProgram.h"
 #include "asm/utils.h"
 
 #include <fileioc.h>
-#include <graphx.h>
 #include <keypadc.h>
 #include <string.h>
-#include <time.h>
 
 #include <ti/ui.h>
 

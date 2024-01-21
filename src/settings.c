@@ -16,9 +16,7 @@
 #include "ui.h"
 #include "utility.h"
 
-#include <graphx.h>
 #include <keypadc.h>
-#include <time.h>
 
 void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
@@ -246,7 +244,7 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
     unsigned int startDisplay = 0;
     gfx_SetColor(shellPrefs->bgColor);
     shapes_PixelIndentRectangle(14, 34, 292, 170);
-    ui_CenterStringBig("CEaShell", 75, 38);
+    ui_CenterStringBig(&rodata_appName, 75, 38);
     gfx_PrintStringXY("v"VERSION_NO, 18, 58);
     #ifdef FR
     ui_PrintStringWrap(

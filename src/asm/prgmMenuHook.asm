@@ -17,6 +17,7 @@ include 'include/equates.inc'
     public _asm_prgmMenuHook_icons
     public _asm_prgmMenuHook_showAppInfo
 
+    extern _asm_apps_getAppIcon
     extern _asm_fileOps_getPrgmType.check
     extern _asm_fileOps_getIconASM.varFound
     extern _asm_fileOps_getIconDCS.varFound
@@ -24,7 +25,6 @@ include 'include/equates.inc'
     extern _asm_utils_getEOF
     extern _asm_utils_findVar
     extern _asm_utils_dispTextToolbar
-    extern _asm_apps_getAppIcon
 
 _asm_prgmMenuHook_showDescription:
     ld hl, ti.progCurrent

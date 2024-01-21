@@ -14,8 +14,6 @@
 
 #include "gfx/gfx.h"
 
-#include <graphx.h>
-
 void shapes_RoundRectangleFill(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height) {
     gfx_FillCircle_NoClip(x + radius, y + radius, radius);
     gfx_FillCircle_NoClip(x + radius, y + height - radius - 1, radius);

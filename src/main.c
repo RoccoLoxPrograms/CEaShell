@@ -21,7 +21,6 @@
 #include "asm/spi.h"
 #include "asm/utils.h"
 
-#include <graphx.h>
 #include <keypadc.h>
 
 #include <sys/rtc.h>

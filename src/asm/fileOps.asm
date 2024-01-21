@@ -27,12 +27,11 @@ include 'include/equates.inc'
     public _asm_fileOps_getIconDCS
     public _asm_fileOps_getIconDCS.varFound
 
+    extern _asm_runProgram_error
     extern _asm_utils_checkEOF
     extern _asm_utils_getEOF
     extern _asm_utils_loadNameOP1
     extern _asm_utils_findVar
-    extern _asm_utils_arcUnarc
-    extern _asm_runProgram_error
     extern _rodata_celticAppVarHeader
     extern _rodata_osColorToXlibC
 

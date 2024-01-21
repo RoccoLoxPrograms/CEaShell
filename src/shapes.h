@@ -52,16 +52,6 @@ void shapes_PixelIndentRectangle(const unsigned int x, const uint8_t y, const un
 void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, const uint8_t color, int x, uint8_t y);
 
 /**
- * @brief Draws a semi-transparent rectangle with rounded corners, used for the hidden file effect. The height and width of the rectangle are both 64 pixels.
- * 
- * @param tileSprite Semi-transparent tile created using shapes_GetTransparentRect.
- * @param scale UI scale.
- * @param x X coordinate to begin drawing the rectangle at.
- * @param y Y coordinate to begin drawing the rectangle at.
- */
-//void shapes_DrawTransparentRect(gfx_sprite_t *tileSprite, uint8_t scale, const int x, const uint8_t y);
-
-/**
  * @brief Sets up a corner tile in corner1 to be used later with shapes_DrawRoundCorners.
  * 
  * @param corner1 Sprite to store corner tile in.

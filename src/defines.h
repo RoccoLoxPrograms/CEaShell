@@ -13,8 +13,6 @@
 #define DEFINES_H
 
 #include <graphx.h>
-#include <stdint.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,10 +107,10 @@ struct menu_t {
 #define ICE_TYPE        3       /** Compiled ICE programs. */
 #define ICE_SRC_TYPE    4       /** ICE source code. */
 #define DIR_TYPE        5       /** CEaShell special directories. */
-#define APPVAR_TYPE     6       /** TI-OS AppVars. */
+#define APPVAR_TYPE     6       /** AppVars. */
 #define HIDDEN_TYPE     7       /** Deprecated. */
 #define CELTIC_TYPE     8       /** AppVars with the CelticCE header. */
-#define APP_TYPE        9       /** TI-OS Apps. */
+#define APP_TYPE        9       /** Apps. */
 #define UNKNOWN_TYPE    10      /** Unknown file type. */
 
 /**
@@ -125,14 +123,6 @@ struct menu_t {
  * Maximum length for program descriptions.
 */
 #define MAX_DESC_LENGTH 52
-
-/** 
- * Current UI context in CEaShell.
-*/
-#define CX_FILE_MANAGER 0       /** File manager context. */
-#define CX_CUSTOM       1       /** UI customizing context. */
-#define CX_INFO         2       /** File info context. */
-#define CX_SETTINGS     3       /** Settings context. */
 
 /**
  * Directory currently opened in CEaShell.
@@ -185,9 +175,6 @@ struct menu_t {
 #define UI_RARROW       6       /** Right arrow icon used for closing menus. */
 #define UI_DARROW       7       /** Down arrow icon used for closing menus. */
 #define UI_CHECK        8       /** Checkmark icon used for checkbox options in menus. */
-#define UI_CURSOR_1     9       /** Cursor used in number mode text input. */
-#define UI_CURSOR_UP    10      /** Cursor used in uppercase mode text input. */
-#define UI_CURSOR_LOW   11      /** Cursor used in lowercase mode text input. */
 
 /** 
  * Different types of options in menus.
@@ -203,6 +190,11 @@ struct menu_t {
  * Number of preset theme options.
 */
 #define THEME_COUNT     10
+
+/**
+ * CEaShell app name.
+ */
+extern char rodata_appName;
 
 #ifdef __cplusplus
 }

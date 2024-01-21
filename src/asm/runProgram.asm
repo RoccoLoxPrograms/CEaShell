@@ -1,6 +1,6 @@
 ;--------------------------------------
 ;
-; CEaShell Source Code - asm_runProgram_run.asm
+; CEaShell Source Code - runProgram.asm
 ; By RoccoLox Programs and TIny_Hacker
 ; Copyright 2022 - 2024
 ; License: GPL-3.0
@@ -15,18 +15,17 @@ include 'include/equates.inc'
 
     public _asm_runProgram_run
     public _asm_runProgram_main
-    public _asm_runProgram_error
-    public _asm_runProgram_return.quit
     public _asm_runProgram_returnOS.restoreHooks
-    public _asm_runProgram_vectors
+    public _asm_runProgram_error
 
+    extern _asm_apps_reloadApp
     extern _asm_editProgram_goto
     extern _asm_hooks_installStopHook
     extern _asm_hooks_removeStopHook
-    extern _asm_hooks_installHomescreenHook
     extern _asm_hooks_installGetCSCHookCont
     extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_removeAppChangeHook
+    extern _asm_hooks_installHomescreenHook
     extern _asm_hooks_removeBasicKeyHook
     extern _asm_hooks_installBasicKeyHook
     extern _asm_hooks_basicPrgmHook
@@ -35,7 +34,6 @@ include 'include/equates.inc'
     extern _asm_utils_lcdNormal
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_deleteTempRunner
-    extern _asm_apps_reloadApp
     extern _rodata_errorQuit
     extern _rodata_errorGoto
     extern _rodata_basicPrgmName
@@ -157,7 +155,7 @@ _asm_runProgram_main:
     call ti.DisableAPD
     set ti.appAutoScroll, (iy + ti.appFlags)
     call runProgram_vectorsSetup
-    ld hl, _asm_runProgram_return
+    ld hl, runProgram_return
     push hl
     jp ti.userMem
 
@@ -217,7 +215,7 @@ _asm_runProgram_main:
     ld de, _asm_hooks_basicPrgmHook
     call _asm_hooks_installAppChangeHook
     ei
-    ld hl, _asm_runProgram_return
+    ld hl, runProgram_return
     push hl
     jp ti.ParseInp
 
@@ -310,7 +308,7 @@ _asm_runProgram_main:
     inc de
     jr .loopLoad
 
-_asm_runProgram_return:
+runProgram_return:
     call ti.PopErrorHandler
     xor a, a
 
@@ -548,13 +546,13 @@ runProgram_vectorsSetup:
     xor a, a
     ld (ti.appErr1), a
     ld (ti.kbdGetKy), a
-    ld hl, _asm_runProgram_vectors
+    ld hl, runProgram_vectors
     call ti.AppInit
     call _asm_utils_clrScrnAndUsedRAM
-    ld hl, _asm_runProgram_return.error
+    ld hl, runProgram_return.error
     jp ti.PushErrorHandler
 
-_asm_runProgram_vectors:
+runProgram_vectors:
     dl .ret
     dl ti.SaveCmdShadow
     dl .putaway

@@ -21,10 +21,8 @@
 #include "gfx/gfx.h"
 
 #include <fileioc.h>
-#include <graphx.h>
 #include <keypadc.h>
 #include <string.h>
-#include <time.h>
 
 #include <sys/power.h>
 #include <sys/rtc.h>
@@ -33,11 +31,11 @@ void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, c
     bool colorAlt = !(color > 131 && color % 8 > 3);
 
     // Dark sprites first, then light sprites
-    static const gfx_sprite_t *uiIcons[24] = {
-    battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check, cursorNumber, cursorUpper, cursorLower,
-    batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt, cursorNumberAlt, cursorUpperAlt, cursorLowerAlt};
+    static const gfx_sprite_t *uiIcons[18] = {
+    battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check,
+    batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt};
 
-    gfx_TransparentSprite(uiIcons[spriteNo + colorAlt * 12], x, y);
+    gfx_TransparentSprite(uiIcons[spriteNo + colorAlt * 9], x, y);
 }
 
 void ui_DrawStatusBar(struct preferences_t *shellPrefs, struct context_t *shellContext, char *title) {

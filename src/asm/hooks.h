@@ -19,16 +19,23 @@ extern "C" {
 #endif
 
 /**
- * @brief Installs the TI-BASIC stop token detection hook.
- * 
- */
-void asm_hooks_installStopHook(void);
-
-/**
  * @brief Removes the TI-BASIC stop token detection hook.
  * 
  */
 void asm_hooks_removeStopHook(void);
+
+/**
+ * @brief Detects which of the on shortcuts and icon/description GetCSC hooks to install and installs them.
+ * 
+ * @param hook Value for what hook to install.
+ */
+void asm_hooks_installGetCSCHook(uint8_t hook);
+
+/**
+ * @brief Removes all GetCSC hooks installed.
+ * 
+ */
+void asm_hooks_removeGetCSCHook(void);
 
 /**
  * @brief Installs the homescreen hook to run programs from the homescreen.
@@ -54,19 +61,6 @@ void asm_hooks_installMenuHook(uint8_t hook);
  * 
  */
 void asm_hooks_removeMenuHook(void);
-
-/**
- * @brief Detects which of the on shortcuts and icon/description GetCSC hooks to install and installs them.
- * 
- * @param hook Value for what hook to install.
- */
-void asm_hooks_installGetCSCHook(uint8_t hook);
-
-/**
- * @brief Removes all GetCSC hooks installed.
- * 
- */
-void asm_hooks_removeGetCSCHook(void);
 
 /**
  * @brief Triggers APD to return to CEaShell after.

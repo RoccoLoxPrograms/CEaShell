@@ -20,16 +20,14 @@
 #include "asm/utils.h"
 
 #include <fileioc.h>
-#include <graphx.h>
 #include <keypadc.h>
 #include <string.h>
-#include <time.h>
 
 #include <sys/power.h>
 #include <ti/ui.h>
 
 void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellContext) {
-    uint8_t slot = ti_Open("CEaShell", "r");
+    uint8_t slot = ti_Open(&rodata_appName, "r");
     uint8_t appvarVersion = 0;
 
     ti_Read(&appvarVersion, 1, 1, slot);
@@ -90,7 +88,7 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
     }
 
     uint8_t appvarVersion = APPVAR_VERSION;
-    uint8_t slot = ti_Open("CEaShell", "w+");
+    uint8_t slot = ti_Open(&rodata_appName, "w+");
 
     ti_Write(&appvarVersion, sizeof(uint8_t), 1, slot);
     ti_Seek(sizeof(uint8_t), SEEK_SET, slot);
@@ -98,7 +96,7 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
     ti_Seek(sizeof(struct preferences_t), SEEK_CUR, slot);
     ti_Write(&(shellContext->directory), sizeof(uint8_t) + sizeof(unsigned int) * 2, 1, slot);
 
-    util_SafeArchive(slot, "CEaShell", OS_TYPE_APPVAR);
+    util_SafeArchive(slot, &rodata_appName, OS_TYPE_APPVAR);
 
     ti_Close(slot);
 
@@ -404,6 +402,6 @@ void util_SafeArchive(uint8_t slot, char *fileName, uint8_t type) {
         os_DrawStatusBar();
         ti_SetArchiveStatus(true, slot);
         ti_Close(slot);
-        asm_apps_reloadApp();
+        asm_apps_reloadAppExit();
     }
 }

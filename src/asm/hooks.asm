@@ -15,41 +15,39 @@ include 'include/equates.inc'
 
     public _asm_hooks_installStopHook
     public _asm_hooks_removeStopHook
-    public _asm_hooks_triggerAPD
-    public _asm_hooks_installHomescreenHook
-    public _asm_hooks_removeHomescreenHook
-    public _asm_hooks_installMenuHook
-    public _asm_hooks_removeMenuHook
     public _asm_hooks_installGetCSCHook
+    public _asm_hooks_installGetCSCHookCont
     public _asm_hooks_removeGetCSCHook
     public _asm_hooks_installAppChangeHook
     public _asm_hooks_removeAppChangeHook
     public _asm_hooks_editorHook
-    public _asm_hooks_installGetCSCHookCont
+    public _asm_hooks_installHomescreenHook
+    public _asm_hooks_removeHomescreenHook
+    public _asm_hooks_installMenuHook
+    public _asm_hooks_removeMenuHook
+    public _asm_hooks_triggerAPD
     public _asm_hooks_removeBasicKeyHook
     public _asm_hooks_installBasicKeyHook
     public _asm_hooks_basicPrgmHook
 
-    extern _asm_editProgram_restoreAppVar
+    extern _asm_apps_reloadApp
     extern _asm_editProgram_main
+    extern _asm_editProgram_restoreAppVar
     extern _asm_fileSystem_sortVAT
+    extern _asm_labelJumper_showLabels
+    extern _asm_prgmMenuHook_showDescription
     extern _asm_prgmMenuHook_icons
     extern _asm_prgmMenuHook_showAppInfo
-    extern _asm_prgmMenuHook_showDescription
     extern _asm_runProgram_main
-    extern _asm_runProgram_vectors
-    extern _asm_runProgram_return.quit
     extern _asm_runProgram_returnOS.restoreHooks
-    extern _asm_labelJumper_showLabels
-    extern _asm_apps_reloadApp
+    extern _asm_spi_setupSPI
     extern _asm_utils_arcUnarc
-    extern _asm_utils_findVar
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_findCEaShellAppVar
     extern _asm_utils_deleteTempRunner
-    extern _asm_spi_setupSPI
     extern _rodata_hashProg
     extern _rodata_appName
+    extern _exit.sp
 
 hooks_parserStopHook:
     db $83 ; hook signifier
@@ -590,7 +588,7 @@ _asm_hooks_editorHook:
     ld (backupAppChangeRet), hl
     res exitF5Menu, (iy + shellFlags)
     ld a, c
-    or a, a ; "Quit Editor" in [alpha] + [f5] (Exiting an OS app context)
+    or a, a ; "Quit Editor" in [alpha] + [f5] (Exiting an app context)
     jr nz, .notQuitF5
     set exitF5Menu, (iy + shellFlags)
 
@@ -742,7 +740,7 @@ _asm_hooks_removeMenuHook:
     jp ti.ClrMenuHook
 
 _asm_hooks_triggerAPD:
-    ld iy, ti.flags
+    call _exit.sp + 3
     ld de, (ti.asm_prgm_size)
     ld hl, ti.userMem
     call ti.DelMem

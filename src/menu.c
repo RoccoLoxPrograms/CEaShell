@@ -20,10 +20,8 @@
 #include "gfx/gfx.h"
 
 #include <fileioc.h>
-#include <graphx.h>
 #include <keypadc.h>
 #include <string.h>
-#include <time.h>
 
 uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t value) {
     uint8_t width = 0;

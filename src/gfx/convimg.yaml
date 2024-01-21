@@ -22,9 +22,6 @@ converts:
       - rArrow*.png
       - dArrow*.png
       - check*.png
-      - cursorNumber*.png
-      - cursorUpper*.png
-      - cursorLower*.png
       - invSwitch.png
   - name: fileTypes
     palette: xlibc

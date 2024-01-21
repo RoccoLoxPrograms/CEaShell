@@ -36,10 +36,10 @@ include 'include/equates.inc'
     public _asm_utils_deleteTempRunner
 
     extern _rodata_appVarName
+    extern _rodata_basicPrgmName
+    extern _rodata_hexaEditHeader
     extern _rodata_characters
     extern _rodata_sizeOfCharsLUT
-    extern _rodata_hexaEditHeader
-    extern _rodata_basicPrgmName
     extern _exit.sp
 
 _asm_utils_checkEOF: ; bc = current address being read; destroys hl

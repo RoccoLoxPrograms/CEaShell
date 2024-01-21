@@ -18,15 +18,12 @@ include 'include/equates.inc'
     public _asm_editProgram_main
     public _asm_editProgram_restoreAppVar
 
-    extern _asm_hooks_editorHook
     extern _asm_hooks_installAppChangeHook
-    extern _asm_hooks_removeAppChangeHook
-    extern _asm_hooks_installHomescreenHook
+    extern _asm_hooks_editorHook
+    extern _asm_runProgram_error
     extern _asm_utils_arcUnarc
     extern _asm_utils_backupPrgmName
     extern _asm_utils_lcdNormal
-    extern _asm_runProgram_error
-    extern _asm_apps_reloadApp
     extern _rodata_tempAppVarPrgm
 
 _asm_editProgram_edit: ; editing from CEaShell

@@ -19,12 +19,6 @@ extern "C" {
 #endif
 
 /**
- * CelticCE AppVar header, which can be added to AppVars created using
- * Celtic's CreateVar command.
- */
-extern char *rodata_celticAppVarHeader;
-
-/**
  * @brief Opens an edit buffer to edit a program or AppVar.
  * 
  * @param name Name of the file to edit.
@@ -32,6 +26,15 @@ extern char *rodata_celticAppVarHeader;
  * @param shellPrefs Shell preferences struct.
  */
 void asm_editProgram_edit(char *name, bool celticVar, struct preferences_t *shellPrefs);
+
+/**
+ * @brief Gets the correct size of a program or AppVar (ti_GetSize is slightly off).
+ * 
+ * @param name Name of the file.
+ * @param type OS type for the file.
+ * @return int Size of the file.
+ */
+int asm_fileOps_getPrgmSize(char *name, uint8_t type);
 
 /**
  * @brief Gets a program's more detailed shell type.
@@ -49,6 +52,15 @@ uint8_t asm_fileOps_getPrgmType(char *name, uint8_t type);
  * @return uint8_t Shell type for the AppVar.
  */
 uint8_t asm_fileOps_getAppVarType(char *name);
+
+/**
+ * @brief Copies a program or AppVar.
+ * 
+ * @param name Name of the file to copy.
+ * @param copy Name for the new copy of the file being created.
+ * @param type OS type for the file to copy.
+ */
+void asm_fileOps_copyFile(char *name, char *copy, uint8_t type);
 
 /**
  * @brief Toggle the hidden status of a program.
@@ -110,25 +122,13 @@ bool asm_fileOps_getIconASM(char *name, uint8_t type, uint8_t shellType, gfx_spr
  * @return true The program has an icon.
  * @return false The program does not have an icon.
  */
-bool asm_fileOps_getIconDCS(char *name, uint8_t type, gfx_sprite_t *icon);   // Gets a DCS format icon
+bool asm_fileOps_getIconDCS(char *name, uint8_t type, gfx_sprite_t *icon);
 
 /**
- * @brief Gets the correct size of a program or AppVar (ti_GetSize is slightly off).
+ * CelticCE AppVar header, which can be added to AppVars created using Celtic's CreateVar command.
  * 
- * @param name Name of the file.
- * @param type OS type for the file.
- * @return int Size of the file.
  */
-int asm_fileOps_getPrgmSize(char *name, uint8_t type);
-
-/**
- * @brief Copies a program or AppVar.
- * 
- * @param name Name of the file to copy.
- * @param copy Name for the new copy of the file being created.
- * @param type OS type for the file to copy.
- */
-void asm_fileOps_copyFile(char *name, char *copy, uint8_t type);
+extern char rodata_celticAppVarHeader;
 
 #ifdef __cplusplus
 }

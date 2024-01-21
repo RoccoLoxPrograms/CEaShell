@@ -9,8 +9,8 @@
  * --------------------------------------
 **/
 
-#include "defines.h"
 #include "custom.h"
+#include "defines.h"
 #include "menu.h"
 #include "shapes.h"
 #include "ui.h"
@@ -18,10 +18,8 @@
 
 #include "asm/utils.h"
 
-#include <graphx.h>
 #include <keypadc.h>
 #include <string.h>
-#include <time.h>
 
 void custom_ThemePreview(uint8_t *theme) {
     shapes_PixelIndentRectangle(163, 98, 143, 106);

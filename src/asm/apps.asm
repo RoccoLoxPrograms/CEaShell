@@ -20,15 +20,15 @@ include 'include/equates.inc'
     public _asm_apps_getAppMinOSVersion
     public _asm_apps_getAppCopyrightInfo
     public _asm_apps_getAppIcon
+    public _asm_apps_reloadAppExit
     public _asm_apps_reloadApp
     public _asm_apps_executeApp
     public _asm_apps_deleteApp
     public _asm_apps_exitDefrag
 
-    extern _asm_hooks_removeAppChangeHook
-    extern _asm_hooks_editorHook
     extern _asm_utils_clrScrnAndUsedRAM
     extern _rodata_appName
+    extern _exit.sp
 
 _asm_apps_getAppPtrs:
     pop hl
@@ -191,17 +191,21 @@ _asm_apps_getAppIcon:
     ld a, 1
     ret
 
+_asm_apps_reloadAppExit:
+    call _exit.sp + 3
+
 _asm_apps_reloadApp:
     ld hl, _rodata_appName
     call ti.FindAppStart
     push hl
     push hl
+    jr $ + 6
 
 _asm_apps_executeApp:
-    ld iy, ti.flags
+    call _exit.sp + 3
     call ti.GetCSC
     or a, a
-    jr nz, _asm_apps_executeApp ; debounce
+    jr nz, _asm_apps_executeApp + 4 ; debounce
     xor a, a
     ld (ti.kbdGetKy), a
     ld de, ti.userMem
@@ -211,8 +215,6 @@ _asm_apps_executeApp:
     or a, a
     sbc hl, hl
     ld (ti.asm_prgm_size), hl
-    ld de, _asm_hooks_editorHook
-    call _asm_hooks_removeAppChangeHook
     res ti.useTokensInString, (iy + ti.clockFlags)
     res ti.onInterrupt, (iy + ti.onFlags)
     set ti.graphDraw, (iy + ti.graphFlags)
