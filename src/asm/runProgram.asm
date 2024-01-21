@@ -543,7 +543,10 @@ _asm_runProgram_error:
 
 runProgram_vectorsSetup:
     call _asm_utils_lcdNormal
+    ld a, $25
+    ld ($D02687), a
     xor a, a
+    ld (ti.menuCurrent), a
     ld (ti.appErr1), a
     ld (ti.kbdGetKy), a
     ld hl, runProgram_vectors

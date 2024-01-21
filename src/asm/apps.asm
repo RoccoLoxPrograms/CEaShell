@@ -206,7 +206,11 @@ _asm_apps_executeApp:
     call ti.GetCSC
     or a, a
     jr nz, _asm_apps_executeApp + 4 ; debounce
+    ld a, $25
+    ld ($D02687), a
     xor a, a
+    ld (ti.menuCurrent), a
+    ld (ti.appErr1), a
     ld (ti.kbdGetKy), a
     ld de, ti.userMem
     ld hl, (ti.asm_prgm_size)
