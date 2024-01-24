@@ -22,7 +22,7 @@ extern "C" {
  * @brief Check a specified bit in a number.
  * 
  */
-#define bit(number, bit) ((number) & (1 << (bit)))
+#define bit(number, bit) ((number) & (1U << (bit)))
 
 /**
  * @brief Toggles a specified bit in a number.

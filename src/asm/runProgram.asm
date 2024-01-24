@@ -77,6 +77,11 @@ _asm_runProgram_main:
     push af
     ld iy, ti.flags
     call ti.ClrGetKeyHook
+
+.debounce:
+    call ti.GetCSC
+    or a, a
+    jr nz, .debounce
     call _asm_utils_backupPrgmName
     ld de, (ti.asm_prgm_size)
     or a, a
