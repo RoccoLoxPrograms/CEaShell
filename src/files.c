@@ -89,6 +89,9 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
 
     struct file_t *fileInfo = NULL;
 
+    // Debounce keypresses when entering the shell.
+    while (kb_AnyKey());
+
     while(!kb_IsDown(kb_KeyClear)) {
         kb_Scan();
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);

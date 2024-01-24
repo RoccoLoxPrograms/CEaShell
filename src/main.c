@@ -76,9 +76,6 @@ int main(void) {
     // Get number of programs and appvars
     util_FilesInit(shellPrefs, shellContext);
 
-    // Debounce keypresses when entering the shell.
-    while (kb_AnyKey());
-
     files_Main(shellPrefs, shellContext);
 
     // Save preferences to CEaShell's AppVar

@@ -278,6 +278,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                                 }
                             }
 
+                            while (kb_AnyKey());
                             gfx_End();
                             asm_editProgram_edit(fileInfo->name, fileInfo->shellType == CELTIC_TYPE, shellPrefs);
                         }
