@@ -281,8 +281,7 @@ editProgram_prepAppVar:
 
 .loadComplete:
     ld hl, _rodata_tempAppVarPrgm
-    call ti.Mov9ToOP1
-    ret
+    jp ti.Mov9ToOP1
 
 _asm_editProgram_restoreAppVar:
     call ti.PushOP1 ; temp program for editing the appvar

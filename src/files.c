@@ -144,6 +144,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         util_WritePrefs(shellPrefs, shellContext, false);
                         while (kb_AnyKey());
+                        gfx_End();
                         asm_runProgram_run(fileInfo->name, fileInfo->type, fileInfo->shellType, shellPrefs);
                     }
 
@@ -170,9 +171,11 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     if (shellContext->fileSelected % rows) {
                         shellContext->fileSelected--;
                     }
-                } else if (kb_IsDown(kb_KeyDown)) {
-                    if ((shellContext->fileSelected + 1) % rows && shellContext->fileSelected + 1 < fileCount) {
+                } else if (kb_IsDown(kb_KeyDown) && (shellContext->fileSelected + 1) % rows) {
+                    if (shellContext->fileSelected + 1 < fileCount) {
                         shellContext->fileSelected++;
+                    } else {
+                        shellContext->fileSelected = fileCount - 1 - (shellContext->fileSelected + 1) % rows;
                     }
                 }
 

@@ -55,7 +55,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
         shellPrefs->showHiddenProgs = true;
         shellPrefs->editArchivedProgs = 3;
         shellPrefs->editLockedProgs = true;
-        shellPrefs->getCSCHooks = BOTH;
+        shellPrefs->getCSCHooks = ALL_HOOKS;
         shellPrefs->hidePrgmOptions = 0;
         shellPrefs->hideBusyIndicator = false;
         shellPrefs->osLowercase = false;
@@ -89,6 +89,10 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
 
     uint8_t appvarVersion = APPVAR_VERSION;
     uint8_t slot = ti_Open(&rodata_appName, "w+");
+
+    if (!slot || !asm_utils_checkEnoughRAM(sizeof(uint8_t) + sizeof(struct preferences_t) + sizeof(struct context_t))) {
+        return;
+    }
 
     ti_Write(&appvarVersion, sizeof(uint8_t), 1, slot);
     ti_Seek(sizeof(uint8_t), SEEK_SET, slot);

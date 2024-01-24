@@ -34,6 +34,7 @@ include 'include/equates.inc'
     public _asm_utils_dispTextToolbar
     public _asm_utils_initHexaEditStart
     public _asm_utils_deleteTempRunner
+    public _asm_utils_checkEnoughRAM
 
     extern _rodata_appVarName
     extern _rodata_basicPrgmName
@@ -295,18 +296,13 @@ _asm_utils_backupPrgmName:
     jp ti.Mov9b
 
 _asm_utils_lcdNormal:
-    ld a, (returnLoc)
-    or a, a
-    jr nz, .returnOS
-    call ti.boot.ClearVRAM
-    call _exit.sp + 3
-    jr $ + 6
-
-.returnOS:
-    call ti.DrawStatusBar
     ld a, $2D
     ld (ti.mpLcdCtrl), a
-    ret
+    ld a, (returnLoc)
+    or a, a
+    jp nz, ti.DrawStatusBar
+    call ti.boot.ClearVRAM
+    jp _exit.sp + 3
 
 _asm_utils_clrScrnAndUsedRAM:
     call ti.ForceFullScreen
@@ -421,4 +417,15 @@ _asm_utils_deleteTempRunner:
     call ti.Mov9ToOP1
     call ti.ChkFindSym
     call nc, ti.DelVarArc
+    ret
+
+_asm_utils_checkEnoughRAM:
+    pop de
+    ex (sp), hl
+    push de
+    ld bc, 128 ; for safety
+    add hl, bc
+    call ti.EnoughMem
+    ccf
+    sbc a, a
     ret

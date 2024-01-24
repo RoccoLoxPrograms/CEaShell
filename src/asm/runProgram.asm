@@ -368,7 +368,6 @@ _asm_runProgram_returnOS:
     bit 0, a
     call nz, _asm_hooks_installHomescreenHook
     ld a, (getCSCHooks)
-    ld l, a
     call _asm_hooks_installGetCSCHookCont
     xor a, a
     or a, 2

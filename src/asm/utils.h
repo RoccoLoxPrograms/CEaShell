@@ -103,6 +103,15 @@ bool asm_utils_isNameValid(char *name, bool appvarDir);
  */
 void asm_utils_initHexaEditStart(char *name, uint8_t nameLength, uint8_t type);
 
+/**
+ * @brief Checks if there's enough RAM for an operation.
+ * 
+ * @param amount Amount of RAM to check for.
+ * @return true There is enough RAM.
+ * @return false There isn't enough RAM.
+ */
+bool asm_utils_checkEnoughRAM(unsigned int amount);
+
 #ifdef __cplusplus
 }
 #endif

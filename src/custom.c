@@ -268,9 +268,6 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
         }
     }
 
-    gfx_BlitScreen();
-    gfx_SwapDraw();
-
     shapes_RoundRectangleFill(6, 8, 28, 304, 204);
     ui_DrawUISprite(shellPrefs->fgColor, UI_LARROW, 14, 210);
     gfx_BlitBuffer();

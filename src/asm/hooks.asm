@@ -139,29 +139,45 @@ _asm_hooks_removeStopHook:
 .clearParser:
     jp ti.ClrParserHook
 
-hooks_getCSCHookStart: ; icons and on shortcuts
+hooks_getCSCHook:
     db $83
-    cp a, $1A
-    jr z, hooks_iconHookStart + 1
-    ld hl, $F0202C
-    ld (hl), l
-    ld l, h
-    bit 0, (hl)
-    jr z, hooks_iconHookStart + 1
-    jp hooks_onHookStart + 1
+    push af
+    ld hl, (ti.catalog1HookPtr)
+    call ti.ChkHLIs0
+    jr z, .return
+    pop af
+    ld (getCSCvalA), a
+    ld (getCSCvalBC), bc
+    ld a, (ti.catalog1HookPtr)
+    bit 0, a
+    call nz, hooks_iconHook
+    ld a, (ti.catalog1HookPtr)
+    bit 1, a
+    call nz, hooks_onHook
+    ld a, (ti.catalog1HookPtr)
+    bit 2, a
+    call nz, hooks_fastAlphaScrolling
+    ld a, (getCSCvalA)
+    ld bc, (getCSCvalBC)
+    push af
 
-hooks_iconHookStart: ; the user only has the icon hook enabled
-    db $83
-    push bc
+.return:
+    pop af
+    cp a, $1B
+    ret nz
+    or a, a
+    ld a, b
+    ret
+
+hooks_iconHook:
+    ld a, (getCSCvalA)
     cp a, $1A
     jr nz, .keyPress
-    pop bc
-    push af
     ld a, (ti.menuCurrent)
     cp a, ti.mApps
     jr z, .update
     cp a, ti.mProgramHome
-    jr nz, .return
+    ret nz
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Run ; check for run menu
     jr z, .update
@@ -170,7 +186,7 @@ hooks_iconHookStart: ; the user only has the icon hook enabled
 
 .update:
     bit updateProgInfo, (iy + shellFlags)
-    jr nz, .return
+    ret nz
     call ti.os.ClearStatusBarLow
     ld a, (ti.menuNumItems)
     or a, a
@@ -181,11 +197,12 @@ hooks_iconHookStart: ; the user only has the icon hook enabled
     call _asm_prgmMenuHook_icons
     call _asm_prgmMenuHook_showDescription
     set updateProgInfo, (iy + shellFlags)
-    jr .return
+    ret
 
 .keyPress: ; keypress event
-    ld a, ti.skPrgm
-    cp a, b
+    ld bc, (getCSCvalBC)
+    ld a, b
+    cp a, ti.skPrgm
     jr nz, .modified
     ld a, (iy + ti.shiftFlags)
     add a, a
@@ -200,55 +217,142 @@ hooks_iconHookStart: ; the user only has the icon hook enabled
 
 .modified:
     res updateProgInfo, (iy + shellFlags) ; reset flag on keypress
-
-.return:
-    pop bc
-    or a, 1
-    ld a, b
     ret
 
 .returnOther: ; draw over artifact when switching to create menu
     call ti.os.ClearStatusBarLow
     bit updateProgInfo, (iy + shellFlags)
-    jr nz, .return
+    ret nz
     ld hl, 152
     ld de, 168
     ld b, 58
     ld c, 234
     call ti.ClearRect
     set updateProgInfo, (iy + shellFlags)
-    jr .return
+    ret
 
-hooks_onHookStart: ; the user only has the on shortcut hook enabled
-    db $83
-    cp a, $1A
-    jr z, .return
+hooks_onHook:
+    ld a, (getCSCvalA)
+    cp a, $1B
+    ret nz
     ld hl, $F0202C
     ld (hl), l
     ld l, h
     bit 0, (hl)
-    jr z, .return
-
-.onShortcut:
-    ld a, ti.skGraph
-    cp a, b
+    ret z
+    pop hl
+    ld bc, (getCSCvalBC)
+    ld a, b
+    cp a, ti.skGraph
     jp z, _asm_labelJumper_showLabels
-    ld a, ti.skPrgm
-    cp a, b
+    cp a, ti.skPrgm
     jp z, hooks_openShellHook
-    ld a, ti.skStat
-    cp a, b
+    cp a, ti.skStat
     jp z, hooks_turnCalcOff
-    ld a, ti.skStore
-    cp a, b
+    cp a, ti.skStore
     jp z, hooks_invertOn
-    ld a, ti.skLn
-    cp a, b
+    cp a, ti.skLn
     jp z, hooks_invertOff
+    jp (hl)
+
+hooks_fastAlphaScrolling:
+    ld a, (getCSCvalA)
+    cp a, $1B
+    ret nz
+    ld a, (ti.cxCurApp)
+    cp a, ti.cxPrgmEdit
+    ret nz
+    bit ti.shiftAlpha, (iy + ti.shiftFlags)
+    ret z
+    xor a, a
+    ld (newlineCount), a
+    ld bc, (getCSCvalBC)
+    ld a, b
+    cp a, ti.skUp
+    jr z, .popUp
+    cp a, ti.skDown
+    ret nz
+    pop hl
+
+.down:
+    call ti.BufRight
+    jr z, .returnDown
+    ld a, d
+    or a, a
+    jr nz, .down
+    ld a, e
+    cp a, ti.tEnter
+    jr nz, .down
+    ld a, (newlineCount)
+    inc a
+    ld (newlineCount), a
+    cp a, 7
+    jr c, .down
+    jr .return
+
+.returnDown:
+    call ti.BufToBtm
+    jr .return
+
+.popUp:
+    pop hl
+
+.up:
+    call ti.BufLeft
+    jr z, .returnUp
+    ld a, d
+    or a, a
+    jr nz, .up
+    ld a, e
+    cp a, ti.tEnter
+    jr nz, .up
+    ld a, (newlineCount)
+    inc a
+    ld (newlineCount), a
+    cp a, 7
+    jr c, .up
+    jr .return
+
+.returnUp:
+    call ti.BufToTop
 
 .return:
-    or a, 1
-    ld a, b
+    call ti.CursorOff
+    xor a, a
+    ld (ti.curCol), a
+    ld (ti.curRow), a
+    ld a, (ti.winTop)
+    or a, a
+    call nz, ti.NewLine
+    ld a, ':'
+    call ti.PutMap
+    ld a, 1
+    ld (ti.curCol), a
+
+.backup:
+    call ti.BufLeft
+    jr z, .done
+    ld a, d
+    or a, a
+    jr nz, .backup
+    ld a, e
+    cp a, ti.tEnter
+    jr nz, .backup
+    call ti.BufRight
+
+.done:
+    call ti.DispEOW
+    call ti.CursorOn
+    bit ti.shiftALock, (iy + ti.shiftFlags)
+    jr nz, $ + 6
+    res ti.shiftAlpha, (iy + ti.shiftFlags)
+    ; make sure these flags are these values, for Celtic compatibility
+    res 3, (iy + ti.asm_Flag2)
+    set 5, (iy + ti.asm_Flag1)
+    call ti.os.ClearStatusBarLow
+    xor a, a
+    inc a
+    dec a
     ret
 
 hooks_homescreenHookStart: ; handle OS programs using our code
@@ -292,8 +396,14 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     inc hl
     ld b, (hl)
     inc hl
-    ld a, ti.tProg
-    cp a, (hl)
+    push hl
+    ld hl, 1
+    or a, a
+    sbc hl, bc
+    pop hl
+    jr z, .return
+    ld a, (hl)
+    cp a, ti.tProg
     jr z, .isProg
     cp a, ti.t2ByteTok
     inc hl
@@ -405,7 +515,7 @@ hooks_editArchivedProgs:
     call ti.PPutAway
     call _asm_utils_findCEaShellAppVar
     jr c, .notFound
-    ld hl, 14 ; skip to the byte to check
+    ld hl, 18 ; skip to the byte to check
     add hl, de
     ld de, (hl)
     ld (editArcProgs), de
@@ -503,29 +613,16 @@ _asm_hooks_installGetCSCHook:
     pop de
     ex (sp), hl
     push de
+    ld a, l
 
 _asm_hooks_installGetCSCHookCont:
-    dec l
-    jr z, .both
-    dec l
-    jr z, .icon
-    dec l
-    jr z, .onShorts
-    ret
-
-.icon:
-    ld hl, hooks_iconHookStart
-    jr .install
-
-.onShorts:
-    ld hl, hooks_onHookStart
-    jr .install
-
-.both:
-    ld hl, hooks_getCSCHookStart
-
-.install:
     ld iy, ti.flags
+    or a, a
+    sbc hl, hl
+    ld l, a
+    ld (ti.catalog1HookPtr), hl
+    call ti.ClrCatalog1Hook
+    ld hl, hooks_getCSCHook
     jp ti.SetGetCSCHook
 
 _asm_hooks_removeGetCSCHook:
@@ -533,20 +630,14 @@ _asm_hooks_removeGetCSCHook:
     bit ti.getCSCHookActive, (iy + ti.hookflags2)
     ret z
     ld de, (ti.getKeyHookPtr)
-    ld hl, hooks_getCSCHookStart
-    or a, a
-    sbc hl, de
-    jr z, .clearHook
-    ld hl, hooks_iconHookStart
-    or a, a
-    sbc hl, de
-    jr z, .clearHook
-    ld hl, hooks_onHookStart
+    ld hl, hooks_getCSCHook
     or a, a
     sbc hl, de
     ret nz
-
-.clearHook:
+    or a, a
+    sbc hl, hl
+    ld (ti.catalog1HookPtr), hl
+    call ti.ClrCatalog1Hook
     jp ti.ClrGetKeyHook
 
 _asm_hooks_installAppChangeHook:
@@ -647,7 +738,6 @@ _asm_hooks_editorHook:
     bit 0, a
     call nz, _asm_hooks_installHomescreenHook
     ld a, (getCSCHooks)
-    ld l, a
     call _asm_hooks_installGetCSCHookCont
     call ti.ClrTxtShd
     ld hl, ti.textShadow

@@ -248,11 +248,6 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
         }
     }
 
-    if (retVal) {
-        gfx_BlitScreen(); // Fix display offset
-        gfx_SwapDraw();
-    }
-
     return retVal;
 }
 
@@ -290,7 +285,7 @@ bool menu_DeleteFile(struct preferences_t *shellPrefs, struct context_t *shellCo
 
         if (shellContext->fileSelected == *fileCount) {
             if (shellContext->fileStartLoc && shellContext->fileSelected == shellContext->fileStartLoc + (columns - 1) * rows) {
-                shellContext->fileStartLoc -= 2;
+                shellContext->fileStartLoc -= rows;
             }
 
             shellContext->fileSelected -= 1;
@@ -342,6 +337,11 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
         if (createNew) {
             uint8_t slot = ti_OpenVar(newName, "w+", OS_TYPE_PRGM + (OS_TYPE_APPVAR - OS_TYPE_PRGM) * (shellContext->directory == APPVARS_FOLDER));
 
+            if (!slot || !asm_utils_checkEnoughRAM(16)) {
+                while (kb_AnyKey());
+                return;
+            }
+
             if (shellContext->directory == APPVARS_FOLDER) { // Add Celtic header
                 ti_Write(&rodata_celticAppVarHeader, 5, 1, slot);
             }
@@ -349,6 +349,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
             ti_Close(slot);
             util_WritePrefs(shellPrefs, shellContext, true);
             while (kb_AnyKey());
+            gfx_End();
             asm_editProgram_edit(newName, shellContext->directory == APPVARS_FOLDER, shellPrefs);
         } else {
             asm_fileOps_copyFile(fileInfo->name, newName, fileInfo->type);

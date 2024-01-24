@@ -18,6 +18,18 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Check a specified bit in a number.
+ * 
+ */
+#define bit(number, bit) ((number) & (1 << (bit)))
+
+/**
+ * @brief Toggles a specified bit in a number.
+ * 
+ */
+#define toggle(number, bit) (number ^ (1U << bit))
+
 /** 
  * Shell preferences, which are backed up in the CEaShell AppVar.
 */
@@ -39,7 +51,7 @@ struct preferences_t {
     bool showHiddenProgs;       /** Whether or not to show hidden programs in the programs directory of CEaShell. */
     uint8_t editArchivedProgs;  /** Whether or not to allow the editing of archived programs in TI-OS. */
     bool editLockedProgs;       /** Whether or not to allow the editing of locked TI-BASIC and ICE source files in CEaShell. */
-    uint8_t getCSCHooks;        /** Combination of GetCSC hooks currently installed. 0 = None, 1 = Both, 2 = Icon / Description, 3 = [on] shortcuts. */
+    uint8_t getCSCHooks;        /** Combination of GetCSC hooks currently installed. Bit 0 for icon / description hook, bit 1 for on shortcuts, bit 2 for fast alpha scrolling. */
     uint8_t hidePrgmOptions;    /** Hide menu for Python or TI-BASIC programs in the program menu, skipping immediately to TI-BASIC programs. */
     bool hideBusyIndicator;     /** Whether or not to hide the busy indicator when running TI-BASIC programs with CEaShell or the homescreen hook. */
     bool osLowercase;           /** Whether or not to enable lowercase in TI-OS. */
@@ -134,10 +146,10 @@ struct menu_t {
 /** 
  * Information on which GetCSC hooks are installed through CEaShell.
 */
-#define NONE            0       /** No GetCSC hooks installed. */
-#define BOTH            1       /** Both Icon / Description and [on] shortcuts hooks are installed. */
-#define ICON_HOOK       2       /** Only Icon / Description hook is installed. */
-#define ON_SHORTS_HOOK  3       /** Only [on] shorcuts hook is installed. */
+#define ICON_HOOK       0       /** Icon / Description hook bit. */
+#define ON_SHORTS_HOOK  1       /** [on] shorcuts hook bit. */
+#define FAST_ALPHA_HOOK 2       /** Fast alpha hook bit. */
+#define ALL_HOOKS       7       /** All hooks installed. (Bits 0, 1, and 2 are set.) */
 
 /**
  * Transition speeds.

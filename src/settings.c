@@ -35,55 +35,30 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         }
     }
 
-    gfx_BlitScreen();
-    gfx_SwapDraw();
-
     shapes_RoundRectangleFill(6, 8, 28, 304, 204);
     ui_DrawUISprite(shellPrefs->fgColor, UI_RARROW, 290, 210);
     gfx_BlitBuffer();
 
     struct menu_t *menuContext = malloc(sizeof(struct menu_t));
 
-    menuContext->totalOptions = 8;
+    menuContext->totalOptions = 9;
     menuContext->optionSelected = 0;
-    menuContext->totalHeight = 180;
-    menuContext->options = malloc(sizeof(char *) * 8);
-    menuContext->details = malloc(sizeof(char *) * 8);
-    menuContext->types = malloc(sizeof(uint8_t) * 8);
-    menuContext->values = malloc(sizeof(uint8_t) * 8);
+    menuContext->totalHeight = 208;
+    menuContext->options = malloc(sizeof(char *) * 9);
+    menuContext->details = malloc(sizeof(char *) * 9);
+    menuContext->types = malloc(sizeof(uint8_t) * 9);
+    menuContext->values = malloc(sizeof(uint8_t) * 9);
 
     #ifdef FR
     menuContext->options[0] = "Icon Hook";
     menuContext->options[1] = "[on] Shortcuts";
-    menuContext->options[2] = "Edit Archived Programs";
-    menuContext->options[3] = "Edit Locked Programs";
-    menuContext->options[4] = "Hide Programming Options";
-    menuContext->options[5] = "Disable Busy Indicator";
-    menuContext->options[6] = "Lowercase";
-    menuContext->options[7] = "About CEaShell";
-
-    menuContext->details[0] = "Show program icons and descriptions in the TI-OS programs menu.";
-    menuContext->details[1] =
-        "Enable keyboard shortcuts.\n"
-        "[on] + [prgm]: Launch CEaShell.\n"
-        "[on] + [sto]/[ln]: Enable / Disable OS dark mode.\n"
-        "[on] + [stat]: Trigger APD.\n"
-        "[on] + [graph]: Jump to lbl in programs.";
-    menuContext->details[2] = "Allow the editing of archived programs in TI-OS.";
-    menuContext->details[3] = "Allow the editing of locked TI-BASIC programs in CEaShell and when going to an error.";
-    menuContext->details[4] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
-    menuContext->details[5] = "Disable busy indicator in TI-BASIC programs.";
-    menuContext->details[6] = "Enable lowercase in TI-OS by pressing [alpha] twice.";
-    menuContext->details[7] = "Learn about the people who played a role in creating CEaShell!";
-    #else
-    menuContext->options[0] = "Icon Hook";
-    menuContext->options[1] = "[on] Shortcuts";
-    menuContext->options[2] = "Edit Archived Programs";
-    menuContext->options[3] = "Edit Locked Programs";
-    menuContext->options[4] = "Hide Programming Options";
-    menuContext->options[5] = "Disable Busy Indicator";
-    menuContext->options[6] = "Lowercase";
-    menuContext->options[7] = "About CEaShell";
+    menuContext->options[2] = "Fast Alpha Scrolling";
+    menuContext->options[3] = "Edit Archived Programs";
+    menuContext->options[4] = "Edit Locked Programs";
+    menuContext->options[5] = "Hide Programming Options";
+    menuContext->options[6] = "Disable Busy Indicator";
+    menuContext->options[7] = "Lowercase";
+    menuContext->options[8] = "About CEaShell";
 
     menuContext->details[0] = "Show file icons and descriptions in the TI-OS programs and apps menus.";
     menuContext->details[1] =
@@ -92,12 +67,38 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         "[on] + [sto]/[ln]: Enable / Disable OS dark mode.\n"
         "[on] + [stat]: Trigger APD.\n"
         "[on] + [graph]: Jump to lbl in programs.";
-    menuContext->details[2] = "Allow the editing of archived programs in TI-OS.";
-    menuContext->details[3] = "Allow the editing of locked TI-BASIC programs in CEaShell and when going to an error.";
-    menuContext->details[4] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
-    menuContext->details[5] = "Disable busy indicator in TI-BASIC programs.";
-    menuContext->details[6] = "Enable lowercase in TI-OS by pressing [alpha] twice.";
-    menuContext->details[7] = "Learn about the people who played a role in creating CEaShell!";
+    menuContext->details[2] = "Faster alpha scrolling in the TI-OS program editor.";
+    menuContext->details[3] = "Allow the editing of archived programs in TI-OS.";
+    menuContext->details[4] = "Allow the editing of locked TI-BASIC programs in CEaShell and when going to an error.";
+    menuContext->details[5] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
+    menuContext->details[6] = "Disable busy indicator in TI-BASIC programs.";
+    menuContext->details[7] = "Enable lowercase in TI-OS by pressing [alpha] twice.";
+    menuContext->details[8] = "Learn about the people who played a role in creating CEaShell!";
+    #else
+    menuContext->options[0] = "Icon Hook";
+    menuContext->options[1] = "[on] Shortcuts";
+    menuContext->options[2] = "Fast Alpha Scrolling";
+    menuContext->options[3] = "Edit Archived Programs";
+    menuContext->options[4] = "Edit Locked Programs";
+    menuContext->options[5] = "Hide Programming Options";
+    menuContext->options[6] = "Disable Busy Indicator";
+    menuContext->options[7] = "Lowercase";
+    menuContext->options[8] = "About CEaShell";
+
+    menuContext->details[0] = "Show file icons and descriptions in the TI-OS programs and apps menus.";
+    menuContext->details[1] =
+        "Enable keyboard shortcuts.\n"
+        "[on] + [prgm]: Launch CEaShell.\n"
+        "[on] + [sto]/[ln]: Enable / Disable OS dark mode.\n"
+        "[on] + [stat]: Trigger APD.\n"
+        "[on] + [graph]: Jump to lbl in programs.";
+    menuContext->details[2] = "Faster alpha scrolling in the TI-OS program editor.";
+    menuContext->details[3] = "Allow the editing of archived programs in TI-OS.";
+    menuContext->details[4] = "Allow the editing of locked TI-BASIC programs in CEaShell and when going to an error.";
+    menuContext->details[5] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
+    menuContext->details[6] = "Disable busy indicator in TI-BASIC programs.";
+    menuContext->details[7] = "Enable lowercase in TI-OS by pressing [alpha] twice.";
+    menuContext->details[8] = "Learn about the people who played a role in creating CEaShell!";
     #endif
 
     menuContext->types[0] = MENU_TYPE_BOOL;
@@ -107,16 +108,18 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     menuContext->types[4] = MENU_TYPE_BOOL;
     menuContext->types[5] = MENU_TYPE_BOOL;
     menuContext->types[6] = MENU_TYPE_BOOL;
-    menuContext->types[7] = MENU_TYPE_MENU;
+    menuContext->types[7] = MENU_TYPE_BOOL;
+    menuContext->types[8] = MENU_TYPE_MENU;
 
-    menuContext->values[0] = (shellPrefs->getCSCHooks == ICON_HOOK || shellPrefs->getCSCHooks == BOTH);
-    menuContext->values[1] = (shellPrefs->getCSCHooks == ON_SHORTS_HOOK || shellPrefs->getCSCHooks == BOTH);
-    menuContext->values[2] = shellPrefs->editArchivedProgs;
-    menuContext->values[3] = shellPrefs->editLockedProgs;
-    menuContext->values[4] = shellPrefs->hidePrgmOptions;
-    menuContext->values[5] = shellPrefs->hideBusyIndicator;
-    menuContext->values[6] = shellPrefs->osLowercase;
-    menuContext->values[7] = '\0';
+    menuContext->values[0] = bit(shellPrefs->getCSCHooks, ICON_HOOK);
+    menuContext->values[1] = bit(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
+    menuContext->values[2] = bit(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
+    menuContext->values[3] = shellPrefs->editArchivedProgs;
+    menuContext->values[4] = shellPrefs->editLockedProgs;
+    menuContext->values[5] = shellPrefs->hidePrgmOptions;
+    menuContext->values[6] = shellPrefs->hideBusyIndicator;
+    menuContext->values[7] = shellPrefs->osLowercase;
+    menuContext->values[8] = '\0';
 
     int startY = 38;
     uint8_t optionY = 38;
@@ -147,9 +150,9 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
 
                     menuContext->optionSelected -= 1;
                 } else {
-                    startY = 26;
+                    startY = -2;
                     optionY = 193;
-                    menuContext->optionSelected = 7;
+                    menuContext->optionSelected = 8;
                 }
             } else if (kb_IsDown(kb_KeyDown)) {
                 if (menuContext->optionSelected + 1 < menuContext->totalOptions) {
@@ -179,34 +182,38 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
             if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                 switch (menuContext->optionSelected) {
                     case 0:
-                        shellPrefs->getCSCHooks ^= ICON_HOOK;
-                        menuContext->values[0] = (shellPrefs->getCSCHooks == ICON_HOOK || shellPrefs->getCSCHooks == BOTH);
+                        shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, ICON_HOOK);
+                        menuContext->values[0] = bit(shellPrefs->getCSCHooks, ICON_HOOK);
                         break;
                     case 1:
-                        shellPrefs->getCSCHooks ^= ON_SHORTS_HOOK;
-                        menuContext->values[1] = (shellPrefs->getCSCHooks == ON_SHORTS_HOOK || shellPrefs->getCSCHooks == BOTH);
+                        shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
+                        menuContext->values[1] = bit(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
                         break;
                     case 2:
-                        shellPrefs->editArchivedProgs = 3 * !shellPrefs->editArchivedProgs;
-                        menuContext->values[2] = shellPrefs->editArchivedProgs;
+                        shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
+                        menuContext->values[2] = bit(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
                         break;
                     case 3:
-                        shellPrefs->editLockedProgs = !shellPrefs->editLockedProgs;
-                        menuContext->values[3] = shellPrefs->editLockedProgs;
+                        shellPrefs->editArchivedProgs = 3 * !shellPrefs->editArchivedProgs;
+                        menuContext->values[3] = shellPrefs->editArchivedProgs;
                         break;
                     case 4:
-                        shellPrefs->hidePrgmOptions = 2 * !shellPrefs->hidePrgmOptions;
-                        menuContext->values[4] = shellPrefs->hidePrgmOptions;
+                        shellPrefs->editLockedProgs = !shellPrefs->editLockedProgs;
+                        menuContext->values[4] = shellPrefs->editLockedProgs;
                         break;
                     case 5:
-                        shellPrefs->hideBusyIndicator = !shellPrefs->hideBusyIndicator;
-                        menuContext->values[5] = shellPrefs->hideBusyIndicator;
+                        shellPrefs->hidePrgmOptions = 2 * !shellPrefs->hidePrgmOptions;
+                        menuContext->values[5] = shellPrefs->hidePrgmOptions;
                         break;
                     case 6:
-                        shellPrefs->osLowercase = !shellPrefs->osLowercase;
-                        menuContext->values[6] = shellPrefs->osLowercase;
+                        shellPrefs->hideBusyIndicator = !shellPrefs->hideBusyIndicator;
+                        menuContext->values[6] = shellPrefs->hideBusyIndicator;
                         break;
                     case 7:
+                        shellPrefs->osLowercase = !shellPrefs->osLowercase;
+                        menuContext->values[7] = shellPrefs->osLowercase;
+                        break;
+                    case 8:
                         menu_AboutScreen(shellPrefs, shellContext);
                         break;
                     default:

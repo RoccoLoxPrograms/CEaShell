@@ -102,8 +102,17 @@ prgmName := appPtr - 9
 ; Icons / Descriptions
 
 itemSelected := EOF + 3
-iconData := itemSelected + 1
+iconData := getCSCvalBC + 3
 description := iconData + 256 ; this has to be at the end because it could be any size
+
+; Fast alpha scrolling
+
+newlineCount := itemSelected + 1
+
+; GetCSC hook backup values
+
+getCSCvalA := newlineCount + 1
+getCSCvalBC := getCSCvalA + 1
 
 ; VAT / Filesystem
 

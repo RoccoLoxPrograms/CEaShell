@@ -172,9 +172,6 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
         }
     }
 
-    gfx_BlitScreen();
-    gfx_SwapDraw();
-
     uint8_t hexaEdit = ti_OpenVar("HEXAEDIT", "r", OS_TYPE_PROT_PRGM);
     ti_Close(hexaEdit);
 
@@ -197,7 +194,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
             if ((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && fileInfo->shellType != DIR_TYPE) {
                 switch (option) {
                     case 0:
-                        if (fileInfo->archived) {
+                        if (fileInfo->archived && asm_utils_checkEnoughRAM(fileInfo->size)) {
                             ti_SetArchiveStatus(false, slot);
                         } else {
                             util_SafeArchive(slot, fileInfo->name, fileInfo->type);
@@ -276,10 +273,12 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
 
                                 if (hexaEdit) {
                                     asm_utils_initHexaEditStart(fileInfo->name, strlen(fileInfo->name), fileInfo->type);
+                                    gfx_End();
                                     asm_runProgram_run("HEXAEDIT", OS_TYPE_PROT_PRGM, C_TYPE, shellPrefs);
                                 }
                             }
 
+                            gfx_End();
                             asm_editProgram_edit(fileInfo->name, fileInfo->shellType == CELTIC_TYPE, shellPrefs);
                         }
 
