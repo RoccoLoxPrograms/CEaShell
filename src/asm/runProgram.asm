@@ -23,6 +23,7 @@ include 'include/equates.inc'
     extern _asm_hooks_installStopHook
     extern _asm_hooks_removeStopHook
     extern _asm_hooks_installGetCSCHookCont
+    extern _asm_hooks_removeGetCSCHook
     extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_removeAppChangeHook
     extern _asm_hooks_installHomescreenHook
@@ -76,7 +77,7 @@ _asm_runProgram_run:
 _asm_runProgram_main:
     push af
     ld iy, ti.flags
-    call ti.ClrGetKeyHook
+    call _asm_hooks_removeGetCSCHook
 
 .debounce:
     call ti.GetCSC
