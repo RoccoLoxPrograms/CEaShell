@@ -262,6 +262,9 @@ hooks_fastAlphaScrolling:
     ld a, (ti.cxCurApp)
     cp a, ti.cxPrgmEdit
     ret nz
+    ld a, (ti.menuCurrent)
+    or a, a
+    ret nz
     bit ti.shiftAlpha, (iy + ti.shiftFlags)
     ret z
     xor a, a

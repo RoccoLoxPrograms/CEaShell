@@ -101,7 +101,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
             shellContext->batteryLevel = boot_GetBatteryStatus();
         }
 
-        if ((kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyAlpha)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+        if (kb_AnyKey() && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
             if (fileCount) {
                 if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                     fileInfo = malloc(sizeof(struct file_t));
@@ -112,30 +112,32 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     free(fileInfo->description);
                     fileInfo->description = NULL;
 
-                    #ifdef FR
-                    if (!strcmp(fileInfo->name, "Applis")) {
-                    #else
-                    if (!strcmp(fileInfo->name, "Apps")) {
-                    #endif
-                        shellContext->directory = APPS_FOLDER;
-                        shellContext->fileSelected = 0;
-                        fileCount = shellContext->appCount;
-                    #ifdef FR
-                    } else if (!strcmp(fileInfo->name, "AppVars")) {
-                    #else
-                    } else if (!strcmp(fileInfo->name, "AppVars")) {
-                    #endif
-                        shellContext->directory = APPVARS_FOLDER;
-                        shellContext->fileSelected = 0;
-                        fileCount = shellContext->appVarCount;
-                    #ifdef FR
-                    } else if (!strcmp(fileInfo->name, "Prgms")) {
-                    #else
-                    } else if (!strcmp(fileInfo->name, "Programs")) {
-                    #endif
-                        shellContext->directory = PROGRAMS_FOLDER;
-                        shellContext->fileSelected = 0;
-                        fileCount = shellContext->programCount;
+                    if (fileInfo->shellType == DIR_TYPE) {
+                        #ifdef FR
+                        if (fileInfo->name[3] == 'l') { // Applis
+                        #else
+                        if (fileInfo->name[3] == 's') { // Apps
+                        #endif
+                            shellContext->directory = APPS_FOLDER;
+                            shellContext->fileSelected = 0;
+                            fileCount = shellContext->appCount;
+                        #ifdef FR
+                        } else if (fileInfo->name[3] == 'V') { // AppVars
+                        #else
+                        } else if (fileInfo->name[3] == 'V') { // AppVars
+                        #endif
+                            shellContext->directory = APPVARS_FOLDER;
+                            shellContext->fileSelected = 0;
+                            fileCount = shellContext->appVarCount;
+                        #ifdef FR
+                        } else if (fileInfo->name[3] == 'm') { // Prgms
+                        #else
+                        } else if (fileInfo->name[3] == 'g') { // Programs
+                        #endif
+                            shellContext->directory = PROGRAMS_FOLDER;
+                            shellContext->fileSelected = 0;
+                            fileCount = shellContext->programCount;
+                        }
                     } else if (shellContext->directory == APPS_FOLDER) {
                         unsigned int app = shellContext->fileSelected; // Preserve this
                         shellContext->fileStartLoc = 0;
@@ -155,7 +157,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     fileInfo->name = NULL;
                     free(fileInfo);
                     fileInfo = NULL;
-                    updateBattery = true;
+                    updateBattery = false;
                 } else if (kb_IsDown(kb_KeyDel)) {
                     struct file_t *fileInfo = malloc(sizeof(struct file_t));
                     util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
@@ -177,7 +179,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 } else if (kb_IsDown(kb_KeyDown) && (shellContext->fileSelected + 1) % rows) {
                     if (shellContext->fileSelected + 1 < fileCount) {
                         shellContext->fileSelected++;
-                    } else {
+                    } else if (shellContext->fileSelected > rows) {
                         shellContext->fileSelected = fileCount - 1 - (shellContext->fileSelected + 1) % rows;
                     }
                 }
@@ -283,16 +285,15 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 updateBattery = true;
             }
 
+            if (!keyPressed && asm_utils_getCharFromKey(INPUT_UPPER)) {
+                util_AlphaSearch(shellPrefs, shellContext, asm_utils_getCharFromKey(INPUT_UPPER));
+            }
+
             gfx_SetDrawBuffer();
             files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
             gfx_BlitBuffer();
 
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
-        } else if (kb_AnyKey() && !keyPressed) {
-            util_AlphaSearch(shellPrefs, shellContext, asm_utils_getCharFromKey(INPUT_UPPER));
-            files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
-            gfx_BlitBuffer();
-            keyPressed = true;
         } else if (fileCount == 1 && !strcmp(asm_utils_getFileName(shellContext->programPtrs[0]), "CAESHELL")) {
             gfx_SetColor(randInt(0, 255));
             dimension = randInt(10, 37);

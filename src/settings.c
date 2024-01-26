@@ -276,11 +276,11 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
     clock_t clockOffset = clock();
     clock_t textRate = clock();
 
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !(clock() - clockOffset > 9000)) {
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph) && !(clock() - clockOffset > 9000)) {
         kb_Scan();
     }
 
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha)) {
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
         kb_Scan();
 
         if ((clock() - clockOffset >= ONE_MINUTE * shellPrefs->apdTimer && shellPrefs->apdTimer) || kb_On) {

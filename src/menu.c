@@ -229,7 +229,7 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
 
     while (kb_AnyKey());
 
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_Key2nd)) {
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyEnter) && !kb_IsDown(kb_Key2nd) && !kb_IsDown(kb_KeyMode)) {
         kb_Scan();
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
@@ -315,7 +315,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copy", "Create New");
     #endif
 
-    if (kb_IsDown(kb_KeyClear)) {
+    if (kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyMode)) {
         while (kb_AnyKey());
         return;
     }

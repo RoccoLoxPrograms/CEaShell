@@ -203,6 +203,11 @@ struct menu_t {
 */
 #define THEME_COUNT     10
 
+/** 
+ * Size of CEaShell's AppVar.
+*/
+#define APPVAR_SIZE     29
+
 /**
  * CEaShell app name.
  */

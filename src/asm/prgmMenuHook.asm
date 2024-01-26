@@ -292,7 +292,7 @@ _asm_prgmMenuHook_icons:
     jr .blankIconsLoop
 
 _asm_prgmMenuHook_showAppInfo:
-    xor a, a
+    ld a, 1
     ld (itemSelected), a
     ld hl, ti.userMenuSA
     push hl
@@ -302,8 +302,6 @@ _asm_prgmMenuHook_showAppInfo:
     call ti.FindAppStart
     ex de, hl
     jr nc, .drawIcon
-    ld a, 1
-    ld (itemSelected), a
 
 .loopApps:
     ld a, $0D
@@ -312,7 +310,7 @@ _asm_prgmMenuHook_showAppInfo:
     ld a, (itemSelected)
     inc a
     ld (itemSelected), a
-    cp a, 9
+    cp a, 10
     jr z, .drawCopyright
 
 .drawIcon:

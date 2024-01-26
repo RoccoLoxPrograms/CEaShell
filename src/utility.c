@@ -33,7 +33,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
     ti_Read(&appvarVersion, 1, 1, slot);
     ti_Seek(sizeof(uint8_t), SEEK_SET, slot);
 
-    if (slot && (appvarVersion == APPVAR_VERSION)) {
+    if (slot && (appvarVersion == APPVAR_VERSION) && ti_GetSize(slot) == APPVAR_SIZE) {
         ti_Read(shellPrefs, sizeof(struct preferences_t), 1, slot);
         ti_Seek(sizeof(struct preferences_t), SEEK_CUR, slot);
         ti_Read(&(shellContext->directory), sizeof(uint8_t) + sizeof(unsigned int) * 2, 1, slot);
@@ -90,7 +90,7 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
     uint8_t appvarVersion = APPVAR_VERSION;
     uint8_t slot = ti_Open(&rodata_appName, "w+");
 
-    if (!slot || !asm_utils_checkEnoughRAM(sizeof(uint8_t) + sizeof(struct preferences_t) + sizeof(struct context_t))) {
+    if (!slot || !asm_utils_checkEnoughRAM(APPVAR_SIZE)) {
         return;
     }
 

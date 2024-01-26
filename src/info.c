@@ -262,7 +262,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                                     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
                                     hexaEdit = menu_YesNo(shellPrefs, shellContext, 92, 67, "TI-OS", "HexaEdit");
 
-                                    if (kb_IsDown(kb_KeyClear)) {
+                                    if (kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyMode)) {
                                         gfx_SetColor(shellPrefs->fgColor);
                                         gfx_FillRectangle_NoClip(56, 205, 208, 20);
                                         ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
