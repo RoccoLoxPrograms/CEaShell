@@ -21,6 +21,7 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 * [Shortcuts](#shortcuts) in TI-OS to launch the shell, invert OS colors, trigger APD, and jump to labels in the TI-OS program editor.
 * Option to allow editing of archived programs in TI-OS.
 * Option to allow editing of locked programs in CEaShell.
+* Fast alpha scrolling in the TI-OS editor.
 * Option to hide the "Programming" menu on Python calculators, skipping directly to a TI-BASIC menu like non-Python calcs.
 * Option to disable the busy indicator when running TI-BASIC programs through CEaShell.
 * Option to enable lowercase in TI-OS.

@@ -24,6 +24,7 @@ Features
   in the TI-OS program editor.
 * Option to allow editing of archived programs in TI-OS.
 * Option to allow editing of locked programs in CEaShell.
+* Fast alpha scrolling in the TI-OS editor.
 * Option to hide the "Programming" menu on Python calculators, skipping directly to a TI-BASIC menu like
   non-Python calcs.
 * Option to disable the busy indicator when running TI-BASIC programs through CEaShell.
