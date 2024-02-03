@@ -81,8 +81,8 @@ _asm_editProgram_main: ; OP1 = File name to edit
     ld hl, ti.userMem
     call ti.DelMem
     ; make sure these flags are these values, for Celtic compatibility
-    res 3, (iy + ti.asm_Flag2)
-    set 5, (iy + ti.asm_Flag1)
+    res keyPressed, (iy + celticFlags2)
+    set showLineNum, (iy + celticFlags1)
     call ti.ChkFindSym
     ld a, (hl)
     cp a, ti.ProgObj

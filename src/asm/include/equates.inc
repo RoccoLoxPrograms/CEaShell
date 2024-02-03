@@ -27,6 +27,12 @@ appInpPrmptInit := 0
 appInpPrmptDone := 1
 appWantHome := 4
 
+celticFlags1 := ti.asm_Flag1
+showLineNum := 5
+
+celticFlags2 := ti.asm_Flag2
+keyPressed := 3
+
 ; Expanded file types
 
 typeASM := 0

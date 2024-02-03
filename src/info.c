@@ -205,7 +205,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         break;
                     case 1:
                         if (fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE) {
-                            asm_fileOps_lockPrgm(fileInfo->name, fileInfo->type);
+                            asm_fileOps_lockPrgm(shellContext->programPtrs[shellContext->fileSelected - shellPrefs->showAppsFolder - shellPrefs->showAppVarsFolder]);
                             fileInfo->locked = !fileInfo->locked;
                         }
 

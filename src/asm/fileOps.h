@@ -30,28 +30,26 @@ void asm_editProgram_edit(char *name, bool celticVar, struct preferences_t *shel
 /**
  * @brief Gets the correct size of a program or AppVar (ti_GetSize is slightly off).
  * 
- * @param name Name of the file.
- * @param type OS type for the file.
+ * @param vatPtr Program's VAT pointer.
  * @return int Size of the file.
  */
-int asm_fileOps_getPrgmSize(char *name, uint8_t type);
+int asm_fileOps_getPrgmSize(void *vatPtr);
 
 /**
  * @brief Gets a program's more detailed shell type.
  * 
- * @param name Name of the program. 
- * @param type OS type for the program.
+ * @param vatPtr Program's VAT pointer.
  * @return uint8_t Shell type for the program.
  */
-uint8_t asm_fileOps_getPrgmType(char *name, uint8_t type);
+uint8_t asm_fileOps_getPrgmType(void *vatPtr);
 
 /**
  * @brief Checks whether or not the AppVar is a Celtic AppVar.
  * 
- * @param name Name of the AppVar.
+ * @param vatPtr AppVar's VAT pointer.
  * @return uint8_t Shell type for the AppVar.
  */
-uint8_t asm_fileOps_getAppVarType(char *name);
+uint8_t asm_fileOps_getAppVarType(void *vatPtr);
 
 /**
  * @brief Copies a program or AppVar.
@@ -73,56 +71,51 @@ void asm_fileOps_hidePrgm(char *name, uint8_t type);
 /**
  * @brief Toggle the protected status of a program.
  * 
- * @param name Name of the program.
- * @param type OS type for the program.
+ * @param vatPtr Program's VAT pointer.
  */
-void asm_fileOps_lockPrgm(char *name, uint8_t type);
+void asm_fileOps_lockPrgm(void *vatPtr);
 
 /**
  * @brief Checks and returns the description info of an ASM program.
  * 
- * @param name Name of the program.
- * @param type OS type for the program.
+ * @param vatPtr Program's VAT pointer.
  * @param shellType Shell type for the program.
  * @param description String to return the description in.
  * @return true The program has a description.
  * @return false The program does not have a description.
  */
-bool asm_fileOps_getDescASM(char *name, uint8_t type, uint8_t shellType, char *description);
+bool asm_fileOps_getDescASM(void *vatPtr, uint8_t shellType, char *description);
 
 /**
  * @brief Checks and returns the description info of a TI-BASIC program.
  * 
- * @param name Name of the program.
- * @param type OS type for the program.
+ * @param vatPtr Program's VAT pointer.
  * @param description String to return the description in.
  * @return true The program has a description.
  * @return false The program does not have a description.
  */
-bool asm_fileOps_getDescBASIC(char *name, uint8_t type, char *description);
+bool asm_fileOps_getDescBASIC(void *vatPtr, char *description);
 
 /**
  * @brief Checks and returns the icon info of an ASM program.
  * 
- * @param name Name of the program.
- * @param type OS type for the program.
+ * @param vatPtr Program's VAT pointer.
  * @param shellType Shell type for the program.
  * @param icon Pointer to return the icon sprite in.
  * @return true The program has an icon.
  * @return false The program does not have an icon.
  */
-bool asm_fileOps_getIconASM(char *name, uint8_t type, uint8_t shellType, gfx_sprite_t *icon);
+bool asm_fileOps_getIconASM(void *vatPtr, uint8_t shellType, gfx_sprite_t *icon);
 
 /**
  * @brief Checks and returns the icon info of a TI-BASIC program.
  * 
- * @param name Name of the program.
- * @param type OS type for the program.
+ * @param vatPtr Program's VAT pointer.
  * @param icon Pointer to return the icon sprite in.
  * @return true The program has an icon.
  * @return false The program does not have an icon.
  */
-bool asm_fileOps_getIconDCS(char *name, uint8_t type, gfx_sprite_t *icon);
+bool asm_fileOps_getIconDCS(void *vatPtr, gfx_sprite_t *icon);
 
 /**
  * CelticCE AppVar header, which can be added to AppVars created using Celtic's CreateVar command.

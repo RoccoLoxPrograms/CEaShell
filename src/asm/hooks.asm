@@ -350,8 +350,8 @@ hooks_fastAlphaScrolling:
     jr nz, $ + 6
     res ti.shiftAlpha, (iy + ti.shiftFlags)
     ; make sure these flags are these values, for Celtic compatibility
-    res 3, (iy + ti.asm_Flag2)
-    set 5, (iy + ti.asm_Flag1)
+    res keyPressed, (iy + celticFlags2)
+    set showLineNum, (iy + celticFlags1)
     call ti.os.ClearStatusBarLow
     xor a, a
     inc a

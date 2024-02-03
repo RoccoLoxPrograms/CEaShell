@@ -16,6 +16,7 @@ include 'include/equates.inc'
     public _asm_utils_checkEOF
     public _asm_utils_getEOF
     public _asm_utils_loadNameOP1
+    public _asm_utils_findVarPtr
     public _asm_utils_findVar
     public _asm_utils_getFreeRAM
     public _asm_utils_toggleLowercase
@@ -72,7 +73,23 @@ _asm_utils_loadNameOP1: ; a is type, hl is pointer to var name
     ldir ; move name to OP1
     ret
 
-_asm_utils_findVar:
+_asm_utils_findVarPtr: ; Finds a data pointer given the file's VAT pointer
+    push hl
+    ld de, -6
+    add hl, de
+    ld c, (hl)
+    inc hl
+    ld a, (hl)
+    ld (ti.scrapMem + 2), a
+    ld de, (ti.scrapMem)
+    inc hl
+    ld d, (hl)
+    inc hl
+    ld e, (hl)
+    pop hl
+    jr $ + 10
+
+_asm_utils_findVar: ; Finds a data pointer given the file's name
     call _asm_utils_loadNameOP1
     call ti.ChkFindSym
     call ti.ChkInRam
@@ -278,12 +295,10 @@ _asm_utils_getFileName:
     ret
 
 _asm_utils_isFileArchived:
-    ld iy, 0
-    add iy, sp
-    ld hl, (iy + 3)
-    ld a, (iy + 6)
-    call _asm_utils_loadNameOP1
-    call ti.ChkFindSym
+    pop de
+    ex (sp), hl
+    push de
+    call _asm_utils_findVarPtr
     call ti.ChkInRam
     ld a, 0
     ret z

@@ -31,16 +31,16 @@ include 'include/equates.inc'
     extern _asm_utils_checkEOF
     extern _asm_utils_getEOF
     extern _asm_utils_loadNameOP1
+    extern _asm_utils_findVarPtr
     extern _asm_utils_findVar
     extern _rodata_celticAppVarHeader
     extern _rodata_osColorToXlibC
 
 _asm_fileOps_getPrgmSize:
-    ld iy, 0
-    add iy, sp
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    call _asm_utils_findVar
+    pop de
+    ex (sp), hl
+    push de
+    call _asm_utils_findVarPtr
     or a, a
     sbc hl, hl
     ld a, (de)
@@ -56,11 +56,10 @@ _asm_fileOps_getPrgmSize:
     ret
 
 _asm_fileOps_getPrgmType:
-    ld iy, 0
-    add iy, sp
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    call _asm_utils_findVar
+    pop de
+    ex (sp), hl
+    push de
+    call _asm_utils_findVarPtr
 
 .check:
     inc de
@@ -95,8 +94,7 @@ _asm_fileOps_getAppVarType:
     pop de
     ex (sp), hl
     push de
-    ld a, ti.AppVarObj
-    call _asm_utils_findVar
+    call _asm_utils_findVarPtr
     or a, a
     sbc hl, hl
     ld a, (de)
@@ -191,12 +189,9 @@ _asm_fileOps_hidePrgm:
     ret
 
 _asm_fileOps_lockPrgm:
-    ld iy, 0
-    add iy, sp
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    call _asm_utils_loadNameOP1
-    call ti.ChkFindSym
+    pop de
+    ex (sp), hl
+    push de
     ld a, (hl)
     xor a, 3
     ld (hl), a
@@ -205,13 +200,12 @@ _asm_fileOps_lockPrgm:
 _asm_fileOps_getDescASM:
     ld iy, 0
     add iy, sp
-    ld c, (iy + 9) ; get asm status
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    ld de, (iy + 12) ; get char * to store into
+    ld c, (iy + 6) ; get asm status
+    ld hl, (iy + 3) ; get VAT pointer
+    ld de, (iy + 9) ; get char * to store into
     push de
     push bc
-    call _asm_utils_findVar
+    call _asm_utils_findVarPtr
     inc de ; skip size bytes
     inc de
     pop bc
@@ -269,12 +263,11 @@ _asm_fileOps_getDescASM:
 _asm_fileOps_getDescBASIC:
     ld iy, 0
     add iy, sp
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    ld de, (iy + 9) ; get char * to store into
+    ld hl, (iy + 3) ; get VAT pointer
+    ld de, (iy + 6) ; get char * to store into
     ld iy, ti.flags
     push de
-    call _asm_utils_findVar
+    call _asm_utils_findVarPtr
     or a, a
     sbc hl, hl
     ld a, (de)
@@ -354,13 +347,12 @@ _asm_fileOps_getDescBASIC:
 _asm_fileOps_getIconASM:
     ld iy, 0
     add iy, sp
-    ld c, (iy + 9) ; get asm status
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    ld de, (iy + 12) ; get sprite to store into
+    ld c, (iy + 6) ; get asm status
+    ld hl, (iy + 3) ; get VAT pointer
+    ld de, (iy + 9) ; get sprite to store into
     push de
     push bc
-    call _asm_utils_findVar
+    call _asm_utils_findVarPtr
 
 .varFound:
     ex de, hl
@@ -414,11 +406,10 @@ _asm_fileOps_getIconASM:
 _asm_fileOps_getIconDCS:
     ld iy, 0
     add iy, sp
-    ld a, (iy + 6) ; get type
-    ld hl, (iy + 3) ; get name
-    ld de, (iy + 9) ; get char * to store into
+    ld hl, (iy + 3) ; get VAT pointer
+    ld de, (iy + 6) ; get char * to store into
     push de
-    call _asm_utils_findVar
+    call _asm_utils_findVarPtr
 
 .varFound:
     or a, a

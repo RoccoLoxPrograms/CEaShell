@@ -150,6 +150,8 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     fileInfo->description = malloc(MAX_DESC_LENGTH);
     fileInfo->shellType = UNKNOWN_TYPE;
 
+    void *vatPtr = NULL;
+
     if (file <= 1) { // handle directories differently
         if (shellContext->directory == PROGRAMS_FOLDER) {
             if (file && shellPrefs->showAppsFolder && shellPrefs->showAppVarsFolder) {
@@ -205,17 +207,20 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     if (fileInfo->shellType != DIR_TYPE) {
         switch (shellContext->directory) {
             case PROGRAMS_FOLDER:
-                memcpy(fileInfo->name, asm_utils_getFileName(shellContext->programPtrs[file - (shellPrefs->showAppsFolder + shellPrefs->showAppVarsFolder)]), 9);
-                fileInfo->type = *(uint8_t *)(shellContext->programPtrs[file - shellPrefs->showAppsFolder - shellPrefs->showAppVarsFolder]);
-                fileInfo->shellType = asm_fileOps_getPrgmType(fileInfo->name, OS_TYPE_PRGM);
+                vatPtr = shellContext->programPtrs[file - shellPrefs->showAppsFolder - shellPrefs->showAppVarsFolder];
+                memcpy(fileInfo->name, asm_utils_getFileName(vatPtr), 9);
+                fileInfo->type = *(uint8_t *)(vatPtr);
+                fileInfo->shellType = asm_fileOps_getPrgmType(vatPtr);
                 break;
             case APPVARS_FOLDER:
-                memcpy(fileInfo->name, asm_utils_getFileName(shellContext->appVarPtrs[file - 1]), 9); // Subtract 1 to account for the "Programs" folder
+                vatPtr = shellContext->appVarPtrs[file - 1];
+                memcpy(fileInfo->name, asm_utils_getFileName(vatPtr), 9); // Subtract 1 to account for the "Programs" folder
                 fileInfo->type = OS_TYPE_APPVAR;
-                fileInfo->shellType = asm_fileOps_getAppVarType(fileInfo->name);
+                fileInfo->shellType = asm_fileOps_getAppVarType(vatPtr);
                 break;
             case APPS_FOLDER:
-                asm_apps_getAppName(shellContext->appPtrs[file - 1], fileInfo->name);
+                vatPtr = shellContext->appPtrs[file - 1];
+                asm_apps_getAppName(vatPtr, fileInfo->name);
                 fileInfo->type = OS_TYPE_APP;
                 fileInfo->shellType = APP_TYPE;
                 break;
@@ -225,32 +230,32 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     }
 
     if (fileInfo->shellType == BASIC_TYPE) {
-        if (!asm_fileOps_getIconDCS(fileInfo->name, OS_TYPE_PRGM, fileInfo->icon)) {
+        if (!asm_fileOps_getIconDCS(vatPtr, fileInfo->icon)) {
             free(fileInfo->icon);
             fileInfo->icon = NULL;
         }
 
-        if (!asm_fileOps_getDescBASIC(fileInfo->name, OS_TYPE_PRGM, fileInfo->description)) {
+        if (!asm_fileOps_getDescBASIC(vatPtr, fileInfo->description)) {
             free(fileInfo->description);
             fileInfo->description = NULL;
         }
     } else if (fileInfo->shellType == APP_TYPE) {
-        if (!asm_apps_getAppIcon(shellContext->appPtrs[file - 1], fileInfo->icon)) {
+        if (!asm_apps_getAppIcon(vatPtr, fileInfo->icon)) {
             free(fileInfo->icon);
             fileInfo->icon = NULL;
         }
 
-        if (!asm_apps_getAppCopyrightInfo(shellContext->appPtrs[file - 1], fileInfo->description)) {
+        if (!asm_apps_getAppCopyrightInfo(vatPtr, fileInfo->description)) {
             free(fileInfo->description);
             fileInfo->description = NULL;
         }
     } else if (fileInfo->shellType != ICE_SRC_TYPE && fileInfo->shellType != DIR_TYPE) {
-        if (!asm_fileOps_getIconASM(fileInfo->name, OS_TYPE_PRGM + (OS_TYPE_APPVAR - OS_TYPE_PRGM) * (fileInfo->shellType == APPVAR_TYPE), fileInfo->shellType, fileInfo->icon)) {
+        if (!asm_fileOps_getIconASM(vatPtr, fileInfo->shellType, fileInfo->icon)) {
             free(fileInfo->icon);
             fileInfo->icon = NULL;
         }
 
-        if (!asm_fileOps_getDescASM(fileInfo->name, OS_TYPE_PRGM, fileInfo->shellType, fileInfo->description)) {
+        if (!asm_fileOps_getDescASM(vatPtr, fileInfo->shellType, fileInfo->description)) {
             free(fileInfo->description);
             fileInfo->description = NULL;
         }
@@ -265,11 +270,11 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     }
 
     if (fileInfo->shellType == APP_TYPE) {
-        fileInfo->size = asm_apps_getAppSize(shellContext->appPtrs[shellContext->fileSelected - 1]);
+        fileInfo->size = asm_apps_getAppSize(vatPtr);
         fileInfo->archived = true;
     } else if (fileInfo->shellType != DIR_TYPE) {
-        fileInfo->size = asm_fileOps_getPrgmSize(fileInfo->name, fileInfo->type);
-        fileInfo->archived = asm_utils_isFileArchived(fileInfo->name, fileInfo->type);
+        fileInfo->size = asm_fileOps_getPrgmSize(vatPtr);
+        fileInfo->archived = asm_utils_isFileArchived(vatPtr);
     }
 
     fileInfo->hidden = (fileInfo->name[0] < 'A');

@@ -77,12 +77,12 @@ void *asm_utils_getFileName(void *filePtr);
 /**
  * @brief Checks if a file is archived.
  * 
- * @param name Name of the program.
+ * @param vatPtr File's VAT pointer.
  * @param type OS type for the program.
  * @return true File is archived.
  * @return false File is in RAM.
  */
-bool asm_utils_isFileArchived(char *fileName, uint8_t type);
+bool asm_utils_isFileArchived(void *vatPtr);
 
 /**
  * @brief Checks if a file name is valid.
