@@ -117,6 +117,13 @@ void util_WaitBeforeKeypress(clock_t *clockOffset, bool *keyPressed);
  */
 void util_SafeArchive(uint8_t slot, char *fileName, uint8_t type);
 
+/**
+ * @brief Ensure that the text transparent color is neither of the selected text colors.
+ * 
+ * @param shellPrefs Shell preferences struct.
+ */
+void util_CorrectTransparentColor(struct preferences_t *shellPrefs);
+
 #ifdef __cplusplus
 }
 #endif

@@ -414,3 +414,14 @@ void util_SafeArchive(uint8_t slot, char *fileName, uint8_t type) {
         asm_apps_reloadAppExit();
     }
 }
+
+void util_CorrectTransparentColor(struct preferences_t *shellPrefs) {
+    uint8_t transparentColor = 0;
+
+    while (transparentColor == shellPrefs->textColor || transparentColor == shellPrefs->hiddenTextColor) {
+        transparentColor++;
+    }
+
+    gfx_SetTextBGColor(transparentColor);
+    gfx_SetTextTransparentColor(transparentColor);
+}

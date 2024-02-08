@@ -21,7 +21,7 @@
 #include <keypadc.h>
 #include <string.h>
 
-void custom_ThemePreview(uint8_t *theme) {
+static void custom_ThemePreview(uint8_t *theme) {
     shapes_PixelIndentRectangle(163, 98, 143, 106);
 
     gfx_SetColor(theme[0]);
@@ -44,7 +44,7 @@ void custom_ThemePreview(uint8_t *theme) {
     #endif
 }
 
-void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
+static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     // Try to minimize relocations this way
     #ifdef FR
     static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
@@ -148,7 +148,7 @@ void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shel
     while (kb_AnyKey());
 }
 
-void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
+static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     static uint8_t presetThemes[THEME_COUNT * 5] = {
         246, 237, 236, 0, 181,
         148, 74, 0, 255, 222,
@@ -570,6 +570,8 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         }
     }
+
+    util_CorrectTransparentColor(shellPrefs);
 
     free(menuContext->options);
     free(menuContext->details);

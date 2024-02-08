@@ -22,14 +22,6 @@
  */
 void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellContext);
 
-/**
- * @brief Screen displaying credits and other info about CEaShell.
- * 
- * @param shellPrefs Shell perferences struct.
- * @param shellContext Shell context struct.
- */
-void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext);
-
 #ifdef __cplusplus
 extern "C" {
 #endif

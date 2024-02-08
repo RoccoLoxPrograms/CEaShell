@@ -42,16 +42,6 @@ void shapes_RoundRectangleFill(const uint8_t radius, const int x, const uint8_t 
 void shapes_PixelIndentRectangle(const unsigned int x, const uint8_t y, const unsigned int width, const uint8_t height);
 
 /**
- * @brief Sets up a semi-transparent tile in tileSprite to be used later with shapes_DrawTransparentRect.
- * 
- * @param tileSprite Sprite to store semi-transparent tile in.
- * @param color Color of the non-transparent pixels in the tile.
- * @param x X coordinate to use for setting up the tile.
- * @param y Y coordinate to use for setting up the tile.
- */
-void shapes_GetTransparentRect(gfx_sprite_t *tileSprite, const uint8_t color, int x, uint8_t y);
-
-/**
  * @brief Sets up a corner tile in corner1 to be used later with shapes_DrawRoundCorners.
  * 
  * @param corner1 Sprite to store corner tile in.

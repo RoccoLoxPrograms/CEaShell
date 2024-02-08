@@ -26,7 +26,7 @@
 
 #include <ti/ui.h>
 
-void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInfo, uint8_t option) {
+static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInfo, uint8_t option) {
     gfx_SetColor(shellPrefs->fgColor);
     gfx_FillRectangle_NoClip(56, 45, 208, 158);
     gfx_SetColor(shellPrefs->bgColor);

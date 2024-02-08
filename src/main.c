@@ -5,7 +5,7 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022 - 2024
  * License: GPL-3.0
- * Last Build: February 7, 2024
+ * Last Build: February 8, 2024
  * Version: 2.0.0-dev
  * 
  * --------------------------------------
@@ -63,10 +63,9 @@ int main(void) {
     util_SetGFXChar('~', leftAAccent, 8);
     #endif
 
+    util_CorrectTransparentColor(shellPrefs);
     gfx_SetTransparentColor(240);
-    gfx_SetTextBGColor(240);
     gfx_SetTextFGColor(shellPrefs->textColor);
-    gfx_SetTextTransparentColor(240);
     gfx_SetDrawBuffer();
 
     if (shellPrefs->invertColors) {

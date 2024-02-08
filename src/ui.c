@@ -186,7 +186,7 @@ void ui_CheckBox(const bool isChecked, const int x, const uint8_t y) {
     }
 }
 
-void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t *fileInfo, struct preferences_t *shellPrefs, struct context_t *shellContext) {
+static void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t *fileInfo, struct preferences_t *shellPrefs, struct context_t *shellContext) {
     uint8_t scale = shellPrefs->uiScale;
 
     util_GetFileInfo(file, fileInfo, shellPrefs, shellContext);

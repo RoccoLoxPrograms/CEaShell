@@ -95,6 +95,14 @@ bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellCo
  */
 void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellContext, struct file_t *fileInfo);
 
+/**
+ * @brief Screen displaying credits and other info about CEaShell.
+ * 
+ * @param shellPrefs Shell perferences struct.
+ * @param shellContext Shell context struct.
+ */
+void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext);
+
 #ifdef __cplusplus
 }
 #endif

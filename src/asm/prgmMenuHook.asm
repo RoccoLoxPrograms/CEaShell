@@ -348,9 +348,6 @@ _asm_prgmMenuHook_showAppInfo:
 
 .return:
     set updateProgInfo, (iy + shellFlags)
-    pop bc
-    or a, 1
-    ld a, b
     ret
 
 prgmMenuHook_drawIcon:

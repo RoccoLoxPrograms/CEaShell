@@ -299,6 +299,32 @@ bool menu_DeleteFile(struct preferences_t *shellPrefs, struct context_t *shellCo
     return false;
 }
 
+bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellContext, struct file_t *fileInfo) {
+    gfx_SetColor(shellPrefs->bgColor);
+    shapes_RoundRectangleFill(9, 56, 205, 208, 20);
+    #ifdef FR
+    gfx_PrintStringXY("New", 69, 207);
+    gfx_PrintStringXY("Name:", 64, 216);
+    #else
+    gfx_PrintStringXY("New", 69, 207);
+    gfx_PrintStringXY("Name:", 64, 216);
+    #endif
+    char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208);
+
+    gfx_SetColor(shellPrefs->fgColor);
+    gfx_FillRectangle_NoClip(56, 205, 208, 20);
+
+    if (newName != NULL) {
+        ti_RenameVar(fileInfo->name, newName, fileInfo->type);
+        free(newName);
+        util_WritePrefs(shellPrefs, shellContext, true);
+        return true;
+    }
+
+    free(newName);
+    while (kb_AnyKey());
+    return false;
+}
 
 void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellContext, struct file_t *fileInfo) {
     unsigned int *fileCount = &(shellContext->programCount) + shellContext->directory;
@@ -361,30 +387,78 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     while (kb_AnyKey());
 }
 
-
-bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellContext, struct file_t *fileInfo) {
-    gfx_SetColor(shellPrefs->bgColor);
-    shapes_RoundRectangleFill(9, 56, 205, 208, 20);
+void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
-    gfx_PrintStringXY("New", 69, 207);
-    gfx_PrintStringXY("Name:", 64, 216);
+    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
+    " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
+    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
+    " And a big thank you to the members of our Discord for your support and ideas!";
     #else
-    gfx_PrintStringXY("New", 69, 207);
-    gfx_PrintStringXY("Name:", 64, 216);
+    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
+    " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
+    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
+    " And a big thank you to the members of our Discord for your support and ideas!";
     #endif
-    char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208);
+    unsigned int startDisplay = 0;
+    gfx_SetColor(shellPrefs->bgColor);
+    shapes_PixelIndentRectangle(14, 34, 292, 170);
+    ui_CenterStringBig(&rodata_appName, 75, 38);
+    gfx_PrintStringXY("v"VERSION_NO, 18, 58);
+    #ifdef FR
+    ui_PrintStringWrap(
+        "CEaShell (pronounced \"seashell\"), "
+        "is a shell created by RoccoLox Programs and TIny_Hacker. "
+        "CEaShell aims to provide an easy to use, modern interface "
+        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 40, 6);
+    #else
+    ui_PrintStringWrap(
+        "CEaShell (pronounced \"seashell\"), "
+        "aims to provide an easy to use, modern interface "
+        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 42, 6);
+    #endif
+    gfx_PrintStringXY("(C) Copyright 2022 - 2024", 18, 179);
+    gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 18, 192);
+    gfx_SetClipRegion(18, 38, 302, 202); // Helps cut the text off in the scrolling animation
+    gfx_SetTextConfig(1);
+    gfx_PrintStringXY(&specialThanks[startDisplay], 18, 144);
+    gfx_BlitBuffer();
 
-    gfx_SetColor(shellPrefs->fgColor);
-    gfx_FillRectangle_NoClip(56, 205, 208, 20);
+    clock_t clockOffset = clock();
+    clock_t textRate = clock();
 
-    if (newName != NULL) {
-        ti_RenameVar(fileInfo->name, newName, fileInfo->type);
-        free(newName);
-        util_WritePrefs(shellPrefs, shellContext, true);
-        return true;
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph) && !(clock() - clockOffset > 9000)) {
+        kb_Scan();
     }
 
-    free(newName);
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyAlpha) && !kb_IsDown(kb_KeyGraph)) {
+        kb_Scan();
+
+        if ((clock() - clockOffset >= ONE_MINUTE * shellPrefs->apdTimer && shellPrefs->apdTimer) || kb_On) {
+            util_PowerOff(shellPrefs, shellContext);
+        }
+
+        if (clock() - textRate > CLOCKS_PER_SEC / 16) {
+            gfx_SetColor(shellPrefs->bgColor);
+            gfx_FillRectangle_NoClip(18, 144, 284, 8);
+            gfx_PrintStringXY(&specialThanks[startDisplay], 18, 144);
+            startDisplay++;
+            gfx_BlitBuffer();
+            textRate = clock();
+        }
+
+        if (startDisplay > 384) {
+            startDisplay = 0; // restart
+        }
+
+        if (kb_AnyKey()) {
+            clockOffset = clock();
+        }
+    }
+
+    gfx_SetClipRegion(0, 0, 320, 240);
+    gfx_SetTextConfig(0);
+    gfx_SetColor(shellPrefs->fgColor);
+    gfx_FillRectangle_NoClip(14, 34, 292, 170);
+
     while (kb_AnyKey());
-    return false;
 }
