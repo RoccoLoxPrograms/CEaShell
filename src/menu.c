@@ -238,7 +238,7 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
             retVal = !retVal;
 
             if (!keyPressed) {
-                while (clock() - clockOffset < CLOCKS_PER_SEC / 4 && (kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter))) {
+                while (clock() - clockOffset < CLOCKS_PER_SEC / 3 && (kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter))) {
                     kb_Scan();
                 }
             }

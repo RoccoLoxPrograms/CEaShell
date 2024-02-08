@@ -104,6 +104,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
         if (kb_AnyKey() && !kb_IsDown(kb_KeyClear) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
             if (fileCount) {
                 if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+                    while (kb_AnyKey());
                     fileInfo = malloc(sizeof(struct file_t));
                     util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
 
@@ -148,7 +149,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         asm_apps_executeApp(shellContext->appPtrs[app - 1]);
                     } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         util_WritePrefs(shellPrefs, shellContext, false);
-                        while (kb_AnyKey());
                         gfx_End();
                         asm_runProgram_run(fileInfo->name, fileInfo->type, fileInfo->shellType, shellPrefs);
                     }

@@ -36,6 +36,7 @@ include 'include/equates.inc'
     public _asm_utils_initHexaEditStart
     public _asm_utils_deleteTempRunner
     public _asm_utils_checkEnoughRAM
+    public _asm_utils_checkHiddenHeader
 
     extern _rodata_appVarName
     extern _rodata_basicPrgmName
@@ -443,4 +444,35 @@ _asm_utils_checkEnoughRAM:
     call ti.EnoughMem
     ccf
     sbc a, a
+    ret
+
+_asm_utils_checkHiddenHeader:
+    call _asm_utils_findVarPtr
+    ld bc, 0
+    ld a, (de)
+    ld c, a
+    inc de
+    ld a, (de)
+    ld b, a
+    inc de
+    push hl
+    or a, a
+    ld hl, 1
+    sbc hl, bc
+    pop hl
+    ccf
+    sbc a, a
+    ret nz
+    ld a, (de)
+    cp a, ti.tRand
+    jr z, .continueCheck
+    cp a, ti.tAns
+    ret nz
+
+.continueCheck:
+    inc de
+    ld a, (de)
+    cp a, ti.tEnter
+    ret z
+    cp a, ti.tColon
     ret

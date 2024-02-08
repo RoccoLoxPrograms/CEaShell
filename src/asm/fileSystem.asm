@@ -42,6 +42,8 @@ include 'include/equates.inc'
     public _asm_fileSystem_getAppVarPtrs
     public _asm_fileSystem_findAllVars
 
+    extern _asm_utils_checkHiddenHeader
+
 _asm_fileSystem_sortVAT:
     ld iy, ti.flags
     ld a, (iy + sortFlag)
@@ -304,6 +306,8 @@ _asm_fileSystem_getProgramPtrs:
     jr c, .skipEntry
 
 .loadAddress:
+    call _asm_utils_checkHiddenHeader
+    jr z, .skipEntry
     ld (iy), hl
     lea iy, iy + 3
 
@@ -384,6 +388,8 @@ _asm_fileSystem_findAllVars:
     jr z, .skipEntry
 
 .visible:
+    call _asm_utils_checkHiddenHeader
+    jr z, .skipEntry
     inc ix
     jr .skipEntry
 
