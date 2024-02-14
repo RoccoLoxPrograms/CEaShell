@@ -14,6 +14,7 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 * Four scales for displaying files in the shell, allowing for viewing up to 18 files at once.
 * Program and app running.
 * Viewing and modifying of file information. (Archiving / unarchiving, hiding / unhiding, locking / unlocking, renaming, deleting, editing)
+* File searching.
 * Integration with [HexaEdit](https://github.com/captain-calc/HexaEdit-CE) to open files in hex editor, if the user has HexaEdit installed on their calculator.
 * Creating and copying of programs and AppVars.
 * Turning off the calculator while in the shell, and returning to the shell after turning the calculator back on.
@@ -46,18 +47,19 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 
 Below is a table with keys and their various usage in CEaShell:
 
-| Key                                                                       | Action performed                                             |
-|---------------------------------------------------------------------------|--------------------------------------------------------------|
-| <kbd>2nd</kbd> / <kbd>enter</kbd>                                         | Run programs, toggle/select items in menus.                  |
-| <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>←</kbd>, <kbd>→</kbd>                    | Scroll through options or menus.                             |
-| <kbd>y=</kbd>                                                             | Open/exit customization menu.                                |
-| <kbd>graph</kbd>                                                          | Open/exit settings menu.                                     |
-| <kbd>alpha</kbd> / <kbd>window</kbd> / <kbd>zoom</kbd> / <kbd>trace</kbd> | View and modify file properites.                             |
-| <kbd>del</kbd>                                                            | Delete currently selected file.                              |
-| <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one.        |
-| <kbd>clear</kbd>                                                          | Exit CEaShell, or in some cases return to the previous menu. |
-| <kbd>a</kbd> - <kbd>z</kbd>, <kbd>θ</kbd>                                 | Jump to the program beginning with the letter pressed.       |
-| <kbd>on</kbd>                                                             | Turn off the calculator while remaining in the shell.        |
+| Key                                                                       | Action performed                                                                                                   |
+|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| <kbd>2nd</kbd> / <kbd>enter</kbd>                                         | Run programs, toggle/select items in menus.                                                                        |
+| <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>←</kbd>, <kbd>→</kbd>                    | Scroll through options or menus.                                                                                   |
+| <kbd>y=</kbd>                                                             | Open/exit customization menu.                                                                                      |
+| <kbd>graph</kbd>                                                          | Open/exit settings menu.                                                                                           |
+| <kbd>alpha</kbd> / <kbd>window</kbd> / <kbd>zoom</kbd> / <kbd>trace</kbd> | View and modify file properites.                                                                                   |
+| <kbd>del</kbd>                                                            | Delete currently selected file.                                                                                    |
+| <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one.                                                              |
+| <kbd>clear</kbd>                                                          | Exit CEaShell, or in some cases return to the previous menu.                                                       |
+| <kbd>a</kbd> - <kbd>z</kbd>, <kbd>θ</kbd>                                 | Jump to the program beginning with the letter pressed.                                                             |
+| <kbd>on</kbd>                                                             | Turn off the calculator while remaining in the shell.                                                              |
+| <kbd>stat</kbd>                                                           | Search for a file. For example, searching "ABC" will list all files beginning with "ABC" in the current directory. |
 
 ## Creating custom themes
 

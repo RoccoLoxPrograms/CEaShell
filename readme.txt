@@ -71,6 +71,8 @@ Below is a table with keys and their various usage in CEaShell:
 | [clear]                               | Exit CEaShell, or in some cases return to the previous menu. |
 | [a] - [z], [θ]                        | Jump to the program beginning with the letter pressed.       |
 | [on]                                  | Turn off the calculator while remaining in the shell.        |
+| [stat]                                | Search for a file. For example, searching "ABC" will list    |
+|                                       | all files beginning with "ABC" in the current directory.     |
 +---------------------------------------+--------------------------------------------------------------+
 
 Creating custom themes

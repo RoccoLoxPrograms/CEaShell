@@ -378,7 +378,7 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     inc hl
     inc hl
     ld a, (hl)
-    or a, a
+    bit 0, a
     jr z, .continue
     set disableBusyIndicator, (iy + shellFlags)
     jr .continue

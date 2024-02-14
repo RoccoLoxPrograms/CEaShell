@@ -36,18 +36,24 @@ void asm_utils_toggleLowercase(bool status);
 /**
  * @brief Checks whether archiving a file will result in a garbage collect.
  * 
- * @param name Name of the file.
- * @param type OS type for the file.
+ * @param vatPtr File's VAT pointer.
  * @return true Archiving will not trigger a garbage collect.
  * @return false Archiving will trigger a garbage collect.
  */
-bool asm_utils_willNotGC(char *name, uint8_t type);
+bool asm_utils_willNotGC(void *vatPtr);
 
 /**
  * @brief Inverts the palette used in CEaShell.
  * 
  */
 void asm_utils_invertPalette(void);
+
+/**
+ * @brief Safely archive a file and handle when a Garbage Collect occurs.
+ * 
+ * @param vatPtr File's VAT pointer.
+ */
+void asm_utils_arcOnGC(void *vatPtr);
 
 /**
  * @brief Sets the width of a specific character in the Graphx font to a custom value.
@@ -111,6 +117,12 @@ void asm_utils_initHexaEditStart(char *name, uint8_t nameLength, uint8_t type);
  * @return false There isn't enough RAM.
  */
 bool asm_utils_checkEnoughRAM(unsigned int amount);
+
+/**
+ * @brief Create Ans if it doesn't exist.
+ * 
+ */
+void asm_utils_restoreAns(void);
 
 #ifdef __cplusplus
 }

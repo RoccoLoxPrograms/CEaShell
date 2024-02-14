@@ -78,12 +78,6 @@ bool asm_apps_getAppCopyrightInfo(void *appPointer, char *copyright);
 bool asm_apps_getAppIcon(void *appPointer, void *icon);
 
 /**
- * @brief Calls exit.sp + 3 and reloads CEaShell.
- * 
- */
-void asm_apps_reloadAppExit(void);
-
-/**
  * @brief Executes an app.
  * 
  * @param appPointer Pointer to the app.

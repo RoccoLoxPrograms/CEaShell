@@ -100,11 +100,11 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
     ti_Seek(sizeof(struct preferences_t), SEEK_CUR, slot);
     ti_Write(&(shellContext->directory), sizeof(uint8_t) + sizeof(unsigned int) * 2, 1, slot);
 
-    util_SafeArchive(slot, &rodata_appName, OS_TYPE_APPVAR);
-
+    util_SafeArchive(slot);
     ti_Close(slot);
 
     if (updateVAT) {
+        asm_fileSystem_sortVAT();
         free(shellContext->programPtrs);
         free(shellContext->appVarPtrs);
         free(shellContext->appPtrs);
@@ -113,29 +113,35 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
 }
 
 void util_PowerOff(struct preferences_t *shellPrefs, struct context_t *shellContext) {
-    util_WritePrefs(shellPrefs, shellContext, false);
+    util_SearchToMain(shellPrefs, shellContext);
     gfx_End();
     asm_hooks_triggerAPD();
 }
 
 void util_FilesInit(struct preferences_t *shellPrefs, struct context_t *shellContext) {
-    asm_fileSystem_sortVAT();
-    asm_fileSystem_findAllVars(&(shellContext->programCount), &(shellContext->appVarCount), shellPrefs->showHiddenProgs);
+    asm_fileSystem_findAllVars(&(shellContext->programCount), &(shellContext->appVarCount), shellPrefs->showHiddenProgs, shellContext->searchString);
     shellContext->appCount = asm_apps_findAllApps();
 
     // Account for folders
-    shellContext->programCount += shellPrefs->showAppsFolder + shellPrefs->showAppVarsFolder;
-    shellContext->appVarCount++;
+    if (shellContext->searchString == NULL) {
+        shellContext->programCount += shellPrefs->showAppsFolder + shellPrefs->showAppVarsFolder;
+    } else {
+        shellContext->programCount += 1;
+    }
+
+    shellContext->appVarCount += 1;
     shellContext->appCount += shellPrefs->showCEaShellApp; // since we'd need to subtract one if we're hiding CEaShell anyway, this takes care of both at once
 
     shellContext->programPtrs = malloc(shellContext->programCount * sizeof(void *));
     shellContext->appVarPtrs = malloc(shellContext->appVarCount * sizeof(void *));
     shellContext->appPtrs = malloc(shellContext->appCount * sizeof(void *));
 
-    shellContext->programCount -= 2 * (shellPrefs->showHiddenProgs);
+    if (shellContext->searchString == NULL) {
+        shellContext->programCount -= 2 * (shellPrefs->showHiddenProgs);
+    }
 
-    asm_fileSystem_getProgramPtrs(shellContext->programPtrs, shellPrefs->showHiddenProgs);
-    asm_fileSystem_getAppVarPtrs(shellContext->appVarPtrs);
+    asm_fileSystem_getProgramPtrs(shellContext->programPtrs, shellPrefs->showHiddenProgs, shellContext->searchString);
+    asm_fileSystem_getAppVarPtrs(shellContext->appVarPtrs, shellContext->searchString);
     asm_apps_getAppPtrs(shellContext->appPtrs, shellPrefs->showCEaShellApp);
 }
 
@@ -153,7 +159,7 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     void *vatPtr = NULL;
 
     if (file <= 1) { // handle directories differently
-        if (shellContext->directory == PROGRAMS_FOLDER) {
+        if (shellContext->directory == PROGRAMS_FOLDER && shellContext->searchString == NULL) {
             if (file && shellPrefs->showAppsFolder && shellPrefs->showAppVarsFolder) {
                 #ifdef FR
                 memcpy(fileInfo->name, "AppVars", 8);
@@ -190,7 +196,7 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
                     fileInfo->size = shellContext->appVarCount;
                 }
             }
-        } else if (!file) {
+        } else if (!file && (shellContext->searchString == NULL || shellContext->directory == PROGRAMS_FOLDER)) {
             #ifdef FR
             memcpy(fileInfo->name, "Prgms", 6);
             memcpy(fileInfo->description, "Dossier de programmes", 22);
@@ -201,13 +207,28 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
 
             fileInfo->shellType = DIR_TYPE;
             fileInfo->size = shellContext->programCount;
+        } else if (!file) {
+            #ifdef FR
+            memcpy(fileInfo->name, "AppVars", 8);
+            memcpy(fileInfo->description, "Dossier AppVars", 16);
+            #else
+            memcpy(fileInfo->name, "AppVars", 8);
+            memcpy(fileInfo->description, "AppVars folder", 15);
+            #endif
+
+            fileInfo->shellType = DIR_TYPE;
+            fileInfo->size = shellContext->appVarCount;
         }
     }
 
     if (fileInfo->shellType != DIR_TYPE) {
         switch (shellContext->directory) {
             case PROGRAMS_FOLDER:
-                vatPtr = shellContext->programPtrs[file - shellPrefs->showAppsFolder - shellPrefs->showAppVarsFolder];
+                if (shellContext->searchString == NULL) {
+                    vatPtr = shellContext->programPtrs[file - shellPrefs->showAppsFolder - shellPrefs->showAppVarsFolder];
+                } else {
+                    vatPtr = shellContext->programPtrs[file - 1];
+                }
                 memcpy(fileInfo->name, asm_utils_getFileName(vatPtr), 9);
                 fileInfo->type = *(uint8_t *)(vatPtr);
                 fileInfo->shellType = asm_fileOps_getPrgmType(vatPtr);
@@ -305,7 +326,7 @@ void util_AlphaSearch(struct preferences_t *shellPrefs, struct context_t *shellC
     uint8_t rows = 6 / shellPrefs->uiScale + (shellPrefs->uiScale == 4);
     uint8_t columns = 4 - (shellPrefs->uiScale == 1);
 
-    if (shellContext->directory == PROGRAMS_FOLDER) {
+    if (shellContext->directory == PROGRAMS_FOLDER && shellContext->searchString == NULL) {
         dirCount = shellPrefs->showAppVarsFolder + shellPrefs->showAppsFolder;
     }
 
@@ -403,15 +424,15 @@ void util_WaitBeforeKeypress(clock_t *clockOffset, bool *keyPressed) {
     *clockOffset = clock();
 }
 
-void util_SafeArchive(uint8_t slot, char *fileName, uint8_t type) {
-    if (asm_utils_willNotGC(fileName, type)) {
+void util_SafeArchive(uint8_t slot) {
+    void *vatPtr = ti_GetVATPtr(slot);
+
+    if (asm_utils_willNotGC(vatPtr)) {
         ti_SetArchiveStatus(true, slot);
     } else {
-        gfx_End();
-        os_DrawStatusBar();
-        ti_SetArchiveStatus(true, slot);
         ti_Close(slot);
-        asm_apps_reloadAppExit();
+        gfx_End();
+        asm_utils_arcOnGC(vatPtr);
     }
 }
 
@@ -424,4 +445,71 @@ void util_CorrectTransparentColor(struct preferences_t *shellPrefs) {
 
     gfx_SetTextBGColor(transparentColor);
     gfx_SetTextTransparentColor(transparentColor);
+}
+
+void util_CorrectCursorRemove(struct preferences_t *shellPrefs, struct context_t *shellContext) {
+    util_WritePrefs(shellPrefs, shellContext, true);
+    unsigned int fileCount = *(&(shellContext->programCount) + shellContext->directory);
+
+    uint8_t rows = 6 / shellPrefs->uiScale + (shellPrefs->uiScale == 4);
+    uint8_t columns = 4 - (shellPrefs->uiScale == 1);
+
+    if (shellContext->fileSelected == fileCount) {
+        shellContext->fileSelected -= 1;
+    }
+
+    if (shellContext->fileStartLoc && shellContext->fileStartLoc + rows * (columns - 1) >= fileCount) {
+        shellContext->fileStartLoc -= rows;
+    }
+
+    util_WritePrefs(shellPrefs, shellContext, true);
+}
+
+void util_SearchToMain(struct preferences_t *shellPrefs, struct context_t *shellContext) {
+    if (shellContext->searchString != NULL) {
+        free(shellContext->searchString);
+        shellContext->searchString = NULL;
+
+        void *selected = NULL;
+
+        if (shellContext->directory == PROGRAMS_FOLDER) {
+            selected = shellContext->programPtrs[shellContext->fileSelected - 1];
+        } else {
+            selected = shellContext->appVarPtrs[shellContext->fileSelected - 1];
+        }
+
+        free(shellContext->programPtrs);
+        free(shellContext->appVarPtrs);
+        free(shellContext->appPtrs);
+        util_FilesInit(shellPrefs, shellContext);
+
+        unsigned int offset = asm_fileSystem_findArrayOffset(selected, *(&(shellContext->programPtrs) + shellContext->directory));
+        uint8_t rows = 6 / shellPrefs->uiScale + (shellPrefs->uiScale == 4);
+        uint8_t columns = 4 - (shellPrefs->uiScale == 1);
+
+        if (shellContext->directory == PROGRAMS_FOLDER) {
+            offset += shellPrefs->showAppsFolder + shellPrefs->showAppVarsFolder;
+        } else {
+            offset++;
+        }
+
+        shellContext->fileStartLoc = 0;
+        shellContext->fileSelected = 0;
+
+        for (unsigned int i = 0; i < offset; i++) {
+            if (shellContext->fileSelected - shellContext->fileStartLoc == rows * columns) {
+                shellContext->fileStartLoc += rows;
+            }
+
+            shellContext->fileSelected += 1;
+        }
+
+        if (!(shellContext->fileSelected + 1 - shellContext->fileStartLoc)) {
+            shellContext->fileStartLoc -= rows;
+        } else if (shellContext->fileSelected - shellContext->fileStartLoc >= rows * columns) {
+            shellContext->fileStartLoc += rows;
+        }
+    }
+
+    util_WritePrefs(shellPrefs, shellContext, true);
 }

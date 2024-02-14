@@ -112,10 +112,8 @@ void util_WaitBeforeKeypress(clock_t *clockOffset, bool *keyPressed);
  * @brief Safely archive a file and handle if a Garbage Collect occurs.
  * 
  * @param slot Variable handle.
- * @param fileName Name of file to archive.
- * @param type OS type of file to archive.
  */
-void util_SafeArchive(uint8_t slot, char *fileName, uint8_t type);
+void util_SafeArchive(uint8_t slot);
 
 /**
  * @brief Ensure that the text transparent color is neither of the selected text colors.
@@ -123,6 +121,22 @@ void util_SafeArchive(uint8_t slot, char *fileName, uint8_t type);
  * @param shellPrefs Shell preferences struct.
  */
 void util_CorrectTransparentColor(struct preferences_t *shellPrefs);
+
+/**
+ * @brief Correct the cursor if a file has been removed from the context (usually for deleting).
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param shellContext Shell context struct.
+ */
+void util_CorrectCursorRemove(struct preferences_t *shellPrefs, struct context_t *shellContext);
+
+/**
+ * @brief Find the location of a searched file in the main file context.
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param shellContext Shell context struct.
+ */
+void util_SearchToMain(struct preferences_t *shellPrefs, struct context_t *shellContext);
 
 #ifdef __cplusplus
 }

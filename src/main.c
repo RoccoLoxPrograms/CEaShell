@@ -5,8 +5,8 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022 - 2024
  * License: GPL-3.0
- * Last Build: February 8, 2024
- * Version: 2.0.0-dev
+ * Last Build: February 14, 2024
+ * Version: 2.0.0-beta.2
  * 
  * --------------------------------------
 **/
@@ -28,6 +28,7 @@
 
 int main(void) {
     srand(rtc_Time());
+    asm_utils_restoreAns();
 
     // Remove TI-BASIC stop hook just for safety reasons to ensure it gets removed.
     asm_hooks_removeStopHook();
@@ -73,6 +74,7 @@ int main(void) {
     }
 
     // Get number of programs and appvars
+    asm_fileSystem_sortVAT();
     util_FilesInit(shellPrefs, shellContext);
 
     files_Main(shellPrefs, shellContext);

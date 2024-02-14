@@ -29,15 +29,17 @@ void asm_fileSystem_sortVAT(void);
  * 
  * @param programPtrs Array to cache VAT pointers in.
  * @param showHiddenPrograms Whether or not to include hidden programs when caching.
+ * @param searchString Search string value, or NULL if no search.
  */
-void asm_fileSystem_getProgramPtrs(void **programPtrs, bool showHiddenPrograms);
+void asm_fileSystem_getProgramPtrs(void **programPtrs, bool showHiddenPrograms, char *searchString);
 
 /**
  * @brief Finds and caches all AppVar VAT pointers.
  * 
  * @param appvarPtrs Array to cache VAT pointers in.
+ * @param searchString Search string value, or NULL if no search.
  */
-void asm_fileSystem_getAppVarPtrs(void **appvarPtrs);
+void asm_fileSystem_getAppVarPtrs(void **appvarPtrs, char *searchString);
 
 /**
  * @brief Counts the number of programs and AppVars on the calculator.
@@ -45,8 +47,18 @@ void asm_fileSystem_getAppVarPtrs(void **appvarPtrs);
  * @param programCount Variable to store the total number of programs in.
  * @param appVarCount Variable to store the total number of AppVars in.
  * @param showHiddenPrograms Whether or not to include hidden programs when counting.
+ * @param searchString Search string value, or NULL if no search.
  */
-void asm_fileSystem_findAllVars(unsigned int *programCount, unsigned int *appVarCount, bool showHiddenPrograms);
+void asm_fileSystem_findAllVars(unsigned int *programCount, unsigned int *appVarCount, bool showHiddenPrograms, char *searchString);
+
+/**
+ * @brief Finds the offset at which ptr occurs in the array ptrs.
+ * 
+ * @param ptr Pointer to search for.
+ * @param ptrs Array of pointers to search.
+ * @return unsigned int Offset at which ptr occurs.
+ */
+unsigned int asm_fileSystem_findArrayOffset(void *ptr, void **ptrs);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-; Copyright 2015-2021 Matt "MateoConLechuga" Waltz
+; Copyright 2015-2024 Matt "MateoConLechuga" Waltz
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@ include 'include/equates.inc'
     public _asm_fileSystem_getProgramPtrs
     public _asm_fileSystem_getAppVarPtrs
     public _asm_fileSystem_findAllVars
+    public _asm_fileSystem_findArrayOffset
 
     extern _asm_utils_checkHiddenHeader
 
@@ -277,15 +278,21 @@ _asm_fileSystem_getProgramPtrs:
     ld iy, 0
     add iy, sp
     ld b, (iy + 6) ; ignore hidden programs?
+    ld hl, (iy + 9) ; search string pointer
     ld iy, (iy + 3) ; get array
+    res 1, b
+    call ti.ChkHLIs0
+    jr z, $ + 4
+    set 1, b ; z to not search, nz if we do search
+    push hl
     ld hl, (ti.progPtr)
 
 .loop:
     ld de, (ti.pTemp)
     or a, a
     sbc hl, de
-    ret z
-    ret c
+    jr z, .return
+    jr c, .return
     add hl, de
     ld a, (hl)
     and a, $1F
@@ -308,6 +315,11 @@ _asm_fileSystem_getProgramPtrs:
 .loadAddress:
     call _asm_utils_checkHiddenHeader
     jr z, .skipEntry
+    pop de
+    bit 1, b
+    call nz, fileSystem_checkString
+    push de
+    jr nz, .skipEntry
     ld (iy), hl
     lea iy, iy + 3
 
@@ -321,9 +333,20 @@ _asm_fileSystem_getProgramPtrs:
     add hl, de
     jr .loop
 
+.return:
+    pop de
+    ret
+
 _asm_fileSystem_getAppVarPtrs:
-    pop hl
-    ex (sp), iy
+    pop de
+    pop iy
+    ex (sp), hl
+    push hl
+    push de
+    res 1, b
+    call ti.ChkHLIs0
+    jr z, $ + 4
+    set 1, b ; z to not search, nz if we do search
     push hl
     ld hl, (ti.progPtr)
 
@@ -331,12 +354,17 @@ _asm_fileSystem_getAppVarPtrs:
     ld de, (ti.pTemp)
     or a, a
     sbc hl, de
-    ret z
-    ret c
+    jr z, _asm_fileSystem_getProgramPtrs.return
+    jr c, _asm_fileSystem_getProgramPtrs.return
     add hl, de
     ld a, (hl)
     and a, $1F
     cp a, ti.AppVarObj
+    jr nz, .skipEntry
+    pop de
+    bit 1, b
+    call nz, fileSystem_checkString
+    push de
     jr nz, .skipEntry
     ld (iy), hl
     lea iy, iy + 3
@@ -354,8 +382,14 @@ _asm_fileSystem_getAppVarPtrs:
 _asm_fileSystem_findAllVars:
     ld iy, 0
     add iy, sp
-    ld b, (iy + 9)
+    ld b, (iy + 9) ; show hidden programs
+    ld hl, (iy + 12) ; search string pointer
     push ix
+    res 1, b
+    call ti.ChkHLIs0
+    jr z, $ + 4
+    set 1, b ; z to not search, nz if we do search
+    push hl
     ld ix, 0 ; programs
     lea iy, ix ; appvars
     ld hl, (ti.progPtr)
@@ -367,6 +401,11 @@ _asm_fileSystem_findAllVars:
     jr z, .return
     jr c, .return
     add hl, de
+    pop de
+    bit 1, b
+    call nz, fileSystem_checkString
+    push de
+    jr nz, .skipEntry
     ld a, (hl)
     and a, $1F
     cp a, ti.AppVarObj
@@ -407,6 +446,7 @@ _asm_fileSystem_findAllVars:
     jr .loop
 
 .return:
+    pop de
     lea bc, ix
     lea de, iy
     pop ix
@@ -418,3 +458,53 @@ _asm_fileSystem_findAllVars:
     push hl
     push hl
     jp (iy)
+
+fileSystem_checkString:
+    push hl
+    push bc
+    ld bc, -7
+    add hl, bc
+    ex de, hl
+    push hl
+    call ti.StrLength
+    ; ex de, hl
+    ld a, (de)
+    cp a, ti.tA
+    jr nc, .loop
+    xor a, 64
+
+.loop:
+    cpi
+    dec de
+    jr nz, .return
+    ld a, b
+    or a, c
+    ld a, (de)
+    jr nz, .loop
+
+.return:
+    pop de
+    pop bc
+    pop hl
+    ret
+
+_asm_fileSystem_findArrayOffset:
+    pop hl
+    pop de ; ptr
+    ex (sp), iy ; ptrs
+    push de
+    push hl
+    or a, a
+    sbc hl, hl
+
+.loop:
+    ld bc, (iy)
+    ex de, hl
+    or a, a
+    sbc hl, bc
+    add hl, bc
+    ex de, hl
+    ret z
+    inc hl
+    lea iy, iy + 3
+    jr .loop

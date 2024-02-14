@@ -383,7 +383,7 @@ void ui_CenterStringBig(const char *string, unsigned int centerX, uint8_t y) {
     gfx_SetTextScale(1, 1);
 }
 
-char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, uint8_t y) {
+char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, uint8_t y, bool search) {
     bool cursorActive = true;
     uint8_t currentOffset = 0;
     uint8_t charCount = 0;
@@ -419,7 +419,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
                 uint8_t slot = ti_OpenVar(input, "r", OS_TYPE_PRGM + (OS_TYPE_APPVAR - OS_TYPE_PRGM) * (shellContext->directory == APPVARS_FOLDER)); // Check if file exists
                 ti_Close(slot);
 
-                if (!slot) {
+                if (!slot || search) {
                     break;
                 }
             } else if (kb_IsDown(kb_KeyLeft)) {
@@ -514,6 +514,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
         return input;
     }
 
+    while(kb_AnyKey());
     free(input);
     return NULL;
 }

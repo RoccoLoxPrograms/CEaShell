@@ -80,6 +80,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
     unsigned int fileCount = *(&(shellContext->programCount) + shellContext->directory); // Number of files in the current directory
 
     shellContext->batteryLevel = boot_GetBatteryStatus();
+    shellContext->searchString = NULL;
 
     files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
     gfx_BlitBuffer();
@@ -139,17 +140,21 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                             shellContext->fileSelected = 0;
                             fileCount = shellContext->programCount;
                         }
+
+                        free(shellContext->searchString);
+                        shellContext->searchString = NULL;
+                        util_WritePrefs(shellPrefs, shellContext, true);
                     } else if (shellContext->directory == APPS_FOLDER) {
                         unsigned int app = shellContext->fileSelected; // Preserve this
                         shellContext->fileStartLoc = 0;
                         shellContext->fileSelected = 0;
                         shellContext->directory = PROGRAMS_FOLDER; // Reset this because Apps do not return to CEaShell
-                        util_WritePrefs(shellPrefs, shellContext, false);
                         gfx_End();
                         asm_apps_executeApp(shellContext->appPtrs[app - 1]);
-                    } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         util_WritePrefs(shellPrefs, shellContext, false);
+                    } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         gfx_End();
+                        util_SearchToMain(shellPrefs, shellContext);
                         asm_runProgram_run(fileInfo->name, fileInfo->type, fileInfo->shellType, shellPrefs);
                     }
 
@@ -158,19 +163,37 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     free(fileInfo);
                     fileInfo = NULL;
                     updateBattery = false;
-                } else if (kb_IsDown(kb_KeyDel)) {
+                } else if (kb_IsDown(kb_KeyDel) || kb_IsDown(kb_KeyMode) || (kb_IsDown(kb_KeyStat) && shellContext->directory != APPS_FOLDER)) {
                     struct file_t *fileInfo = malloc(sizeof(struct file_t));
                     util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
-                    menu_DeleteFile(shellPrefs, shellContext, fileInfo);
+
+                    if (kb_IsDown(kb_KeyDel)) {
+                        menu_DeleteFile(shellPrefs, shellContext, fileInfo);
+                    } else if (kb_IsDown(kb_KeyMode)) {
+                        menu_CopyFile(shellPrefs, shellContext, fileInfo);
+                    } else if (kb_IsDown(kb_KeyStat)) {
+                        gfx_SetColor(shellPrefs->bgColor);
+                        shapes_RoundRectangleFill(9, 56, 205, 208, 20);
+                        #ifdef FR
+                        gfx_PrintStringXY("Search:", 60, 212);
+                        #else
+                        gfx_PrintStringXY("Search:", 60, 212);
+                        #endif
+                        char *tempSearch = ui_StringInput(shellPrefs, shellContext, 111, 208, true);
+
+                        if (tempSearch) {
+                            free(shellContext->searchString);
+                            shellContext->searchString = tempSearch;
+                            shellContext->fileStartLoc = 0;
+                            shellContext->fileSelected = 0;
+                        }
+                    }
+
                     free(fileInfo);
-                    fileCount = *(&(shellContext->programCount) + shellContext->directory);
-                } else if (kb_IsDown(kb_KeyMode)) {
-                    struct file_t *fileInfo = malloc(sizeof(struct file_t));
-                    util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
-                    menu_CopyFile(shellPrefs, shellContext, fileInfo);
-                    free(fileInfo);
-                    fileCount = *(&(shellContext->programCount) + shellContext->directory);
+                    util_CorrectCursorRemove(shellPrefs, shellContext);
                 }
+
+                fileCount = *(&(shellContext->programCount) + shellContext->directory);
 
                 if (kb_IsDown(kb_KeyUp)) {
                     if (shellContext->fileSelected % rows) {
@@ -244,6 +267,12 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
             } else if (fileCount && (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha))) {
                 info_Open(shellPrefs, shellContext, &fileCount);
                 files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
+
+                if (!kb_IsDown(kb_KeyClear)) {
+                    util_CorrectCursorRemove(shellPrefs, shellContext);
+                    fileCount = *(&(shellContext->programCount) + shellContext->directory);
+                }
+
                 gfx_SetDrawScreen();
 
                 if (shellPrefs->transitionSpeed) {

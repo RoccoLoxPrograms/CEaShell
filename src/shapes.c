@@ -57,7 +57,8 @@ void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const u
 void shapes_FileIcon(uint8_t scale, uint8_t shellType, const int x, const uint8_t y) {
     static const gfx_sprite_t *fileTypeIcons[20] = {
         typeASM, typeC, typeBasic, typeICE, typeSrc, NULL, typeAppVar, NULL, typeCelticVar, typeApp,
-        typeASMAlt, typeCAlt, typeBasicAlt, typeICEAlt, typeSrcAlt, NULL, typeAppVarAlt, NULL, typeCelticVarAlt, typeAppAlt};
+        typeASMAlt, typeCAlt, typeBasicAlt, typeICEAlt, typeSrcAlt, NULL, typeAppVarAlt, NULL, typeCelticVarAlt, typeAppAlt
+    };
 
     uint8_t bgColor = gfx_GetPixel(x, y);
     uint8_t fgColor = 0 + 255 * !(gfx_GetPixel(x, y) > 131 && gfx_GetPixel(x, y) % 8 > 3);

@@ -22,6 +22,7 @@ include 'include/equates.inc'
     public _asm_utils_toggleLowercase
     public _asm_utils_willNotGC
     public _asm_utils_invertPalette
+    public _asm_utils_arcOnGC
     public _asm_utils_arcUnarc
     public _asm_utils_setGfxCharWidth
     public _asm_utils_getCharFromKey
@@ -37,7 +38,9 @@ include 'include/equates.inc'
     public _asm_utils_deleteTempRunner
     public _asm_utils_checkEnoughRAM
     public _asm_utils_checkHiddenHeader
+    public _asm_utils_restoreAns
 
+    extern _asm_apps_reloadApp
     extern _rodata_appVarName
     extern _rodata_basicPrgmName
     extern _rodata_hexaEditHeader
@@ -129,13 +132,10 @@ _asm_utils_toggleLowercase:
     ret
 
 _asm_utils_willNotGC:
-    ld iy, 0
-    add iy, sp
-    ld hl, (iy + 3) ; get name
-    ld a, (iy + 6)
-    call _asm_utils_loadNameOP1
-    call ti.ChkFindSym
-    ret c
+    pop de
+    ex (sp), hl
+    push de
+    call _asm_utils_findVarPtr
 
 .checkGC:
     ex de, hl
@@ -175,6 +175,24 @@ _asm_utils_invertPalette:
     inc hl
     djnz .loop
     ret
+
+_asm_utils_arcOnGC:
+    ld iy, ti.flags
+    pop de
+    ex (sp), hl
+    push de
+    push hl
+    call _asm_utils_getFileName
+    ld bc, 8
+    ld de, ti.OP1 + 1
+    ldir
+    pop hl
+    ld a, (hl)
+    ld (ti.OP1), a
+    call _asm_utils_clrScrnAndUsedRAM
+    call _asm_utils_arcUnarc
+    call _exit.sp + 3
+    jp _asm_apps_reloadApp
 
 _asm_utils_arcUnarc:
     call ti.ChkFindSym
@@ -447,6 +465,7 @@ _asm_utils_checkEnoughRAM:
     ret
 
 _asm_utils_checkHiddenHeader:
+    push bc
     call _asm_utils_findVarPtr
     ld bc, 0
     ld a, (de)
@@ -462,6 +481,7 @@ _asm_utils_checkHiddenHeader:
     pop hl
     ccf
     sbc a, a
+    pop bc
     ret nz
     ld a, (de)
     cp a, ti.tRand
@@ -476,3 +496,11 @@ _asm_utils_checkHiddenHeader:
     ret z
     cp a, ti.tColon
     ret
+
+_asm_utils_restoreAns:
+    call ti.AnsName
+    call ti.FindSym
+    ret nc
+    xor a, a
+    call ti.SetxxOP1
+    jp ti.StoAns

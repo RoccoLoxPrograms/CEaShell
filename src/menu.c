@@ -252,8 +252,6 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
 }
 
 bool menu_DeleteFile(struct preferences_t *shellPrefs, struct context_t *shellContext, struct file_t *fileInfo) {
-    unsigned int *fileCount = &(shellContext->programCount) + shellContext->directory;
-
     if (fileInfo->shellType == DIR_TYPE) {
         return false;
     }
@@ -278,20 +276,6 @@ bool menu_DeleteFile(struct preferences_t *shellPrefs, struct context_t *shellCo
             ti_DeleteVar(fileInfo->name, fileInfo->type);
         }
 
-        *fileCount -= 1;
-
-        uint8_t rows = 6 / shellPrefs->uiScale + (shellPrefs->uiScale == 4);
-        uint8_t columns = 4 - (shellPrefs->uiScale == 1);
-
-        if (shellContext->fileSelected == *fileCount) {
-            if (shellContext->fileStartLoc && shellContext->fileSelected == shellContext->fileStartLoc + (columns - 1) * rows) {
-                shellContext->fileStartLoc -= rows;
-            }
-
-            shellContext->fileSelected -= 1;
-        }
-
-        util_WritePrefs(shellPrefs, shellContext, true);
         return true;
     }
 
@@ -309,7 +293,7 @@ bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellCo
     gfx_PrintStringXY("New", 69, 207);
     gfx_PrintStringXY("Name:", 64, 216);
     #endif
-    char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208);
+    char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208, false);
 
     gfx_SetColor(shellPrefs->fgColor);
     gfx_FillRectangle_NoClip(56, 205, 208, 20);
@@ -355,7 +339,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_PrintStringXY("New", 69, 207);
     gfx_PrintStringXY("Name:", 64, 216);
     #endif
-    char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208);
+    char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208, false);
     gfx_SetColor(shellPrefs->fgColor);
     gfx_FillRectangle_NoClip(56, 205, 208, 20);
 
@@ -373,7 +357,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
             }
 
             ti_Close(slot);
-            util_WritePrefs(shellPrefs, shellContext, true);
+            util_SearchToMain(shellPrefs, shellContext);
             while (kb_AnyKey());
             gfx_End();
             asm_editProgram_edit(newName, shellContext->directory == APPVARS_FOLDER, shellPrefs);

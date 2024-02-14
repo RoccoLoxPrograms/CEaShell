@@ -61,7 +61,7 @@ struct preferences_t {
  * Shell context information, which is modified during shell usage.
  */
 struct context_t {
-    //uint8_t context;            /** Current UI context of the shell. */
+    char *searchString;         /** Contains a search condition if the user is in search mode, otherwise contains NULL. */
     uint8_t batteryLevel;       /** Calculator's current battey level. */
     uint8_t directory;          /** Current directory open in CEaShell. */
     unsigned int fileSelected;  /** Current file selected in the list of files. 0 is the first file, 1 is the second, etc. */

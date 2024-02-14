@@ -20,7 +20,6 @@ include 'include/equates.inc'
     public _asm_apps_getAppMinOSVersion
     public _asm_apps_getAppCopyrightInfo
     public _asm_apps_getAppIcon
-    public _asm_apps_reloadAppExit
     public _asm_apps_reloadApp
     public _asm_apps_executeApp
     public _asm_apps_deleteApp
@@ -190,9 +189,6 @@ _asm_apps_getAppIcon:
     ldir
     ld a, 1
     ret
-
-_asm_apps_reloadAppExit:
-    call _exit.sp + 3
 
 _asm_apps_reloadApp:
     ld hl, _rodata_appName

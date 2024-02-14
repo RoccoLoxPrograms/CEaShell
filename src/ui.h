@@ -105,9 +105,10 @@ void ui_CenterStringBig(const char *string, unsigned int centerX, uint8_t y);
  * @param shellContext Shell context struct.
  * @param x X coordinate to begin drawing input box at.
  * @param y Y coordinate to begin drawing input box at.
+ * @param search Whether or not the input is used in a search.
  * @return char* User input.
  */
-char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, uint8_t y);
+char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, uint8_t y, bool search);
 
 /**
  * @brief Draws a frame of a transition.

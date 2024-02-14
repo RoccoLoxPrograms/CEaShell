@@ -57,7 +57,7 @@ _asm_runProgram_run:
     push iy
     ld iy, ti.flags
     set disableBusyIndicator, (iy + shellFlags)
-    or a, a
+    bit 0, a
     jr nz, $ + 6
     res disableBusyIndicator, (iy + shellFlags)
     pop iy
