@@ -329,8 +329,8 @@ hooks_fastAlphaScrolling:
     call nz, ti.NewLine
     ld a, ':'
     call ti.PutMap
-    ld a, 1
-    ld (ti.curCol), a
+    ld hl, 1
+    ld.sis (ti.curCol and $FFFF), hl
 
 .backup:
     call ti.BufLeft
@@ -502,17 +502,14 @@ hooks_editArchivedProgs:
     db $83
     cp a, 3
     jr nz, .return
-    ld a, (ti.kbdLGSC)
-    cp a, ti.skEnter
-    jr nz, .return
-    ld a, (ti.menuNumItems)
-    or a, a
-    jr z, .return
     ld a, (ti.menuCurrent)
     cp a, ti.mProgramHome
     jr nz, .return
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Edit
+    jr nz, .return
+    ld a, b
+    cp a, ti.cxPrgmEdit
     jr nz, .return
     call ti.ReleaseBuffer
     call ti.PPutAway

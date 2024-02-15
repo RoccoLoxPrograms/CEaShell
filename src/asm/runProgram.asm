@@ -235,7 +235,7 @@ _asm_runProgram_main:
 
 .loopNewlines:
     ld a, (hl)
-    cp a, $3F
+    cp a, ti.tEnter
     jr nz, .notNewline
     pop de
     dec de
@@ -295,7 +295,7 @@ _asm_runProgram_main:
     ld a, (hl)
     inc hl
     dec bc
-    cp a, $3F
+    cp a, ti.tEnter
     jr z, .loopLoad
     push de
     call runProgram_convertTokenToHex
@@ -369,7 +369,7 @@ _asm_runProgram_returnOS:
 .restoreHooks:
     ld a, (editArcProgs)
     bit 0, a
-    jr z, $ + 12
+    jr nz, $ + 8
     ld a, (editLockProgs)
     bit 0, a
     call nz, _asm_hooks_installHomescreenHook
@@ -427,10 +427,8 @@ runProgram_showError:
     jp z, .onlyAllowQuit
 
 .notProtected:
-    xor a, a
-    ld (ti.curCol), a
-    ld a, 2
-    ld (ti.curRow), a
+    ld hl, 2
+    ld (ti.curRow), hl
     ld hl, _rodata_errorGoto
     call ti.PutS
     call ti.PutS
@@ -465,7 +463,7 @@ runProgram_showError:
 .highlight:
     push bc
     push de
-    ld.sis (ti.curRow and $FFFF), hl
+    ld (ti.curRow), hl
     ld hl, ti.OP6
     ld (hl), a
     inc hl
@@ -477,7 +475,7 @@ runProgram_showError:
     push hl
     scf
     sbc hl, hl
-    ld (ti.fillRectColor), hl
+    ld.sis (ti.fillRectColor and $FFFF), hl
     inc hl
     ld de, 25
     ld bc, (55 shl 8) or 96
@@ -488,7 +486,7 @@ runProgram_showError:
     res ti.textInverse, (iy + ti.textFlags)
     pop de
     pop bc
-    ld.sis (ti.curRow and $FFFF), de
+    ld (ti.curRow), de
     ld hl, ti.OP6
     ld (hl), b
     call ti.PutS
@@ -602,7 +600,7 @@ runProgram_convertTokenToHex:
     jr nc, .error
 
 .convert:
-    sub a, $30
+    sub a, ti.t0
     cp a, $0A
     ret c
     sub a, 7

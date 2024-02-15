@@ -150,7 +150,7 @@ editProgram_editHelper:
     call ti.cursorImage + 256 + (.newLineGoto - editProgram_editHelper)
     call ti.DispEOW
     ld hl, $100
-    ld.sis (ti.curRow and $FFFF), hl
+    ld (ti.curRow), hl
 
 .correctCursor:
     ld hl, (ti.editCursor)
@@ -166,13 +166,13 @@ editProgram_editHelper:
 .endGoto:
     call ti.DispEOW
     ld hl, $100
-    ld.sis (ti.curRow and $FFFF), hl
+    ld (ti.curRow), hl
     jr .skip
 
 .noGoto:
     call ti.DispEOW
     ld hl, $100
-    ld.sis (ti.curRow and $FFFF), hl
+    ld (ti.curRow), hl
     call ti.BufToTop
 
 .skip:

@@ -196,7 +196,6 @@ _asm_utils_arcOnGC:
 
 _asm_utils_arcUnarc:
     call ti.ChkFindSym
-    ret c
     call _asm_utils_willNotGC.checkGC
 
 .garbageCollect:

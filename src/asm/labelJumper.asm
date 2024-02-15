@@ -174,8 +174,8 @@ _asm_labelJumper_showLabels:
 .inCEashellEditor:
     ld a, ':'
     call ti.PutMap
-    ld a, 1
-    ld (ti.curCol), a
+    ld hl, 1
+    ld.sis (ti.curCol and $FFFF), hl
 
 .backup:
     call ti.BufLeft

@@ -48,13 +48,13 @@ _asm_prgmMenuHook_showDescription:
     push hl
     ld hl, description
     or a, a
-    jr z, .asmDesc
+    jr z, .asmDesc ; assembly program
     dec a
-    jr z, .asmDesc
+    jr z, .asmDesc ; C program
     dec a
-    jr z, .basicDesc
+    jr z, .basicDesc ; BASIC program
     dec a
-    jr nz, .basicDesc
+    jr nz, .basicDesc ; ICE program
 
 .asmDesc:
     inc de
@@ -157,7 +157,7 @@ _asm_prgmMenuHook_showDescription:
     push hl
     ld hl, description
     call ti.FontGetWidth
-    ld hl, 300
+    ld hl, 300 ; max description length (in pixels)
     or a, a
     sbc hl, bc
     pop hl
@@ -238,13 +238,13 @@ _asm_prgmMenuHook_icons:
     push bc
     ld bc, iconData - 2 ; subtract 2 since the routines add 2 to the address passed
     push bc
-    or a, a
+    or a, a ; typeASM
     jr z, .asmIcon
-    cp a, 1
+    cp a, typeC
     jr z, .asmIcon
-    cp a, 2
+    cp a, typeBasic
     jr z, .basicIcon
-    cp a, 3
+    cp a, typeICE
     jr nz, .basicIcon
 
 .asmIcon:
