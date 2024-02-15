@@ -191,8 +191,7 @@ _asm_utils_arcOnGC:
     ld (ti.OP1), a
     call _asm_utils_clrScrnAndUsedRAM
     call _asm_utils_arcUnarc
-    call _exit.sp + 3
-    jp _asm_apps_reloadApp
+    jp _asm_apps_reloadApp - 4
 
 _asm_utils_arcUnarc:
     call ti.ChkFindSym

@@ -533,7 +533,7 @@ _asm_runProgram_error:
     cp a, ti.sk1
     jr z, $ + 4
     cp a, ti.skEnter
-    jp z, _asm_apps_reloadApp
+    jp z, _asm_apps_reloadApp - 4
     jr .waitLoop
 
 .exitOS:

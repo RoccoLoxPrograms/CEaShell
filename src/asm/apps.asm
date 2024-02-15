@@ -190,6 +190,9 @@ _asm_apps_getAppIcon:
     ld a, 1
     ret
 
+    ; call _asm_apps_reloadApp - 4 if the app needs to properly close first
+    call _exit.sp + 3
+
 _asm_apps_reloadApp:
     ld hl, _rodata_appName
     call ti.FindAppStart
