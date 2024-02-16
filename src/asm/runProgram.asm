@@ -221,10 +221,6 @@ _asm_runProgram_main:
 
 .squish:
     ex de, hl
-    push hl
-    ld hl, -1
-    ld (hl), 2
-    pop hl
     inc hl
     dec bc
     dec bc ; remove Asm84CEPrgm from un-squished size
