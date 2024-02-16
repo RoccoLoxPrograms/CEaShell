@@ -23,6 +23,7 @@ include 'include/equates.inc'
     extern _asm_runProgram_error
     extern _asm_utils_arcUnarc
     extern _asm_utils_backupPrgmName
+    extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_lcdNormal
     extern _rodata_tempAppVarPrgm
 
@@ -271,13 +272,10 @@ editProgram_prepAppVar:
     inc de
     inc de
     pop bc
-
-.load:
     ld a, b
     or a, c
     jr z, .loadComplete
-    ldi
-    jr .load
+    ldir
 
 .loadComplete:
     ld hl, _rodata_tempAppVarPrgm
@@ -291,47 +289,39 @@ _asm_editProgram_restoreAppVar:
     call nc, ti.DelVarArc
     call ti.PopOP1
     call ti.ChkFindSym
-    ex de, hl
-    ld de, 0
-    ld e, (hl)
-    inc hl
-    ld d, (hl)
-    push de
-    ex de, hl
-    call ti.EnoughMem
-    ld a, ti.E_Memory
-    pop hl
-    jp c, _asm_runProgram_error
     push hl
+    push de
+    push bc
+    ex de, hl
+    ld bc, 0
+    ld c, (hl)
+    inc hl
+    ld b, (hl)
+    dec hl
+    inc bc
+    inc bc
+    ld de, ti.pixelShadow
+    ldir
+    pop bc
+    pop de
+    pop hl
+    call ti.DelVarArc
     ld hl, backupAppVarName
     call ti.Mov9ToOP1
-    call ti.PushOP1
-    pop hl
+    ld.sis hl, (ti.pixelShadow and $FFFF)
     push hl
     call ti.CreateAppVar
     inc de
     inc de
-    push de
-    ld hl, _rodata_tempAppVarPrgm
-    call ti.Mov9ToOP1
-    call ti.ChkFindSym
-    inc de
-    inc de
-    ex de, hl
-    pop de
     pop bc
-
-.load:
+    ld hl, ti.pixelShadow + 2
     ld a, b
     or a, c
-    jr z, .loadComplete
-    ldi
-    jr .load
-
-.loadComplete:
-    call ti.ChkFindSym
-    call ti.DelVarArc
-    call ti.PopOP1
+    jr z, $ + 4
+    ldir
+    call _asm_utils_clrScrnAndUsedRAM + 12
+    set ti.graphDraw, (iy + ti.graphFlags)
+    call ti.OP4ToOP1
     ld a, (arcOnExit)
     or a, a
     ret z

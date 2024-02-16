@@ -149,9 +149,9 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         shellContext->fileStartLoc = 0;
                         shellContext->fileSelected = 0;
                         shellContext->directory = PROGRAMS_FOLDER; // Reset this because Apps do not return to CEaShell
+                        util_WritePrefs(shellPrefs, shellContext, false);
                         gfx_End();
                         asm_apps_executeApp(shellContext->appPtrs[app - 1]);
-                        util_WritePrefs(shellPrefs, shellContext, false);
                     } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         gfx_End();
                         util_SearchToMain(shellPrefs, shellContext);

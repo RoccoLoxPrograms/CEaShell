@@ -430,13 +430,10 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     ld (hl), ti.ProgObj
     inc hl
     ex de, hl
-
-.load:
     ld a, b
     or a, c
     jr z, .loaded
-    ldi
-    jr .load
+    ldir
 
 .loaded:
     ex de, hl

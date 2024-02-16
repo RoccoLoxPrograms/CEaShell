@@ -143,8 +143,8 @@ _asm_fileOps_copyFile:
     push hl
     call ti.EnoughMem
     ld a, ti.E_Memory
-    jp c, _asm_runProgram_error
     pop hl
+    jp c, _asm_runProgram_error
     push hl
     ld a, (iy + 9)
     call ti.CreateVar
@@ -159,13 +159,11 @@ _asm_fileOps_copyFile:
     ex de, hl
     pop de
     pop bc
-
-.loadLoop:
     ld a, b
     or a, c
     ret z
-    ldi
-    jr .loadLoop
+    ldir
+    ret
 
 _asm_fileOps_hidePrgm:
     ld iy, 0

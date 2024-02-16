@@ -149,13 +149,10 @@ _asm_runProgram_main:
     ex de, hl
     pop de
     pop bc
-
-.loadASM:
     ld a, b
     or a, c
     jr z, .ASMLoaded
-    ldi
-    jr .loadASM
+    ldir
 
 .ASMLoaded:
     call ti.DisableAPD
@@ -200,13 +197,10 @@ _asm_runProgram_main:
     inc de
     pop bc
     pop hl
-
-.load:
     ld a, b
     or a, c
     jr z, .loadComplete
-    ldi
-    jr .load
+    ldir
 
 .loadComplete:
     call ti.OP4ToOP1
@@ -226,9 +220,17 @@ _asm_runProgram_main:
     jp ti.ParseInp
 
 .squish:
+    ex de, hl
+    push hl
+    ld hl, -1
+    ld (hl), 2
+    pop hl
     inc hl
     dec bc
     dec bc ; remove Asm84CEPrgm from un-squished size
+    ld a, b
+    or a, c
+    jr z, .error
     push hl
     push bc
     push bc
@@ -253,7 +255,8 @@ _asm_runProgram_main:
     jr nz, .notEmpty
     pop hl
     pop hl
-    pop hl
+
+.error:
     ld a, ti.E_Syntax
     jp _asm_runProgram_error
 
@@ -581,7 +584,7 @@ runProgram_vectors:
     jp ti.RStrShadow
 
 runProgram_convertTokenToHex:
-    cp a, ti.t1
+    cp a, ti.t0
     jr c, .error
     cp a, ti.t9 + 1
     jr nc, .skip
