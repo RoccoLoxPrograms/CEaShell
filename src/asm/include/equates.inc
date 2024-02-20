@@ -19,12 +19,10 @@ sortSecondHidden := 2
 shellFlags := ti.asm_Flag2
 disableBusyIndicator := 0
 updateProgInfo := 1
-exitF5Menu := 2
-useASMToken := 3
+useASMToken := 2
 
 sysHookFlg := ti.hookflags2
 appInpPrmptInit := 0
-appInpPrmptDone := 1
 appWantHome := 4
 
 celticFlags1 := ti.asm_Flag1
@@ -32,6 +30,15 @@ showLineNum := 5
 
 celticFlags2 := ti.asm_Flag2
 keyPressed := 3
+
+; System calls (should be in the include)
+
+ShowResult := $021890
+
+; Result types
+
+resultError := $0E
+resultDone := $15
 
 ; Expanded file types
 
@@ -49,7 +56,6 @@ typeApp := 9
 ; SPI defines
 
 spiValid := 8
-spiSearchStrSize := 11
 
 ; use appData RAM for these variables
 ;-------------------------------------
@@ -61,11 +67,7 @@ lockOnExit := isCelticVar + 1
 arcOnExit := lockOnExit + 1
 
 errorOffset := arcOnExit + 1
-editMode := errorOffset + 3 ; true for goto, false for no goto
-monFlagBackup := editMode + 1
-
-backupSP := monFlagBackup + 1
-backupAppChangeRet := backupSP + 3
+editMode := errorOffset + 3 ; resultError for goto, false for no goto
 
 ; Program running
 

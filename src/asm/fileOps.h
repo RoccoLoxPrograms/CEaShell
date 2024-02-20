@@ -71,9 +71,10 @@ void asm_fileOps_hidePrgm(char *name, uint8_t type);
 /**
  * @brief Toggle the protected status of a program.
  * 
- * @param vatPtr Program's VAT pointer.
+ * @param name Name of the program.
+ * @param type OS type for the program.
  */
-void asm_fileOps_lockPrgm(void *vatPtr);
+void asm_fileOps_lockPrgm(char *name, uint8_t type);
 
 /**
  * @brief Checks and returns the description info of an ASM program.

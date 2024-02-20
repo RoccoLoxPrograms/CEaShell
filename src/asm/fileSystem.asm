@@ -467,7 +467,6 @@ fileSystem_checkString:
     ex de, hl
     push hl
     call ti.StrLength
-    ; ex de, hl
     ld a, (de)
     cp a, ti.tA
     jr nc, .loop

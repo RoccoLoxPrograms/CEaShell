@@ -187,9 +187,19 @@ _asm_fileOps_hidePrgm:
     ret
 
 _asm_fileOps_lockPrgm:
-    pop de
-    ex (sp), hl
-    push de
+    ld iy, 0
+    add iy, sp
+    ld a, (iy + 6) ; get type
+    ld hl, (iy + 3) ; get name
+    call _asm_utils_loadNameOP1
+    call ti.ChkFindSym
+    call ti.ChkInRam
+    jr z, .inRam
+    ld iy, ti.flags
+    call ti.Arc_Unarc
+    jr _asm_fileOps_lockPrgm
+
+.inRam:
     ld a, (hl)
     xor a, 3
     ld (hl), a

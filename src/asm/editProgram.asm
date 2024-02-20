@@ -66,7 +66,7 @@ _asm_editProgram_edit: ; editing from CEaShell
     jr _asm_editProgram_main + 5
 
 _asm_editProgram_goto:
-    ld a, true
+    ld a, resultError
     ld (editMode), a
     xor a, a
     ld (isCelticVar), a
@@ -180,7 +180,6 @@ editProgram_editHelper:
     xor a, a
     ld (ti.menuCurrent), a
     set 7, (iy + $28)
-    ld (backupSP), sp
     jp ti.Mon
 
 .newLineGoto:

@@ -615,6 +615,7 @@ _asm_hooks_installGetCSCHook:
 _asm_hooks_installGetCSCHookCont:
     ld iy, ti.flags
     or a, a
+    ret z
     sbc hl, hl
     ld l, a
     ld (ti.catalog1HookPtr), hl
@@ -668,32 +669,18 @@ _asm_hooks_editorHook:
     db $83
     ld c, a
     ld a, b
-    cp a, ti.cxPrgmEdit ; only allow when editing
+    cp a, ti.cxPrgmEdit
     ld b, a
-    ret nz
-    ld a, (iy + ti.monFlags)
-    ld (monFlagBackup), a
-    ld (backupAppChangeRet), hl
-    res exitF5Menu, (iy + shellFlags)
     ld a, c
-    or a, a ; "Quit Editor" in [alpha] + [f5] (Exiting an app context)
-    jr nz, .notQuitF5
-    set exitF5Menu, (iy + shellFlags)
-
-.notQuitF5:
-    cp a, $05 ; "Execute Program" in [alpha] + [f5] (Undocumented context?)
-    jr nz, .notQuitExecute
-    set exitF5Menu, (iy + shellFlags)
-
-.notQuitExecute:
+    ret nz
     cp a, ti.cxMode
     ret z
     cp a, ti.cxFormat
     ret z
     cp a, ti.cxTableSet
     ret z
-
-.exitEditor:
+    push bc
+    push hl
     ld de, _asm_hooks_editorHook
     call _asm_hooks_removeAppChangeHook
     call ti.CursorOff
@@ -719,47 +706,20 @@ _asm_hooks_editorHook:
     ld a, (isCelticVar)
     or a, a
     call nz, _asm_editProgram_restoreAppVar
-    ld a, (monFlagBackup)
-    bit ti.monAbandon, a
-    jr nz, .fromGoto
+    bit ti.monAbandon, (iy + ti.monFlags)
+    jr nz, .returnOS
     ld a, (returnLoc)
     or a, a
     jp z, _asm_apps_reloadApp
+
+.returnOS:
     ld a, (editMode)
     or a, a
-    jr nz, .fromGoto
-    set exitF5Menu, (iy + shellFlags)
-
-.fromGoto:
-    ld a, (editArcProgs)
-    bit 0, a
-    call nz, _asm_hooks_installHomescreenHook
-    ld a, (getCSCHooks)
-    call _asm_hooks_installGetCSCHookCont
-    call ti.ClrTxtShd
-    ld hl, ti.textShadow
-    ld de, ti.cmdShadow
-    ld bc, $104
-    ldir
-    ld a, (monFlagBackup)
-    bit ti.monAbandon, a
-    jr nz, .exitTurnOff
-    ld a, ti.cxCmd
-    call ti.NewContext0
-    call ti.PPutAway
-    bit exitF5Menu, (iy + shellFlags)
-    jr nz, .exitF5
-    or a, 1
-    ld sp, (backupSP)
-    ret
-
-.exitF5:
-    ld a, ti.kClear
-    jp ti.JForceCmd
-
-.exitTurnOff:
-    xor a, a
-    ld hl, (backupAppChangeRet)
+    call nz, ShowResult
+    call _asm_runProgram_returnOS.restoreHooks
+    pop hl
+    pop bc
+    ld a, c
     ret
 
 _asm_hooks_installHomescreenHook:

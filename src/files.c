@@ -153,8 +153,8 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         gfx_End();
                         asm_apps_executeApp(shellContext->appPtrs[app - 1]);
                     } else if (shellContext->directory == PROGRAMS_FOLDER) {
-                        gfx_End();
                         util_SearchToMain(shellPrefs, shellContext);
+                        gfx_End();
                         asm_runProgram_run(fileInfo->name, fileInfo->type, fileInfo->shellType, shellPrefs);
                     }
 
@@ -312,6 +312,10 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
 
                 util_SetGFXChar('[', thetaChar, 8);
                 updateBattery = true;
+            }
+
+            if (kb_IsDown(kb_KeyClear)) {
+                continue;
             }
 
             if (!keyPressed && asm_utils_getCharFromKey(INPUT_UPPER)) {

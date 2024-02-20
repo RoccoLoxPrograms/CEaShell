@@ -47,7 +47,7 @@ _asm_runProgram_run:
     add hl, de
     ld de, (hl)
     ld (editArcProgs), de
-    ld a, returnCEaShell
+    xor a, a ; returnCEaShell
     ld (returnLoc), a
     inc hl
     inc hl

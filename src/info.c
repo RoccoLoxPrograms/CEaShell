@@ -205,13 +205,13 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         break;
                     case 1:
                         if (fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE) {
-                            if (shellContext->searchString == NULL) {
-                                asm_fileOps_lockPrgm(shellContext->programPtrs[shellContext->fileSelected - shellPrefs->showAppsFolder - shellPrefs->showAppVarsFolder]);
-                            } else {
-                                asm_fileOps_lockPrgm(shellContext->programPtrs[shellContext->fileSelected - 1]);
-                            }
+                            asm_fileOps_lockPrgm(fileInfo->name, fileInfo->type);
 
                             fileInfo->locked = !fileInfo->locked;
+
+                            if (fileInfo->archived) {
+                                util_SafeArchive(slot);
+                            }
                         }
 
                         break;
