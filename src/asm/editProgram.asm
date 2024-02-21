@@ -62,7 +62,7 @@ _asm_editProgram_edit: ; editing from CEaShell
     sbc hl, hl
     ld (errorOffset), hl
     ld (editMode), a
-    ld iy, ti.flags
+    call _asm_utils_lcdNormal
     jr _asm_editProgram_main + 5
 
 _asm_editProgram_goto:
@@ -107,7 +107,7 @@ _asm_editProgram_main: ; OP1 = File name to edit
     ld (ti.menuCurrent), a
     call ti.CursorOff
     call ti.RunIndicOff
-    call _asm_utils_lcdNormal
+    call ti.DrawStatusBar
     ld hl, backupPrgmName
     push hl
     inc hl
