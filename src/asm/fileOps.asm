@@ -533,6 +533,9 @@ _asm_fileOps_getIconDCS:
     push bc
     ld a, (hl)
     sub a, '0'
+    cp a, ti.tH - ti.t0 + 1
+    jr c, $ + 4
+    ld a, 255
     ld bc, 0
     ld c, a
     ld hl, _rodata_osColorToXlibC

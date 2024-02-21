@@ -124,6 +124,16 @@ bool asm_fileOps_getIconDCS(void *vatPtr, gfx_sprite_t *icon);
  */
 extern char rodata_celticAppVarHeader;
 
+/**
+ * @brief Runs a program.
+ * 
+ * @param name Name of the program.
+ * @param type OS type for the program.
+ * @param shellType Shell type for the program.
+ * @param shellPrefs Shell preferences struct.
+ */
+void asm_runProgram_run(char *name, uint8_t type, uint8_t shellType, struct preferences_t *shellPrefs);
+
 #ifdef __cplusplus
 }
 #endif

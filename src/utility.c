@@ -16,7 +16,6 @@
 #include "asm/fileOps.h"
 #include "asm/fileSystem.h"
 #include "asm/hooks.h"
-#include "asm/runProgram.h"
 #include "asm/utils.h"
 
 #include <fileioc.h>

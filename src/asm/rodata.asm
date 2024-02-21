@@ -62,13 +62,15 @@ _rodata_osColorToXlibC: ; lines up with xlibc color picker
     db 160 ; brown
     db 16 ; navy
     db 28 ; light blue
-    db 7 dup 0
+    db 7 dup 255
     db 231 ; yellow
     db 255 ; white
     db 222 ; light gray
     db 181 ; medium gray
     db 148 ; gray
     db 74 ; dark gray
+    db 255
+    db 86
 
 _rodata_characters:
     ; numbers

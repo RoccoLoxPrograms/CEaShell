@@ -17,7 +17,6 @@
 #include "utility.h"
 
 #include "asm/fileOps.h"
-#include "asm/runProgram.h"
 #include "asm/utils.h"
 
 #include <fileioc.h>

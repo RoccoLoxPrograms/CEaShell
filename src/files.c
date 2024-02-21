@@ -19,7 +19,7 @@
 #include "utility.h"
 
 #include "asm/apps.h"
-#include "asm/runProgram.h"
+#include "asm/fileOps.h"
 #include "asm/spi.h"
 #include "asm/utils.h"
 

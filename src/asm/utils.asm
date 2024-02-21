@@ -393,6 +393,7 @@ _asm_utils_findCEaShellAppVar:
     ld hl, _rodata_appVarName
     call ti.Mov9ToOP1
     call ti.ChkFindSym
+    ret c
     call ti.ChkInRam
     ret z
     ld hl, 18
