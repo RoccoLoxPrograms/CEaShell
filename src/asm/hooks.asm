@@ -509,6 +509,8 @@ hooks_editArchivedProgs:
     cp a, ti.cxPrgmEdit
     jr nz, .return
     call ti.ReleaseBuffer
+    ld a, ti.cxCmd
+    call ti.NewContext0
     call ti.PPutAway
     call _asm_utils_findCEaShellAppVar
     jr c, .notFound
@@ -717,6 +719,24 @@ _asm_hooks_editorHook:
     or a, a
     call nz, ShowResult
     call _asm_runProgram_returnOS.restoreHooks
+    bit ti.monAbandon, (iy + ti.monFlags)
+    jr nz, .turnOff
+    or a, a
+    sbc hl, hl
+    add hl, sp
+    ld de, stackBackup
+    ld bc, 3 * 6 ; copy the top 6 stack entries
+    ldir
+    ld hl, (ti.onSP)
+    ld bc, 3 * 6
+    or a, a
+    sbc hl, bc
+    ld sp, hl
+    ex de, hl
+    ld hl, stackBackup
+    ldir
+
+.turnOff:
     pop hl
     pop bc
     ld a, c
@@ -834,7 +854,7 @@ _asm_hooks_removeBasicKeyHook:
     ret nz
     ld a, (rawKeyHookLoc)
     or a, a
-    jp z, ti.ClrGetKeyHook
+    jp z, ti.ClrRawKeyHook
     ld hl, (rawKeyHookLoc + 1)
     jp ti.SetGetKeyHook
 
