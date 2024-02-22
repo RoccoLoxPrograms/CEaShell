@@ -60,7 +60,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
             if (xEdge) {
                 #ifdef FR
                 if (value) {
-                    gfx_PrintStringXY("24 Hour", xEdge - 60, y);
+                    gfx_PrintStringXY("24 Heure", xEdge - 60, y);
                 } else {
                     gfx_PrintStringXY("AM/PM", xEdge - 55, y);
                 }
@@ -81,14 +81,14 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
                 switch (value) {
                     case TRANSITION_OFF:
                         #ifdef FR
-                        gfx_PrintStringXY("Off", xEdge - 42, y);
+                        gfx_PrintStringXY("D}s", xEdge - 42, y);
                         #else
                         gfx_PrintStringXY("Off", xEdge - 42, y);
                         #endif
                         break;
                     case TRANSITION_SLOW:
                         #ifdef FR
-                        gfx_PrintStringXY("Slow", xEdge - 45, y);
+                        gfx_PrintStringXY("Lente", xEdge - 45, y);
                         #else
                         gfx_PrintStringXY("Slow", xEdge - 45, y);
                         #endif
@@ -102,7 +102,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
                         break;
                     case TRANSITION_FAST:
                         #ifdef FR
-                        gfx_PrintStringXY("Fast", xEdge - 46, y);
+                        gfx_PrintStringXY("Rapide", xEdge - 46, y);
                         #else
                         gfx_PrintStringXY("Fast", xEdge - 46, y);
                         #endif
@@ -202,7 +202,7 @@ void menu_Draw(struct preferences_t *shellPrefs, unsigned int x, uint8_t clipY, 
     gfx_SetColor(shellPrefs->bgColor);
     shapes_PixelIndentRectangle(x + width + 7, clipY - 1, width + 2, 20 + menu_CalculateLines(menuContext->details[menuContext->optionSelected], 18, 12) * 12);
     #ifdef FR
-    gfx_PrintStringXY("About:", x + width + 11, clipY + 3);
+    gfx_PrintStringXY("A propos :", x + width + 11, clipY + 3);
     #else
     gfx_PrintStringXY("About:", x + width + 11, clipY + 3);
     #endif
@@ -260,7 +260,7 @@ bool menu_DeleteFile(struct preferences_t *shellPrefs, struct context_t *shellCo
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
     gfx_PrintStringXY("Are you sure?", 80, 211);
-    bool delete = menu_YesNo(shellPrefs, shellContext, 179, 29, "No", "Yes");
+    bool delete = menu_YesNo(shellPrefs, shellContext, 179, 29, "Non", "Oui");
     #else
     gfx_PrintStringXY("Are you sure?", 80, 211);
     bool delete = menu_YesNo(shellPrefs, shellContext, 179, 29, "No", "Yes");

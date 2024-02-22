@@ -16,6 +16,7 @@
 #include "ui.h"
 #include "utility.h"
 
+#include "asm/apps.h"
 #include "asm/fileOps.h"
 #include "asm/utils.h"
 
@@ -64,7 +65,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
     #ifdef FR
     static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Directory", "AppVar", NULL, "Celtic Var", "App", "Unknown"};
-    gfx_PrintStringXY("Type: ", 64, 85);
+    gfx_PrintStringXY("Type : ", 64, 85);
     #else
     static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Directory", "AppVar", NULL, "Celtic Var", "App", "Unknown"};
     gfx_PrintStringXY("Type: ", 64, 85);
@@ -75,22 +76,22 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
     #ifdef FR
     if (fileInfo->shellType != DIR_TYPE) {
-        gfx_PrintString("Size: ");
+        gfx_PrintString("Taille : ");
     } else {
         gfx_PrintString("Items: ");
     }
     #else
     if (fileInfo->shellType != DIR_TYPE) {
-        gfx_PrintString("Size: ");
-        gfx_PrintUInt(fileInfo->size, 5 + (fileInfo->shellType == APP_TYPE) - (fileInfo->shellType == DIR_TYPE));
+        gfx_PrintString("Size : ");
     } else if (!inSearch) {
         gfx_PrintString("Items: ");
-        gfx_PrintUInt(fileInfo->size, 5 + (fileInfo->shellType == APP_TYPE) - (fileInfo->shellType == DIR_TYPE));
     }
     #endif
 
+    gfx_PrintUInt(fileInfo->size, 5 + (fileInfo->shellType == APP_TYPE) - (fileInfo->shellType == DIR_TYPE));
+
     #ifdef FR
-    gfx_PrintStringXY("Description:", 64, 111);
+    gfx_PrintStringXY("Description :", 64, 111);
     #else
     gfx_PrintStringXY("Description:", 64, 111);
     #endif
@@ -99,7 +100,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
         ui_PrintStringWrap(fileInfo->description, 64, 123, 28, 2);
     } else {
         #ifdef FR
-        gfx_PrintStringXY("No description.", 64, 123);
+        gfx_PrintStringXY("Aucune description.", 64, 123);
         #else
         gfx_PrintStringXY("No description.", 64, 123);
         #endif
@@ -108,17 +109,17 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
     gfx_SetColor(shellPrefs->hlColor);
 
     if (fileInfo->shellType != DIR_TYPE) {
-        if (fileInfo->shellType != APP_TYPE) {
-            if (option > 2) {
-                shapes_PixelIndentRectangle(68 + 65 * (option - 3), 189, 54, 9);
-            } else {
-                shapes_PixelIndentRectangle(63 + 76 * (option > 0) + 63 * (option > 1), 160, 9, 9);
-            }
+        if (option > 2) {
+            shapes_PixelIndentRectangle(68 + 65 * (option - 3), 189, 54, 9);
+        } else {
+            shapes_PixelIndentRectangle(63 + 76 * (option > 0) + 63 * (option > 1), 160, 9, 9);
+        }
 
+        if (fileInfo->shellType != APP_TYPE) {
             #ifdef FR
-            gfx_PrintStringXY("Attributes:", 64, 148);
-            gfx_PrintStringXY("Archived     Locked     Hidden", 74, 161);
-            gfx_PrintStringXY("Delete      Rename         Edit", 74, 190);
+            gfx_PrintStringXY("Attribuer :", 64, 148);
+            gfx_PrintStringXY("Archiv}       Verrouill}     Cach}", 74, 161);
+            gfx_PrintStringXY("Supprimer      Renommer         Modifier", 74, 190);
             #else
             gfx_PrintStringXY("Attributes:", 64, 148);
             gfx_PrintStringXY("Archived     Locked     Hidden", 74, 161);
@@ -129,18 +130,21 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
                 ui_CheckBox(*(&fileInfo->archived + i), 64 + 76 * (i > 0) + 63 * (i > 1), 161);
             }
         } else {
-            shapes_PixelIndentRectangle(68, 161, 53, 9);
             #ifdef FR
-            gfx_PrintStringXY("Delete", 74, 162);
+            gfx_PrintStringXY("Version d'OS minimum :", 64, 148);
+            gfx_PrintStringXY("Supprimer", 74, 190);
             #else
-            gfx_PrintStringXY("Delete", 74, 162);
+            gfx_PrintStringXY("Minimum OS Version:", 64, 148);
+            gfx_PrintStringXY("Delete", 74, 190);
             #endif
+
+            gfx_PrintStringXY(fileInfo->minimumOSVersion, 64, 161);
         }
 
         #ifdef FR
-        gfx_PrintStringXY("File Operations:", 64, 176 - 28 * (fileInfo->shellType == APP_TYPE));
+        gfx_PrintStringXY("Op}rations du fichier :", 64, 176);
         #else
-        gfx_PrintStringXY("File Operations:", 64, 176 - 28 * (fileInfo->shellType == APP_TYPE));
+        gfx_PrintStringXY("File Operations:", 64, 176);
         #endif
     }
 }
@@ -176,7 +180,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
 
     uint8_t option = 0 + 3 * (fileInfo->shellType == APP_TYPE);
     shapes_RoundRectangleFill(15, 50, 39, 220, 192);
-    info_Redraw(shellPrefs, fileInfo, 0, shellContext->searchString != NULL);
+    info_Redraw(shellPrefs, fileInfo, option, shellContext->searchString != NULL);
     ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
     gfx_BlitBuffer();
 

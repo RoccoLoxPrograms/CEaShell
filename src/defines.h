@@ -80,6 +80,7 @@ struct context_t {
 struct file_t {
     char *name;                 /** Name of the file. */
     gfx_sprite_t *icon;         /** File icon, or NULL if no icon exists. */
+    char *minimumOSVersion;     /** Minimum OS version for apps. */
     char *description;          /** File description, or NULL if no description exists. */
     uint8_t type;               /** OS type. */
     uint8_t shellType;          /** Shell type. */

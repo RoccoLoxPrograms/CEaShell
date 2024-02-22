@@ -47,7 +47,7 @@ static void custom_ThemePreview(uint8_t *theme) {
 static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     // Try to minimize relocations this way
     #ifdef FR
-    static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
+    static const char *modifyingStrings = "Contexte\0\0\0Foreground\0\0\0Surligner\0\0\0\0Default text\0Hidden text\0";
     #else
     static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
     #endif
@@ -284,30 +284,30 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
     #ifdef FR
     menuContext->options[0] = "Transitions";
-    menuContext->options[1] = "Transition Speed";
+    menuContext->options[1] = "Vitesse de transition";
     menuContext->options[2] = "Icon Scale";
-    menuContext->options[3] = "Clock";
+    menuContext->options[3] = "Horloge";
     menuContext->options[4] = "Show CEaShell";
     menuContext->options[5] = "Show Apps Folder";
     menuContext->options[6] = "Show AppVars Folder";
     menuContext->options[7] = "Show Hidden Programs";
     menuContext->options[8] = "File Count";
     menuContext->options[9] = "APD Timer";
-    menuContext->options[10] = "Custom Theme";
-    menuContext->options[11] = "Preset Themes";
+    menuContext->options[10] = "Th{mes personnalis}s";
+    menuContext->options[11] = "Th{mes pr}d}finis";
 
-    menuContext->details[0] = "Turn on/off the transition animations when opening or closing menus.";
-    menuContext->details[1] = "Speed for transition animaitons between menus.";
+    menuContext->details[0] = "Activer/D}sactiver la transition d'animation lorsque les menus s'ouvrent/ferment.";
+    menuContext->details[1] = "Choisissez la vitesse d'animation pour la transition d'animations.";
     menuContext->details[2] = "Scale of file icons in the main file viewer.";
-    menuContext->details[3] = "Choose whether the clock uses 24-Hour or 12-Hour time.";
+    menuContext->details[3] = "Choisissez si l'heure doit |tre affich}e en mode 24 heures ou 12 heures.";
     menuContext->details[4] = "Show CEaShell in the main file viewer.";
     menuContext->details[5] = "Show the Apps folder in the main file viewer.";
     menuContext->details[6] = "Show the AppVars folder in the main file viewer.";
     menuContext->details[7] = "Show hidden programs in the main file viewer.";
     menuContext->details[8] = "Displays the number of files in the current directory on the status bar.";
     menuContext->details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
-    menuContext->details[10] = "Create your own color theme for CEaShell to use.";
-    menuContext->details[11] = "Select a preset color theme for CEaShell to use.";
+    menuContext->details[10] = "Cr}ez vos propres th{mes de couleurs ~ utiliser sur CEaShell.";
+    menuContext->details[11] = "S}lectionnez un th{me de couleurs pr{d{fini ~ utiliser par CEaShell.";
     #else
     menuContext->options[0] = "Transitions";
     menuContext->options[1] = "Transition Speed";

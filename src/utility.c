@@ -290,6 +290,7 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     }
 
     if (fileInfo->shellType == APP_TYPE) {
+        fileInfo->minimumOSVersion = asm_apps_getAppMinOSVersion(shellContext->appPtrs[shellContext->fileSelected - 1]);
         fileInfo->size = asm_apps_getAppSize(vatPtr);
         fileInfo->archived = true;
     } else if (fileInfo->shellType != DIR_TYPE) {
