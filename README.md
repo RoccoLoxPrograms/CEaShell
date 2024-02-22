@@ -54,8 +54,8 @@ Below is a table with keys and their various usage in CEaShell:
 | <kbd>y=</kbd>                                                             | Open/exit customization menu.                                                                                      |
 | <kbd>graph</kbd>                                                          | Open/exit settings menu.                                                                                           |
 | <kbd>alpha</kbd> / <kbd>window</kbd> / <kbd>zoom</kbd> / <kbd>trace</kbd> | View and modify file properites.                                                                                   |
-| <kbd>del</kbd>                                                            | Delete currently selected file.                                                                                    |
-| <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one.                                                              |
+| <kbd>del</kbd>                                                            | Delete currently selected file, or delete the character in front of the cursor in a text input box.                |
+| <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one, or backspace in a text input box.                            |
 | <kbd>clear</kbd>                                                          | Exit CEaShell, or in some cases return to the previous menu.                                                       |
 | <kbd>a</kbd> - <kbd>z</kbd>, <kbd>θ</kbd>                                 | Jump to the program beginning with the letter pressed.                                                             |
 | <kbd>on</kbd>                                                             | Turn off the calculator while remaining in the shell.                                                              |
