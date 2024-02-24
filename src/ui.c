@@ -32,8 +32,9 @@ void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, c
 
     // Dark sprites first, then light sprites
     static const gfx_sprite_t *uiIcons[18] = {
-    battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check,
-    batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt};
+        battery, charging, paint, info, settings, lArrow, rArrow, dArrow, check,
+        batteryAlt, chargingAlt, paintAlt, infoAlt, settingsAlt, lArrowAlt, rArrowAlt, dArrowAlt, checkAlt
+    };
 
     gfx_TransparentSprite(uiIcons[spriteNo + colorAlt * 9], x, y);
 }

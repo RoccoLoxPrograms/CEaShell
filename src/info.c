@@ -77,12 +77,12 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
     #ifdef FR
     if (fileInfo->shellType != DIR_TYPE) {
         gfx_PrintString("Taille : ");
-    } else {
-        gfx_PrintString("Items: ");
+    } else if (!inSearch) {
+        gfx_PrintString("Items : ");
     }
     #else
     if (fileInfo->shellType != DIR_TYPE) {
-        gfx_PrintString("Size : ");
+        gfx_PrintString("Size: ");
     } else if (!inSearch) {
         gfx_PrintString("Items: ");
     }
@@ -110,29 +110,41 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
     if (fileInfo->shellType != DIR_TYPE) {
         if (option > 2) {
+            #ifdef FR
+            shapes_PixelIndentRectangle(64 + 64 * (option - 3), 189, 64, 9);
+            #else
             shapes_PixelIndentRectangle(68 + 65 * (option - 3), 189, 54, 9);
+            #endif
         } else {
+            #ifdef FR
+            shapes_PixelIndentRectangle(60 + 65 * (option > 0) + 83 * (option > 1), 160, 9, 9);
+            #else
             shapes_PixelIndentRectangle(63 + 76 * (option > 0) + 63 * (option > 1), 160, 9, 9);
+            #endif
         }
 
         if (fileInfo->shellType != APP_TYPE) {
             #ifdef FR
             gfx_PrintStringXY("Attribuer :", 64, 148);
-            gfx_PrintStringXY("Archiv}       Verrouill}     Cach}", 74, 161);
-            gfx_PrintStringXY("Supprimer      Renommer         Modifier", 74, 190);
+            gfx_PrintStringXY("Archiv}    Verrouill}    Cach}", 71, 161);
+            gfx_PrintStringXY("Suppr.       Renom.    Modifier", 75, 190);
+
+            ui_CheckBox(fileInfo->archived, 61, 161);
+            ui_CheckBox(fileInfo->locked, 126, 161);
+            ui_CheckBox(fileInfo->hidden, 209, 161);
             #else
             gfx_PrintStringXY("Attributes:", 64, 148);
             gfx_PrintStringXY("Archived     Locked     Hidden", 74, 161);
             gfx_PrintStringXY("Delete      Rename         Edit", 74, 190);
-            #endif
 
-            for (uint8_t i = 0; i < 3; i++) {
-                ui_CheckBox(*(&fileInfo->archived + i), 64 + 76 * (i > 0) + 63 * (i > 1), 161);
-            }
+            ui_CheckBox(fileInfo->archived, 64, 161);
+            ui_CheckBox(fileInfo->locked, 140, 161);
+            ui_CheckBox(fileInfo->hidden, 203, 161);
+            #endif
         } else {
             #ifdef FR
             gfx_PrintStringXY("Version d'OS minimum :", 64, 148);
-            gfx_PrintStringXY("Supprimer", 74, 190);
+            gfx_PrintStringXY("Suppr.", 74, 190);
             #else
             gfx_PrintStringXY("Minimum OS Version:", 64, 148);
             gfx_PrintStringXY("Delete", 74, 190);

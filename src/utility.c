@@ -174,7 +174,7 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
                 if (shellPrefs->showAppsFolder) {
                     #ifdef FR
                     memcpy(fileInfo->name, "Applis", 7);
-                    memcpy(fileInfo->description, "Dossier d'applications", 12);
+                    memcpy(fileInfo->description, "Dossier d'applications", 23);
                     #else
                     memcpy(fileInfo->name, "Apps", 5);
                     memcpy(fileInfo->description, "Apps folder", 12);

@@ -32,7 +32,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
         case MENU_TYPE_BOOL:
             width = 10;
 
-            if (xEdge) {
+            if (xEdge && y > -1) {
                 ui_CheckBox(value, xEdge - 13, y);
             }
 
@@ -46,7 +46,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
                     gfx_PrintUInt(value, 0);
                 } else {
                     #ifdef FR
-                    gfx_PrintStringXY("Off", xEdge - 32, y);
+                    gfx_PrintStringXY("D}s", xEdge - 32, y);
                     #else
                     gfx_PrintStringXY("Off", xEdge - 32, y);
                     #endif
@@ -55,14 +55,18 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
 
             break;
         case MENU_TYPE_TIME:
+            #ifdef FR
+            width = 70;
+            #else
             width = 62;
+            #endif
 
             if (xEdge) {
                 #ifdef FR
                 if (value) {
-                    gfx_PrintStringXY("24 Heure", xEdge - 60, y);
+                    gfx_PrintStringXY("24 Heure", xEdge - 67, y);
                 } else {
-                    gfx_PrintStringXY("AM/PM", xEdge - 55, y);
+                    gfx_PrintStringXY("AM/PM", xEdge - 58, y);
                 }
                 #else
                 if (value) {
@@ -88,7 +92,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
                         break;
                     case TRANSITION_SLOW:
                         #ifdef FR
-                        gfx_PrintStringXY("Lente", xEdge - 45, y);
+                        gfx_PrintStringXY("Lente", xEdge - 50, y);
                         #else
                         gfx_PrintStringXY("Slow", xEdge - 45, y);
                         #endif
@@ -102,7 +106,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
                         break;
                     case TRANSITION_FAST:
                         #ifdef FR
-                        gfx_PrintStringXY("Rapide", xEdge - 46, y);
+                        gfx_PrintStringXY("Rapide", xEdge - 53, y);
                         #else
                         gfx_PrintStringXY("Fast", xEdge - 46, y);
                         #endif
@@ -200,13 +204,13 @@ void menu_Draw(struct preferences_t *shellPrefs, unsigned int x, uint8_t clipY, 
     gfx_SetColor(shellPrefs->fgColor);
     gfx_FillRectangle_NoClip(x + width + 7, clipY - 1, width + 2, height + 2);
     gfx_SetColor(shellPrefs->bgColor);
-    shapes_PixelIndentRectangle(x + width + 7, clipY - 1, width + 2, 20 + menu_CalculateLines(menuContext->details[menuContext->optionSelected], 18, 12) * 12);
+    shapes_PixelIndentRectangle(x + width + 7, clipY - 1, width + 2, 20 + menu_CalculateLines(menuContext->details[menuContext->optionSelected], 19, 12) * 12);
     #ifdef FR
     gfx_PrintStringXY("A propos :", x + width + 11, clipY + 3);
     #else
     gfx_PrintStringXY("About:", x + width + 11, clipY + 3);
     #endif
-    ui_PrintStringWrap(menuContext->details[menuContext->optionSelected], x + width + 11, clipY + 20, 18, 12);
+    ui_PrintStringWrap(menuContext->details[menuContext->optionSelected], x + width + 11, clipY + 20, 19, 12);
 }
 
 bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, unsigned int optionWidth, char *option1, char *option2) {
@@ -258,9 +262,10 @@ bool menu_DeleteFile(struct preferences_t *shellPrefs, struct context_t *shellCo
 
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
+
     #ifdef FR
-    gfx_PrintStringXY("Are you sure?", 80, 211);
-    bool delete = menu_YesNo(shellPrefs, shellContext, 179, 29, "Non", "Oui");
+    gfx_PrintStringXY("Etes-vous s^r ?", 73, 211);
+    bool delete = menu_YesNo(shellPrefs, shellContext, 186, 29, "Non", "Oui");
     #else
     gfx_PrintStringXY("Are you sure?", 80, 211);
     bool delete = menu_YesNo(shellPrefs, shellContext, 179, 29, "No", "Yes");
@@ -393,12 +398,14 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
         "CEaShell (pronounced \"seashell\"), "
         "is a shell created by RoccoLox Programs and TIny_Hacker. "
         "CEaShell aims to provide an easy to use, modern interface "
-        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 40, 6);
+        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 40, 6
+    );
     #else
     ui_PrintStringWrap(
         "CEaShell (pronounced \"seashell\"), "
         "aims to provide an easy to use, modern interface "
-        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 42, 6);
+        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 42, 6
+    );
     #endif
     gfx_PrintStringXY("(C) Copyright 2022 - 2024", 18, 179);
     gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 18, 192);

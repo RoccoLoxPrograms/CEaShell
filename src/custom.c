@@ -158,7 +158,8 @@ static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_
         125, 28, 58, 255, 222,
         243, 210, 208, 255, 222,
         114, 81, 48, 255, 181,
-        255, 222, 181, 0, 181};
+        255, 222, 181, 0, 181
+    };
 
     for (uint8_t i = 0; i < 5; i++) {
         presetThemes[(THEME_COUNT - 1) * 5 + i] = 255 - *(&shellPrefs->bgColor + i);
@@ -276,7 +277,11 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
     menuContext->totalOptions = 12;
     menuContext->optionSelected = 0;
+    #ifdef FR
+    menuContext->totalHeight = 272;
+    #else
     menuContext->totalHeight = 235;
+    #endif
     menuContext->options = malloc(sizeof(char *) * 12);
     menuContext->details = malloc(sizeof(char *) * 12);
     menuContext->types = malloc(sizeof(uint8_t) * 12);
@@ -291,8 +296,8 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     menuContext->options[5] = "Show Apps Folder";
     menuContext->options[6] = "Show AppVars Folder";
     menuContext->options[7] = "Show Hidden Programs";
-    menuContext->options[8] = "File Count";
-    menuContext->options[9] = "APD Timer";
+    menuContext->options[8] = "Nombre de fichiers";
+    menuContext->options[9] = "Minuterie APD";
     menuContext->options[10] = "Th{mes personnalis}s";
     menuContext->options[11] = "Th{mes pr}d}finis";
 
@@ -304,7 +309,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     menuContext->details[5] = "Show the Apps folder in the main file viewer.";
     menuContext->details[6] = "Show the AppVars folder in the main file viewer.";
     menuContext->details[7] = "Show hidden programs in the main file viewer.";
-    menuContext->details[8] = "Displays the number of files in the current directory on the status bar.";
+    menuContext->details[8] = "Afficher le nombre de fichiers dans le r}pertoire actuel.";
     menuContext->details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
     menuContext->details[10] = "Cr}ez vos propres th{mes de couleurs ~ utiliser sur CEaShell.";
     menuContext->details[11] = "S}lectionnez un th{me de couleurs pr{d{fini ~ utiliser par CEaShell.";
@@ -391,7 +396,11 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
                     menuContext->optionSelected -= 1;
                 } else {
+                    #ifdef FR
+                    startY = -67;
+                    #else
                     startY = -30;
+                    #endif
                     optionY = 193;
                     menuContext->optionSelected = 11;
                 }

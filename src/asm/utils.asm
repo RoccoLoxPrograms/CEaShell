@@ -131,7 +131,7 @@ _asm_utils_toggleLowercase:
     res ti.lwrCaseActive, (iy + ti.appLwrCaseFlag)
     ret
 
-_asm_utils_willNotGC:
+_asm_utils_willNotGC: ; Check if a file can be archived without a garbage collect
     pop de
     ex (sp), hl
     push de
@@ -176,7 +176,7 @@ _asm_utils_invertPalette:
     djnz .loop
     ret
 
-_asm_utils_arcOnGC:
+_asm_utils_arcOnGC: ; Safely archive a file that is going to garbage collect
     ld iy, ti.flags
     pop de
     ex (sp), hl
@@ -216,7 +216,7 @@ _asm_utils_arcUnarc:
     pop af
     ret
 
-_asm_utils_setGfxCharWidth:
+_asm_utils_setGfxCharWidth: ; Set the width of a specific character in the graphx font
     ld iy, 0
     add iy, sp
     ld hl, (iy + 3)
@@ -240,7 +240,7 @@ _asm_utils_setGfxCharWidth:
     ld (hl), a
     ret
 
-_asm_utils_getCharFromKey:
+_asm_utils_getCharFromKey: ; Scans for a keypress and converts it to a character
     di
     ld hl, $F50200
     ld (hl), h
@@ -350,7 +350,7 @@ _asm_utils_clrScrnAndUsedRAM:
     ldir
     ret
 
-_asm_utils_isNameValid:
+_asm_utils_isNameValid: ; Checks if a string is a valid file name for a specificed type
     pop de
     ex (sp), hl
     push de
@@ -401,7 +401,7 @@ _asm_utils_findCEaShellAppVar:
     ex de, hl
     ret
 
-_asm_utils_dispTextToolbar:
+_asm_utils_dispTextToolbar: ; Displays a string on the lower half of the status bar
     ld de, $E71C
     ld.sis (ti.drawFGColor and $FFFF), de
     ld.sis de, (ti.statusBarBGColor and $FFFF)
@@ -415,7 +415,7 @@ _asm_utils_dispTextToolbar:
     ld.sis (ti.drawBGColor and $FFFF), de
     ret
 
-_asm_utils_initHexaEditStart:
+_asm_utils_initHexaEditStart: ; Set up the Ans variable for Hexaedit's headless start
     call ti.AnsName
     ld a, ti.StrngObj
     ld (ti.OP1), a
@@ -463,7 +463,7 @@ _asm_utils_checkEnoughRAM:
     sbc a, a
     ret
 
-_asm_utils_checkHiddenHeader:
+_asm_utils_checkHiddenHeader: ; Checks if a file has a header denoting that it should be hidden in CEaShell
     push bc
     call _asm_utils_findVarPtr
     ld bc, 0
