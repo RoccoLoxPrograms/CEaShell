@@ -33,6 +33,7 @@
 include 'include/equates.inc'
 
     public _asm_labelJumper_showLabels
+    public _asm_labelJumper_convertNum
 
     extern _asm_utils_dispTextToolbar
 
@@ -72,7 +73,7 @@ _asm_labelJumper_showLabels:
     ld hl, (labelPage)
     ld de, ti.cursorImage + 32 + (.currentPageString - .pageString)
     inc hl
-    call labelJumper_convertNum
+    call _asm_labelJumper_convertNum.threeDigits
     ld hl, ti.cursorImage + 32
     call _asm_utils_dispTextToolbar
 
@@ -260,7 +261,7 @@ _asm_labelJumper_showLabels:
     ld (labelNumberOfPages), hl
     inc hl
     ld de, ti.cursorImage + 32 + (.totalPageString - .pageString)
-    jp labelJumper_convertNum
+    jp _asm_labelJumper_convertNum.threeDigits
 
 .skipLabelsLoop:
     push bc
@@ -444,10 +445,15 @@ stringRelocateSize := $ - .pageString
 .bottomLabel:
     db "1:PRGM BOTTOM", 0
 
-labelJumper_convertNum:
-    ld a, 4
+_asm_labelJumper_convertNum:
+    ld bc, -100000
+    call .aqu
+    ld bc, -10000
+    call .aqu
+    ld bc, -1000
+    call .aqu
 
-.entry:
+.threeDigits:
     ld bc, -100
     call .aqu
     ld c, -10

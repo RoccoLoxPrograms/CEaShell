@@ -18,9 +18,11 @@ include 'include/equates.inc'
     public _asm_prgmMenuHook_showAppInfo
 
     extern _asm_apps_getAppIcon
+    extern _asm_apps_getAppSize
     extern _asm_fileOps_getPrgmType.check
     extern _asm_fileOps_getIconASM.varFound
     extern _asm_fileOps_getIconDCS.varFound
+    extern _asm_labelJumper_convertNum
     extern _asm_utils_checkEOF
     extern _asm_utils_getEOF
     extern _asm_utils_findVar
@@ -29,7 +31,35 @@ include 'include/equates.inc'
 _asm_prgmMenuHook_showDescription:
     ld hl, ti.progCurrent
     call ti.Mov9ToOP1
+    call prgmMenuHook_eraseRect
     call _asm_utils_findVar + 4
+    push de
+    or a, a
+    sbc hl, hl
+    ld a, (de)
+    ld l, a
+    inc de
+    ld a, (de)
+    ld h, a
+    ld a, c
+    add a, 9
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ld de, ti.cursorImage + 32
+    push de
+    call _asm_labelJumper_convertNum + 8
+    xor a, a
+    ld (de), a
+    pop hl
+    ld.sis de, (ti.curCol and $FFFF)
+    push de
+    ld de, 15
+    ld.sis (ti.curCol and $FFFF), de
+    call ti.PutS
+    pop hl
+    ld.sis (ti.curCol and $FFFF), hl
+    pop de
     push de
     call _asm_fileOps_getPrgmType.check
     pop de
@@ -329,9 +359,28 @@ _asm_prgmMenuHook_showAppInfo:
     jr _asm_prgmMenuHook_icons.finishDrawing
 
 .drawCopyright:
+    call prgmMenuHook_eraseRect
     ld hl, ti.progCurrent + 1
     call ti.FindAppStart
     jr c, .return
+    push hl
+    call _asm_apps_getAppSize + 3
+    ld de, ti.cursorImage + 32
+    push de
+    call _asm_labelJumper_convertNum
+    xor a, a
+    ld (de), a
+    pop hl
+    ld.sis de, (ti.curCol and $FFFF)
+    push de
+    ld de, 15
+    ld.sis (ti.curCol and $FFFF), de
+    call ti.PutS
+    pop hl
+    ld.sis (ti.curCol and $FFFF), hl
+    pop de
+    push de
+    pop hl
     ld bc, $100
     add hl, bc
     push hl
@@ -348,6 +397,26 @@ _asm_prgmMenuHook_showAppInfo:
 
 .return:
     set updateProgInfo, (iy + shellFlags)
+    ret
+
+prgmMenuHook_eraseRect:
+    ld hl, ti.vRam + (182 * 59) * 2
+    ld b, 200
+
+.loop:
+    ld c, b
+    ld b, 74
+
+.erase:
+    ld (hl), $FF
+    inc hl
+    ld (hl), $FF
+    inc hl
+    djnz .erase
+    ld b, c
+    ld de, (ti.lcdWidth - 74) * 2
+    add hl, de
+    djnz .loop
     ret
 
 prgmMenuHook_drawIcon:
