@@ -19,6 +19,7 @@ include 'include/equates.inc'
 
     extern _asm_apps_getAppIcon
     extern _asm_apps_getAppSize
+    extern _asm_fileOps_getPrgmSize
     extern _asm_fileOps_getPrgmType.check
     extern _asm_fileOps_getIconASM.varFound
     extern _asm_fileOps_getIconDCS.varFound
@@ -34,18 +35,7 @@ _asm_prgmMenuHook_showDescription:
     call prgmMenuHook_eraseRect
     call _asm_utils_findVar + 4
     push de
-    or a, a
-    sbc hl, hl
-    ld a, (de)
-    ld l, a
-    inc de
-    ld a, (de)
-    ld h, a
-    ld a, c
-    add a, 9
-    ld bc, 0
-    ld c, a
-    add hl, bc
+    call _asm_fileOps_getPrgmSize + 7
     ld de, ti.cursorImage + 32
     push de
     call _asm_labelJumper_convertNum + 8
