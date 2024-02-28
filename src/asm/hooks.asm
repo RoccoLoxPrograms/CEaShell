@@ -596,7 +596,9 @@ hooks_invertOff:
 
 hooks_invertOn:
     ld a, $21
+    push af
     call _asm_spi_setupSPI
+    pop af
     ld hl, $F80818
     ld (hl), h
     ld (hl), $44

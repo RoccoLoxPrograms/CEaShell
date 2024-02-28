@@ -70,7 +70,6 @@ _asm_spi_endFrame:
     ret
 
 _asm_spi_setupSPI: ; set these defaults for the SPI so everything works on Python models (this seems to work instead of using boot.InitializeHardware)
-    push af
     ld hl, $2000B
     ld (ti.mpSpiRange + ti.spiCtrl1), hl
     ld hl, $1828
@@ -93,7 +92,6 @@ _asm_spi_setupSPI: ; set these defaults for the SPI so everything works on Pytho
     ld (ti.mpSpiRange + ti.spiIntCtrl), hl
     ld hl, $100
     ld (ti.mpSpiRange + ti.spiCtrl2), hl
-    pop af
     ret
 
 ;--------------------------------------
