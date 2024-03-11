@@ -31,12 +31,6 @@ extern "C" {
 #define toggle(number, bit) (number ^ (1U << bit))
 
 /**
- * @brief Draw the OS status bar.
- * 
- */
-#define ti_DrawStatusBar(void) asm("call $021A3C")
-
-/**
  * @brief PixelShadow RAM location.
  * 
  */
