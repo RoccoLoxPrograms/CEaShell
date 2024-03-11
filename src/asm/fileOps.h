@@ -12,8 +12,6 @@
 #ifndef FILEOPS_H
 #define FILEOPS_H
 
-#include <defines.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,6 +59,15 @@ uint8_t asm_fileOps_getAppVarType(void *vatPtr);
 void asm_fileOps_copyFile(char *name, char *copy, uint8_t type);
 
 /**
+ * @brief Safely rename a file when doing so will cause a Garbage Collect to trigger.
+ * 
+ * @param oldName Name of file being renamed.
+ * @param newName New name for file being renamed.
+ * @param type Type of file being renamed.
+ */
+void asm_fileOps_renameOnGC(char *oldName, char *newName, uint8_t type);
+
+/**
  * @brief Toggle the hidden status of a program.
  * 
  * @param name Name of the program.
@@ -81,21 +88,17 @@ void asm_fileOps_lockPrgm(char *name, uint8_t type);
  * 
  * @param vatPtr Program's VAT pointer.
  * @param shellType Shell type for the program.
- * @param description String to return the description in.
- * @return true The program has a description.
- * @return false The program does not have a description.
+ * @param description String to return the description in. (Begins with \0 if no description exists)
  */
-bool asm_fileOps_getDescASM(void *vatPtr, uint8_t shellType, char *description);
+void asm_fileOps_getDescASM(void *vatPtr, uint8_t shellType, char *description);
 
 /**
  * @brief Checks and returns the description info of a TI-BASIC program.
  * 
  * @param vatPtr Program's VAT pointer.
- * @param description String to return the description in.
- * @return true The program has a description.
- * @return false The program does not have a description.
+ * @param description String to return the description in. (Begins with \0 if no description exists)
  */
-bool asm_fileOps_getDescBASIC(void *vatPtr, char *description);
+void asm_fileOps_getDescBASIC(void *vatPtr, char *description);
 
 /**
  * @brief Checks and returns the icon info of an ASM program.

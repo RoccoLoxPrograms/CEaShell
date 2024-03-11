@@ -12,7 +12,9 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include "defines.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Opens the settings context.
@@ -21,10 +23,6 @@
  * @param shellContext Shell context struct.
  */
 void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellContext);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef __cplusplus
 }

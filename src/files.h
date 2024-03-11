@@ -12,8 +12,6 @@
 #ifndef FILES_H
 #define FILES_H
 
-#include "defines.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -25,6 +25,17 @@ extern "C" {
 void asm_fileSystem_sortVAT(void);
 
 /**
+ * @brief Finds spots in RAM for the AppVar and app pointer arrays.
+ * 
+ * @param programCount Number of programs.
+ * @param appVarCount Number of AppVars.
+ * @param appCount Number of apps.
+ * @param appvarPtrs Pointer to AppVar pointers pointer.
+ * @param appPtrs Pointer to app pointers pointer.
+ */
+void asm_fileSystem_initPtrArrays(unsigned int programCount, unsigned int appVarCount, unsigned int appCount, void ***appvarPtrs, void ***appPtrs);
+
+/**
  * @brief Finds and caches all program VAT pointers.
  * 
  * @param programPtrs Array to cache VAT pointers in.

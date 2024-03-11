@@ -136,6 +136,8 @@ _asm_utils_willNotGC: ; Check if a file can be archived without a garbage collec
     ex (sp), hl
     push de
     call _asm_utils_findVarPtr
+    ex de, hl
+    jr .skipRAMCheck
 
 .checkGC:
     ex de, hl
@@ -144,6 +146,8 @@ _asm_utils_willNotGC: ; Check if a file can be archived without a garbage collec
     pop hl
     ld a, 1
     ret nc
+
+.skipRAMCheck:
     ld hl, (hl)
     ld a, c
     add a, 12
@@ -196,8 +200,6 @@ _asm_utils_arcOnGC: ; Safely archive a file that is going to garbage collect
 _asm_utils_arcUnarc:
     call ti.ChkFindSym
     call _asm_utils_willNotGC.checkGC
-
-.garbageCollect:
     push af
     or a, a
     jr nz, .archiveOrUnarchive

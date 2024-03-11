@@ -38,11 +38,13 @@
 include 'include/equates.inc'
 
     public _asm_fileSystem_sortVAT
+    public _asm_fileSystem_initPtrArrays
     public _asm_fileSystem_getProgramPtrs
     public _asm_fileSystem_getAppVarPtrs
     public _asm_fileSystem_findAllVars
     public _asm_fileSystem_findArrayOffset
 
+    extern _asm_runProgram_error
     extern _asm_utils_checkHiddenHeader
 
 _asm_fileSystem_sortVAT:
@@ -274,6 +276,46 @@ fileSystem_sortTypes:
 
 ;------------------------------------------------
 
+_asm_fileSystem_initPtrArrays:
+    ld a, returnOS
+    ld (returnLoc), a
+    pop hl
+    pop bc
+    pop de
+    ex (sp), iy
+    push de
+    push bc
+    push hl
+    lea hl, iy
+    add hl, de
+    add hl, bc
+    ld de, ti.pixelShadow2 - ti.pixelShadow
+    or a, a
+    sbc hl, de
+    ld a, ti.E_Memory
+    jp nc, _asm_runProgram_error
+    ld iy, 0
+    add iy, sp
+    push bc
+    pop hl
+    add hl, hl
+    add hl, bc
+    ld de, ti.pixelShadow
+    add hl, de
+    ex de, hl
+    ld hl, (iy + 12)
+    ld (hl), de
+    ld hl, (iy + 6)
+    push hl
+    pop bc
+    add hl, hl
+    add hl, bc
+    add hl, de
+    ex de, hl
+    ld hl, (iy + 15)
+    ld (hl), de
+    ret
+
 _asm_fileSystem_getProgramPtrs:
     ld iy, 0
     add iy, sp
@@ -281,7 +323,8 @@ _asm_fileSystem_getProgramPtrs:
     ld hl, (iy + 9) ; search string pointer
     ld iy, (iy + 3) ; get array
     res 1, b
-    call ti.ChkHLIs0
+    xor a, a
+    or a, (hl)
     jr z, $ + 4
     set 1, b ; z to not search, nz if we do search
     push hl
@@ -344,7 +387,8 @@ _asm_fileSystem_getAppVarPtrs:
     push hl
     push de
     res 1, b
-    call ti.ChkHLIs0
+    xor a, a
+    or a, (hl)
     jr z, $ + 4
     set 1, b ; z to not search, nz if we do search
     push hl
@@ -386,7 +430,8 @@ _asm_fileSystem_findAllVars:
     ld hl, (iy + 12) ; search string pointer
     push ix
     res 1, b
-    call ti.ChkHLIs0
+    xor a, a
+    or a, (hl)
     jr z, $ + 4
     set 1, b ; z to not search, nz if we do search
     push hl

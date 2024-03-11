@@ -10,6 +10,7 @@
 **/
 
 #include "defines.h"
+
 #include "shapes.h"
 #include "ui.h"
 #include "utility.h"
@@ -304,13 +305,22 @@ bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellCo
     gfx_FillRectangle_NoClip(56, 205, 208, 20);
 
     if (newName != NULL) {
-        ti_RenameVar(fileInfo->name, newName, fileInfo->type);
-        free(newName);
+        uint8_t slot = ti_OpenVar(fileInfo->name, "r", fileInfo->type);
+        void *vatPtr = ti_GetVATPtr(slot);
+        ti_Close(slot);
+
+        if (asm_utils_willNotGC(vatPtr)) {
+            ti_RenameVar(fileInfo->name, newName, fileInfo->type);
+        } else {
+            util_WritePrefs(shellPrefs, shellContext, false);
+            gfx_End();
+            asm_fileOps_renameOnGC(fileInfo->name, newName, fileInfo->type);
+        }
+
         util_WritePrefs(shellPrefs, shellContext, true);
         return true;
     }
 
-    free(newName);
     while (kb_AnyKey());
     return false;
 }
@@ -378,12 +388,12 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
 
 void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
-    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
+    static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
     " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
     " And a big thank you to the members of our Discord for your support and ideas!";
     #else
-    const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
+    static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
     " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
     " And a big thank you to the members of our Discord for your support and ideas!";

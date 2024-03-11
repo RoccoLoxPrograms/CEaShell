@@ -30,6 +30,18 @@ extern "C" {
  */
 #define toggle(number, bit) (number ^ (1U << bit))
 
+/**
+ * @brief Draw the OS status bar.
+ * 
+ */
+#define ti_DrawStatusBar(void) asm("call $021A3C")
+
+/**
+ * @brief PixelShadow RAM location.
+ * 
+ */
+#define os_PixelShadow          ((uint8_t *)0xD031F6)
+
 /** 
  * Shell preferences, which are backed up in the CEaShell AppVar.
 */
@@ -61,7 +73,7 @@ struct preferences_t {
  * Shell context information, which is modified during shell usage.
  */
 struct context_t {
-    char *searchString;         /** Contains a search condition if the user is in search mode, otherwise contains NULL. */
+    char searchString[9];       /** Contains a search condition if the user is in search mode, otherwise contains NULL. */
     uint8_t batteryLevel;       /** Calculator's current battey level. */
     uint8_t directory;          /** Current directory open in CEaShell. */
     unsigned int fileSelected;  /** Current file selected in the list of files. 0 is the first file, 1 is the second, etc. */
@@ -78,10 +90,10 @@ struct context_t {
  * Various important file attributes.
 */
 struct file_t {
-    char *name;                 /** Name of the file. */
+    char name[9];               /** Name of the file. */
     gfx_sprite_t *icon;         /** File icon, or NULL if no icon exists. */
     char *minimumOSVersion;     /** Minimum OS version for apps. */
-    char *description;          /** File description, or NULL if no description exists. */
+    char description[52];       /** File description, or NULL if no description exists. */
     uint8_t type;               /** OS type. */
     uint8_t shellType;          /** Shell type. */
     unsigned int size;          /** File size. */
@@ -97,11 +109,21 @@ struct menu_t {
     uint8_t totalOptions;
     uint8_t optionSelected;
     unsigned int totalHeight;
-    char **options;
-    char **details;
-    uint8_t *types;
-    uint8_t *values;
+    char *options[12];
+    char *details[12];
+    uint8_t types[12];
+    uint8_t values[12];
 };
+
+/** 
+ * Temporary sprite space for file icons.
+*/
+extern gfx_sprite_t *fileIcon;
+
+/** 
+ * Temporary sprite space for drawing functions.
+*/
+extern gfx_sprite_t *tempSprite;
 
 /** 
  * Timer defines for turning off the calculator after a set amount of

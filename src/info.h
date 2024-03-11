@@ -12,7 +12,9 @@
 #ifndef INFO_H
 #define INFO_H
 
-#include "defines.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Opens the file info context.
@@ -22,10 +24,6 @@
  * @param fileCount Number of files in the current directory.
  */
 void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int *fileCount);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef __cplusplus
 }

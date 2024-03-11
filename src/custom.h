@@ -12,7 +12,9 @@
 #ifndef CUSTOM_H
 #define CUSTOM_H
 
-#include "defines.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Opens the customization context.
@@ -21,10 +23,6 @@
  * @param shellContext Shell context struct.
  */
 void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContext);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef __cplusplus
 }

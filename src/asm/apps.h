@@ -61,11 +61,9 @@ char *asm_apps_getAppMinOSVersion(void *appPointer);
  * @brief Finds an app copyright string and copies it.
  * 
  * @param appPointer Pointer to the app.
- * @param copyright Pointer to copy the copyright string into.
- * @return true App has a copyright string.
- * @return false App doesn't have a copyright string.
+ * @param copyright Pointer to copy the copyright string into. (First byte is \0 if no copyright)
  */
-bool asm_apps_getAppCopyrightInfo(void *appPointer, char *copyright);
+void asm_apps_getAppCopyrightInfo(void *appPointer, char *copyright);
 
 /**
  * @brief Checks and returns the icon info of an app.

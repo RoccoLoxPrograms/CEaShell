@@ -10,6 +10,7 @@
 **/
 
 #include "defines.h"
+
 #include "menu.h"
 #include "shapes.h"
 #include "ui.h"
@@ -53,7 +54,7 @@ void ui_DrawStatusBar(struct preferences_t *shellPrefs, struct context_t *shellC
     }
 
     // Draw clock
-    uint8_t time[3];
+    static uint8_t time[3];
     bool isAfterNoon = boot_IsAfterNoon();
 
     boot_GetTime(&time[0], &time[1], &time[2]);
@@ -104,7 +105,7 @@ void ui_DrawBottomBar(struct preferences_t *shellPrefs, char *description) {
     ui_DrawUISprite(shellPrefs->fgColor, UI_INFO, 56, 205);
     ui_DrawUISprite(shellPrefs->fgColor, UI_SETTINGS, 284, 204);
 
-    if (description != NULL) {
+    if (description[0] != '\0') {
         if (menu_CalculateLines(description, 24, 2) < 2) {
             gfx_PrintStringXY(description, 82, 210);
         } else {
@@ -191,8 +192,6 @@ static void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t 
     uint8_t scale = shellPrefs->uiScale;
 
     util_GetFileInfo(file, fileInfo, shellPrefs, shellContext);
-    free(fileInfo->description); // Don't use this here
-    fileInfo->description = NULL;
 
     if (fileInfo->hidden) {
         fileInfo->name[0] += 64;
@@ -209,8 +208,6 @@ static void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t 
     }
 
     gfx_PrintStringXY(fileInfo->name, textX, textY);
-    free(fileInfo->name);
-    fileInfo->name = NULL;
     gfx_SetColor(shellPrefs->hlColor);
     gfx_SetTextFGColor(shellPrefs->textColor);
 
@@ -226,7 +223,6 @@ static void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t 
         }
     }
 
-    free(fileInfo->icon);
     fileInfo->icon = NULL;
 
     // Round corners
@@ -237,15 +233,15 @@ static void ui_File(unsigned int x, uint8_t y, unsigned int file, struct file_t 
         gfx_SetPixel(x, y + 15);
         gfx_SetPixel(x + 15, y + 15);
     } else {
-        gfx_sprite_t *corner1 = gfx_MallocSprite(4, 4);
-        shapes_GetRoundCorners(corner1, background, 4, x, y);
-        shapes_DrawRoundCorners(corner1, 16 * scale, 16 * scale, x, y);
-        free(corner1);
+        tempSprite->width = 4;
+        tempSprite->height = 4;
+        shapes_GetRoundCorners(tempSprite, background, 4, x, y);
+        shapes_DrawRoundCorners(tempSprite, 16 * scale, 16 * scale, x, y);
     }
 }
 
 void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellContext) {
-    struct file_t *fileInfo = malloc(sizeof(struct file_t));
+    static struct file_t fileInfo;
     uint8_t scale = shellPrefs->uiScale; // Might be faster this way?
     unsigned int fileDrawing = shellContext->fileStartLoc;
     unsigned int fileCount = *(&(shellContext->programCount) + shellContext->directory); // This should save us from doing math a lot
@@ -295,8 +291,6 @@ void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellConte
 
         for (uint8_t j = 0; j < rows; j++) {
             if (fileDrawing >= fileCount) { // Only draw files that actually exist on the calculator. Do this first in case there are no files in the active directory.
-                free(fileInfo);
-                fileInfo = NULL;
                 return;
             }
 
@@ -310,7 +304,7 @@ void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellConte
                 }
             }
 
-            ui_File(iconX, iconY, fileDrawing, fileInfo, shellPrefs, shellContext);
+            ui_File(iconX, iconY, fileDrawing, &fileInfo, shellPrefs, shellContext);
 
             switch (scale) {
                 case 4:
@@ -334,9 +328,6 @@ void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellConte
 
         iconX += 72 + 5 * (scale & 1) + 10 * (scale == 1); // If scale is 2 or 4, add 72. If 3, add 77, and if 1, add 87
     }
-
-    free(fileInfo);
-    fileInfo = NULL;
 }
 
 int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines) {
@@ -391,7 +382,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
     unsigned int cursorX = x;
     static const char *modeChars = "1Aa";
 
-    char *input = malloc(9);
+    static char input[9];
     char inputChar = '\0';
     uint8_t inputMode = INPUT_UPPER;
 
@@ -516,7 +507,6 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
     }
 
     while(kb_AnyKey());
-    free(input);
     return NULL;
 }
 

@@ -9,6 +9,8 @@
  * --------------------------------------
 **/
 
+#include "defines.h"
+
 #include "custom.h"
 #include "files.h"
 #include "info.h"
@@ -30,23 +32,22 @@
 #include <sys/util.h>
 
 static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, struct preferences_t *shellPrefs, struct context_t *shellContext) {
-    struct file_t *fileInfo = malloc(sizeof(struct file_t));
-    util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
+    static struct file_t fileInfo;
+    util_GetFileInfo(shellContext->fileSelected, &fileInfo, shellPrefs, shellContext);
 
-    free(fileInfo->icon);
-    fileInfo->icon = NULL;
+    fileInfo.icon = NULL;
 
     gfx_FillScreen(shellPrefs->bgColor);
 
     if (!fileCount) {
-        memcpy(fileInfo->name, &rodata_appName, 9);
+        memcpy(fileInfo.name, &rodata_appName, 9);
         gfx_SetTextFGColor(shellPrefs->textColor);
         gfx_PrintStringXY("No Files", 130, 106);
     }
 
-    ui_DrawStatusBar(shellPrefs, shellContext, fileInfo->name);
+    ui_DrawStatusBar(shellPrefs, shellContext, fileInfo.name);
     ui_DrawFiles(shellPrefs, shellContext);
-    ui_DrawBottomBar(shellPrefs, fileInfo->description);
+    ui_DrawBottomBar(shellPrefs, fileInfo.description);
 
     if (fileCount > rows * columns) {
         unsigned int dummyFiles = fileCount % rows; // Correctly draw scrollbar
@@ -57,19 +58,12 @@ static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, 
 
         ui_ScrollBar(shellPrefs, 20, 191, 280, fileCount + dummyFiles, shellContext->fileStartLoc, rows * columns, true);
     }
-
-    free(fileInfo->description);
-    fileInfo->description = NULL;
-    free(fileInfo->name);
-    fileInfo->name = NULL;
-    free(fileInfo);
-    fileInfo = NULL;
 }
 
 void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     uint8_t dimension  = 0;
-    const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
-    const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
+    static const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
+    static const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
 
     util_SetGFXChar('[', thetaChar, 8);
 
@@ -80,7 +74,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
     unsigned int fileCount = *(&(shellContext->programCount) + shellContext->directory); // Number of files in the current directory
 
     shellContext->batteryLevel = boot_GetBatteryStatus();
-    shellContext->searchString = NULL;
+    shellContext->searchString[0] = '\0';
 
     files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
     gfx_BlitBuffer();
@@ -88,7 +82,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
     bool keyPressed = false;
     clock_t clockOffset = clock(); // Keep track of an offset for timer stuff
 
-    struct file_t *fileInfo = NULL;
+    static struct file_t fileInfo;
 
     // Debounce keypresses when entering the shell.
     while (kb_AnyKey());
@@ -106,43 +100,36 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
             if (fileCount) {
                 if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                     while (kb_AnyKey());
-                    fileInfo = malloc(sizeof(struct file_t));
-                    util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
+                    util_GetFileInfo(shellContext->fileSelected, &fileInfo, shellPrefs, shellContext);
 
-                    free(fileInfo->icon);
-                    fileInfo->icon = NULL;
-                    free(fileInfo->description);
-                    fileInfo->description = NULL;
-
-                    if (fileInfo->shellType == DIR_TYPE) {
+                    if (fileInfo.shellType == DIR_TYPE) {
                         #ifdef FR
-                        if (fileInfo->name[3] == 'l') { // Applis
+                        if (fileInfo.name[3] == 'l') { // Applis
                         #else
-                        if (fileInfo->name[3] == 's') { // Apps
+                        if (fileInfo.name[3] == 's') { // Apps
                         #endif
                             shellContext->directory = APPS_FOLDER;
                             shellContext->fileSelected = 0;
                             fileCount = shellContext->appCount;
                         #ifdef FR
-                        } else if (fileInfo->name[3] == 'V') { // AppVars
+                        } else if (fileInfo.name[3] == 'V') { // AppVars
                         #else
-                        } else if (fileInfo->name[3] == 'V') { // AppVars
+                        } else if (fileInfo.name[3] == 'V') { // AppVars
                         #endif
                             shellContext->directory = APPVARS_FOLDER;
                             shellContext->fileSelected = 0;
                             fileCount = shellContext->appVarCount;
                         #ifdef FR
-                        } else if (fileInfo->name[3] == 'm') { // Prgms
+                        } else if (fileInfo.name[3] == 'm') { // Prgms
                         #else
-                        } else if (fileInfo->name[3] == 'g') { // Programs
+                        } else if (fileInfo.name[3] == 'g') { // Programs
                         #endif
                             shellContext->directory = PROGRAMS_FOLDER;
                             shellContext->fileSelected = 0;
                             fileCount = shellContext->programCount;
                         }
 
-                        free(shellContext->searchString);
-                        shellContext->searchString = NULL;
+                        shellContext->searchString[0] = '\0';
                         util_WritePrefs(shellPrefs, shellContext, true);
                     } else if (shellContext->directory == APPS_FOLDER) {
                         unsigned int app = shellContext->fileSelected; // Preserve this
@@ -155,22 +142,18 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         util_SearchToMain(shellPrefs, shellContext);
                         gfx_End();
-                        asm_runProgram_run(fileInfo->name, fileInfo->type, fileInfo->shellType, shellPrefs);
+                        asm_runProgram_run(fileInfo.name, fileInfo.type, fileInfo.shellType, shellPrefs);
                     }
 
-                    free(fileInfo->name);
-                    fileInfo->name = NULL;
-                    free(fileInfo);
-                    fileInfo = NULL;
                     updateBattery = false;
                 } else if (kb_IsDown(kb_KeyDel) || kb_IsDown(kb_KeyMode) || (kb_IsDown(kb_KeyStat) && shellContext->directory != APPS_FOLDER)) {
-                    struct file_t *fileInfo = malloc(sizeof(struct file_t));
-                    util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
+                    static struct file_t fileInfo;
+                    util_GetFileInfo(shellContext->fileSelected, &fileInfo, shellPrefs, shellContext);
 
                     if (kb_IsDown(kb_KeyDel)) {
-                        menu_DeleteFile(shellPrefs, shellContext, fileInfo);
+                        menu_DeleteFile(shellPrefs, shellContext, &fileInfo);
                     } else if (kb_IsDown(kb_KeyMode)) {
-                        menu_CopyFile(shellPrefs, shellContext, fileInfo);
+                        menu_CopyFile(shellPrefs, shellContext, &fileInfo);
                     } else if (kb_IsDown(kb_KeyStat)) {
                         gfx_SetColor(shellPrefs->bgColor);
                         shapes_RoundRectangleFill(9, 56, 205, 208, 20);
@@ -182,14 +165,12 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         char *tempSearch = ui_StringInput(shellPrefs, shellContext, 111, 208, true);
 
                         if (tempSearch) {
-                            free(shellContext->searchString);
-                            shellContext->searchString = tempSearch;
+                            memcpy(shellContext->searchString, tempSearch, 9);
                             shellContext->fileStartLoc = 0;
                             shellContext->fileSelected = 0;
                         }
                     }
 
-                    free(fileInfo);
                     util_CorrectCursorRemove(shellPrefs, shellContext);
                 }
 

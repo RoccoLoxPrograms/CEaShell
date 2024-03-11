@@ -95,6 +95,10 @@ backupAppVarName := backupPrgmName + 9
 
 hookTokenStop := $D9 - $CE
 
+; Renaming
+oldName := backupPrgmName
+newName := backupAppVarName
+
 ; use cursorImage RAM for these variables
 ;-----------------------------------------
 

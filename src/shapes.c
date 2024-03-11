@@ -10,6 +10,7 @@
 **/
 
 #include "defines.h"
+
 #include "shapes.h"
 
 #include "gfx/gfx.h"
@@ -29,7 +30,9 @@ void shapes_PixelIndentRectangle(const unsigned int x, const uint8_t y, const un
 }
 
 void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const uint8_t radius, const int x, const uint8_t y) {
-    gfx_sprite_t *cornerBackup = gfx_MallocSprite(radius * 2 + 1, radius * 2 + 1);
+    gfx_UninitedSprite(cornerBackup, 25, 25);
+    cornerBackup->width = radius * 2 + 1;
+    cornerBackup->height = radius * 2 + 1;
     gfx_GetSprite_NoClip(cornerBackup, x, y);
     gfx_SetColor(color);
     gfx_FillRectangle_NoClip(x, y, radius, radius);
@@ -37,11 +40,12 @@ void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const ui
     gfx_FillCircle_NoClip(x + radius, y + radius, radius);
     gfx_GetSprite_NoClip(corner1, x, y);
     gfx_Sprite_NoClip(cornerBackup, x, y);
-    free(cornerBackup);
 }
 
 void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const uint8_t height, const int x, const uint8_t y) {
-    gfx_sprite_t *corner2 = gfx_MallocSprite(corner1->width, corner1->height);
+    gfx_UninitedSprite(corner2, 12, 12);
+    corner2->width = corner1->width;
+    corner2->height = corner1->height;
 
     gfx_TransparentSprite_NoClip(corner1, x, y);
     gfx_RotateSpriteC(corner1, corner2);
@@ -50,8 +54,6 @@ void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const u
     gfx_TransparentSprite_NoClip(corner1, x + width - corner1->width, y + height - corner1->width);
     gfx_RotateSpriteC(corner1, corner2);
     gfx_TransparentSprite_NoClip(corner2, x, y + height - corner1->width);
-
-    free(corner2);
 }
 
 void shapes_FileIcon(uint8_t scale, uint8_t shellType, const int x, const uint8_t y) {

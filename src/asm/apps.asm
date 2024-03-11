@@ -123,6 +123,7 @@ _asm_apps_getAppCopyrightInfo:
     ex (sp), hl
     push de
     push bc
+    ld (hl), 0
     ex de, hl
     push de
     ld bc, $100
@@ -136,7 +137,6 @@ _asm_apps_getAppCopyrightInfo:
     or a, a 
     sbc hl, de
     pop bc
-    ld a, 0
     ret z
     add hl, de
     push bc
@@ -145,7 +145,6 @@ _asm_apps_getAppCopyrightInfo:
     ldir
     xor a, a
     ld (de), a
-    inc a
     ret
 
 _asm_apps_getAppIcon:

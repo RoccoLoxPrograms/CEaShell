@@ -9,8 +9,9 @@
  * --------------------------------------
 **/
 
-#include "custom.h"
 #include "defines.h"
+
+#include "custom.h"
 #include "menu.h"
 #include "shapes.h"
 #include "ui.h"
@@ -52,7 +53,8 @@ static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_
     static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
     #endif
 
-    uint8_t newTheme[5] = {shellPrefs->bgColor, shellPrefs->fgColor, shellPrefs->hlColor, shellPrefs->textColor, shellPrefs->hiddenTextColor};
+    static uint8_t newTheme[5];
+    memcpy(newTheme, &shellPrefs->bgColor, 5);
     uint8_t selected = shellPrefs->bgColor;
     uint8_t modifying = 0;
     bool justOpened = true; // Kind of a weird way to do this but minimizes function calls
@@ -165,7 +167,8 @@ static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_
         presetThemes[(THEME_COUNT - 1) * 5 + i] = 255 - *(&shellPrefs->bgColor + i);
     }
 
-    uint8_t newTheme[5] = {shellPrefs->bgColor, shellPrefs->fgColor, shellPrefs->hlColor, shellPrefs->textColor, shellPrefs->hiddenTextColor};
+    static uint8_t newTheme[5];
+    memcpy(newTheme, &shellPrefs->bgColor, 5);
     uint8_t selected = 0;
     bool justOpened = true; // Kind of a weird way to do this but minimizes function calls
 
@@ -273,104 +276,100 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     ui_DrawUISprite(shellPrefs->fgColor, UI_LARROW, 14, 210);
     gfx_BlitBuffer();
 
-    struct menu_t *menuContext = malloc(sizeof(struct menu_t));
+    static struct menu_t menuContext;
 
-    menuContext->totalOptions = 12;
-    menuContext->optionSelected = 0;
+    menuContext.totalOptions = 12;
+    menuContext.optionSelected = 0;
     #ifdef FR
-    menuContext->totalHeight = 272;
+    menuContext.totalHeight = 272;
     #else
-    menuContext->totalHeight = 235;
-    #endif
-    menuContext->options = malloc(sizeof(char *) * 12);
-    menuContext->details = malloc(sizeof(char *) * 12);
-    menuContext->types = malloc(sizeof(uint8_t) * 12);
-    menuContext->values = malloc(sizeof(uint8_t) * 12);
-
-    #ifdef FR
-    menuContext->options[0] = "Transitions";
-    menuContext->options[1] = "Vitesse de transition";
-    menuContext->options[2] = "Icon Scale";
-    menuContext->options[3] = "Horloge";
-    menuContext->options[4] = "Show CEaShell";
-    menuContext->options[5] = "Show Apps Folder";
-    menuContext->options[6] = "Show AppVars Folder";
-    menuContext->options[7] = "Show Hidden Programs";
-    menuContext->options[8] = "Nombre de fichiers";
-    menuContext->options[9] = "Minuterie APD";
-    menuContext->options[10] = "Th{mes personnalis}s";
-    menuContext->options[11] = "Th{mes pr}d}finis";
-
-    menuContext->details[0] = "Activer/D}sactiver la transition d'animation lorsque les menus s'ouvrent/ferment.";
-    menuContext->details[1] = "Choisissez la vitesse d'animation pour la transition d'animations.";
-    menuContext->details[2] = "Scale of file icons in the main file viewer.";
-    menuContext->details[3] = "Choisissez si l'heure doit |tre affich}e en mode 24 heures ou 12 heures.";
-    menuContext->details[4] = "Show CEaShell in the main file viewer.";
-    menuContext->details[5] = "Show the Apps folder in the main file viewer.";
-    menuContext->details[6] = "Show the AppVars folder in the main file viewer.";
-    menuContext->details[7] = "Show hidden programs in the main file viewer.";
-    menuContext->details[8] = "Afficher le nombre de fichiers dans le r}pertoire actuel.";
-    menuContext->details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
-    menuContext->details[10] = "Cr}ez vos propres th{mes de couleurs ~ utiliser sur CEaShell.";
-    menuContext->details[11] = "S}lectionnez un th{me de couleurs pr{d{fini ~ utiliser par CEaShell.";
-    #else
-    menuContext->options[0] = "Transitions";
-    menuContext->options[1] = "Transition Speed";
-    menuContext->options[2] = "Icon Scale";
-    menuContext->options[3] = "Clock";
-    menuContext->options[4] = "Show CEaShell";
-    menuContext->options[5] = "Show Apps Folder";
-    menuContext->options[6] = "Show AppVars Folder";
-    menuContext->options[7] = "Show Hidden Programs";
-    menuContext->options[8] = "File Count";
-    menuContext->options[9] = "APD Timer";
-    menuContext->options[10] = "Custom Theme";
-    menuContext->options[11] = "Preset Themes";
-
-    menuContext->details[0] = "Turn on/off the transition animations when opening or closing menus.";
-    menuContext->details[1] = "Speed for transition animaitons between menus.";
-    menuContext->details[2] = "Scale of file icons in the main file viewer.";
-    menuContext->details[3] = "Choose whether the clock uses 24-Hour or 12-Hour time.";
-    menuContext->details[4] = "Show CEaShell in the main file viewer.";
-    menuContext->details[5] = "Show the Apps folder in the main file viewer.";
-    menuContext->details[6] = "Show the AppVars folder in the main file viewer.";
-    menuContext->details[7] = "Show hidden programs in the main file viewer.";
-    menuContext->details[8] = "Displays the number of files in the current directory on the status bar.";
-    menuContext->details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
-    menuContext->details[10] = "Create your own color theme for CEaShell to use.";
-    menuContext->details[11] = "Select a preset color theme for CEaShell to use.";
+    menuContext.totalHeight = 235;
     #endif
 
-    menuContext->types[0] = MENU_TYPE_BOOL;
-    menuContext->types[1] = MENU_TYPE_SPEED;
-    menuContext->types[2] = MENU_TYPE_SCALE;
-    menuContext->types[3] = MENU_TYPE_TIME;
-    menuContext->types[4] = MENU_TYPE_BOOL;
-    menuContext->types[5] = MENU_TYPE_BOOL;
-    menuContext->types[6] = MENU_TYPE_BOOL;
-    menuContext->types[7] = MENU_TYPE_BOOL;
-    menuContext->types[8] = MENU_TYPE_BOOL;
-    menuContext->types[9] = MENU_TYPE_APD;
-    menuContext->types[10] = MENU_TYPE_MENU;
-    menuContext->types[11] = MENU_TYPE_MENU;
+    #ifdef FR
+    menuContext.options[0] = "Transitions";
+    menuContext.options[1] = "Vitesse de transition";
+    menuContext.options[2] = "Icon Scale";
+    menuContext.options[3] = "Horloge";
+    menuContext.options[4] = "Show CEaShell";
+    menuContext.options[5] = "Show Apps Folder";
+    menuContext.options[6] = "Show AppVars Folder";
+    menuContext.options[7] = "Show Hidden Programs";
+    menuContext.options[8] = "Nombre de fichiers";
+    menuContext.options[9] = "Minuterie APD";
+    menuContext.options[10] = "Th{mes personnalis}s";
+    menuContext.options[11] = "Th{mes pr}d}finis";
 
-    menuContext->values[0] = shellPrefs->transitionSpeed;
-    menuContext->values[1] = shellPrefs->transitionSpeed;
-    menuContext->values[2] = shellPrefs->uiScale;
-    menuContext->values[3] = shellPrefs->timeFormat;
-    menuContext->values[4] = shellPrefs->showCEaShellApp;
-    menuContext->values[5] = shellPrefs->showAppsFolder;
-    menuContext->values[6] = shellPrefs->showAppVarsFolder;
-    menuContext->values[7] = shellPrefs->showHiddenProgs;
-    menuContext->values[8] = shellPrefs->showFileCount;
-    menuContext->values[9] = shellPrefs->apdTimer;
-    menuContext->values[10] = '\0';
-    menuContext->values[11] = '\0';
+    menuContext.details[0] = "Activer/D}sactiver la transition d'animation lorsque les menus s'ouvrent/ferment.";
+    menuContext.details[1] = "Choisissez la vitesse d'animation pour la transition d'animations.";
+    menuContext.details[2] = "Scale of file icons in the main file viewer.";
+    menuContext.details[3] = "Choisissez si l'heure doit |tre affich}e en mode 24 heures ou 12 heures.";
+    menuContext.details[4] = "Show CEaShell in the main file viewer.";
+    menuContext.details[5] = "Show the Apps folder in the main file viewer.";
+    menuContext.details[6] = "Show the AppVars folder in the main file viewer.";
+    menuContext.details[7] = "Show hidden programs in the main file viewer.";
+    menuContext.details[8] = "Afficher le nombre de fichiers dans le r}pertoire actuel.";
+    menuContext.details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
+    menuContext.details[10] = "Cr}ez vos propres th{mes de couleurs ~ utiliser sur CEaShell.";
+    menuContext.details[11] = "S}lectionnez un th{me de couleurs pr{d{fini ~ utiliser par CEaShell.";
+    #else
+    menuContext.options[0] = "Transitions";
+    menuContext.options[1] = "Transition Speed";
+    menuContext.options[2] = "Icon Scale";
+    menuContext.options[3] = "Clock";
+    menuContext.options[4] = "Show CEaShell";
+    menuContext.options[5] = "Show Apps Folder";
+    menuContext.options[6] = "Show AppVars Folder";
+    menuContext.options[7] = "Show Hidden Programs";
+    menuContext.options[8] = "File Count";
+    menuContext.options[9] = "APD Timer";
+    menuContext.options[10] = "Custom Theme";
+    menuContext.options[11] = "Preset Themes";
+
+    menuContext.details[0] = "Turn on/off the transition animations when opening or closing menus.";
+    menuContext.details[1] = "Speed for transition animaitons between menus.";
+    menuContext.details[2] = "Scale of file icons in the main file viewer.";
+    menuContext.details[3] = "Choose whether the clock uses 24-Hour or 12-Hour time.";
+    menuContext.details[4] = "Show CEaShell in the main file viewer.";
+    menuContext.details[5] = "Show the Apps folder in the main file viewer.";
+    menuContext.details[6] = "Show the AppVars folder in the main file viewer.";
+    menuContext.details[7] = "Show hidden programs in the main file viewer.";
+    menuContext.details[8] = "Displays the number of files in the current directory on the status bar.";
+    menuContext.details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
+    menuContext.details[10] = "Create your own color theme for CEaShell to use.";
+    menuContext.details[11] = "Select a preset color theme for CEaShell to use.";
+    #endif
+
+    menuContext.types[0] = MENU_TYPE_BOOL;
+    menuContext.types[1] = MENU_TYPE_SPEED;
+    menuContext.types[2] = MENU_TYPE_SCALE;
+    menuContext.types[3] = MENU_TYPE_TIME;
+    menuContext.types[4] = MENU_TYPE_BOOL;
+    menuContext.types[5] = MENU_TYPE_BOOL;
+    menuContext.types[6] = MENU_TYPE_BOOL;
+    menuContext.types[7] = MENU_TYPE_BOOL;
+    menuContext.types[8] = MENU_TYPE_BOOL;
+    menuContext.types[9] = MENU_TYPE_APD;
+    menuContext.types[10] = MENU_TYPE_MENU;
+    menuContext.types[11] = MENU_TYPE_MENU;
+
+    menuContext.values[0] = shellPrefs->transitionSpeed;
+    menuContext.values[1] = shellPrefs->transitionSpeed;
+    menuContext.values[2] = shellPrefs->uiScale;
+    menuContext.values[3] = shellPrefs->timeFormat;
+    menuContext.values[4] = shellPrefs->showCEaShellApp;
+    menuContext.values[5] = shellPrefs->showAppsFolder;
+    menuContext.values[6] = shellPrefs->showAppVarsFolder;
+    menuContext.values[7] = shellPrefs->showHiddenProgs;
+    menuContext.values[8] = shellPrefs->showFileCount;
+    menuContext.values[9] = shellPrefs->apdTimer;
+    menuContext.values[10] = '\0';
+    menuContext.values[11] = '\0';
 
     int startY = 38;
     uint8_t optionY = 38;
 
-    menu_Draw(shellPrefs, 15, 35, 38, 141, 168, menuContext);
+    menu_Draw(shellPrefs, 15, 35, 38, 141, 168, &menuContext);
     gfx_BlitBuffer();
 
     while(kb_AnyKey());
@@ -384,8 +383,8 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
             if (kb_IsDown(kb_KeyUp)) {
-                if (menuContext->optionSelected) {
-                    uint8_t nextY = optionY - 5 - menu_CalculateLines(menuContext->options[menuContext->optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected - 1], 0) - 3) / 8, 3) * 12;
+                if (menuContext.optionSelected) {
+                    uint8_t nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
 
                     if (nextY < 38) {
                         startY += 38 - nextY;
@@ -394,7 +393,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                         optionY = nextY;
                     }
 
-                    menuContext->optionSelected -= 1;
+                    menuContext.optionSelected -= 1;
                 } else {
                     #ifdef FR
                     startY = -67;
@@ -402,13 +401,13 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                     startY = -30;
                     #endif
                     optionY = 193;
-                    menuContext->optionSelected = 11;
+                    menuContext.optionSelected = 11;
                 }
             } else if (kb_IsDown(kb_KeyDown)) {
-                if (menuContext->optionSelected + 1 < menuContext->totalOptions) {
+                if (menuContext.optionSelected + 1 < menuContext.totalOptions) {
                     // Create variables to not call these functions so much
-                    uint8_t nextY = optionY + 5 + menu_CalculateLines(menuContext->options[menuContext->optionSelected], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected], 0) - 3) / 8, 3) * 12;
-                    uint8_t nextOptionHeight = menu_CalculateLines(menuContext->options[menuContext->optionSelected + 1], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected + 1], 0) - 3) / 8, 3) * 8;
+                    uint8_t nextY = optionY + 5 + menu_CalculateLines(menuContext.options[menuContext.optionSelected], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected], 0) - 3) / 8, 3) * 12;
+                    uint8_t nextOptionHeight = menu_CalculateLines(menuContext.options[menuContext.optionSelected + 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected + 1], 0) - 3) / 8, 3) * 8;
 
                     if (nextOptionHeight > 8) {
                         nextOptionHeight += 4 * (nextOptionHeight / 8 - 1);
@@ -421,43 +420,43 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                         optionY = nextY;
                     }
 
-                    menuContext->optionSelected += 1;
+                    menuContext.optionSelected += 1;
                 } else {
                     startY = 38;
                     optionY = 38;
-                    menuContext->optionSelected = 0;
+                    menuContext.optionSelected = 0;
                 }
             }
 
             if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
-                switch (menuContext->optionSelected) {
+                switch (menuContext.optionSelected) {
                     case 0:
                         shellPrefs->transitionSpeed = TRANSITION_MED * !shellPrefs->transitionSpeed;
-                        menuContext->values[0] = shellPrefs->transitionSpeed;
-                        menuContext->values[1] = shellPrefs->transitionSpeed;
+                        menuContext.values[0] = shellPrefs->transitionSpeed;
+                        menuContext.values[1] = shellPrefs->transitionSpeed;
                         break;
                     case 4:
                         shellPrefs->showCEaShellApp = !shellPrefs->showCEaShellApp;
-                        menuContext->values[4] = shellPrefs->showCEaShellApp;
+                        menuContext.values[4] = shellPrefs->showCEaShellApp;
 
-                        if (shellContext->fileSelected == shellContext->appCount - 1 && !menuContext->values[4] && shellContext->directory == APPS_FOLDER) {
+                        if (shellContext->fileSelected == shellContext->appCount - 1 && !menuContext.values[4] && shellContext->directory == APPS_FOLDER) {
                             shellContext->fileSelected -= 1;
                         }
 
                         break;
                     case 5:
                         shellPrefs->showAppsFolder = !shellPrefs->showAppsFolder;
-                        menuContext->values[5] = shellPrefs->showAppsFolder;
+                        menuContext.values[5] = shellPrefs->showAppsFolder;
                         break;
                     case 6:
                         shellPrefs->showAppVarsFolder = !shellPrefs->showAppVarsFolder;
-                        menuContext->values[6] = shellPrefs->showAppVarsFolder;
+                        menuContext.values[6] = shellPrefs->showAppVarsFolder;
                         break;
                     case 7:
                         shellPrefs->showHiddenProgs = !shellPrefs->showHiddenProgs;
-                        menuContext->values[7] = shellPrefs->showHiddenProgs;
+                        menuContext.values[7] = shellPrefs->showHiddenProgs;
 
-                        if (!menuContext->values[7]) {
+                        if (!menuContext.values[7]) {
                             shellContext->fileStartLoc = 0;
                             shellContext->fileSelected = 0;
                         }
@@ -465,7 +464,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                         break;
                     case 8:
                         shellPrefs->showFileCount = !shellPrefs->showFileCount;
-                        menuContext->values[8] = shellPrefs->showFileCount;
+                        menuContext.values[8] = shellPrefs->showFileCount;
                         break;
                     case 10:
                         custom_CreateTheme(shellPrefs, shellContext);
@@ -477,7 +476,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                         break;
                 }
 
-                if (menuContext->optionSelected > 9) {
+                if (menuContext.optionSelected > 9) {
                     gfx_FillScreen(shellPrefs->bgColor);
                     gfx_SetTextFGColor(shellPrefs->textColor);
 
@@ -493,7 +492,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                     ui_DrawUISprite(shellPrefs->fgColor, UI_LARROW, 14, 210);
                 }
             } else if (kb_IsDown(kb_KeyLeft)) {
-                switch (menuContext->optionSelected) {
+                switch (menuContext.optionSelected) {
                     case 1:
                         if (shellPrefs->transitionSpeed == TRANSITION_SLOW) {
                             shellPrefs->transitionSpeed = TRANSITION_FAST;
@@ -501,8 +500,8 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                             shellPrefs->transitionSpeed -= 1;
                         }
 
-                        menuContext->values[0] = shellPrefs->transitionSpeed;
-                        menuContext->values[1] = shellPrefs->transitionSpeed;
+                        menuContext.values[0] = shellPrefs->transitionSpeed;
+                        menuContext.values[1] = shellPrefs->transitionSpeed;
                         break;
                     case 2:
                         if (shellPrefs->uiScale == SCALE_SMALLEST) {
@@ -511,13 +510,13 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                             shellPrefs->uiScale -= 1;
                         }
 
-                        menuContext->values[2] = shellPrefs->uiScale;
+                        menuContext.values[2] = shellPrefs->uiScale;
                         shellContext->fileSelected = 0;
                         shellContext->fileStartLoc = 0;
                         break;
                     case 3:
                         shellPrefs->timeFormat = !shellPrefs->timeFormat;
-                        menuContext->values[3] = shellPrefs->timeFormat;
+                        menuContext.values[3] = shellPrefs->timeFormat;
                         break;
                     case 9:
                         if (!shellPrefs->apdTimer) {
@@ -526,13 +525,13 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                             shellPrefs->apdTimer -= 1;
                         }
 
-                        menuContext->values[9] = shellPrefs->apdTimer;
+                        menuContext.values[9] = shellPrefs->apdTimer;
                         break;
                     default:
                         break;
                 }
             } else if (kb_IsDown(kb_KeyRight)) {
-                switch (menuContext->optionSelected) {
+                switch (menuContext.optionSelected) {
                     case 1:
                         if (shellPrefs->transitionSpeed == TRANSITION_FAST) {
                             shellPrefs->transitionSpeed = TRANSITION_SLOW;
@@ -540,8 +539,8 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                             shellPrefs->transitionSpeed += 1;
                         }
 
-                        menuContext->values[0] = shellPrefs->transitionSpeed;
-                        menuContext->values[1] = shellPrefs->transitionSpeed;
+                        menuContext.values[0] = shellPrefs->transitionSpeed;
+                        menuContext.values[1] = shellPrefs->transitionSpeed;
                         break;
                     case 2:
                         if (shellPrefs->uiScale == SCALE_LARGE) {
@@ -550,13 +549,13 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                             shellPrefs->uiScale += 1;
                         }
 
-                        menuContext->values[2] = shellPrefs->uiScale;
+                        menuContext.values[2] = shellPrefs->uiScale;
                         shellContext->fileSelected = 0;
                         shellContext->fileStartLoc = 0;
                         break;
                     case 3:
                         shellPrefs->timeFormat = !shellPrefs->timeFormat;
-                        menuContext->values[3] = shellPrefs->timeFormat;
+                        menuContext.values[3] = shellPrefs->timeFormat;
                         break;
                     case 9:
                         if (shellPrefs->apdTimer == 5) {
@@ -565,7 +564,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                             shellPrefs->apdTimer += 1;
                         }
 
-                        menuContext->values[9] = shellPrefs->apdTimer;
+                        menuContext.values[9] = shellPrefs->apdTimer;
                         break;
                     default:
                         break;
@@ -573,7 +572,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
             }
 
             gfx_SetDrawBuffer();
-            menu_Draw(shellPrefs, 15, 35, startY, 141, 168, menuContext);
+            menu_Draw(shellPrefs, 15, 35, startY, 141, 168, &menuContext);
             gfx_BlitBuffer();
 
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
@@ -581,10 +580,4 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     }
 
     util_CorrectTransparentColor(shellPrefs);
-
-    free(menuContext->options);
-    free(menuContext->details);
-    free(menuContext->types);
-    free(menuContext->values);
-    free(menuContext);
 }

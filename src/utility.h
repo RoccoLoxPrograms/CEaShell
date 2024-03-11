@@ -12,8 +12,6 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include "defines.h"
-
 #include <time.h>
 
 #ifdef __cplusplus

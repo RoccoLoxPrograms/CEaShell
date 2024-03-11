@@ -18,6 +18,7 @@ include 'include/equates.inc'
     public _asm_fileOps_getPrgmType.check
     public _asm_fileOps_getAppVarType
     public _asm_fileOps_copyFile
+    public _asm_fileOps_renameOnGC
     public _asm_fileOps_hidePrgm
     public _asm_fileOps_lockPrgm
     public _asm_fileOps_getDescASM
@@ -27,14 +28,17 @@ include 'include/equates.inc'
     public _asm_fileOps_getIconDCS
     public _asm_fileOps_getIconDCS.varFound
 
+    extern _asm_apps_reloadApp
     extern _asm_runProgram_error
     extern _asm_utils_checkEOF
     extern _asm_utils_getEOF
     extern _asm_utils_loadNameOP1
     extern _asm_utils_findVarPtr
     extern _asm_utils_findVar
+    extern _asm_utils_clrScrnAndUsedRAM
     extern _rodata_celticAppVarHeader
     extern _rodata_osColorToXlibC
+    extern _ti_RenameVar
 
 _asm_fileOps_getPrgmSize:
     pop de
@@ -165,6 +169,40 @@ _asm_fileOps_copyFile:
     ldir
     ret
 
+_asm_fileOps_renameOnGC:
+    ld iy, ti.flags
+    call ti.GetCSC
+    or a, a
+    jr nz, _asm_fileOps_renameOnGC + 5 ; debouncing
+    pop hl ; throw away return and keep these same arguments
+    ld iy, 0
+    add iy, sp
+    ld hl, .return
+    call ti.PushErrorHandler
+    ld hl, (iy + 6)
+    push hl
+    ld hl, (iy + 3)
+    ld de, newName
+    push de
+    ld bc, 9
+    ldir
+    ld hl, (iy)
+    ld de, oldName
+    push de
+    ld bc, 9
+    ldir
+    ld iy, ti.flags
+    call _asm_utils_clrScrnAndUsedRAM
+    call ti.boot.ClearVRAM
+    ld a, $2D
+    ld (ti.mpLcdCtrl), a
+    call ti.DrawStatusBar
+    call _ti_RenameVar
+    call ti.PopErrorHandler
+
+.return:
+    jp _asm_apps_reloadApp - 4
+
 _asm_fileOps_hidePrgm:
     ld iy, 0
     add iy, sp
@@ -213,6 +251,8 @@ _asm_fileOps_getDescASM:
     ld de, (iy + 9) ; get char * to store into
     push de
     push bc
+    xor a, a
+    ld (de), a
     call _asm_utils_findVarPtr
     inc de ; skip size bytes
     inc de
@@ -228,7 +268,6 @@ _asm_fileOps_getDescASM:
     inc hl
     ld a, (hl)
     cp a, $C3
-    ld a, 0
     pop de
     ret nz
     inc hl
@@ -245,7 +284,6 @@ _asm_fileOps_getDescASM:
 
 .noIcon:
     cp a, 2 ; check for only a description
-    ld a, 0
     ret nz
 
 .description:
@@ -265,7 +303,6 @@ _asm_fileOps_getDescASM:
 .return:
     xor a, a
     ld (de), a
-    inc a
     ret
 
 _asm_fileOps_getDescBASIC:
@@ -275,6 +312,8 @@ _asm_fileOps_getDescBASIC:
     ld de, (iy + 6) ; get char * to store into
     ld iy, ti.flags
     push de
+    xor a, a
+    ld (de), a
     call _asm_utils_findVarPtr
     or a, a
     sbc hl, hl
@@ -289,12 +328,10 @@ _asm_fileOps_getDescBASIC:
     pop de ; get char * pointer
     ld a, (hl)
     cp a, ti.tColon
-    ld a, 0
     ret nz ; we can just return if there isn't a colon
     inc hl
     ld a, (hl)
     cp a, ti.tString
-    ld a, 0
     ret nz ; return if there is no description
     inc hl
     ld a, 52
@@ -349,7 +386,6 @@ _asm_fileOps_getDescBASIC:
 .return:
     xor a, a
     ld (de), a
-    inc a
     ret
 
 _asm_fileOps_getIconASM:
@@ -390,8 +426,8 @@ _asm_fileOps_getIconASM:
     inc hl
     ld a, (hl)
     cp a, $C3
-    ld a, 0
     pop de
+    ld a, 0
     ret nz
     inc hl
     inc hl
@@ -408,7 +444,7 @@ _asm_fileOps_getIconASM:
     inc de
     ld bc, 256
     ldir
-    ld a, 1 ; the program has a sprite, so return true
+    ld a, 1
     ret
 
 _asm_fileOps_getIconDCS:

@@ -10,6 +10,7 @@
 **/
 
 #include "defines.h"
+
 #include "info.h"
 #include "menu.h"
 #include "shapes.h"
@@ -50,10 +51,10 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
         }
     }
 
-    gfx_sprite_t *corner1 = gfx_MallocSprite(12, 12);
-    shapes_GetRoundCorners(corner1, shellPrefs->fgColor, 12, 200, 45);
-    shapes_DrawRoundCorners(corner1, 64, 64, 200, 45);
-    free(corner1);
+    tempSprite->height = 12;
+    tempSprite->width = 12;
+    shapes_GetRoundCorners(tempSprite, shellPrefs->fgColor, 12, 200, 45);
+    shapes_DrawRoundCorners(tempSprite, 64, 64, 200, 45);
 
     *fileInfo->name += 64 * (*fileInfo->name < 'A');
     ui_CenterStringBig(fileInfo->name, 125, 51);
@@ -96,7 +97,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
     gfx_PrintStringXY("Description:", 64, 111);
     #endif
 
-    if (fileInfo->description != NULL) {
+    if (fileInfo->description[0] != '\0') {
         ui_PrintStringWrap(fileInfo->description, 64, 123, 28, 2);
     } else {
         #ifdef FR
@@ -164,11 +165,11 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int *fileCount) {
     util_WritePrefs(shellPrefs, shellContext, true);
     uint8_t slot;
-    struct file_t *fileInfo = malloc(sizeof(struct file_t));
-    util_GetFileInfo(shellContext->fileSelected, fileInfo, shellPrefs, shellContext);
+    static struct file_t fileInfo;
+    util_GetFileInfo(shellContext->fileSelected, &fileInfo, shellPrefs, shellContext);
 
-    if (fileInfo->shellType != APP_TYPE && fileInfo->shellType != DIR_TYPE) {
-        slot = ti_OpenVar(fileInfo->name, "r", fileInfo->type);
+    if (fileInfo.shellType != APP_TYPE && fileInfo.shellType != DIR_TYPE) {
+        slot = ti_OpenVar(fileInfo.name, "r", fileInfo.type);
     }
 
     #ifdef FR
@@ -190,9 +191,9 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
     uint8_t hexaEdit = ti_OpenVar("HEXAEDIT", "r", OS_TYPE_PROT_PRGM);
     ti_Close(hexaEdit);
 
-    uint8_t option = 0 + 3 * (fileInfo->shellType == APP_TYPE);
+    uint8_t option = 0 + 3 * (fileInfo.shellType == APP_TYPE);
     shapes_RoundRectangleFill(15, 50, 39, 220, 192);
-    info_Redraw(shellPrefs, fileInfo, option, shellContext->searchString != NULL);
+    info_Redraw(shellPrefs, &fileInfo, option, shellContext->searchString[0] != '\0');
     ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
     gfx_BlitBuffer();
 
@@ -206,49 +207,44 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
-            if ((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && fileInfo->shellType != DIR_TYPE) {
+            if ((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && fileInfo.shellType != DIR_TYPE) {
                 switch (option) {
                     case 0:
-                        if (fileInfo->archived && asm_utils_checkEnoughRAM(fileInfo->size)) {
+                        if (fileInfo.archived && asm_utils_checkEnoughRAM(fileInfo.size)) {
                             ti_SetArchiveStatus(false, slot);
                         } else {
                             util_SafeArchive(slot);
                         }
 
-                        fileInfo->archived = !fileInfo->archived;
+                        fileInfo.archived = !fileInfo.archived;
 
                         break;
                     case 1:
-                        if (fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE) {
-                            asm_fileOps_lockPrgm(fileInfo->name, fileInfo->type);
+                        if (fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE) {
+                            asm_fileOps_lockPrgm(fileInfo.name, fileInfo.type);
 
-                            fileInfo->locked = !fileInfo->locked;
+                            fileInfo.locked = !fileInfo.locked;
 
-                            if (fileInfo->archived) {
+                            if (fileInfo.archived) {
                                 util_SafeArchive(slot);
                             }
                         }
 
                         break;
                     case 2:
-                        if (fileInfo->type == OS_TYPE_PRGM || fileInfo->type == OS_TYPE_PROT_PRGM) {
-                            asm_fileOps_hidePrgm(fileInfo->name, fileInfo->type);
-                            fileInfo->hidden = !fileInfo->hidden;
-                            *fileInfo->name ^= 64;
+                        if (fileInfo.type == OS_TYPE_PRGM || fileInfo.type == OS_TYPE_PROT_PRGM) {
+                            asm_fileOps_hidePrgm(fileInfo.name, fileInfo.type);
+                            fileInfo.hidden = !fileInfo.hidden;
+                            *fileInfo.name ^= 64;
 
-                            if (fileInfo->archived) {
+                            if (fileInfo.archived) {
                                 util_SafeArchive(slot);
                             }
                         }
 
                         break;
                     case 3:
-                        if (menu_DeleteFile(shellPrefs, shellContext, fileInfo)) {
-                            free(fileInfo->name);
-                            free(fileInfo->icon);
-                            free(fileInfo->description);
-                            free(fileInfo);
-
+                        if (menu_DeleteFile(shellPrefs, shellContext, &fileInfo)) {
                             ti_Close(slot);
                             *fileCount -= 1;
                             return;
@@ -258,12 +254,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         while (kb_AnyKey());
                         break;
                     case 4:
-                        if (menu_RenameFile(shellPrefs, shellContext, fileInfo)) {
-                            free(fileInfo->name);
-                            free(fileInfo->icon);
-                            free(fileInfo->description);
-                            free(fileInfo);
-
+                        if (menu_RenameFile(shellPrefs, shellContext, &fileInfo)) {
                             ti_Close(slot);
                             return;
                         }
@@ -271,12 +262,12 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
                         break;
                     case 5:
-                        if (hexaEdit || fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE || fileInfo->shellType == CELTIC_TYPE) {
+                        if (hexaEdit || fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE) {
                             ti_Close(slot);
                             while (kb_AnyKey());
 
                             if (hexaEdit) {
-                                if (fileInfo->shellType == BASIC_TYPE || fileInfo->shellType == ICE_SRC_TYPE || fileInfo->shellType == CELTIC_TYPE) {
+                                if (fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE) {
                                     gfx_SetColor(shellPrefs->bgColor);
                                     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
                                     hexaEdit = menu_YesNo(shellPrefs, shellContext, 92, 67, "TI-OS", "HexaEdit");
@@ -291,7 +282,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                                 }
 
                                 if (hexaEdit) {
-                                    asm_utils_initHexaEditStart(fileInfo->name, strlen(fileInfo->name), fileInfo->type);
+                                    asm_utils_initHexaEditStart(fileInfo.name, strlen(fileInfo.name), fileInfo.type);
                                     util_SearchToMain(shellPrefs, shellContext);
                                     gfx_End();
                                     asm_runProgram_run("HEXAEDIT", OS_TYPE_PROT_PRGM, C_TYPE, shellPrefs);
@@ -301,7 +292,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                             util_SearchToMain(shellPrefs, shellContext);
                             while (kb_AnyKey());
                             gfx_End();
-                            asm_editProgram_edit(fileInfo->name, fileInfo->shellType == CELTIC_TYPE, shellPrefs);
+                            asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
                         }
 
                         break;
@@ -310,7 +301,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                 }
             }
 
-            if (fileInfo->shellType != APP_TYPE) {
+            if (fileInfo.shellType != APP_TYPE) {
                 if (kb_IsDown(kb_KeyUp) || kb_IsDown(kb_KeyDown)) {
                     if (option < 3) { // Loop around other side
                         option += 3;
@@ -335,17 +326,12 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
             }
 
             gfx_SetDrawBuffer();
-            info_Redraw(shellPrefs, fileInfo, option, shellContext->searchString != NULL);
+            info_Redraw(shellPrefs, &fileInfo, option, shellContext->searchString[0] != '\0');
             gfx_BlitBuffer();
 
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         }
     }
-
-    free(fileInfo->name);
-    free(fileInfo->icon);
-    free(fileInfo->description);
-    free(fileInfo);
 
     ti_Close(slot);
 }
