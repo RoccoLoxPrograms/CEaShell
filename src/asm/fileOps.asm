@@ -193,9 +193,6 @@ _asm_fileOps_renameOnGC:
     ldir
     ld iy, ti.flags
     call _asm_utils_clrScrnAndUsedRAM
-    call ti.boot.ClearVRAM
-    ld a, $2D
-    ld (ti.mpLcdCtrl), a
     call ti.DrawStatusBar
     call _ti_RenameVar
     call ti.PopErrorHandler

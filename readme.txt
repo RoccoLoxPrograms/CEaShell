@@ -19,7 +19,7 @@ Features
 * Creating and copying of programs and AppVars.
 * Turning off the calculator while in the shell, and returning to the shell after turning the calculator back
   on.
-* Option to view icons and descriptions in the TI-OS [apps] and [prgm] menus.
+* Option to view icons, descriptions, and file size in the TI-OS [apps] and [prgm] menus.
 * Shortcuts (See "Shortcuts") in TI-OS to launch the shell, invert OS colors, trigger APD, and jump to labels
   in the TI-OS program editor.
 * Option to allow editing of archived programs in TI-OS.

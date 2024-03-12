@@ -45,7 +45,11 @@ include 'include/equates.inc'
     public _asm_fileSystem_findArrayOffset
 
     extern _asm_runProgram_error
+    extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_checkHiddenHeader
+    extern _rodata_errorQuit
+    extern _exit.sp
+    extern _gfx_End
 
 _asm_fileSystem_sortVAT:
     ld iy, ti.flags
@@ -277,8 +281,6 @@ fileSystem_sortTypes:
 ;------------------------------------------------
 
 _asm_fileSystem_initPtrArrays:
-    ld a, returnOS
-    ld (returnLoc), a
     pop hl
     pop bc
     pop de
@@ -289,11 +291,10 @@ _asm_fileSystem_initPtrArrays:
     lea hl, iy
     add hl, de
     add hl, bc
-    ld de, ti.pixelShadow2 - ti.pixelShadow
+    ld de, ti.pixelShadow2 - ti.pixelShadow + 1
     or a, a
     sbc hl, de
-    ld a, ti.E_Memory
-    jp nc, _asm_runProgram_error
+    jr nc, .error
     ld iy, 0
     add iy, sp
     push bc
@@ -315,6 +316,31 @@ _asm_fileSystem_initPtrArrays:
     ld hl, (iy + 15)
     ld (hl), de
     ret
+
+.error:
+    ld a, ti.E_Memory
+    ld (ti.errNo), a
+    call _gfx_End
+    call _asm_utils_clrScrnAndUsedRAM
+    ld iy, ti.flags
+    call ti.CursorOff
+    call ti.DrawStatusBar
+    call ti.DispErrorScreen
+    ld hl, 1
+    ld (ti.curRow), hl
+    ld hl, _rodata_errorQuit
+    set ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+    res ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+
+.waitLoop:
+    call ti.GetCSC
+    cp a, ti.sk1
+    jr z, $ + 4
+    cp a, ti.skEnter
+    jp z, _exit.sp - 1
+    jr .waitLoop
 
 _asm_fileSystem_getProgramPtrs:
     ld iy, 0

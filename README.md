@@ -18,7 +18,7 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 * Integration with [HexaEdit](https://github.com/captain-calc/HexaEdit-CE) to open files in hex editor, if the user has HexaEdit installed on their calculator.
 * Creating and copying of programs and AppVars.
 * Turning off the calculator while in the shell, and returning to the shell after turning the calculator back on.
-* Option to view icons and descriptions in the TI-OS [apps] and [prgm] menus.
+* Option to view icons, descriptions, and file size in the TI-OS [apps] and [prgm] menus.
 * [Shortcuts](#shortcuts) in TI-OS to launch the shell, invert OS colors, trigger APD, and jump to labels in the TI-OS program editor.
 * Option to allow editing of archived programs in TI-OS.
 * Option to allow editing of locked programs in CEaShell.

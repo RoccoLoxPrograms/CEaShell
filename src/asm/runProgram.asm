@@ -77,7 +77,6 @@ _asm_runProgram_run:
 _asm_runProgram_main:
     push af
     ld iy, ti.flags
-    call _asm_hooks_removeGetCSCHook
 
 .debounce:
     call ti.GetCSC
@@ -115,11 +114,9 @@ _asm_runProgram_main:
     ld hl, 128
     add hl, bc
     call ti.EnoughMem
-    jr nc, $ + 9
     pop hl
     ld a, ti.E_Memory
-    jp _asm_runProgram_error
-    pop hl
+    jp c, _asm_runProgram_error
     ld (ti.asm_prgm_size), hl
     push hl
     push hl
@@ -246,6 +243,8 @@ _asm_runProgram_main:
     or a, c
     jr nz, .loopNewlines
     pop hl ; un-squished size minus newlines
+    bit 0, l
+    jr nz, .error - 2 ; check if an odd number of tokens
     ld a, h
     or a, l
     jr nz, .notEmpty
@@ -257,6 +256,13 @@ _asm_runProgram_main:
     jp _asm_runProgram_error
 
 .notEmpty:
+    push hl
+    ld de, 128
+    add hl, de
+    call ti.EnoughMem
+    pop hl
+    ld a, ti.E_Memory
+    jp c, _asm_runProgram_error
     ld (ti.asm_prgm_size), hl
     push hl
     ld de, ti.userMem
@@ -550,6 +556,7 @@ runProgram_vectorsSetup:
     ld hl, runProgram_vectors
     call ti.AppInit
     call _asm_utils_clrScrnAndUsedRAM
+    call _asm_hooks_removeGetCSCHook
     ld hl, runProgram_return.error
     jp ti.PushErrorHandler
 

@@ -224,7 +224,7 @@ hooks_iconHook:
     bit updateProgInfo, (iy + shellFlags)
     ret nz
     ld hl, 152
-    ld de, 168
+    ld de, 252
     ld b, 58
     ld c, 234
     call ti.ClearRect

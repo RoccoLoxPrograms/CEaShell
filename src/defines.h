@@ -87,7 +87,7 @@ struct file_t {
     char name[9];               /** Name of the file. */
     gfx_sprite_t *icon;         /** File icon, or NULL if no icon exists. */
     char *minimumOSVersion;     /** Minimum OS version for apps. */
-    char description[52];       /** File description, or NULL if no description exists. */
+    char description[53];       /** File description, or NULL if no description exists. */
     uint8_t type;               /** OS type. */
     uint8_t shellType;          /** Shell type. */
     unsigned int size;          /** File size. */
@@ -151,7 +151,7 @@ extern gfx_sprite_t *tempSprite;
 /** 
  * Maximum length for program descriptions.
 */
-#define MAX_DESC_LENGTH 52
+#define MAX_DESC_LENGTH 53
 
 /**
  * Directory currently opened in CEaShell.
