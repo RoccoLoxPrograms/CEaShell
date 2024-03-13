@@ -47,6 +47,7 @@ include 'include/equates.inc'
     extern _asm_runProgram_error
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_checkHiddenHeader
+    extern _asm_utils_dispQuitErr
     extern _rodata_errorQuit
     extern _exit.sp
     extern _gfx_End
@@ -323,16 +324,8 @@ _asm_fileSystem_initPtrArrays:
     call _gfx_End
     call _asm_utils_clrScrnAndUsedRAM
     ld iy, ti.flags
-    call ti.CursorOff
     call ti.DrawStatusBar
-    call ti.DispErrorScreen
-    ld hl, 1
-    ld (ti.curRow), hl
-    ld hl, _rodata_errorQuit
-    set ti.textInverse, (iy + ti.textFlags)
-    call ti.PutS
-    res ti.textInverse, (iy + ti.textFlags)
-    call ti.PutS
+    call _asm_utils_dispQuitErr
 
 .waitLoop:
     call ti.GetCSC

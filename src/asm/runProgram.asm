@@ -35,6 +35,7 @@ include 'include/equates.inc'
     extern _asm_utils_lcdNormal
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_deleteTempRunner
+    extern _asm_utils_dispQuitErr
     extern _rodata_errorQuit
     extern _rodata_errorGoto
     extern _rodata_basicPrgmName
@@ -523,15 +524,7 @@ _asm_runProgram_error:
     pop af
     ld (ti.errNo), a
     call _asm_utils_lcdNormal
-    call ti.CursorOff
-    call ti.DispErrorScreen
-    ld hl, 1
-    ld (ti.curRow), hl
-    ld hl, _rodata_errorQuit
-    set ti.textInverse, (iy + ti.textFlags)
-    call ti.PutS
-    res ti.textInverse, (iy + ti.textFlags)
-    call ti.PutS
+    call _asm_utils_dispQuitErr
 
 .waitLoop:
     call ti.GetCSC

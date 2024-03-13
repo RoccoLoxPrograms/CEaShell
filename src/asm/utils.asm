@@ -39,9 +39,11 @@ include 'include/equates.inc'
     public _asm_utils_checkEnoughRAM
     public _asm_utils_checkHiddenHeader
     public _asm_utils_restoreAns
+    public _asm_utils_dispQuitErr
 
     extern _asm_apps_reloadApp
     extern _rodata_appVarName
+    extern _rodata_errorQuit
     extern _rodata_basicPrgmName
     extern _rodata_hexaEditHeader
     extern _rodata_characters
@@ -505,3 +507,14 @@ _asm_utils_restoreAns:
     xor a, a
     call ti.SetxxOP1
     jp ti.StoAns
+
+_asm_utils_dispQuitErr:
+    call ti.CursorOff
+    call ti.DispErrorScreen
+    ld hl, 1
+    ld (ti.curRow), hl
+    ld hl, _rodata_errorQuit
+    set ti.textInverse, (iy + ti.textFlags)
+    call ti.PutS
+    res ti.textInverse, (iy + ti.textFlags)
+    jp ti.PutS
