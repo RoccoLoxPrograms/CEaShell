@@ -44,11 +44,9 @@ include 'include/equates.inc'
     public _asm_fileSystem_findAllVars
     public _asm_fileSystem_findArrayOffset
 
-    extern _asm_runProgram_error
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_checkHiddenHeader
     extern _asm_utils_dispQuitErr
-    extern _rodata_errorQuit
     extern _exit.sp
     extern _gfx_End
 
