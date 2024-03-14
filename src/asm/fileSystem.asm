@@ -330,7 +330,7 @@ _asm_fileSystem_initPtrArrays:
     cp a, ti.sk1
     jr z, $ + 4
     cp a, ti.skEnter
-    jp z, _exit.sp - 1
+    jp z, _exit.sp - 1 ; exit the app
     jr .waitLoop
 
 _asm_fileSystem_getProgramPtrs:

@@ -63,6 +63,7 @@ _asm_editProgram_edit: ; editing from CEaShell
     ld (errorOffset), hl
     ld (editMode), a
     call _asm_utils_lcdNormal
+    xor a, a
     jr _asm_editProgram_main + 5
 
 _asm_editProgram_goto:

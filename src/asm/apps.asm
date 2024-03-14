@@ -234,10 +234,8 @@ _asm_apps_executeApp:
     call ti.DrawStatusBar
     pop de
     ex (sp), hl
-    push de 
-    ld de, appPtr
-    ex de, hl
-    ld (hl), de ; save pointer
+    push de
+    ld (appPtr), hl ; save pointer
     ld sp, (ti.onSP) ; Don't bork the stack (safety first)
     call ti.ResetStacks
     ld hl, (appPtr)
@@ -275,7 +273,6 @@ _asm_apps_deleteApp:
     pop de
     ex (sp), hl
     push de
-    ld iy, ti.flags
     call ti.DeleteApp
     set 3, (iy + $25) ; defrag thing?
     ret
