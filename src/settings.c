@@ -53,13 +53,13 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     #ifdef FR
     menuContext.options[0] = "Icon Hook";
     menuContext.options[1] = "Raccourcis de la touche [on]";
-    menuContext.options[2] = "Fast Alpha Scrolling";
+    menuContext.options[2] = "Défilement rapide alpha";
     menuContext.options[3] = "Modifier des programmes archiv}s";
     menuContext.options[4] = "Modifier des programmes verrouill}s";
-    menuContext.options[5] = "Hide Programming Options";
+    menuContext.options[5] = "Cacher les options de programmation";
     menuContext.options[6] = "D}sactiver l'indicateur d'activit}";
     menuContext.options[7] = "Minuscules";
-    menuContext.options[8] = "About CEaShell";
+    menuContext.options[8] = "A propos de CEaShell";
 
     menuContext.details[0] = "Choisissez d'afficher ou non les ic@nes et descriptions des programmes dans le menu OS [prgm].";
     menuContext.details[1] =
@@ -68,10 +68,10 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         "[on] + [sto]/[ln] : Act / d}s le mode sombre de l'OS.\n"
         "[on] + [stat] : D}clencher APD.\n"
         "[on] + [graph] : Sauter ~ lbl dans les prgms.";
-    menuContext.details[2] = "Faster alpha scrolling in the TI-OS program editor.";
+    menuContext.details[2] = "Activer le défilement rapide avec la touche alpha dans l'éditeur de programmes.";
     menuContext.details[3] = "Autoriser l'}dition de programmes archiv}s dans le menu d'}dition [prgm] de l'OS.";
     menuContext.details[4] = "Autoriser l'}dition de programmes\nBASIC verrouill}s dans CEaShell.";
-    menuContext.details[5] = "On Python models, skip the TI-BASIC / Python menu and directly open the TI-BASIC program list when pressing the [prgm] key.";
+    menuContext.details[5] = "Sur les version Python, omettre le menu TI-BASIC/Python et accéder directement à la liste des programmes TI-BASIC en appuyant sur [prgm].";
     menuContext.details[6] = "D}sactiver l'indicateur d'activit} dans les programmes TI-BASIC.";
     menuContext.details[7] = "Activez les minuscules dans l'OS en appuyant deux fois sur [alpha].";
     menuContext.details[8] = "D}couvrez les personnes qui ont contribu} ~ cr}er CEaShell !";
