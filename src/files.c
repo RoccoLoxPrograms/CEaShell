@@ -158,7 +158,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         gfx_SetColor(shellPrefs->bgColor);
                         shapes_RoundRectangleFill(9, 56, 205, 208, 20);
                         #ifdef FR
-                        gfx_PrintStringXY("Search:", 60, 212);
+                        gfx_PrintStringXY("Chercher:", 60, 212);
                         #else
                         gfx_PrintStringXY("Search:", 60, 212);
                         #endif

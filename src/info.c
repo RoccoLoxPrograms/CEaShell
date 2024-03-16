@@ -65,7 +65,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
 
     #ifdef FR
-    static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Directory", "AppVar", NULL, "Celtic Var", "App", "Unknown"};
+    static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Annuaire", "AppVar", NULL, "Var Celtic", "Appli", "Inconnu"};
     gfx_PrintStringXY("Type : ", 64, 85);
     #else
     static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Directory", "AppVar", NULL, "Celtic Var", "App", "Unknown"};
