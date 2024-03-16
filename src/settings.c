@@ -53,7 +53,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     #ifdef FR
     menuContext.options[0] = "Icon Hook";
     menuContext.options[1] = "Raccourcis de la touche [on]";
-    menuContext.options[2] = "Défilement rapide alpha";
+    menuContext.options[2] = "D}filement rapide alpha";
     menuContext.options[3] = "Modifier des programmes archiv}s";
     menuContext.options[4] = "Modifier des programmes verrouill}s";
     menuContext.options[5] = "Cacher les options de programmation";
@@ -68,10 +68,10 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         "[on] + [sto]/[ln] : Act / d}s le mode sombre de l'OS.\n"
         "[on] + [stat] : D}clencher APD.\n"
         "[on] + [graph] : Sauter ~ lbl dans les prgms.";
-    menuContext.details[2] = "Activer le défilement rapide avec la touche alpha dans l'éditeur de programmes.";
+    menuContext.details[2] = "Activer le d}filement rapide avec la touche alpha dans l'}diteur de programmes.";
     menuContext.details[3] = "Autoriser l'}dition de programmes archiv}s dans le menu d'}dition [prgm] de l'OS.";
     menuContext.details[4] = "Autoriser l'}dition de programmes\nBASIC verrouill}s dans CEaShell.";
-    menuContext.details[5] = "Sur les version Python, omettre le menu TI-BASIC/Python et accéder directement à la liste des programmes TI-BASIC en appuyant sur [prgm].";
+    menuContext.details[5] = "Sur les version Python, omettre le menu TI-BASIC/Python et acc}der directement ~ la liste des programmes TI-BASIC en appuyant sur [prgm].";
     menuContext.details[6] = "D}sactiver l'indicateur d'activit} dans les programmes TI-BASIC.";
     menuContext.details[7] = "Activez les minuscules dans l'OS en appuyant deux fois sur [alpha].";
     menuContext.details[8] = "D}couvrez les personnes qui ont contribu} ~ cr}er CEaShell !";

@@ -177,9 +177,16 @@ hooks_iconHook:
     cp a, ti.mApps
     jr z, .update
     cp a, ti.mProgramHome
+    jr z, .continue
+    bit updateProgInfo, (iy + shellFlags) ; if we just left a valid menu, clean up
     ret nz
+    call ti.os.ClearStatusBarLow
+    set updateProgInfo, (iy + shellFlags)
+    ret
+
+.continue:
     ld a, (ti.menuCurrentSub)
-    cp a, ti.mPrgm_Run ; check for run menu
+    cp a, ti.mPrgm_Run
     jr z, .update
     cp a, ti.mPrgm_Edit
     jr nz, .returnOther
@@ -202,6 +209,8 @@ hooks_iconHook:
 .keyPress: ; keypress event
     ld bc, (getCSCvalBC)
     ld a, b
+    cp a, ti.skMatrix ; apps key
+    jr z, .return
     cp a, ti.skPrgm
     jr nz, .modified
     ld a, (iy + ti.shiftFlags)
@@ -215,8 +224,18 @@ hooks_iconHook:
     add a, a ; shift2nd
     call nc, _asm_fileSystem_sortVAT
 
+.return:
+    res updateProgInfo, (iy + shellFlags)
+    ret
+
 .modified:
-    res updateProgInfo, (iy + shellFlags) ; reset flag on keypress
+    res updateProgInfo, (iy + shellFlags)
+    ld a, (ti.menuCurrent)
+    cp a, ti.mApps
+    ret z
+    cp a, ti.mProgramHome
+    ret z
+    set updateProgInfo, (iy + shellFlags)
     ret
 
 .returnOther: ; draw over artifact when switching to create menu
@@ -561,12 +580,15 @@ hooks_openShellHook: ; Launches CEaShell, not actually a hook but called in the 
     xor a, a
     ld (ti.menuCurrent), a ; make sure we aren't on a menu
     ld hl, _rodata_appName ; execute app
-    ld de, $D0082E
+    ld de, ti.progCurrent + 1
     push de
-    ld bc, 8
+    ld bc, 9
     push bc
     ldir
+    ld a, ti.AppObj
+    ld (ti.progCurrent), a
     pop bc
+    dec bc
     pop hl
     ld de, ti.progToEdit ; copy it here just to be safe
     ldir

@@ -36,7 +36,7 @@ static void custom_ThemePreview(uint8_t *theme) {
     gfx_SetTextFGColor(theme[3]);
     gfx_PrintStringXY("Normal", 180, 185);
     gfx_SetTextFGColor(theme[4]);
-    gfx_PrintStringXY("Caché", 244, 185);
+    gfx_PrintStringXY("Cach}", 244, 185);
     #else
     gfx_SetTextFGColor(theme[3]);
     gfx_PrintStringXY("Normal", 180, 185);
@@ -48,7 +48,7 @@ static void custom_ThemePreview(uint8_t *theme) {
 static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     // Try to minimize relocations this way
     #ifdef FR
-    static const char *modifyingStrings = "Contexte\0\0\0Premier plan\0\0\0Surlignage\0\0\0\0Texte par défaut\0Texte caché\0";
+    static const char *modifyingStrings = "Contexte\0\0\0Premier plan\0\0\0Surlignage\0\0\0\0Texte par d}faut\0Texte cach}\0";
     #else
     static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
     #endif
@@ -289,7 +289,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     #ifdef FR
     menuContext.options[0] = "Transitions";
     menuContext.options[1] = "Vitesse de transition";
-    menuContext.options[2] = "Echelle d'icônes";
+    menuContext.options[2] = "Echelle d'ic@nes";
     menuContext.options[3] = "Horloge";
     menuContext.options[4] = "Afficher CEaShell";
     menuContext.options[5] = "Afficher les dossiers d'applis";
@@ -302,14 +302,14 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
     menuContext.details[0] = "Activer/D}sactiver la transition d'animation lorsque les menus s'ouvrent/ferment.";
     menuContext.details[1] = "Choisissez la vitesse d'animation pour la transition d'animations.";
-    menuContext.details[2] = "Échelle d'icônes dans la visionneuse principale.";
+    menuContext.details[2] = "}chelle d'ic@nes dans la visionneuse principale.";
     menuContext.details[3] = "Choisissez si l'heure doit |tre affich}e en mode 24 heures ou 12 heures.";
     menuContext.details[4] = "Afficher CEaShell dans le menu des fichiers.";
     menuContext.details[5] = "Afficher le dossier d'applications dans le menu principal de fichiers.";
     menuContext.details[6] = "Afficher le dossier d'AppVars dans le menu principal de fichiers.";
-    menuContext.details[7] = "Montrer les programmes cachés dans le menu principal de fichiers.";
+    menuContext.details[7] = "Montrer les programmes cach}s dans le menu principal de fichiers.";
     menuContext.details[8] = "Afficher le nombre de fichiers dans le r}pertoire actuel.";
-    menuContext.details[9] = "Temps d'attente après inactivité dans CEaShell avant d'éteindre la calculatrice.";
+    menuContext.details[9] = "Temps d'attente apr{s inactivit} dans CEaShell avant d'}teindre la calculatrice.";
     menuContext.details[10] = "Cr}ez vos propres th{mes de couleurs ~ utiliser sur CEaShell.";
     menuContext.details[11] = "S}lectionnez un th{me de couleurs pr{d{fini ~ utiliser par CEaShell.";
     #else

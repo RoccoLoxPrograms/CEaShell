@@ -335,7 +335,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copier", "Créer nouveau");
+    bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copier", "Cr}er nouveau");
     #else
     bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copy", "Create New");
     #endif
@@ -388,10 +388,10 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
 
 void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
-    static const char *specialThanks = "Remerciements à : Programmation: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
-    " Traduction française : Shadow. Inspiration/Idées : KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Testeurs bêta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
-    " Et un grand merci à tous les membres de notre Discord pour leurs idées et leurs support !";
+    static const char *specialThanks = "Remerciements ~ : Programmation: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
+    " Traduction fran`aise : Shadow. Inspiration/Id}es : KermMartian, Adriweb, epsilon5, NoahK,"
+    " Dream of Omnimaga. Testeurs b|ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
+    " Et un grand merci ~ tous les membres de notre Discord pour leurs id}es et leurs support !";
     #else
     static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
@@ -405,9 +405,9 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
     gfx_PrintStringXY("v"VERSION_NO, 18, 58);
     #ifdef FR
     ui_PrintStringWrap(
-        "CEaShell (Prononcé \"seashell\"), "
-        "est un shell crée par RoccoLox Programs et TIny_Hacker. "
-        "CEaShell vise à fournir une interface moderne et facile à utiliser "
+        "CEaShell (Prononc} \"seashell\"), "
+        "est un shell cr}e par RoccoLox Programs et TIny_Hacker. "
+        "CEaShell vise ~ fournir une interface moderne et facile ~ utiliser "
         "pour les calculculatrices TI-83 premium CE et TI-84 Plus CE.", 18, 75, 40, 6
     );
     #else

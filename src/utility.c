@@ -19,6 +19,7 @@
 #include "asm/fileOps.h"
 #include "asm/fileSystem.h"
 #include "asm/hooks.h"
+#include "asm/spi.h"
 #include "asm/utils.h"
 
 #include <fileioc.h>
@@ -66,6 +67,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
         shellContext->fileSelected = 0;
         shellContext->fileStartLoc = 0;
 
+        asm_spi_beginFrame();
         gfx_ZeroScreen();
         gfx_SetColor(237);
         shapes_RoundRectangleFill(6, 36, 76, 249, 89);
@@ -76,6 +78,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
         gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 48, 144);
         gfx_SetTextScale(2, 2);
         gfx_PrintStringXY(&rodata_appName, 103, 88);
+        asm_spi_endFrame();
         while (!kb_AnyKey());
         while (kb_AnyKey());
     }

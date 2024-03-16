@@ -350,6 +350,8 @@ _asm_prgmMenuHook_showAppInfo:
 
 .drawCopyright:
     call prgmMenuHook_eraseRect
+    xor a, a
+    ld (ti.progCurrent + 9), a ; zero terminate name just in case
     ld hl, ti.progCurrent + 1
     call ti.FindAppStart
     jr c, .return
