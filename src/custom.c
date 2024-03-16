@@ -36,7 +36,7 @@ static void custom_ThemePreview(uint8_t *theme) {
     gfx_SetTextFGColor(theme[3]);
     gfx_PrintStringXY("Normal", 180, 185);
     gfx_SetTextFGColor(theme[4]);
-    gfx_PrintStringXY("Hidden", 244, 185);
+    gfx_PrintStringXY("Caché", 244, 185);
     #else
     gfx_SetTextFGColor(theme[3]);
     gfx_PrintStringXY("Normal", 180, 185);
@@ -48,7 +48,7 @@ static void custom_ThemePreview(uint8_t *theme) {
 static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     // Try to minimize relocations this way
     #ifdef FR
-    static const char *modifyingStrings = "Contexte\0\0\0Foreground\0\0\0Surligner\0\0\0\0Default text\0Hidden text\0";
+    static const char *modifyingStrings = "Contexte\0\0\0Premier plan\0\0\0Surlignage\0\0\0\0Texte par défaut\0Texte caché\0";
     #else
     static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
     #endif
@@ -132,7 +132,7 @@ static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_
             gfx_PrintStringXY(&modifyingStrings[modifying * 13], 171, 79);
 
             #ifdef FR
-            gfx_PrintString(" color");
+            gfx_PrintString(" couleur");
             #else
             gfx_PrintString(" color");
             #endif
@@ -289,12 +289,12 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     #ifdef FR
     menuContext.options[0] = "Transitions";
     menuContext.options[1] = "Vitesse de transition";
-    menuContext.options[2] = "Icon Scale";
+    menuContext.options[2] = "Echelle d'icônes";
     menuContext.options[3] = "Horloge";
-    menuContext.options[4] = "Show CEaShell";
-    menuContext.options[5] = "Show Apps Folder";
-    menuContext.options[6] = "Show AppVars Folder";
-    menuContext.options[7] = "Show Hidden Programs";
+    menuContext.options[4] = "Afficher CEaShell";
+    menuContext.options[5] = "Afficher les dossiers d'applis";
+    menuContext.options[6] = "Afficher le dossier d'AppVars";
+    menuContext.options[7] = "Afficher les programmes cach}s";
     menuContext.options[8] = "Nombre de fichiers";
     menuContext.options[9] = "Minuterie APD";
     menuContext.options[10] = "Th{mes personnalis}s";
@@ -302,14 +302,14 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
     menuContext.details[0] = "Activer/D}sactiver la transition d'animation lorsque les menus s'ouvrent/ferment.";
     menuContext.details[1] = "Choisissez la vitesse d'animation pour la transition d'animations.";
-    menuContext.details[2] = "Scale of file icons in the main file viewer.";
+    menuContext.details[2] = "Échelle d'icônes dans la visionneuse principale.";
     menuContext.details[3] = "Choisissez si l'heure doit |tre affich}e en mode 24 heures ou 12 heures.";
-    menuContext.details[4] = "Show CEaShell in the main file viewer.";
-    menuContext.details[5] = "Show the Apps folder in the main file viewer.";
-    menuContext.details[6] = "Show the AppVars folder in the main file viewer.";
-    menuContext.details[7] = "Show hidden programs in the main file viewer.";
+    menuContext.details[4] = "Afficher CEaShell dans le menu des fichiers.";
+    menuContext.details[5] = "Afficher le dossier d'applications dans le menu principal de fichiers.";
+    menuContext.details[6] = "Afficher le dossier d'AppVars dans le menu principal de fichiers.";
+    menuContext.details[7] = "Montrer les programmes cachés dans le menu principal de fichiers.";
     menuContext.details[8] = "Afficher le nombre de fichiers dans le r}pertoire actuel.";
-    menuContext.details[9] = "Number of minutes to wait after inactivity in CEaShell before turning off the calculator.";
+    menuContext.details[9] = "Temps d'attente après inactivité dans CEaShell avant d'éteindre la calculatrice.";
     menuContext.details[10] = "Cr}ez vos propres th{mes de couleurs ~ utiliser sur CEaShell.";
     menuContext.details[11] = "S}lectionnez un th{me de couleurs pr{d{fini ~ utiliser par CEaShell.";
     #else
