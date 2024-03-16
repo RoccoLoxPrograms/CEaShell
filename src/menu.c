@@ -65,7 +65,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
             if (xEdge) {
                 #ifdef FR
                 if (value) {
-                    gfx_PrintStringXY("24 Heure", xEdge - 67, y);
+                    gfx_PrintStringXY("24 Heures", xEdge - 67, y);
                 } else {
                     gfx_PrintStringXY("AM/PM", xEdge - 58, y);
                 }
@@ -293,8 +293,8 @@ bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellCo
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    gfx_PrintStringXY("New", 69, 207);
-    gfx_PrintStringXY("Name:", 64, 216);
+    gfx_PrintStringXY("Nouveau", 69, 207);
+    gfx_PrintStringXY("Nom:", 64, 216);
     #else
     gfx_PrintStringXY("New", 69, 207);
     gfx_PrintStringXY("Name:", 64, 216);
@@ -335,7 +335,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copy", "Create New");
+    bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copier", "Créer nouveau");
     #else
     bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copy", "Create New");
     #endif
@@ -348,8 +348,8 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    gfx_PrintStringXY("New", 69, 207);
-    gfx_PrintStringXY("Name:", 64, 216);
+    gfx_PrintStringXY("Nouveau", 69, 207);
+    gfx_PrintStringXY("Nom:", 64, 216);
     #else
     gfx_PrintStringXY("New", 69, 207);
     gfx_PrintStringXY("Name:", 64, 216);
@@ -388,10 +388,10 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
 
 void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
-    static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
-    " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
-    " And a big thank you to the members of our Discord for your support and ideas!";
+    static const char *specialThanks = "Remerciements à : Programmation: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
+    " Traduction française : Shadow. Inspiration/Idées : KermMartian, Adriweb, epsilon5, NoahK,"
+    " Dream of Omnimaga. Testeurs bêta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
+    " Et un grand merci à tous les membres de notre Discord pour leurs idées et leurs support !";
     #else
     static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
@@ -405,10 +405,10 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
     gfx_PrintStringXY("v"VERSION_NO, 18, 58);
     #ifdef FR
     ui_PrintStringWrap(
-        "CEaShell (pronounced \"seashell\"), "
-        "is a shell created by RoccoLox Programs and TIny_Hacker. "
-        "CEaShell aims to provide an easy to use, modern interface "
-        "for the TI-84+ CE and TI-83 PCE calculators.", 18, 75, 40, 6
+        "CEaShell (Prononcé \"seashell\"), "
+        "est un shell crée par RoccoLox Programs et TIny_Hacker. "
+        "CEaShell vise à fournir une interface moderne et facile à utiliser "
+        "pour les calculculatrices TI-83 premium CE et TI-84 Plus CE.", 18, 75, 40, 6
     );
     #else
     ui_PrintStringWrap(
