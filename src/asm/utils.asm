@@ -48,6 +48,7 @@ include 'include/equates.inc'
     extern _rodata_hexaEditHeader
     extern _rodata_characters
     extern _rodata_sizeOfCharsLUT
+    extern _gfx_GetCharWidth
     extern _exit.sp
 
 _asm_utils_checkEOF: ; bc = current address being read; destroys hl
@@ -221,26 +222,19 @@ _asm_utils_arcUnarc:
     ret
 
 _asm_utils_setGfxCharWidth: ; Set the width of a specific character in the graphx font
-    ld iy, 0
-    add iy, sp
-    ld hl, (iy + 3)
-    ld de, .gfxReturn
-    push iy
     ld c, 0
     push bc
-    push de
-    jp (hl)
-
-.gfxReturn:
+    call _gfx_GetCharWidth
     pop hl
-    pop iy
-    ld a, (iy + 6)
+    ld iy, 0
+    add iy, sp
+    ld a, (iy + 3)
     push bc
     pop hl
     ld bc, 0
     ld c, a
     add hl, bc
-    ld a, (iy + 9)
+    ld a, (iy + 6)
     ld (hl), a
     ret
 

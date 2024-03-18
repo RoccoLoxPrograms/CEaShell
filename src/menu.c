@@ -57,7 +57,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
             break;
         case MENU_TYPE_TIME:
             #ifdef FR
-            width = 70;
+            width = 51;
             #else
             width = 62;
             #endif
@@ -65,9 +65,9 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
             if (xEdge) {
                 #ifdef FR
                 if (value) {
-                    gfx_PrintStringXY("24 Heures", xEdge - 67, y);
+                    gfx_PrintStringXY("24h", xEdge - 40, y);
                 } else {
-                    gfx_PrintStringXY("AM/PM", xEdge - 58, y);
+                    gfx_PrintStringXY("AM/PM", xEdge - 48, y);
                 }
                 #else
                 if (value) {
@@ -80,34 +80,38 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
 
             break;
         case MENU_TYPE_SPEED:
+            #ifdef FR
+            width = 35;
+            #else
             width = 56;
+            #endif
 
             if (xEdge) {
                 switch (value) {
                     case TRANSITION_OFF:
                         #ifdef FR
-                        gfx_PrintStringXY("D}s", xEdge - 42, y);
+                        gfx_PrintStringXY("D}s", xEdge - 32, y);
                         #else
                         gfx_PrintStringXY("Off", xEdge - 42, y);
                         #endif
                         break;
                     case TRANSITION_SLOW:
                         #ifdef FR
-                        gfx_PrintStringXY("Lente", xEdge - 50, y);
+                        gfx_PrintStringXY("1", xEdge - 23, y);
                         #else
                         gfx_PrintStringXY("Slow", xEdge - 45, y);
                         #endif
                         break;
                     case TRANSITION_MED:
                         #ifdef FR
-                        gfx_PrintStringXY("Normal", xEdge - 53, y);
+                        gfx_PrintStringXY("2", xEdge - 24, y);
                         #else
                         gfx_PrintStringXY("Normal", xEdge - 53, y);
                         #endif
                         break;
                     case TRANSITION_FAST:
                         #ifdef FR
-                        gfx_PrintStringXY("Rapide", xEdge - 53, y);
+                        gfx_PrintStringXY("3", xEdge - 24, y);
                         #else
                         gfx_PrintStringXY("Fast", xEdge - 46, y);
                         #endif

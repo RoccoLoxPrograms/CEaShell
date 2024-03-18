@@ -58,11 +58,10 @@ void asm_utils_arcOnGC(void *vatPtr);
 /**
  * @brief Sets the width of a specific character in the Graphx font to a custom value.
  * 
- * @param functionPtr Pointer to gfx_GetCharWidth function.
  * @param charNum Offset of the character in the font to modify the width of.
  * @param width Custom width to set the character to.
  */
-void asm_utils_setGfxCharWidth(void *functionPtr, uint8_t charNum, uint8_t width);
+void asm_utils_setGfxCharWidth(uint8_t charNum, uint8_t width);
 
 /**
  * @brief Scans the keypad and returns a character based on the key pressed.

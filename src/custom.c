@@ -48,7 +48,7 @@ static void custom_ThemePreview(uint8_t *theme) {
 static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     // Try to minimize relocations this way
     #ifdef FR
-    static const char *modifyingStrings = "Contexte\0\0\0Premier plan\0\0\0Surlignage\0\0\0\0Texte par d}faut\0Texte cach}\0";
+    static const char *modifyingStrings = "contexte\0\0\0\0\0\0\0\0\0premier plan\0\0\0\0\0surlignage\0\0\0\0\0\0\0texte par d}faut\0texte cach}\0";
     #else
     static const char *modifyingStrings = "Background\0\0\0Foreground\0\0\0Highlight\0\0\0\0Default text\0Hidden text\0";
     #endif
@@ -111,29 +111,45 @@ static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_
             for (uint8_t x = 0; x < 32; x++) {
                 for (uint8_t y = 0; y < 8; y++) {
                     gfx_SetColor(y * 32 + x);
+                    #ifdef FR
+                    gfx_FillRectangle_NoClip(170 + 4 * x, 38 + 4 * y, 4, 4);
+                    #else
                     gfx_FillRectangle_NoClip(170 + 4 * x, 41 + 4 * y, 4, 4);
+                    #endif
 
                     if (y * 32 + x == selected) {
                         gfx_SetColor(!(selected > 131 && selected % 8 > 3) * 255);
+                        #ifdef FR
+                        gfx_Rectangle_NoClip(170 + 4 * x, 38 + 4 * y, 4, 4);
+                        #else
                         gfx_Rectangle_NoClip(170 + 4 * x, 41 + 4 * y, 4, 4);
+                        #endif
                     }
                 }
             }
 
             gfx_SetColor(shellPrefs->bgColor);
+            #ifdef FR
+            gfx_SetPixel(170, 38);
+            gfx_SetPixel(297, 38);
+            gfx_SetPixel(170, 69);
+            gfx_SetPixel(297, 69);
+            #else
             gfx_SetPixel(170, 41);
             gfx_SetPixel(297, 41);
             gfx_SetPixel(170, 72);
             gfx_SetPixel(297, 72);
+            #endif
 
             custom_ThemePreview(newTheme);
 
             gfx_SetTextFGColor(shellPrefs->textColor);
-            gfx_PrintStringXY(&modifyingStrings[modifying * 13], 171, 79);
 
             #ifdef FR
-            gfx_PrintString(" couleur");
+            gfx_PrintStringXY("Couleur de ", 171, 72);
+            gfx_PrintStringXY(&modifyingStrings[modifying * 17], 171, 80);
             #else
+            gfx_PrintStringXY(&modifyingStrings[modifying * 13], 171, 79);
             gfx_PrintString(" color");
             #endif
 
@@ -281,7 +297,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     menuContext.totalOptions = 12;
     menuContext.optionSelected = 0;
     #ifdef FR
-    menuContext.totalHeight = 272;
+    menuContext.totalHeight = 343;
     #else
     menuContext.totalHeight = 235;
     #endif
@@ -302,7 +318,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
     menuContext.details[0] = "Activer/D}sactiver la transition d'animation lorsque les menus s'ouvrent/ferment.";
     menuContext.details[1] = "Choisissez la vitesse d'animation pour la transition d'animations.";
-    menuContext.details[2] = "}chelle d'ic@nes dans la visionneuse principale.";
+    menuContext.details[2] = "Echelle d'ic@nes dans la visionneuse principale.";
     menuContext.details[3] = "Choisissez si l'heure doit |tre affich}e en mode 24 heures ou 12 heures.";
     menuContext.details[4] = "Afficher CEaShell dans le menu des fichiers.";
     menuContext.details[5] = "Afficher le dossier d'applications dans le menu principal de fichiers.";
@@ -384,7 +400,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
             if (kb_IsDown(kb_KeyUp)) {
                 if (menuContext.optionSelected) {
-                    uint8_t nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
+                    int nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
 
                     if (nextY < 38) {
                         startY += 38 - nextY;
@@ -396,7 +412,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
                     menuContext.optionSelected -= 1;
                 } else {
                     #ifdef FR
-                    startY = -67;
+                    startY = -138;
                     #else
                     startY = -30;
                     #endif

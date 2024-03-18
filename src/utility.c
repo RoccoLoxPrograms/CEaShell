@@ -160,7 +160,7 @@ void util_FilesInit(struct preferences_t *shellPrefs, struct context_t *shellCon
 }
 
 void util_SetGFXChar(uint8_t charOffset, const uint8_t *charData, uint8_t charWidth) {
-    asm_utils_setGfxCharWidth(*gfx_GetCharWidth, charOffset, charWidth);
+    asm_utils_setGfxCharWidth(charOffset, charWidth);
     gfx_SetCharData(charOffset, charData);
 }
 

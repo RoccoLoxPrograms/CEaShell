@@ -45,13 +45,13 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     menuContext.totalOptions = 9;
     menuContext.optionSelected = 0;
     #ifdef FR
-    menuContext.totalHeight = 257;
+    menuContext.totalHeight = 280;
     #else
     menuContext.totalHeight = 208;
     #endif
 
     #ifdef FR
-    menuContext.options[0] = "Icon Hook";
+    menuContext.options[0] = "Hook d'ic@ne";
     menuContext.options[1] = "Raccourcis de la touche [on]";
     menuContext.options[2] = "D}filement rapide alpha";
     menuContext.options[3] = "Modifier des programmes archiv}s";
@@ -71,7 +71,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     menuContext.details[2] = "Activer le d}filement rapide avec la touche alpha dans l'}diteur de programmes.";
     menuContext.details[3] = "Autoriser l'}dition de programmes archiv}s dans le menu d'}dition [prgm] de l'OS.";
     menuContext.details[4] = "Autoriser l'}dition de programmes\nBASIC verrouill}s dans CEaShell.";
-    menuContext.details[5] = "Sur les version Python, omettre le menu TI-BASIC/Python et acc}der directement ~ la liste des programmes TI-BASIC en appuyant sur [prgm].";
+    menuContext.details[5] = "Sur les version Python, omettre le menu BASIC/Python et acc}der directement ~ la liste des programmes BASIC\nen appuyant sur [prgm].";
     menuContext.details[6] = "D}sactiver l'indicateur d'activit} dans les programmes TI-BASIC.";
     menuContext.details[7] = "Activez les minuscules dans l'OS en appuyant deux fois sur [alpha].";
     menuContext.details[8] = "D}couvrez les personnes qui ont contribu} ~ cr}er CEaShell !";
@@ -140,7 +140,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
             if (kb_IsDown(kb_KeyUp)) {
                 if (menuContext.optionSelected) {
-                    uint8_t nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
+                    int nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
 
                     if (nextY < 38) {
                         startY += 38 - nextY;
@@ -152,11 +152,11 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
                     menuContext.optionSelected -= 1;
                 } else {
                     #ifdef FR
-                    startY = -51;
+                    startY = -75;
                     #else
-                    startY = -2;
+                    startY = -3;
                     #endif
-                    optionY = 193;
+                    optionY = 181;
                     menuContext.optionSelected = 8;
                 }
             } else if (kb_IsDown(kb_KeyDown)) {
