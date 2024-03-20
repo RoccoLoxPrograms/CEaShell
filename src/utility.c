@@ -84,7 +84,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
     }
 }
 
-void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellContext, const bool updateVAT) {
+void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellContext, bool updateVAT) {
     asm_utils_toggleLowercase(shellPrefs->osLowercase);
 
     if (shellPrefs->getCSCHooks) {
@@ -300,7 +300,7 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
     fileInfo->locked = !(fileInfo->type == OS_TYPE_PRGM || fileInfo->shellType == CELTIC_TYPE);
 }
 
-unsigned int util_SpaceSearch(const char *string, const unsigned int start) {
+unsigned int util_SpaceSearch(char *string, unsigned int start) {
     for (int k = start; k >= 0; k--) {
         if (string[k] == '\n') {
             return k + 1;

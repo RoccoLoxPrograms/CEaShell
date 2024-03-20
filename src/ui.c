@@ -28,7 +28,7 @@
 #include <sys/power.h>
 #include <sys/rtc.h>
 
-void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y) {
+void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y) {
     bool colorAlt = !(color > 131 && color % 8 > 3);
 
     // Dark sprites first, then light sprites
@@ -172,7 +172,7 @@ void ui_ScrollBar(struct preferences_t *shellPrefs, unsigned int x, uint8_t y, u
     }
 }
 
-void ui_CheckBox(const bool isChecked, const int x, const uint8_t y) {
+void ui_CheckBox(bool isChecked, int x, uint8_t y) {
     uint8_t bgColor = gfx_GetPixel(x, y);
 
     if (!(bgColor > 131 && bgColor % 8 > 3)) {
@@ -330,7 +330,7 @@ void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellConte
     }
 }
 
-int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines) {
+int ui_PrintStringWrap(char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines) {
     unsigned int offset = 0;
     uint8_t line = 1;
     unsigned int end = 0;
@@ -369,7 +369,7 @@ int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int c
     return y;
 }
 
-void ui_CenterStringBig(const char *string, unsigned int centerX, uint8_t y) {
+void ui_CenterStringBig(char *string, unsigned int centerX, uint8_t y) {
     gfx_SetTextScale(2, 2);
     gfx_PrintStringXY(string, centerX - gfx_GetStringWidth(string) / 2, y);
     gfx_SetTextScale(1, 1);
@@ -510,7 +510,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
     return NULL;
 }
 
-void ui_TransitionDrawFrame(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height) {
+void ui_TransitionDrawFrame(uint8_t radius, int x, uint8_t y, int width, uint8_t height) {
     asm_spi_beginFrame();
     gfx_BlitBuffer();
     shapes_RoundRectangleFill(radius, x, y, width, height);

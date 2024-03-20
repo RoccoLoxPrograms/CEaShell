@@ -228,11 +228,10 @@ _asm_utils_setGfxCharWidth: ; Set the width of a specific character in the graph
     pop hl
     ld iy, 0
     add iy, sp
-    ld a, (iy + 3)
     push bc
     pop hl
     ld bc, 0
-    ld c, a
+    ld c, (iy + 3)
     add hl, bc
     ld a, (iy + 6)
     ld (hl), a

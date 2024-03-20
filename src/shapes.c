@@ -15,7 +15,7 @@
 
 #include "gfx/gfx.h"
 
-void shapes_RoundRectangleFill(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height) {
+void shapes_RoundRectangleFill(uint8_t radius, int x, uint8_t y, int width, uint8_t height) {
     gfx_FillCircle_NoClip(x + radius, y + radius, radius);
     gfx_FillCircle_NoClip(x + radius, y + height - radius - 1, radius);
     gfx_FillCircle_NoClip(x + width - radius - 1, y + radius, radius);
@@ -24,12 +24,12 @@ void shapes_RoundRectangleFill(const uint8_t radius, const int x, const uint8_t 
     gfx_FillRectangle_NoClip(x + radius, y, width - radius * 2, height);
 }
 
-void shapes_PixelIndentRectangle(const unsigned int x, const uint8_t y, const unsigned int width, const uint8_t height) {
+void shapes_PixelIndentRectangle(unsigned int x, uint8_t y, unsigned int width, uint8_t height) {
     gfx_FillRectangle(x + 1, y, width - 2, height);
     gfx_Rectangle(x, y + 1, width, height - 2);
 }
 
-void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const uint8_t radius, const int x, const uint8_t y) {
+void shapes_GetRoundCorners(gfx_sprite_t *corner1, uint8_t color, uint8_t radius, int x, uint8_t y) {
     gfx_UninitedSprite(cornerBackup, 25, 25);
     cornerBackup->width = radius * 2 + 1;
     cornerBackup->height = radius * 2 + 1;
@@ -42,7 +42,7 @@ void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const ui
     gfx_Sprite_NoClip(cornerBackup, x, y);
 }
 
-void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const uint8_t height, const int x, const uint8_t y) {
+void shapes_DrawRoundCorners(gfx_sprite_t *corner1, uint8_t width, uint8_t height, int x, uint8_t y) {
     gfx_UninitedSprite(corner2, 12, 12);
     corner2->width = corner1->width;
     corner2->height = corner1->height;
@@ -56,7 +56,7 @@ void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const u
     gfx_TransparentSprite_NoClip(corner2, x, y + height - corner1->width);
 }
 
-void shapes_FileIcon(uint8_t scale, uint8_t shellType, const int x, const uint8_t y) {
+void shapes_FileIcon(uint8_t scale, uint8_t shellType, int x, uint8_t y) {
     static const gfx_sprite_t *fileTypeIcons[20] = {
         typeASM, typeC, typeBasic, typeICE, typeSrc, NULL, typeAppVar, NULL, typeCelticVar, typeApp,
         typeASMAlt, typeCAlt, typeBasicAlt, typeICEAlt, typeSrcAlt, NULL, typeAppVarAlt, NULL, typeCelticVarAlt, typeAppAlt
@@ -111,7 +111,7 @@ void shapes_FileIcon(uint8_t scale, uint8_t shellType, const int x, const uint8_
     }
 }
 
-void shapes_Folder(uint8_t scale, const int x, const uint8_t y) {
+void shapes_Folder(uint8_t scale, int x, uint8_t y) {
     uint8_t bgColor = gfx_GetPixel(x, y);
     uint8_t fgColor = 0 + 255 * !(bgColor > 131 && bgColor % 8 > 3);
     gfx_SetColor(0 + 255 * (fgColor != 255));

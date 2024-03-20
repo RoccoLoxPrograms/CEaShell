@@ -29,7 +29,7 @@ extern "C" {
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  */
-void shapes_RoundRectangleFill(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height);
+void shapes_RoundRectangleFill(uint8_t radius, int x, uint8_t y, int width, uint8_t height);
 
 /**
  * @brief Draws a filled rectangle with a pixel indent in each of the corners. (Destroys current GFX color)
@@ -39,7 +39,7 @@ void shapes_RoundRectangleFill(const uint8_t radius, const int x, const uint8_t 
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  */
-void shapes_PixelIndentRectangle(const unsigned int x, const uint8_t y, const unsigned int width, const uint8_t height);
+void shapes_PixelIndentRectangle(unsigned int x, uint8_t y, unsigned int width, uint8_t height);
 
 /**
  * @brief Sets up a corner tile in corner1 to be used later with shapes_DrawRoundCorners.
@@ -50,7 +50,7 @@ void shapes_PixelIndentRectangle(const unsigned int x, const uint8_t y, const un
  * @param x X coordinate to use for setting up the tile.
  * @param y Y coordinate to use for setting up the tile.
  */
-void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const uint8_t radius, const int x, const uint8_t y);
+void shapes_GetRoundCorners(gfx_sprite_t *corner1, uint8_t color, uint8_t radius, int x, uint8_t y);
 
 /**
  * @brief Draws inverted corners around an object to give the impression of "rounding" it.
@@ -61,7 +61,7 @@ void shapes_GetRoundCorners(gfx_sprite_t *corner1, const uint8_t color, const ui
  * @param x X coordinate to begin drawing at.
  * @param y Y coordinate to begin drawing at.
  */
-void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const uint8_t height, const int x, const uint8_t y);
+void shapes_DrawRoundCorners(gfx_sprite_t *corner1, uint8_t width, uint8_t height, int x, uint8_t y);
 
 /**
  * @brief Draws the default file icon.
@@ -71,7 +71,7 @@ void shapes_DrawRoundCorners(gfx_sprite_t *corner1, const uint8_t width, const u
  * @param x X coordinate to begin drawing the icon at.
  * @param y Y coordinate to begin drawing the icon at.
  */
-void shapes_FileIcon(uint8_t scale, uint8_t shellType, const int x, const uint8_t y);
+void shapes_FileIcon(uint8_t scale, uint8_t shellType, int x, uint8_t y);
 
 /**
  * @brief Draws the default folder icon/
@@ -80,7 +80,7 @@ void shapes_FileIcon(uint8_t scale, uint8_t shellType, const int x, const uint8_
  * @param x X coordinate to begin drawing the icon at.
  * @param y Y coordinate to begin drawing the icon at.
  */
-void shapes_Folder(uint8_t scale, const int x, const uint8_t y);
+void shapes_Folder(uint8_t scale, int x, uint8_t y);
 
 #ifdef __cplusplus
 }

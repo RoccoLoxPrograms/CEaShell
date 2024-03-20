@@ -27,7 +27,7 @@ extern "C" {
  * @param x X coordinate to draw the sprite at.
  * @param y Y coordinate to draw the sprite at.
  */
-void ui_DrawUISprite(const uint8_t color, const uint8_t spriteNo, const int x, const uint8_t y);
+void ui_DrawUISprite(uint8_t color, uint8_t spriteNo, int x, uint8_t y);
 
 /**
  * @brief Draws CEaShell's status bar.
@@ -67,7 +67,7 @@ void ui_ScrollBar(struct preferences_t *shellPrefs, unsigned int x, uint8_t y, u
  * @param x X coordinate to begin drawing the box at.
  * @param y Y coordinate to begin drawing the box at.
  */
-void ui_CheckBox(const bool isChecked, const int x, const uint8_t y);
+void ui_CheckBox(bool isChecked, int x, uint8_t y);
 
 /**
  * @brief Draws the files displayed in the main file manager context.
@@ -87,7 +87,7 @@ void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellConte
  * @param maxLines Maximum number of lines to display.
  * @return int Updated Y value
  */
-int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines);
+int ui_PrintStringWrap(char *string, unsigned int x, int y, unsigned int charsPerLine, uint8_t maxLines);
 
 /**
  * @brief Print a string at double the scale (minimizes relocations to save space).
@@ -96,7 +96,7 @@ int ui_PrintStringWrap(const char *string, unsigned int x, int y, unsigned int c
  * @param centerX X location to center the string at.
  * @param y Y location to display the string at.
  */
-void ui_CenterStringBig(const char *string, unsigned int centerX, uint8_t y);
+void ui_CenterStringBig(char *string, unsigned int centerX, uint8_t y);
 
 /**
  * @brief Gets an 8-character long string input (Used for file names).
@@ -119,7 +119,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  */
-void ui_TransitionDrawFrame(const uint8_t radius, const int x, const uint8_t y, const int width, const uint8_t height);
+void ui_TransitionDrawFrame(uint8_t radius, int x, uint8_t y, int width, uint8_t height);
 
 #ifdef __cplusplus
 }

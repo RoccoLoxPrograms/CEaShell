@@ -33,7 +33,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
  * @param shellContext Shell context struct.
  * @param updateVAT Whether or not to re-sort the VAT afterwards. This is necessary when writing to the AppVar if not exiting the shell immediately afterwards.
  */
-void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellContext, const bool updateVAT);
+void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellContext, bool updateVAT);
 
 /**
  * @brief Saves the current preferences and shell context, ends the graphx library context, and turns off the calculator to reload CEaShell when turned back on.
@@ -77,7 +77,7 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
  * @param start Byte of the string to begin searching backwards from.
  * @return unsigned int The location of the word break, or, the initial location if no spaces occur.
  */
-unsigned int util_SpaceSearch(const char *string, const unsigned int start);
+unsigned int util_SpaceSearch(char *string, unsigned int start);
 
 /**
  * @brief Jumps to a file in the current directory beginning with the letter key pressed.
