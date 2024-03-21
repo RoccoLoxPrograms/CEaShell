@@ -5,7 +5,7 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022 - 2024
  * License: GPL-3.0
- * Last Build: March 18, 2024
+ * Last Build: March 21, 2024
  * Version: 2.0.0-beta.4
  * 
  * --------------------------------------
@@ -52,21 +52,23 @@ int main(void) {
     util_ReadPrefs(&shellPrefs, &shellContext);
 
     #ifdef FR
-    const uint8_t circumflexO[8] = {0x7C, 0x82, 0x7C, 0xC6, 0xC6, 0xC6, 0x7C, 0x00};    // @ = ô
-    const uint8_t circumflexU[8] = {0x7C, 0x82, 0xC6, 0xC6, 0xC6, 0xC6, 0x7E, 0x00};    // ^ = û
-    const uint8_t cedilla[8] = {0x00, 0x00, 0x7C, 0xC6, 0xC0, 0xC6, 0x7C, 0x30};        // ` = ç
-    const uint8_t rightEAccent[8] = {0x1C, 0x00, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};         // } = é
-    const uint8_t circumflexE[8] = {0x7C, 0x82, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};          // | = ê
-    const uint8_t leftEAccent[8] = {0x70, 0x00, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};          // { = è
-    const uint8_t leftAAccent[8] = {0x70, 0x00, 0x7C, 0x06, 0x7E, 0xC6, 0x7E, 0x00};    // ~ = à
+    const uint8_t circumflexO[8] = {0x7C, 0x82, 0x7C, 0xC6, 0xC6, 0xC6, 0x7C, 0x00};        // \x0B = ô
+    const uint8_t circumflexU[8] = {0x7C, 0x82, 0xC6, 0xC6, 0xC6, 0xC6, 0x7E, 0x00};        // \x0C = û
+    const uint8_t cedilla[8] = {0x00, 0x00, 0x7C, 0xC6, 0xC0, 0xC6, 0x7C, 0x30};            // \x13 = ç
+    const uint8_t capRightEAccent[8] = {0x1E, 0x00, 0xFE, 0xC0, 0xF8, 0xC0, 0xFE, 0x00};    // \x14  = É
+    const uint8_t rightEAccent[8] = {0x1C, 0x00, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};             // \x15 = é
+    const uint8_t circumflexE[8] = {0x7C, 0x82, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};              // \x16 = ê
+    const uint8_t leftEAccent[8] = {0x70, 0x00, 0x7C, 0xC6, 0xFE, 0xC0, 0x7C};              // \x1C = è
+    const uint8_t leftAAccent[8] = {0x70, 0x00, 0x7C, 0x06, 0x7E, 0xC6, 0x7E, 0x00};        // \x7F = à
 
-    util_SetGFXChar('@', circumflexO, 8);
-    util_SetGFXChar('^', circumflexU, 8);
-    util_SetGFXChar('`', cedilla, 8);
-    util_SetGFXChar('}', rightEAccent, 8);
-    util_SetGFXChar('|', circumflexE, 8);
-    util_SetGFXChar('{', leftEAccent, 8);
-    util_SetGFXChar('~', leftAAccent, 8);
+    util_SetGFXChar(0x0B, circumflexO, 8);
+    util_SetGFXChar(0x0C, circumflexU, 8);
+    util_SetGFXChar(0x13, cedilla, 8);
+    util_SetGFXChar(0x14, capRightEAccent, 8);
+    util_SetGFXChar(0x15, rightEAccent, 8);
+    util_SetGFXChar(0x16, circumflexE, 8);
+    util_SetGFXChar(0x1C, leftEAccent, 8);
+    util_SetGFXChar(0x7F, leftAAccent, 8);
     #endif
 
     util_CorrectTransparentColor(&shellPrefs);

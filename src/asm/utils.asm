@@ -222,16 +222,14 @@ _asm_utils_arcUnarc:
     ret
 
 _asm_utils_setGfxCharWidth: ; Set the width of a specific character in the graphx font
-    ld c, 0
-    push bc
+    or a, a
+    sbc hl, hl
+    push hl
     call _gfx_GetCharWidth
-    pop hl
-    ld iy, 0
+    pop iy
+    lea hl, iy
     add iy, sp
-    push bc
-    pop hl
-    ld bc, 0
-    ld c, (iy + 3)
+    ld l, (iy + 3)
     add hl, bc
     ld a, (iy + 6)
     ld (hl), a

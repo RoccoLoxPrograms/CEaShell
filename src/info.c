@@ -127,7 +127,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
         if (fileInfo->shellType != APP_TYPE) {
             #ifdef FR
             gfx_PrintStringXY("Attribuer :", 64, 148);
-            gfx_PrintStringXY("Archiv}    Verrouill}    Cach}", 71, 161);
+            gfx_PrintStringXY("Archiv""\x15""    Verrouill""\x15""    Cach""\x15", 71, 161);
             gfx_PrintStringXY("Suppr.       Renom.    Modifier", 75, 190);
 
             ui_CheckBox(fileInfo->archived, 61, 161);
@@ -155,7 +155,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
         }
 
         #ifdef FR
-        gfx_PrintStringXY("Op}rations du fichier :", 64, 176);
+        gfx_PrintStringXY("Op""\x15""rations du fichier :", 64, 176);
         #else
         gfx_PrintStringXY("File Operations:", 64, 176);
         #endif

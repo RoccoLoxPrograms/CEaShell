@@ -21,7 +21,7 @@
 
 void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
-    ui_DrawStatusBar(shellPrefs, shellContext, "Param{tres");
+    ui_DrawStatusBar(shellPrefs, shellContext, "Param""\x1C""tres");
     #else
     ui_DrawStatusBar(shellPrefs, shellContext, "Settings");
     #endif
@@ -51,30 +51,30 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     #endif
 
     #ifdef FR
-    menuContext.options[0] = "Hook d'ic@ne";
+    menuContext.options[0] = "Hook d'ic""\x0B""ne";
     menuContext.options[1] = "Raccourcis de la touche [on]";
-    menuContext.options[2] = "D}filement rapide alpha";
-    menuContext.options[3] = "Modifier des programmes archiv}s";
-    menuContext.options[4] = "Modifier des programmes verrouill}s";
+    menuContext.options[2] = "D""\x15""filement rapide alpha";
+    menuContext.options[3] = "Modifier des programmes archiv""\x15""s";
+    menuContext.options[4] = "Modifier des programmes verrouill""\x15""s";
     menuContext.options[5] = "Cacher les options de programmation";
-    menuContext.options[6] = "D}sactiver l'indicateur d'activit}";
+    menuContext.options[6] = "D""\x15""sactiver l'indicateur d'activit""\x15";
     menuContext.options[7] = "Minuscules";
     menuContext.options[8] = "A propos de CEaShell";
 
-    menuContext.details[0] = "Choisissez d'afficher ou non les ic@nes et descriptions des programmes dans le menu OS [prgm].";
+    menuContext.details[0] = "Choisissez d'afficher ou non les ic""\x0B""nes et descriptions des programmes dans le menu OS [prgm].";
     menuContext.details[1] =
         "Activer les raccourcis clavier.\n"
         "[on] + [prgm] : Ouvrir CEaShell.\n"
-        "[on] + [sto]/[ln] : Act / d}s le mode sombre de l'OS.\n"
-        "[on] + [stat] : D}clencher APD.\n"
-        "[on] + [graph] : Sauter ~ lbl dans les prgms.";
-    menuContext.details[2] = "Activer le d}filement rapide avec la touche alpha dans l'}diteur de programmes.";
-    menuContext.details[3] = "Autoriser l'}dition de programmes archiv}s dans le menu d'}dition [prgm] de l'OS.";
-    menuContext.details[4] = "Autoriser l'}dition de programmes\nBASIC verrouill}s dans CEaShell.";
-    menuContext.details[5] = "Sur les version Python, omettre le menu BASIC/Python et acc}der directement ~ la liste des programmes BASIC\nen appuyant sur [prgm].";
-    menuContext.details[6] = "D}sactiver l'indicateur d'activit} dans les programmes TI-BASIC.";
+        "[on] + [sto]/[ln] : Act / d""\x15""s le mode sombre de l'OS.\n"
+        "[on] + [stat] : D""\x15""clencher APD.\n"
+        "[on] + [graph] : Sauter ""\x7F"" lbl dans les prgms.";
+    menuContext.details[2] = "Activer le d""\x15""filement rapide avec la touche alpha dans l'""\x15""diteur de programmes.";
+    menuContext.details[3] = "Autoriser l'""\x15""dition de programmes archiv""\x15""s dans le menu d'""\x15""dition [prgm] de l'OS.";
+    menuContext.details[4] = "Autoriser l'""\x15""dition de programmes\nBASIC verrouill""\x15""s dans CEaShell.";
+    menuContext.details[5] = "Sur les version Python, omettre le menu BASIC/Python et acc""\x15""der directement ""\x7F"" la liste des programmes BASIC\nen appuyant sur [prgm].";
+    menuContext.details[6] = "D""\x15""sactiver l'indicateur d'activit""\x15"" dans les programmes TI-BASIC.";
     menuContext.details[7] = "Activez les minuscules dans l'OS en appuyant deux fois sur [alpha].";
-    menuContext.details[8] = "D}couvrez les personnes qui ont contribu} ~ cr}er CEaShell !";
+    menuContext.details[8] = "D""\x15""couvrez les personnes qui ont contribu""\x15"" ""\x7F"" cr""\x15""er CEaShell !";
     #else
     menuContext.options[0] = "Icon Hook";
     menuContext.options[1] = "[on] Shortcuts";
