@@ -88,7 +88,7 @@ To build CEaShell, you will need to install the latest version of the [CE C tool
 
 1. Clone CEaShell with the **app_tools** submodule by running `git clone --recurse-submodules https://github.com/RoccoLoxPrograms/CEaShell`
 2. If you are using an OS that uses `python3` insead of `python`, open **app_tools/makefile** and change `PYTHON_VER := python` to `PYTHON_VER := python3`.
-3. If you would like to build the French version of CEaShell (translation not yet completed), open CEaShell's **makefile** (not the **app_tools** one) and change `LANGUAGE = EN` to `LANGUAGE = FR`.
+3. If you would like to build the French version of CEaShell, open CEaShell's **makefile** (not the **app_tools** one) and change `LANGUAGE = EN` to `LANGUAGE = FR`.
 4. In a command line, `cd` into the cloned repository, and run `make gfx`.
 5. Once complete, run `make`. The compiled binaries will be in the newly created **bin** directory.
 
@@ -100,7 +100,7 @@ Feel free to request features or ask for help on the discord or in the [Cemetech
 
 ## Translation
 
-CEaShell 1.1.5 (the latest GitHub release) has also been translated to French by [Shadow](https://github.com/Bryankaveen). The rewritten CEaShell (v2.0.0+) has not been translated yet.
+CEaShell has also been translated to French by [Shadow](https://github.com/Bryankaveen).
 
 ## Credits
 
