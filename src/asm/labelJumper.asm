@@ -46,9 +46,18 @@ _asm_labelJumper_showLabels:
     inc a
     dec a
     ret
+    ld.sis hl, (ti.localLanguage and $FFFF)
+    or a, a
+    ld de, $010C ; check for French language
+    sbc hl, de
+    res frenchLanguage, (iy + shellFlags)
     ld hl, .pageString
-    ld de, ti.cursorImage + 32
     ld bc, stringRelocateSize
+    jr nz, $ + 14
+    set frenchLanguage, (iy + shellFlags)
+    ld hl, .pageStringFR
+    ld bc, stringRelocateSizeFR
+    ld de, ti.cursorImage + 32
     ldir
     call ti.CursorOff
     or a, a
@@ -72,6 +81,9 @@ _asm_labelJumper_showLabels:
     call .drawLabels
     ld hl, (labelPage)
     ld de, ti.cursorImage + 32 + (.currentPageString - .pageString)
+    bit frenchLanguage, (iy + shellFlags)
+    jr z, $ + 6
+    ld de, ti.cursorImage + 32 + (.currentPageStringFR - .pageStringFR)
     inc hl
     call _asm_labelJumper_convertNum.threeDigits
     ld hl, ti.cursorImage + 32
@@ -261,6 +273,9 @@ _asm_labelJumper_showLabels:
     ld (labelNumberOfPages), hl
     inc hl
     ld de, ti.cursorImage + 32 + (.totalPageString - .pageString)
+    bit frenchLanguage, (iy + shellFlags)
+    jr z, $ + 6
+    ld de, ti.cursorImage + 32 + (.totalPageStringFR - .pageStringFR)
     jp _asm_labelJumper_convertNum.threeDigits
 
 .skipLabelsLoop:
@@ -292,12 +307,18 @@ _asm_labelJumper_showLabels:
     sbc hl, de
     jr nz, .normalPage
     ld hl, .topLabel
+    bit frenchLanguage, (iy + shellFlags)
+    jr z, $ + 6
+    ld hl, .topLabelFR
     call ti.PutS
     xor a, a
     ld (ti.curCol), a
     inc a
     ld (ti.curRow), a
     ld hl, .bottomLabel
+    bit frenchLanguage, (iy + shellFlags)
+    jr z, $ + 6
+    ld hl, .bottomLabelFR
     call ti.PutS
     call ti.BufToTop
     xor a, a
@@ -437,6 +458,7 @@ _asm_labelJumper_showLabels:
 .totalPageString:
     db "000"
     db ">", 0
+
 stringRelocateSize := $ - .pageString
 
 .topLabel:
@@ -444,6 +466,25 @@ stringRelocateSize := $ - .pageString
 
 .bottomLabel:
     db "1:PRGM BOTTOM", 0
+
+.pageStringFR:
+    db "Utiliser <> pour changer pages : <"
+
+.currentPageStringFR:
+    db "000"
+    db " / "
+
+.totalPageStringFR:
+    db "000"
+    db ">", 0
+
+stringRelocateSizeFR := $ - .pageStringFR
+
+.topLabelFR:
+    db "0:PRGM DESSUS", 0
+
+.bottomLabelFR:
+    db "1:PRGM DESSOUS", 0
 
 _asm_labelJumper_convertNum:
     ld bc, -100000

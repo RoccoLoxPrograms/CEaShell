@@ -141,7 +141,7 @@ _asm_apps_getAppCopyrightInfo:
     add hl, de
     push bc
     pop de
-    ld bc, 51
+    ld bc, 52
     ldir
     xor a, a
     ld (de), a

@@ -126,7 +126,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
         if (fileInfo->shellType != APP_TYPE) {
             #ifdef FR
-            gfx_PrintStringXY("Attribuer :", 64, 148);
+            gfx_PrintStringXY("Propri""\x15""t""\x15""s :", 64, 148);
             gfx_PrintStringXY("Archiv""\x15""    Verrouill""\x15""    Cach""\x15", 71, 161);
             gfx_PrintStringXY("Suppr.       Renom.    Modifier", 75, 190);
 

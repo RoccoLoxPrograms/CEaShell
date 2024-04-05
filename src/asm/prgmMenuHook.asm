@@ -173,7 +173,8 @@ _asm_prgmMenuHook_showDescription:
     jr .copyLoop
 
 .clipDescription:
-    ld (hl), 0
+    ld de, 0
+    ld (hl), de
     push hl
     ld hl, description
     call ti.FontGetWidth
@@ -183,7 +184,8 @@ _asm_prgmMenuHook_showDescription:
     pop hl
     jr nc, .drawDescription
     dec hl
-    jr .clipDescription
+    ld de, $CE
+    jr .clipDescription + 4
 
 .drawDescription:
     ld hl, description

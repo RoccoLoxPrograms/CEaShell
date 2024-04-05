@@ -20,6 +20,8 @@ include 'include/equates.inc'
     public _rodata_tempAppVarPrgm
     public _rodata_errorQuit
     public _rodata_errorGoto
+    public _rodata_errorQuitFR
+    public _rodata_errorGotoFR
     public _rodata_basicPrgmName
     public _rodata_hexaEditHeader
     public _rodata_osColorToXlibC
@@ -44,6 +46,12 @@ _rodata_errorQuit:
 
 _rodata_errorGoto:
     db '2:', 0, 'Goto', 0
+
+_rodata_errorQuitFR:
+    db '1:', 0, 'Quitter', 0
+
+_rodata_errorGotoFR:
+    db '2:', 0, 'Voir', 0
 
 _rodata_basicPrgmName:
     db ti.ProtProgObj, "CEaShTmp", 0
@@ -79,6 +87,7 @@ _rodata_characters:
     db 0, '258', 0, 0, 0, 0    ; . 2 5 8 ( COS PRGM STAT
     db '0147', 0, 0, 0, 'X', 0 ; 0 1 4 7 , SIN APPS XT?n undef
     db 0, 0, 0, 0, 0, 0        ; STO LN LOG x2 x-1 MATH
+
 _rodata_sizeOfCharsLUT := $ - _rodata_characters
 
     ; uppercase letters

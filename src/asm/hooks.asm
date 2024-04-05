@@ -65,7 +65,7 @@ hooks_parserStopHook:
 
 .noChain:
     pop af
-    xor a, a
+    cp a, a
     ret
 
 .maybeStop:
@@ -742,7 +742,6 @@ _asm_hooks_editorHook:
     ld a, (editMode)
     or a, a
     call nz, ShowResult
-    call _asm_runProgram_returnOS.restoreHooks
     bit ti.monAbandon, (iy + ti.monFlags)
     jr nz, .turnOff
     or a, a

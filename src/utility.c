@@ -136,6 +136,8 @@ void util_PowerOff(struct preferences_t *shellPrefs, struct context_t *shellCont
 void util_FilesInit(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     asm_fileSystem_findAllVars(&(shellContext->programCount), &(shellContext->appVarCount), shellPrefs->showHiddenProgs, shellContext->searchString);
     shellContext->appCount = asm_apps_findAllApps();
+    shellContext->programPtrs = (void **)os_PixelShadow;
+    asm_fileSystem_initPtrArrays(shellContext->programCount, shellContext->appVarCount, shellContext->appCount, &shellContext->appVarPtrs, &shellContext->appPtrs);
 
     // Account for folders
     if (shellContext->searchString[0] == '\0') {
@@ -147,11 +149,8 @@ void util_FilesInit(struct preferences_t *shellPrefs, struct context_t *shellCon
     shellContext->appVarCount += 1;
     shellContext->appCount += shellPrefs->showCEaShellApp; // since we'd need to subtract one if we're hiding CEaShell anyway, this takes care of both at once
 
-    shellContext->programPtrs = (void **)os_PixelShadow;
-    asm_fileSystem_initPtrArrays(shellContext->programCount, shellContext->appVarCount, shellContext->appCount, &shellContext->appVarPtrs, &shellContext->appPtrs);
-
     if (shellContext->searchString[0] == '\0') {
-        shellContext->programCount -= 2 * (shellPrefs->showHiddenProgs);
+        shellContext->programCount -= 2 * (shellPrefs->showHiddenProgs); // Remove ! and # programs
     }
 
     asm_fileSystem_getProgramPtrs(shellContext->programPtrs, shellPrefs->showHiddenProgs, shellContext->searchString);

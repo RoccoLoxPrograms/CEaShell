@@ -20,6 +20,7 @@ include 'include/equates.inc'
 
     extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_editorHook
+    extern _asm_runProgram_returnOS.restoreHooks
     extern _asm_runProgram_error
     extern _asm_utils_arcUnarc
     extern _asm_utils_backupPrgmName
@@ -67,6 +68,7 @@ _asm_editProgram_edit: ; editing from CEaShell
     jr _asm_editProgram_main + 5
 
 _asm_editProgram_goto:
+    call _asm_runProgram_returnOS.restoreHooks
     ld a, resultError
     ld (editMode), a
     xor a, a

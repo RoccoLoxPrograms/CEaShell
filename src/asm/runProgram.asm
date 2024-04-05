@@ -38,6 +38,8 @@ include 'include/equates.inc'
     extern _asm_utils_dispQuitErr
     extern _rodata_errorQuit
     extern _rodata_errorGoto
+    extern _rodata_errorQuitFR
+    extern _rodata_errorGotoFR
     extern _rodata_basicPrgmName
 
 _asm_runProgram_run:
@@ -414,7 +416,13 @@ runProgram_showError:
     call ti.DispErrorScreen
     ld hl, 1
     ld (ti.curRow), hl
+    ld.sis hl, (ti.localLanguage and $FFFF)
+    or a, a
+    ld de, $010C ; check for French language
+    sbc hl, de
     ld hl, _rodata_errorQuit
+    jr nz, $ + 6
+    ld hl, _rodata_errorQuitFR
     set ti.textInverse, (iy + ti.textFlags)
     call ti.PutS
     res ti.textInverse, (iy + ti.textFlags)
@@ -435,7 +443,13 @@ runProgram_showError:
 .notProtected:
     ld hl, 2
     ld (ti.curRow), hl
+    ld.sis hl, (ti.localLanguage and $FFFF)
+    or a, a
+    ld de, $010C
+    sbc hl, de
     ld hl, _rodata_errorGoto
+    jr nz, $ + 6
+    ld hl, _rodata_errorGotoFR
     call ti.PutS
     call ti.PutS
 

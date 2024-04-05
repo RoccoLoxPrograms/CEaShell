@@ -51,7 +51,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     #endif
 
     #ifdef FR
-    menuContext.options[0] = "Hook d'ic""\x0B""ne";
+    menuContext.options[0] = "Hook d'ic""\x0B""nes";
     menuContext.options[1] = "Raccourcis de la touche [on]";
     menuContext.options[2] = "D""\x15""filement rapide alpha";
     menuContext.options[3] = "Modifier des programmes archiv""\x15""s";

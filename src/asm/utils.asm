@@ -44,6 +44,7 @@ include 'include/equates.inc'
     extern _asm_apps_reloadApp
     extern _rodata_appVarName
     extern _rodata_errorQuit
+    extern _rodata_errorQuitFR
     extern _rodata_basicPrgmName
     extern _rodata_hexaEditHeader
     extern _rodata_characters
@@ -504,7 +505,13 @@ _asm_utils_dispQuitErr:
     call ti.DispErrorScreen
     ld hl, 1
     ld (ti.curRow), hl
+    ld.sis hl, (ti.localLanguage and $FFFF)
+    or a, a
+    ld de, $010C ; check for French language
+    sbc hl, de
     ld hl, _rodata_errorQuit
+    jr nz, $ + 6
+    ld hl, _rodata_errorQuitFR
     set ti.textInverse, (iy + ti.textFlags)
     call ti.PutS
     res ti.textInverse, (iy + ti.textFlags)
