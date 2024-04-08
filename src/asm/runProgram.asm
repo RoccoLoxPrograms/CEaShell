@@ -410,6 +410,9 @@ runProgram_showError:
     ld b, 9
     call ti.StrCmpre
     pop de
+    jr z, $ + 10
+    ld a, (ti.basic_prog + 1)
+    cp a, $24 ; check for possible temp var
     jr nz, $ + 10
     ld hl, backupPrgmName
     call ti.Mov9b
@@ -445,7 +448,7 @@ runProgram_showError:
     ld (ti.curRow), hl
     ld.sis hl, (ti.localLanguage and $FFFF)
     or a, a
-    ld de, $010C
+    ld de, $010C ; check for French language
     sbc hl, de
     ld hl, _rodata_errorGoto
     jr nz, $ + 6

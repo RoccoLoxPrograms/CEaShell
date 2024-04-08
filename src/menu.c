@@ -392,14 +392,14 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
 
 void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
-    static const char *specialThanks = "Remerciements ""\x7F"" : Programmation: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
+    static const char *specialThanks = "Remerciements ""\x7F"" : Programmation : MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
     " Traduction fran""\x13""aise : Shadow. Inspiration/Id""\x15""es : KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Testeurs b""\x16""ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
+    " Dream of Omnimaga. Testeurs b""\x16""ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, naga_serpentis."
     " Et un grand merci ""\x7F"" tous les membres de notre Discord pour leurs id""\x15""es et leurs support !";
     #else
     static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream."
+    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, naga_serpentis."
     " And a big thank you to the members of our Discord for your support and ideas!";
     #endif
     unsigned int startDisplay = 0;
@@ -451,9 +451,15 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
             textRate = clock();
         }
 
-        if (startDisplay > 384) {
+        #ifdef FR
+        if (startDisplay > 428) {
             startDisplay = 0; // restart
         }
+        #else
+        if (startDisplay > 424) {
+            startDisplay = 0; // restart
+        }
+        #endif
 
         if (kb_AnyKey()) {
             clockOffset = clock();
