@@ -38,7 +38,7 @@ extern "C" {
 
 /** 
  * Shell preferences, which are backed up in the CEaShell AppVar.
-*/
+ */
 struct preferences_t {
     bool invertColors;          /** Whether or not to invert the color palette used in CEaShell. */
     uint8_t bgColor;            /** CEaShell theme background color. */
@@ -82,7 +82,7 @@ struct context_t {
 
 /** 
  * Various important file attributes.
-*/
+ */
 struct file_t {
     char name[9];               /** Name of the file. */
     gfx_sprite_t *icon;         /** File icon, or NULL if no icon exists. */
@@ -98,7 +98,7 @@ struct file_t {
 
 /** 
  * Menu context information.
-*/
+ */
 struct menu_t {
     uint8_t totalOptions;
     uint8_t optionSelected;
@@ -111,12 +111,12 @@ struct menu_t {
 
 /** 
  * Temporary sprite space for file icons.
-*/
+ */
 extern gfx_sprite_t *fileIcon;
 
 /** 
  * Temporary sprite space for drawing functions.
-*/
+ */
 extern gfx_sprite_t *tempSprite;
 
 /** 
@@ -150,7 +150,7 @@ extern gfx_sprite_t *tempSprite;
 
 /** 
  * Maximum length for program descriptions.
-*/
+ */
 #define MAX_DESC_LENGTH 53
 
 /**
@@ -162,7 +162,7 @@ extern gfx_sprite_t *tempSprite;
 
 /** 
  * Information on which GetCSC hooks are installed through CEaShell.
-*/
+ */
 #define ICON_HOOK       0       /** Icon / Description hook bit. */
 #define ON_SHORTS_HOOK  1       /** [on] shorcuts hook bit. */
 #define FAST_ALPHA_HOOK 2       /** Fast alpha hook bit. */
@@ -178,7 +178,7 @@ extern gfx_sprite_t *tempSprite;
 
 /**  
  * File icon UI scaling.
-*/
+ */
 #define SCALE_SMALLEST  1       /** Smallest UI scale (16 * 16 file icons). */
 #define SCALE_SMALL     2       /** Small UI scale (32 * 32 file icons). */
 #define SCALE_MEDIUM    3       /** Medium UI scale (48 * 48 file icons). */
@@ -186,7 +186,7 @@ extern gfx_sprite_t *tempSprite;
 
 /** 
  * Current input mode used when getting text input from the user.
-*/
+ */
 #define INPUT_NUMBER    0       /** Numbers and symbols. */
 #define INPUT_UPPER     1       /** Uppercase letters and other alpha characters. */
 #define INPUT_LOWER     2       /** Lowercase letters and other alpha characters. */
@@ -194,7 +194,7 @@ extern gfx_sprite_t *tempSprite;
 /** 
  * Sprite offsets used with ui_DrawSprite, used to simplify
  * displaying dark / light icons.
-*/
+ */
 #define UI_BATTERY      0       /** Battery icon used in CEaShell's status bar. */
 #define UI_CHARGING     1       /** Charging indicator. */
 #define UI_PAINT        2       /** Paint brush icon for the customization menu button. */
@@ -207,7 +207,7 @@ extern gfx_sprite_t *tempSprite;
 
 /** 
  * Different types of options in menus.
-*/
+ */
 #define MENU_TYPE_MENU  0       /** Option opens a new menu. */
 #define MENU_TYPE_BOOL  1       /** Option has a boolean type. (On / Off) */
 #define MENU_TYPE_APD   2       /** APD timer. */
@@ -217,12 +217,12 @@ extern gfx_sprite_t *tempSprite;
 
 /** 
  * Number of preset theme options.
-*/
+ */
 #define THEME_COUNT     10
 
 /** 
  * Size of CEaShell's AppVar.
-*/
+ */
 #define APPVAR_SIZE     29
 
 /**

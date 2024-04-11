@@ -23,7 +23,7 @@ extern "C" {
  * 
  * @param appvarPtrs Array to cache app pointers in.
  * @param showCEaShell If CEaShell should be skipped over.
-*/
+ */
 void asm_apps_getAppPtrs(void **appPointers, bool showCEaShell);
 
 /**
@@ -31,14 +31,14 @@ void asm_apps_getAppPtrs(void **appPointers, bool showCEaShell);
  * 
  * @param appPointer Pointer to the app.
  * @param appName Pointer to copy the name string into.
-*/
+ */
 void asm_apps_getAppName(void *appPointer, char *appName);
 
 /**
  * @brief Finds the total number of apps.
  * 
  * @return uint8_t Total number of apps.
-*/
+ */
 uint8_t asm_apps_findAllApps(void);
 
 /**
@@ -72,7 +72,7 @@ void asm_apps_getAppCopyrightInfo(void *appPointer, char *copyright);
  * @param icon Pointer to return the icon sprite in.
  * @return true The app has an icon.
  * @return false The app does not have an icon.
-*/
+ */
 bool asm_apps_getAppIcon(void *appPointer, void *icon);
 
 /**
