@@ -153,10 +153,11 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
                 } else {
                     #ifdef FR
                     startY = -75;
+                    optionY = 181;
                     #else
                     startY = -3;
+                    optionY = 191;
                     #endif
-                    optionY = 181;
                     menuContext.optionSelected = 8;
                 }
             } else if (kb_IsDown(kb_KeyDown)) {
