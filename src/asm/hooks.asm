@@ -211,6 +211,8 @@ hooks_iconHook:
     ld a, b
     cp a, ti.skMatrix ; apps key
     jr z, .return
+    cp a, ti.skCos ; apps key on 83PCE
+    jr z, .return
     cp a, ti.skPrgm
     jr nz, .modified
     ld a, (iy + ti.shiftFlags)
