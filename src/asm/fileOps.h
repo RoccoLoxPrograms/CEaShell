@@ -137,6 +137,15 @@ extern char rodata_celticAppVarHeader;
  */
 void asm_runProgram_run(char *name, uint8_t type, uint8_t shellType, struct preferences_t *shellPrefs);
 
+/**
+ * @brief Checks if a file has an associated [on] + number key launch shortcut and returns the number key if so.
+ * 
+ * @param file File to check for.
+ * @param shortcuts Array of existing launch shortcut info.
+ * @return uint8_t Number key associated with shortcut, or 10 if no shortcut.
+ */
+uint8_t asm_fileOps_getLaunchKey(struct launch_t *file, struct launch_t *shortcuts);
+
 #ifdef __cplusplus
 }
 #endif

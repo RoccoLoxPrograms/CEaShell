@@ -40,6 +40,7 @@ include 'include/equates.inc'
     public _asm_utils_checkHiddenHeader
     public _asm_utils_restoreAns
     public _asm_utils_dispQuitErr
+    public _asm_utils_cleanupForceCmd
 
     extern _asm_apps_reloadApp
     extern _rodata_appVarName
@@ -49,8 +50,8 @@ include 'include/equates.inc'
     extern _rodata_hexaEditHeader
     extern _rodata_characters
     extern _rodata_sizeOfCharsLUT
-    extern _gfx_GetCharWidth
     extern _exit.sp
+    extern _gfx_GetCharWidth
 
 _asm_utils_checkEOF: ; bc = current address being read; destroys hl
     push bc
@@ -516,3 +517,18 @@ _asm_utils_dispQuitErr:
     call ti.PutS
     res ti.textInverse, (iy + ti.textFlags)
     jp ti.PutS
+
+_asm_utils_cleanupForceCmd:
+    di
+    ld a, (ti.menuCurrent)
+    cp a, ti.kWindow
+    jr nz, .notInWindow
+    ld a, ti.kClear
+    call ti.PullDownChk ; exit from alpha + function menus
+
+.notInWindow:
+    ld a, ti.kQuit
+    call ti.PullDownChk ; exit from randInt( and related menus
+    ld a, ti.cxCmd
+    call ti.NewContext0
+    jp ti.CursorOff

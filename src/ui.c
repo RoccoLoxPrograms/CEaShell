@@ -22,7 +22,6 @@
 #include "gfx/gfx.h"
 
 #include <fileioc.h>
-#include <keypadc.h>
 #include <string.h>
 
 #include <sys/power.h>
@@ -386,9 +385,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
     char inputChar = '\0';
     uint8_t inputMode = INPUT_UPPER;
 
-    for (uint8_t i = 0; i <= 9; i++) {
-        input[i] = '\0';
-    }
+    memset(input, '\0', sizeof(char) * 9);
 
     bool keyPressed = false;
     clock_t clockOffset = clock();
@@ -453,8 +450,6 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
                 } else {
                     inputMode++;
                 }
-
-                while (kb_AnyKey());
             } else if (charCount < 8) {
                 if (!keyPressed) {
                     inputChar = asm_utils_getCharFromKey(inputMode);
@@ -486,7 +481,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         }
 
-        if (clock() - clockOffset > CLOCKS_PER_SEC / 3 && !keyPressed) {
+        if (clock() - clockOffset > CLOCKS_PER_SEC / 2.5 && !keyPressed) {
             if (cursorActive) {
                 gfx_SetColor(shellPrefs->textColor);
             } else {
@@ -506,7 +501,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
         return input;
     }
 
-    while(kb_AnyKey());
+    util_WaitBeforeKeypress(&clockOffset, &keyPressed);
     return NULL;
 }
 

@@ -40,6 +40,8 @@ Installation
 [Follow these instructions for the latest version.]
 1. Clone and build CEaShell, following the instructions under "Building CEaShell".
 2. Send CEASHELL.8xp and AppInstA.8xv to your calculator using TI-Connect CE or TiLP.
+   If you don't have the CE C libraries (https://tiny.cc/clibs), you'll need to
+   download and send those as well.
 3. Run prgmCEASHELL from the programs menu. You will need to use the arTIfiCE jailbreak
    (https://yvantt.github.io/arTIfiCE) if you are on an OS version 5.5 and above.
 4. CEaShell will be installed in the apps menu.
@@ -68,7 +70,10 @@ Below is a table with keys and their various usage in CEaShell:
 | [alpha] / [window] / [zoom] / [trace] | View and modify file properites.                             |
 | [del]                                 | Delete currently selected file.                              |
 | [mode]                                | Create a new file or copy the currently selected one.        |
-| [clear]                               | Exit CEaShell, or in some cases return to the previous menu. |
+| [vars]                                | Quickly open the currently selected file in the TI-OS        |
+|                                       | editor, if the file can be edited.                           |
+| [clear]                               | Exit CEaShell or return to the previous menu. To exit        |
+|                                       | CEaShell from anywhere in the shell, press and hold.         |
 | [a] - [z], [θ]                        | Jump to the program beginning with the letter pressed.       |
 | [on]                                  | Turn off the calculator while remaining in the shell.        |
 | [stat]                                | Search for a file. For example, searching "ABC" will list    |
@@ -91,15 +96,17 @@ Shortcuts
 If the option "[on] Shortcuts" is enabled in CEaShell, the follow key combinations
 will preform specific utilities in the OS:
 
-+-----------------+-----------------------------------------------------------------+
-| Key combination | Action performed                                                |
-+-----------------+-----------------------------------------------------------------+
-| [on] + [prgm]   | Launch CEaShell.                                                |
-| [on] + [sto →]  | Invert OS colors ("Dark mode").                                 |
-| [on] + [ln]     | Un-invert OS colors.                                            |
-| [on] + [stat]   | Turn off the calculator, and preserve where you were in the OS. |
-| [on] + [graph]  | Jump to a program label in the OS program editor.               |
-+-----------------+-----------------------------------------------------------------+
++------------------+-------------------------------------------------------------------------------------+
+| Key combination  | Action performed                                                                    |
++------------------+-------------------------------------------------------------------------------------+
+| [on] + [prgm]    | Launch CEaShell.                                                                    |
+| [on] + [sto →]   | Invert OS colors ("Dark mode").                                                     |
+| [on] + [ln]      | Un-invert OS colors.                                                                |
+| [on] + [stat]    | Turn off the calculator, and preserve where you were in the OS.                     |
+| [on] + [graph]   | Jump to a program label in the OS program editor.                                   |
+| [on] + [0] - [9] | Launch the program or app assigned to the number key pressed. Files can be assigned |
+|                  | a number in the info menu.                                                          |
++------------------+-------------------------------------------------------------------------------------+
 
 Building CEaShell
 --------------------

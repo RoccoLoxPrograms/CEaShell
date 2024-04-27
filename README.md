@@ -31,7 +31,7 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 
 ~~1. Download the latest version of CEaShell from [the GitHub releases page](https://github.com/roccoloxprograms/CEaShell/releases/latest).~~
 1. Clone and build CEaShell, following [these instructions](#building-ceashell).
-2. Send **CEASHELL.8xp** and **AppInstA.8xv** to your calculator using TI-Connect CE or TiLP.
+2. Send **CEASHELL.8xp** and **AppInstA.8xv** to your calculator using TI-Connect CE or TiLP. If you don't have the [CE C libraries](https://tiny.cc/clibs), you'll need to download and send those as well.
 3. Run **prgmCEASHELL** from the programs menu (You will need to use the [arTIfiCE jailbreak](https://yvantt.github.io/arTIfiCE) if you are on an OS version 5.5 and above).
 4. CEaShell will be installed in the apps menu.
 
@@ -56,7 +56,8 @@ Below is a table with keys and their various usage in CEaShell:
 | <kbd>alpha</kbd> / <kbd>window</kbd> / <kbd>zoom</kbd> / <kbd>trace</kbd> | View and modify file properites.                                                                                   |
 | <kbd>del</kbd>                                                            | Delete currently selected file, or delete the character in front of the cursor in a text input box.                |
 | <kbd>mode</kbd>                                                           | Create a new file or copy the currently selected one, or backspace in a text input box.                            |
-| <kbd>clear</kbd>                                                          | Exit CEaShell, or in some cases return to the previous menu.                                                       |
+| <kbd>vars</kbd>                                                           | Quickly open the currently selected file in the TI-OS editor, if the file can be edited.                           |
+| <kbd>clear</kbd>                                                          | Exit CEaShell or return to the previous menu. To exit CEaShell from anywhere in the shell, press and hold.         |
 | <kbd>a</kbd> - <kbd>z</kbd>, <kbd>θ</kbd>                                 | Jump to the program beginning with the letter pressed.                                                             |
 | <kbd>on</kbd>                                                             | Turn off the calculator while remaining in the shell.                                                              |
 | <kbd>stat</kbd>                                                           | Search for a file. For example, searching "ABC" will list all files beginning with "ABC" in the current directory. |
@@ -72,13 +73,14 @@ Below is a table with keys and their various usage in CEaShell:
 
 If the option **[on] Shortcuts** is enabled in CEaShell, the follow key combinations will preform specific utilities in the OS:
 
-| Key combination                  | Action performed                                                |
-|----------------------------------|-----------------------------------------------------------------|
-| <kbd>on</kbd> + <kbd>prgm</kbd>  | Launch CEaShell.                                                |
-| <kbd>on</kbd> + <kbd>sto →</kbd> | Invert OS colors ("Dark mode").                                 |
-| <kbd>on</kbd> + <kbd>ln</kbd>    | Un-invert OS colors.                                            |
-| <kbd>on</kbd> + <kbd>stat</kbd>  | Turn off the calculator, and preserve where you were in the OS. |
-| <kbd>on</kbd> + <kbd>graph</kbd> | Jump to a program label in the OS program editor.               |
+| Key combination                             | Action performed                                                                                               |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| <kbd>on</kbd> + <kbd>prgm</kbd>             | Launch CEaShell.                                                                                               |
+| <kbd>on</kbd> + <kbd>sto →</kbd>            | Invert OS colors ("Dark mode").                                                                                |
+| <kbd>on</kbd> + <kbd>ln</kbd>               | Un-invert OS colors.                                                                                           |
+| <kbd>on</kbd> + <kbd>stat</kbd>             | Turn off the calculator, and preserve where you were in the OS.                                                |
+| <kbd>on</kbd> + <kbd>graph</kbd>            | Jump to a program label in the OS program editor.                                                              |
+| <kbd>on</kbd> + <kbd>0</kbd> - <kbd>9</kbd> | Launch the program or app assigned to the number key pressed. Files can be assigned a number in the info menu. |
 
 ## Building CEaShell
 

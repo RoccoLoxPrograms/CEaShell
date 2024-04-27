@@ -63,6 +63,8 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
         shellPrefs->hideBusyIndicator = false;
         shellPrefs->osLowercase = false;
 
+        memset(shellPrefs->launchFiles, '\0', sizeof(struct launch_t) * 10);
+
         shellContext->directory = PROGRAMS_FOLDER;
         shellContext->fileSelected = 0;
         shellContext->fileStartLoc = 0;
@@ -297,6 +299,12 @@ void util_GetFileInfo(unsigned int file, struct file_t *fileInfo, struct prefere
 
     fileInfo->hidden = (fileInfo->name[0] < 'A');
     fileInfo->locked = !(fileInfo->type == OS_TYPE_PRGM || fileInfo->shellType == CELTIC_TYPE);
+
+    static struct launch_t searchFile;
+    searchFile.type = fileInfo->type;
+    memcpy(searchFile.name, fileInfo->name, 9);
+
+    fileInfo->shortcut = asm_fileOps_getLaunchKey(&searchFile, shellPrefs->launchFiles);
 }
 
 unsigned int util_SpaceSearch(char *string, unsigned int start) {
@@ -403,7 +411,7 @@ void util_UpdateKeyTimer(struct preferences_t *shellPrefs, struct context_t *she
 
 void util_WaitBeforeKeypress(clock_t *clockOffset, bool *keyPressed) {
     if (!(*keyPressed)) {
-        while ((clock() - *clockOffset < CLOCKS_PER_SEC / 3) && kb_AnyKey()) {
+        while ((clock() - *clockOffset < CLOCKS_PER_SEC / 2.5) && kb_AnyKey()) {
             kb_Scan();
         }
     }
@@ -426,7 +434,7 @@ void util_SafeArchive(uint8_t slot) {
 }
 
 void util_CorrectTransparentColor(struct preferences_t *shellPrefs) {
-    uint8_t transparentColor = 0;
+    uint8_t transparentColor = 248;
 
     while (transparentColor == shellPrefs->textColor || transparentColor == shellPrefs->hiddenTextColor) {
         transparentColor++;

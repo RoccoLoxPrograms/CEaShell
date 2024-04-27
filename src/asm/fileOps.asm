@@ -27,6 +27,7 @@ include 'include/equates.inc'
     public _asm_fileOps_getIconASM.varFound
     public _asm_fileOps_getIconDCS
     public _asm_fileOps_getIconDCS.varFound
+    public _asm_fileOps_getLaunchKey
 
     extern _asm_apps_reloadApp
     extern _asm_runProgram_error
@@ -550,10 +551,6 @@ _asm_fileOps_getIconDCS:
     xor a, a
     ret
 
-.returnIcon:
-    ld a, 1
-    ret
-
 .colorIcon:
     pop hl
     ex de, hl
@@ -615,7 +612,10 @@ _asm_fileOps_getIconDCS:
     ld (hl), c
     inc hl
     djnz .loop16x16
-    jr .returnIcon
+
+.returnIcon:
+    ld a, 1
+    ret
 
 .mono8x8:
     pop hl
@@ -682,7 +682,7 @@ _asm_fileOps_getIconDCS:
     ex de, hl
     ld a, 2
     djnz .loop8x8
-    jp .returnIcon
+    jr .returnIcon
 
 .checkDCSHeader:
     ld a, (de)
@@ -749,3 +749,42 @@ _asm_fileOps_getIconDCS:
     inc bc
     inc de
     jr .loopIconLen
+
+_asm_fileOps_getLaunchKey:
+    pop bc
+    pop de
+    ex (sp), hl
+    push de
+    push bc
+    ld c, 0
+
+.loop:
+    push de
+    push hl
+
+.compare:
+    ld a, (de)
+    or a, a
+    jr nz, .check
+    ld a, (hl)
+    or a, a
+    jr z, .return
+    ld a, (de)
+
+.check:
+    cp a, (hl)
+    inc hl
+    inc de
+    jr z, .compare
+    inc c
+    ld a, c
+    cp a, 10
+
+.return:
+    pop hl
+    ld de, 10
+    add hl, de
+    pop de
+    jr nz, .loop
+    ld a, c
+    ret

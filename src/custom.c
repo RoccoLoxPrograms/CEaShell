@@ -19,10 +19,11 @@
 
 #include "asm/utils.h"
 
-#include <keypadc.h>
 #include <string.h>
 
 static void custom_ThemePreview(uint8_t *theme) {
+    gfx_SetTextBGColor(theme[0]);
+    gfx_SetTextTransparentColor(theme[0]);
     shapes_PixelIndentRectangle(163, 98, 143, 106);
 
     gfx_SetColor(theme[0]);
@@ -103,8 +104,6 @@ static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_
 
             newTheme[modifying] = selected;
 
-            gfx_SetColor(shellPrefs->fgColor);
-            gfx_FillRectangle_NoClip(163, 34, 143, 170);
             gfx_SetColor(shellPrefs->bgColor);
             shapes_PixelIndentRectangle(163, 34, 143, 58);
 
@@ -163,13 +162,13 @@ static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_
         memcpy(&shellPrefs->bgColor, newTheme, sizeof(uint8_t) * 5);
     }
 
-    while (kb_AnyKey());
+    util_WaitBeforeKeypress(&clockOffset, &keyPressed);
 }
 
 static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     static uint8_t presetThemes[THEME_COUNT * 5] = {
         246, 237, 236, 0, 181,
-        148, 74, 0, 255, 222,
+        0, 74, 148, 255, 148,
         137, 128, 96, 255, 181,
         228, 226, 162, 255, 222,
         100, 3, 2, 255, 181,
@@ -222,8 +221,6 @@ static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_
                 }
             }
 
-            gfx_SetColor(shellPrefs->fgColor);
-            gfx_FillRectangle_NoClip(163, 34, 143, 170);
             gfx_SetColor(shellPrefs->bgColor);
             shapes_PixelIndentRectangle(163, 34, 143, 58);
 
@@ -243,7 +240,13 @@ static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_
             shapes_PixelIndentRectangle(278, 65, 21, 21);
             gfx_SetColor(255);
             gfx_FillTriangle_NoClip(278, 66, 297, 85, 278, 85);
-            gfx_SetColor(gfx_GetPixel(279, 86));
+
+            if (selected == 9) {
+                gfx_SetColor(shellPrefs->hlColor);
+            } else {
+                gfx_SetColor(shellPrefs->bgColor);
+            }
+
             gfx_SetPixel(278, 85);
 
             memcpy(newTheme, &presetThemes[selected * 5], sizeof(uint8_t) * 5);
@@ -268,7 +271,156 @@ static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_
         }
     }
 
-    while (kb_AnyKey());
+    util_WaitBeforeKeypress(&clockOffset, &keyPressed);
+}
+
+static void custom_Callback(struct preferences_t *shellPrefs, struct context_t *shellContext, struct menu_t *menuContext) {
+    if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+        if (menuContext->optionSelected > 9) {
+            gfx_SetColor(shellPrefs->fgColor);
+            gfx_FillRectangle_NoClip(163, 34, 143, 170);
+
+            if (menuContext->optionSelected == 10) {
+                custom_CreateTheme(shellPrefs, shellContext);
+            } else {
+                custom_PresetTheme(shellPrefs, shellContext);
+            }
+
+            util_CorrectTransparentColor(shellPrefs);
+            gfx_FillScreen(shellPrefs->bgColor);
+            gfx_SetTextFGColor(shellPrefs->textColor);
+
+            #ifdef FR
+            ui_DrawStatusBar(shellPrefs, shellContext, "Customiser");
+            #else
+            ui_DrawStatusBar(shellPrefs, shellContext, "Customize");
+            #endif
+
+            gfx_SetColor(shellPrefs->fgColor);
+
+            shapes_RoundRectangleFill(6, 8, 28, 304, 204);
+            ui_DrawUISprite(shellPrefs->fgColor, UI_LARROW, 14, 210);
+        }
+
+        switch (menuContext->optionSelected) {
+            case 0:
+                shellPrefs->transitionSpeed = TRANSITION_MED * !shellPrefs->transitionSpeed;
+                menuContext->values[0] = shellPrefs->transitionSpeed;
+                menuContext->values[1] = shellPrefs->transitionSpeed;
+                break;
+            case 4:
+                shellPrefs->showCEaShellApp = !shellPrefs->showCEaShellApp;
+                menuContext->values[4] = shellPrefs->showCEaShellApp;
+
+                if (shellContext->fileSelected == shellContext->appCount - 1 && !menuContext->values[4] && shellContext->directory == APPS_FOLDER) {
+                    shellContext->fileSelected -= 1;
+                }
+
+                break;
+            case 5:
+                shellPrefs->showAppsFolder = !shellPrefs->showAppsFolder;
+                menuContext->values[5] = shellPrefs->showAppsFolder;
+                break;
+            case 6:
+                shellPrefs->showAppVarsFolder = !shellPrefs->showAppVarsFolder;
+                menuContext->values[6] = shellPrefs->showAppVarsFolder;
+                break;
+            case 7:
+                shellPrefs->showHiddenProgs = !shellPrefs->showHiddenProgs;
+                menuContext->values[7] = shellPrefs->showHiddenProgs;
+
+                if (!menuContext->values[7]) {
+                    shellContext->fileStartLoc = 0;
+                    shellContext->fileSelected = 0;
+                }
+
+                break;
+            case 8:
+                shellPrefs->showFileCount = !shellPrefs->showFileCount;
+                menuContext->values[8] = shellPrefs->showFileCount;
+                break;
+            default:
+                break;
+        }
+    } else if (kb_IsDown(kb_KeyLeft)) {
+        switch (menuContext->optionSelected) {
+            case 1:
+                if (shellPrefs->transitionSpeed == TRANSITION_SLOW) {
+                    shellPrefs->transitionSpeed = TRANSITION_FAST;
+                } else {
+                    shellPrefs->transitionSpeed -= 1;
+                }
+
+                menuContext->values[0] = shellPrefs->transitionSpeed;
+                menuContext->values[1] = shellPrefs->transitionSpeed;
+                break;
+            case 2:
+                if (shellPrefs->uiScale == SCALE_SMALLEST) {
+                    shellPrefs->uiScale = SCALE_LARGE;
+                } else {
+                    shellPrefs->uiScale -= 1;
+                }
+
+                menuContext->values[2] = shellPrefs->uiScale;
+                shellContext->fileSelected = 0;
+                shellContext->fileStartLoc = 0;
+                break;
+            case 3:
+                shellPrefs->timeFormat = !shellPrefs->timeFormat;
+                menuContext->values[3] = shellPrefs->timeFormat;
+                break;
+            case 9:
+                if (!shellPrefs->apdTimer) {
+                    shellPrefs->apdTimer = 5;
+                } else {
+                    shellPrefs->apdTimer -= 1;
+                }
+
+                menuContext->values[9] = shellPrefs->apdTimer;
+                break;
+            default:
+                break;
+        }
+    } else if (kb_IsDown(kb_KeyRight)) {
+        switch (menuContext->optionSelected) {
+            case 1:
+                if (shellPrefs->transitionSpeed == TRANSITION_FAST) {
+                    shellPrefs->transitionSpeed = TRANSITION_SLOW;
+                } else {
+                    shellPrefs->transitionSpeed += 1;
+                }
+
+                menuContext->values[0] = shellPrefs->transitionSpeed;
+                menuContext->values[1] = shellPrefs->transitionSpeed;
+                break;
+            case 2:
+                if (shellPrefs->uiScale == SCALE_LARGE) {
+                    shellPrefs->uiScale = SCALE_SMALLEST;
+                } else {
+                    shellPrefs->uiScale += 1;
+                }
+
+                menuContext->values[2] = shellPrefs->uiScale;
+                shellContext->fileSelected = 0;
+                shellContext->fileStartLoc = 0;
+                break;
+            case 3:
+                shellPrefs->timeFormat = !shellPrefs->timeFormat;
+                menuContext->values[3] = shellPrefs->timeFormat;
+                break;
+            case 9:
+                if (shellPrefs->apdTimer == 5) {
+                    shellPrefs->apdTimer = 0;
+                } else {
+                    shellPrefs->apdTimer += 1;
+                }
+
+                menuContext->values[9] = shellPrefs->apdTimer;
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContext) {
@@ -290,7 +442,6 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
 
     shapes_RoundRectangleFill(6, 8, 28, 304, 204);
     ui_DrawUISprite(shellPrefs->fgColor, UI_LARROW, 14, 210);
-    gfx_BlitBuffer();
 
     static struct menu_t menuContext;
 
@@ -382,218 +533,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     menuContext.values[10] = '\0';
     menuContext.values[11] = '\0';
 
-    int startY = 38;
-    uint8_t optionY = 38;
+    menuContext.callback = custom_Callback;
 
-    menu_Draw(shellPrefs, 15, 35, 38, 141, 168, &menuContext);
-    gfx_BlitBuffer();
-
-    while(kb_AnyKey());
-
-    bool keyPressed = false;
-    clock_t clockOffset = clock(); // Keep track of an offset for timer stuff
-
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyYequ)) {
-        kb_Scan();
-        util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
-
-        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
-            if (kb_IsDown(kb_KeyUp)) {
-                if (menuContext.optionSelected) {
-                    int nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
-
-                    if (nextY < 38) {
-                        startY += 38 - nextY;
-                        optionY = 38;
-                    } else {
-                        optionY = nextY;
-                    }
-
-                    menuContext.optionSelected -= 1;
-                } else {
-                    #ifdef FR
-                    startY = -138;
-                    #else
-                    startY = -30;
-                    #endif
-                    optionY = 193;
-                    menuContext.optionSelected = 11;
-                }
-            } else if (kb_IsDown(kb_KeyDown)) {
-                if (menuContext.optionSelected + 1 < menuContext.totalOptions) {
-                    // Create variables to not call these functions so much
-                    uint8_t nextY = optionY + 5 + menu_CalculateLines(menuContext.options[menuContext.optionSelected], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected], 0) - 3) / 8, 3) * 12;
-                    uint8_t nextOptionHeight = menu_CalculateLines(menuContext.options[menuContext.optionSelected + 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected + 1], 0) - 3) / 8, 3) * 8;
-
-                    if (nextOptionHeight > 8) {
-                        nextOptionHeight += 4 * (nextOptionHeight / 8 - 1);
-                    }
-
-                    if (nextY + nextOptionHeight + 1 > 201) {
-                        startY -= nextY + nextOptionHeight - 201;
-                        optionY = 201 - nextOptionHeight;
-                    } else {
-                        optionY = nextY;
-                    }
-
-                    menuContext.optionSelected += 1;
-                } else {
-                    startY = 38;
-                    optionY = 38;
-                    menuContext.optionSelected = 0;
-                }
-            }
-
-            if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
-                switch (menuContext.optionSelected) {
-                    case 0:
-                        shellPrefs->transitionSpeed = TRANSITION_MED * !shellPrefs->transitionSpeed;
-                        menuContext.values[0] = shellPrefs->transitionSpeed;
-                        menuContext.values[1] = shellPrefs->transitionSpeed;
-                        break;
-                    case 4:
-                        shellPrefs->showCEaShellApp = !shellPrefs->showCEaShellApp;
-                        menuContext.values[4] = shellPrefs->showCEaShellApp;
-
-                        if (shellContext->fileSelected == shellContext->appCount - 1 && !menuContext.values[4] && shellContext->directory == APPS_FOLDER) {
-                            shellContext->fileSelected -= 1;
-                        }
-
-                        break;
-                    case 5:
-                        shellPrefs->showAppsFolder = !shellPrefs->showAppsFolder;
-                        menuContext.values[5] = shellPrefs->showAppsFolder;
-                        break;
-                    case 6:
-                        shellPrefs->showAppVarsFolder = !shellPrefs->showAppVarsFolder;
-                        menuContext.values[6] = shellPrefs->showAppVarsFolder;
-                        break;
-                    case 7:
-                        shellPrefs->showHiddenProgs = !shellPrefs->showHiddenProgs;
-                        menuContext.values[7] = shellPrefs->showHiddenProgs;
-
-                        if (!menuContext.values[7]) {
-                            shellContext->fileStartLoc = 0;
-                            shellContext->fileSelected = 0;
-                        }
-
-                        break;
-                    case 8:
-                        shellPrefs->showFileCount = !shellPrefs->showFileCount;
-                        menuContext.values[8] = shellPrefs->showFileCount;
-                        break;
-                    case 10:
-                        custom_CreateTheme(shellPrefs, shellContext);
-                        break;
-                    case 11:
-                        custom_PresetTheme(shellPrefs, shellContext);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (menuContext.optionSelected > 9) {
-                    gfx_FillScreen(shellPrefs->bgColor);
-                    gfx_SetTextFGColor(shellPrefs->textColor);
-
-                    #ifdef FR
-                    ui_DrawStatusBar(shellPrefs, shellContext, "Customiser");
-                    #else
-                    ui_DrawStatusBar(shellPrefs, shellContext, "Customize");
-                    #endif
-
-                    gfx_SetColor(shellPrefs->fgColor);
-
-                    shapes_RoundRectangleFill(6, 8, 28, 304, 204);
-                    ui_DrawUISprite(shellPrefs->fgColor, UI_LARROW, 14, 210);
-                }
-            } else if (kb_IsDown(kb_KeyLeft)) {
-                switch (menuContext.optionSelected) {
-                    case 1:
-                        if (shellPrefs->transitionSpeed == TRANSITION_SLOW) {
-                            shellPrefs->transitionSpeed = TRANSITION_FAST;
-                        } else {
-                            shellPrefs->transitionSpeed -= 1;
-                        }
-
-                        menuContext.values[0] = shellPrefs->transitionSpeed;
-                        menuContext.values[1] = shellPrefs->transitionSpeed;
-                        break;
-                    case 2:
-                        if (shellPrefs->uiScale == SCALE_SMALLEST) {
-                            shellPrefs->uiScale = SCALE_LARGE;
-                        } else {
-                            shellPrefs->uiScale -= 1;
-                        }
-
-                        menuContext.values[2] = shellPrefs->uiScale;
-                        shellContext->fileSelected = 0;
-                        shellContext->fileStartLoc = 0;
-                        break;
-                    case 3:
-                        shellPrefs->timeFormat = !shellPrefs->timeFormat;
-                        menuContext.values[3] = shellPrefs->timeFormat;
-                        break;
-                    case 9:
-                        if (!shellPrefs->apdTimer) {
-                            shellPrefs->apdTimer = 5;
-                        } else {
-                            shellPrefs->apdTimer -= 1;
-                        }
-
-                        menuContext.values[9] = shellPrefs->apdTimer;
-                        break;
-                    default:
-                        break;
-                }
-            } else if (kb_IsDown(kb_KeyRight)) {
-                switch (menuContext.optionSelected) {
-                    case 1:
-                        if (shellPrefs->transitionSpeed == TRANSITION_FAST) {
-                            shellPrefs->transitionSpeed = TRANSITION_SLOW;
-                        } else {
-                            shellPrefs->transitionSpeed += 1;
-                        }
-
-                        menuContext.values[0] = shellPrefs->transitionSpeed;
-                        menuContext.values[1] = shellPrefs->transitionSpeed;
-                        break;
-                    case 2:
-                        if (shellPrefs->uiScale == SCALE_LARGE) {
-                            shellPrefs->uiScale = SCALE_SMALLEST;
-                        } else {
-                            shellPrefs->uiScale += 1;
-                        }
-
-                        menuContext.values[2] = shellPrefs->uiScale;
-                        shellContext->fileSelected = 0;
-                        shellContext->fileStartLoc = 0;
-                        break;
-                    case 3:
-                        shellPrefs->timeFormat = !shellPrefs->timeFormat;
-                        menuContext.values[3] = shellPrefs->timeFormat;
-                        break;
-                    case 9:
-                        if (shellPrefs->apdTimer == 5) {
-                            shellPrefs->apdTimer = 0;
-                        } else {
-                            shellPrefs->apdTimer += 1;
-                        }
-
-                        menuContext.values[9] = shellPrefs->apdTimer;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            gfx_SetDrawBuffer();
-            menu_Draw(shellPrefs, 15, 35, startY, 141, 168, &menuContext);
-            gfx_BlitBuffer();
-
-            util_WaitBeforeKeypress(&clockOffset, &keyPressed);
-        }
-    }
-
-    util_CorrectTransparentColor(shellPrefs);
+    menu_Open(shellPrefs, shellContext, &menuContext, kb_KeyYequ);
 }

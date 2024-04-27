@@ -36,31 +36,40 @@ extern "C" {
  */
 #define os_PixelShadow          ((uint8_t *)0xD031F6)
 
+/**
+ * Entry format for launch shortcut.
+ */
+struct launch_t {
+    uint8_t type;               /** Type of the file to launch (Program / App) */
+    char name[9];               /** Name of the file to launch. */
+};
+
 /** 
  * Shell preferences, which are backed up in the CEaShell AppVar.
  */
 struct preferences_t {
-    bool invertColors;          /** Whether or not to invert the color palette used in CEaShell. */
-    uint8_t bgColor;            /** CEaShell theme background color. */
-    uint8_t fgColor;            /** CEaShell theme foreground color. */
-    uint8_t hlColor;            /** CEaShell theme highlight color. */
-    uint8_t textColor;          /** Color to use for text. */
-    uint8_t hiddenTextColor;    /** Color to use for hidden text. */
-    uint8_t transitionSpeed;    /** Speed of CEaShell's transition animation. 0 = Off, 1 = Slow, 2 = Default, 3 = Fast. */
-    uint8_t uiScale;            /** Scale factor for programs in the file manager context. Default value is 4. */
-    bool timeFormat;            /** Format to display the clock in CEaShell. If the value is true, use 24 hour time, and if it is false, use 12 hour time. */
-    bool showCEaShellApp;       /** Whether or not to display the CEaShell app in the list of apps found in CEaShell. */
-    bool showFileCount;         /** Whether or not to display the number of files in the currently opened directory in CEaShell's status bar. */
-    uint8_t apdTimer;           /** Timer to turn off the calculator after a certain amount of inactivity. If the value is 0, this feature is disaled, if it is 1, it will turn off after 1 minute, etc. Default is 3 minutes. */
-    bool showAppsFolder;        /** Whether or not to display the apps directory in CEaShell. */
-    bool showAppVarsFolder;     /** Whether or not to display the AppVars directory in CEaShell. */
-    bool showHiddenProgs;       /** Whether or not to show hidden programs in the programs directory of CEaShell. */
-    uint8_t editArchivedProgs;  /** Whether or not to allow the editing of archived programs in TI-OS. */
-    bool editLockedProgs;       /** Whether or not to allow the editing of locked TI-BASIC and ICE source files in CEaShell. */
-    uint8_t getCSCHooks;        /** Combination of GetCSC hooks currently installed. Bit 0 for icon / description hook, bit 1 for on shortcuts, bit 2 for fast alpha scrolling. */
-    uint8_t hidePrgmOptions;    /** Hide menu for Python or TI-BASIC programs in the program menu, skipping immediately to TI-BASIC programs. */
-    bool hideBusyIndicator;     /** Whether or not to hide the busy indicator when running TI-BASIC programs with CEaShell or the homescreen hook. */
-    bool osLowercase;           /** Whether or not to enable lowercase in TI-OS. */
+    bool invertColors;                  /** Whether or not to invert the color palette used in CEaShell. */
+    uint8_t bgColor;                    /** CEaShell theme background color. */
+    uint8_t fgColor;                    /** CEaShell theme foreground color. */
+    uint8_t hlColor;                    /** CEaShell theme highlight color. */
+    uint8_t textColor;                  /** Color to use for text. */
+    uint8_t hiddenTextColor;            /** Color to use for hidden text. */
+    uint8_t transitionSpeed;            /** Speed of CEaShell's transition animation. 0 = Off, 1 = Slow, 2 = Default, 3 = Fast. */
+    uint8_t uiScale;                    /** Scale factor for programs in the file manager context. Default value is 4. */
+    bool timeFormat;                    /** Format to display the clock in CEaShell. If the value is true, use 24 hour time, and if it is false, use 12 hour time. */
+    bool showCEaShellApp;               /** Whether or not to display the CEaShell app in the list of apps found in CEaShell. */
+    bool showFileCount;                 /** Whether or not to display the number of files in the currently opened directory in CEaShell's status bar. */
+    uint8_t apdTimer;                   /** Timer to turn off the calculator after a certain amount of inactivity. If the value is 0, this feature is disaled, if it is 1, it will turn off after 1 minute, etc. Default is 3 minutes. */
+    bool showAppsFolder;                /** Whether or not to display the apps directory in CEaShell. */
+    bool showAppVarsFolder;             /** Whether or not to display the AppVars directory in CEaShell. */
+    bool showHiddenProgs;               /** Whether or not to show hidden programs in the programs directory of CEaShell. */
+    uint8_t editArchivedProgs;          /** Whether or not to allow the editing of archived programs in TI-OS. */
+    bool editLockedProgs;               /** Whether or not to allow the editing of locked TI-BASIC and ICE source files in CEaShell. */
+    uint8_t getCSCHooks;                /** Combination of GetCSC hooks currently installed. Bit 0 for icon / description hook, bit 1 for on shortcuts, bit 2 for fast alpha scrolling. */
+    uint8_t hidePrgmOptions;            /** Hide menu for Python or TI-BASIC programs in the program menu, skipping immediately to TI-BASIC programs. */
+    bool hideBusyIndicator;             /** Whether or not to hide the busy indicator when running TI-BASIC programs with CEaShell or the homescreen hook. */
+    bool osLowercase;                   /** Whether or not to enable lowercase in TI-OS. */
+    struct launch_t launchFiles[10];    /** Information for [on] + [number] launch shortcut. */
 };
 
 /**
@@ -94,6 +103,7 @@ struct file_t {
     bool archived;              /** Archive status. */
     bool locked;                /** Locked status. */
     bool hidden;                /** Hidden status. */
+    uint8_t shortcut;           /** Number key assigned to the file for launch shortcut. */
 };
 
 /** 
@@ -107,6 +117,7 @@ struct menu_t {
     char *details[12];
     uint8_t types[12];
     uint8_t values[12];
+    void (*callback)(struct preferences_t *shellPrefs, struct context_t *shellContext, struct menu_t *menuContext);
 };
 
 /** 
@@ -146,7 +157,7 @@ extern gfx_sprite_t *tempSprite;
  * Type byte for apps (ti.AppObj), which is not included in the CE C
  * toolchain.
  */
-#define OS_TYPE_APP     14
+#define OS_TYPE_APP     0x14
 
 /** 
  * Maximum length for program descriptions.
@@ -214,6 +225,7 @@ extern gfx_sprite_t *tempSprite;
 #define MENU_TYPE_TIME  3       /** Time format. */
 #define MENU_TYPE_SPEED 4       /** Transition speed. */
 #define MENU_TYPE_SCALE 5       /** UI Scale. */
+#define MENU_TYPE_HKEY  6       /** [on] + number hotkey. */
 
 /** 
  * Number of preset theme options.
@@ -223,7 +235,7 @@ extern gfx_sprite_t *tempSprite;
 /** 
  * Size of CEaShell's AppVar.
  */
-#define APPVAR_SIZE     29
+#define APPVAR_SIZE     129
 
 /**
  * CEaShell app name.

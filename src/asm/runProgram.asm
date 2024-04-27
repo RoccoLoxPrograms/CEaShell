@@ -227,7 +227,6 @@ _asm_runProgram_main:
     ld a, b
     or a, c
     jr z, .error
-    push hl
     push bc
     push bc
 

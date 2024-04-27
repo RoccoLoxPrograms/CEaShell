@@ -25,7 +25,6 @@
 #include "asm/spi.h"
 #include "asm/utils.h"
 
-#include <keypadc.h>
 #include <string.h>
 
 #include <sys/power.h>
@@ -56,7 +55,21 @@ static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, 
             dummyFiles = rows - dummyFiles;
         }
 
-        ui_ScrollBar(shellPrefs, 20, 191, 280, fileCount + dummyFiles, shellContext->fileStartLoc, rows * columns, true);
+        uint8_t scrollY = 191;
+
+        switch (shellPrefs->uiScale) {
+            case SCALE_SMALLEST:
+                scrollY = 186;
+                break;
+            case SCALE_SMALL:
+                scrollY = 181;
+                break;
+            case SCALE_MEDIUM:
+                scrollY = 177;
+                break;
+        }
+
+        ui_ScrollBar(shellPrefs, 20, scrollY, 280, fileCount + dummyFiles, shellContext->fileStartLoc, rows * columns, true);
     }
 }
 
@@ -146,11 +159,15 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     }
 
                     updateBattery = false;
-                } else if (kb_IsDown(kb_KeyDel) || kb_IsDown(kb_KeyMode) || (kb_IsDown(kb_KeyStat) && shellContext->directory != APPS_FOLDER)) {
+                } else if (kb_IsDown(kb_KeyVars) || kb_IsDown(kb_KeyDel) || kb_IsDown(kb_KeyMode) || (kb_IsDown(kb_KeyStat) && shellContext->directory != APPS_FOLDER)) {
                     static struct file_t fileInfo;
                     util_GetFileInfo(shellContext->fileSelected, &fileInfo, shellPrefs, shellContext);
 
-                    if (kb_IsDown(kb_KeyDel)) {
+                    if (kb_IsDown(kb_KeyVars) && (fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE)) {
+                        util_SearchToMain(shellPrefs, shellContext);
+                        gfx_End();
+                        asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
+                    } else if (kb_IsDown(kb_KeyDel)) {
                         menu_DeleteFile(shellPrefs, shellContext, &fileInfo);
                     } else if (kb_IsDown(kb_KeyMode)) {
                         menu_CopyFile(shellPrefs, shellContext, &fileInfo);
@@ -179,12 +196,26 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 if (kb_IsDown(kb_KeyUp)) {
                     if (shellContext->fileSelected % rows) {
                         shellContext->fileSelected--;
+                    } else if(shellContext->fileSelected) {
+                        shellContext->fileSelected--;
+
+                        if (shellContext->fileSelected < shellContext->fileStartLoc && shellContext->fileStartLoc) {
+                            shellContext->fileStartLoc -= rows;
+                        }
                     }
-                } else if (kb_IsDown(kb_KeyDown) && (shellContext->fileSelected + 1) % rows) {
-                    if (shellContext->fileSelected + 1 < fileCount) {
+                } else if (kb_IsDown(kb_KeyDown)) {
+                    if ((shellContext->fileSelected + 1) % rows) {
+                        if (shellContext->fileSelected + 1 < fileCount) {
+                            shellContext->fileSelected++;
+                        } else if (shellContext->fileSelected > rows) {
+                            shellContext->fileSelected = fileCount - 1 - (shellContext->fileSelected + 1) % rows;
+                        }
+                    } else if (shellContext->fileSelected + 1 != fileCount) {
                         shellContext->fileSelected++;
-                    } else if (shellContext->fileSelected > rows) {
-                        shellContext->fileSelected = fileCount - 1 - (shellContext->fileSelected + 1) % rows;
+
+                        if (shellContext->fileSelected >= shellContext->fileStartLoc + rows * columns) {
+                            shellContext->fileStartLoc += rows;
+                        }
                     }
                 }
 
@@ -323,4 +354,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
             gfx_BlitBuffer();
         }
     }
+
+    util_WaitBeforeKeypress(&clockOffset, &keyPressed);
 }

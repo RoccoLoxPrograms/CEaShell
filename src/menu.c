@@ -131,6 +131,23 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
             }
 
             break;
+        case MENU_TYPE_HKEY:
+            width = 35;
+
+            if (value == 10) {
+                #ifdef FR
+                gfx_PrintStringXY("D""\x15""s", 227, 191);
+                #else
+                gfx_PrintStringXY("Off", 189, 191);
+                #endif
+            } else {
+                #ifdef FR
+                gfx_SetTextXY(235, 191);
+                #else
+                gfx_SetTextXY(197, 191);
+                #endif
+                gfx_PrintUInt(value, 1);
+            }
         default:
             break;
     }
@@ -218,6 +235,78 @@ void menu_Draw(struct preferences_t *shellPrefs, unsigned int x, uint8_t clipY, 
     ui_PrintStringWrap(menuContext->details[menuContext->optionSelected], x + width + 11, clipY + 20, 19, 12);
 }
 
+void menu_Open(struct preferences_t *shellPrefs, struct context_t *shellContext, struct menu_t *menuContext, kb_lkey_t exitKey) {
+    int startY = 38;
+    uint8_t optionY = 38;
+
+    menu_Draw(shellPrefs, 15, 35, 38, 141, 168, menuContext);
+    gfx_BlitBuffer();
+
+    while(kb_AnyKey());
+
+    bool keyPressed = false;
+    clock_t clockOffset = clock(); // Keep track of an offset for timer stuff
+
+    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(exitKey)) {
+        kb_Scan();
+        util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
+
+        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (kb_IsDown(kb_KeyUp)) {
+                if (menuContext->optionSelected) {
+                    int nextY = optionY - 5 - menu_CalculateLines(menuContext->options[menuContext->optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected - 1], 0) - 3) / 8, 3) * 12;
+
+                    if (nextY < 38) {
+                        startY += 38 - nextY;
+                        optionY = 38;
+                    } else {
+                        optionY = nextY;
+                    }
+
+                    menuContext->optionSelected -= 1;
+                } else {
+                    startY = 205 - menuContext->totalHeight;
+                    menuContext->optionSelected = menuContext->totalOptions - 1;
+                    optionY = 205 - menu_CalculateLines(menuContext->options[menuContext->optionSelected], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected], 0) - 3) / 8, 3) * 12;
+                }
+            } else if (kb_IsDown(kb_KeyDown)) {
+                if (menuContext->optionSelected + 1 < menuContext->totalOptions) {
+                    // Create variables to not call these functions so much
+                    uint8_t nextY = optionY + 5 + menu_CalculateLines(menuContext->options[menuContext->optionSelected], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected], 0) - 3) / 8, 3) * 12;
+                    uint8_t nextOptionHeight = menu_CalculateLines(menuContext->options[menuContext->optionSelected + 1], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected + 1], 0) - 3) / 8, 3) * 8;
+
+                    if (nextOptionHeight > 8) {
+                        nextOptionHeight += 4 * (nextOptionHeight / 8 - 1);
+                    }
+
+                    if (nextY + nextOptionHeight + 1 > 201) {
+                        startY -= nextY + nextOptionHeight - 201;
+                        optionY = 201 - nextOptionHeight;
+                    } else {
+                        optionY = nextY;
+                    }
+
+                    menuContext->optionSelected += 1;
+                } else {
+                    startY = 38;
+                    optionY = 38;
+                    menuContext->optionSelected = 0;
+                }
+            }
+
+            menuContext->callback(shellPrefs, shellContext, menuContext);
+
+            gfx_SetDrawBuffer();
+            menu_Draw(shellPrefs, 15, 35, startY, 141, 168, menuContext);
+            gfx_BlitBuffer();
+
+            util_WaitBeforeKeypress(&clockOffset, &keyPressed);
+        }
+    }
+
+    util_WaitBeforeKeypress(&clockOffset, &keyPressed);
+}
+
 bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext, unsigned int x, unsigned int optionWidth, char *option1, char *option2) {
     bool retVal = false;
 
@@ -247,7 +336,7 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
             retVal = !retVal;
 
             if (!keyPressed) {
-                while (clock() - clockOffset < CLOCKS_PER_SEC / 3 && (kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter))) {
+                while (clock() - clockOffset < CLOCKS_PER_SEC / 2.5 && (kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter))) {
                     kb_Scan();
                 }
             }
@@ -297,13 +386,13 @@ bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellCo
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    gfx_PrintStringXY("Nouveau", 69, 207);
-    gfx_PrintStringXY("Nom:", 64, 216);
+    gfx_PrintStringXY("Nom :", 73, 212);
+    char *newName = ui_StringInput(shellPrefs, shellContext, 109, 208, false);
     #else
     gfx_PrintStringXY("New", 69, 207);
     gfx_PrintStringXY("Name:", 64, 216);
-    #endif
     char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208, false);
+    #endif
 
     gfx_SetColor(shellPrefs->fgColor);
     gfx_FillRectangle_NoClip(56, 205, 208, 20);
@@ -339,7 +428,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copier", "Cr""\x15""er nouveau");
+    bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copier", "Cr""\x15""er");
     #else
     bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copy", "Create New");
     #endif
@@ -352,13 +441,13 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
-    gfx_PrintStringXY("Nouveau", 69, 207);
-    gfx_PrintStringXY("Nom:", 64, 216);
+    gfx_PrintStringXY("Nom :", 73, 212);
+    char *newName = ui_StringInput(shellPrefs, shellContext, 109, 208, false);
     #else
     gfx_PrintStringXY("New", 69, 207);
     gfx_PrintStringXY("Name:", 64, 216);
-    #endif
     char *newName = ui_StringInput(shellPrefs, shellContext, 104, 208, false);
+    #endif
     gfx_SetColor(shellPrefs->fgColor);
     gfx_FillRectangle_NoClip(56, 205, 208, 20);
 

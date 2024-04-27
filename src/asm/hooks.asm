@@ -45,8 +45,10 @@ include 'include/equates.inc'
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_findCEaShellAppVar
     extern _asm_utils_deleteTempRunner
+    extern _asm_utils_cleanupForceCmd
     extern _rodata_hashProg
     extern _rodata_appName
+    extern _rodata_numberKeysLUT
     extern _exit.sp
 
 hooks_parserStopHook:
@@ -274,7 +276,98 @@ hooks_onHook:
     jp z, hooks_invertOn
     cp a, ti.skLn
     jp z, hooks_invertOff
-    jp (hl)
+    push hl
+    ld bc, 10
+    ld hl, _rodata_numberKeysLUT
+    cpir
+    ret nz
+    ld a, 9
+    sub a, c
+    ld h, 10
+    ld l, a
+    mlt hl
+    push hl
+    call _asm_utils_findCEaShellAppVar
+    pop hl
+    ret c
+    push hl
+    ld hl, 24
+    add hl, de
+    pop de
+    add hl, de
+    ld a, (hl)
+    or a, a
+    ret z
+    cp a, ti.AppObj
+    jr nz, .runProgram
+    inc hl
+    push hl
+    call ti.FindAppStart
+    pop hl
+    ret c
+    jp hooks_launchAppHook
+
+.runProgram:
+    push hl
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    pop hl
+    ret c
+    push hl
+    push de
+    push bc
+    call _asm_utils_cleanupForceCmd
+    call ti.BufClear
+    pop bc
+    pop de
+    call ti.ChkInRam
+    jr z, .inRam
+    ld hl, 10
+    add hl, de
+    ld a, c
+    ld bc, 0
+    ld c, a
+    add hl, bc
+    ex de, hl
+
+.inRam:
+    inc de
+    inc de
+    ld a, (de)
+    cp a, ti.tExtTok
+    jr nz, .notAsm
+    inc de
+    ld a, (de)
+    cp a, ti.tAsm84CeCmp
+    jr z, .isAsm
+    cp a, ti.tAsm84CePrgm
+    jr nz, .notAsm
+
+.isAsm:
+    ld de, (ti.t2ByteTok shl 8) or ti.tasm
+    call ti.BufInsert
+
+.notAsm:
+    ld de, ti.tProg
+    call ti.BufInsert
+    pop hl
+
+.insertName:
+    inc hl
+    ld de, 0
+    ld a, (hl)
+    or a, a
+    jr z, .doneInserting
+    ld e, a
+    push hl
+    call ti.BufInsert
+    pop hl
+    jr nz, .insertName
+
+.doneInserting:
+    res ti.onInterrupt, (iy + ti.onFlags)
+    ld a, ti.kEnter
+    jp ti.JForceCmd
 
 hooks_fastAlphaScrolling:
     ld a, (getCSCvalA)
@@ -480,6 +573,7 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     inc de
     ld a, (de)
     cp a, ti.tAsm84CeCmp
+    dec de
     jr nz, .notASM
     xor a, a
     jr .run
@@ -493,6 +587,13 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     jp _asm_runProgram_main
 
 .return:
+    ld a, (de)
+    cp a, ti.tExtTok
+    jr nz, $ + 8
+    inc de
+    ld a, (de)
+    cp a, ti.tAsm84CePrgm
+    jr z, .notASM + 6
     cp a, a
     ret
 
@@ -561,27 +662,19 @@ hooks_editArchivedProgs:
     cp a, a
     ret
 
-hooks_openShellHook: ; Launches CEaShell, not actually a hook but called in the on shortcut
+hooks_openShellHook:
+    ld hl, _rodata_appName
+
+hooks_launchAppHook:
+    push hl
     ld iy, ti.flags
     call ti.CursorOff
     call ti.RunIndicOff
-    di
-    ld a, (ti.menuCurrent)
-    cp a, ti.kWindow
-    jr nz, .notInWindow
-    ld a, ti.kClear
-    call ti.PullDownChk ; exit from alpha + function menus
-
-.notInWindow:
-    ld a, ti.kQuit
-    call ti.PullDownChk ; exit from randInt( and related menus
-    ld a, ti.kQuit
-    call ti.NewContext0 ; just attempt a cleanup now
-    call ti.CursorOff
+    call _asm_utils_cleanupForceCmd
     call ti.RunIndicOff
     xor a, a
     ld (ti.menuCurrent), a ; make sure we aren't on a menu
-    ld hl, _rodata_appName ; execute app
+    pop hl
     ld de, ti.progCurrent + 1
     push de
     ld bc, 9

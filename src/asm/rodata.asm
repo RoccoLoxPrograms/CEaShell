@@ -27,6 +27,7 @@ include 'include/equates.inc'
     public _rodata_osColorToXlibC
     public _rodata_characters
     public _rodata_sizeOfCharsLUT
+    public _rodata_numberKeysLUT
 
 _rodata_celticAppVarHeader:
     db ti.tColon, ti.tC, ti.tE, ti.tL, ti.tEnter
@@ -103,3 +104,6 @@ _rodata_sizeOfCharsLUT := $ - _rodata_characters
     db 0, 'zupkfc', 0          ; . 2 5 8 ( COS PRGM STAT
     db 0, 'ytojebX', 0         ; 0 1 4 7 , SIN APPS XT?n undef
     db 'xsnida'                ; STO LN LOG x2 x-1 MATH
+
+_rodata_numberKeysLUT:
+    db ti.sk0, ti.sk1, ti.sk2, ti.sk3, ti.sk4, ti.sk5, ti.sk6, ti.sk7, ti.sk8, ti.sk9

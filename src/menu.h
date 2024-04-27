@@ -12,6 +12,8 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include <keypadc.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,6 +51,16 @@ uint8_t menu_CalculateLines(char *string, unsigned int charsPerLine, uint8_t max
  * @param menuContext Menu context information 
  */
 void menu_Draw(struct preferences_t *shellPrefs, unsigned int x, uint8_t clipY, int startY, uint8_t width, uint8_t height, struct menu_t *menuContext);
+
+/**
+ * @brief Opens a menu (like settings / customization).
+ * 
+ * @param shellPrefs Shell preferences struct.
+ * @param shellContext Shell context struct.
+ * @param menuContext Menu context / config struct.
+ * @param exitKey Key to exit menu.
+ */
+void menu_Open(struct preferences_t *shellPrefs, struct context_t *shellContext, struct menu_t *menuContext, kb_lkey_t exitKey);
 
 /**
  * @brief Opens a menu with two options.

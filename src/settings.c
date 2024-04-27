@@ -17,7 +17,49 @@
 #include "ui.h"
 #include "utility.h"
 
-#include <keypadc.h>
+static void settings_Callback(struct preferences_t *shellPrefs, struct context_t *shellContext, struct menu_t *menuContext) {
+    if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
+        switch (menuContext->optionSelected) {
+            case 0:
+                shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, ICON_HOOK);
+                menuContext->values[0] = bit(shellPrefs->getCSCHooks, ICON_HOOK);
+                break;
+            case 1:
+                shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
+                menuContext->values[1] = bit(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
+                break;
+            case 2:
+                shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
+                menuContext->values[2] = bit(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
+                break;
+            case 3:
+                shellPrefs->editArchivedProgs = 3 * !shellPrefs->editArchivedProgs;
+                menuContext->values[3] = shellPrefs->editArchivedProgs;
+                break;
+            case 4:
+                shellPrefs->editLockedProgs = !shellPrefs->editLockedProgs;
+                menuContext->values[4] = shellPrefs->editLockedProgs;
+                break;
+            case 5:
+                shellPrefs->hidePrgmOptions = 2 * !shellPrefs->hidePrgmOptions;
+                menuContext->values[5] = shellPrefs->hidePrgmOptions;
+                break;
+            case 6:
+                shellPrefs->hideBusyIndicator = !shellPrefs->hideBusyIndicator;
+                menuContext->values[6] = shellPrefs->hideBusyIndicator;
+                break;
+            case 7:
+                shellPrefs->osLowercase = !shellPrefs->osLowercase;
+                menuContext->values[7] = shellPrefs->osLowercase;
+                break;
+            case 8:
+                menu_AboutScreen(shellPrefs, shellContext);
+                break;
+            default:
+                break;
+        }
+    }
+}
 
 void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     #ifdef FR
@@ -38,7 +80,6 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
 
     shapes_RoundRectangleFill(6, 8, 28, 304, 204);
     ui_DrawUISprite(shellPrefs->fgColor, UI_RARROW, 290, 210);
-    gfx_BlitBuffer();
 
     static struct menu_t menuContext;
 
@@ -122,116 +163,7 @@ void settings_Open(struct preferences_t *shellPrefs, struct context_t *shellCont
     menuContext.values[7] = shellPrefs->osLowercase;
     menuContext.values[8] = '\0';
 
-    int startY = 38;
-    uint8_t optionY = 38;
+    menuContext.callback = settings_Callback;
 
-    menu_Draw(shellPrefs, 15, 35, 38, 141, 168, &menuContext);
-    gfx_BlitBuffer();
-
-    while(kb_AnyKey());
-
-    bool keyPressed = false;
-    clock_t clockOffset = clock(); // Keep track of an offset for timer stuff
-
-    while (!kb_IsDown(kb_KeyClear) && !kb_IsDown(kb_KeyGraph)) {
-        kb_Scan();
-        util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
-
-        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
-            if (kb_IsDown(kb_KeyUp)) {
-                if (menuContext.optionSelected) {
-                    int nextY = optionY - 5 - menu_CalculateLines(menuContext.options[menuContext.optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected - 1], 0) - 3) / 8, 3) * 12;
-
-                    if (nextY < 38) {
-                        startY += 38 - nextY;
-                        optionY = 38;
-                    } else {
-                        optionY = nextY;
-                    }
-
-                    menuContext.optionSelected -= 1;
-                } else {
-                    #ifdef FR
-                    startY = -75;
-                    optionY = 181;
-                    #else
-                    startY = -3;
-                    optionY = 191;
-                    #endif
-                    menuContext.optionSelected = 8;
-                }
-            } else if (kb_IsDown(kb_KeyDown)) {
-                if (menuContext.optionSelected + 1 < menuContext.totalOptions) {
-                    // Create variables to not call these functions so much
-                    uint8_t nextY = optionY + 5 + menu_CalculateLines(menuContext.options[menuContext.optionSelected], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected], 0) - 3) / 8, 3) * 12;
-                    uint8_t nextOptionHeight = menu_CalculateLines(menuContext.options[menuContext.optionSelected + 1], (141 - menu_DrawValueString(0, 0, menuContext.types[menuContext.optionSelected + 1], 0) - 3) / 8, 3) * 8;
-
-                    if (nextOptionHeight > 8) {
-                        nextOptionHeight += 4 * (nextOptionHeight / 8 - 1);
-                    }
-
-                    if (nextY + nextOptionHeight + 1 > 201) {
-                        startY -= nextY + nextOptionHeight - 201;
-                        optionY = 201 - nextOptionHeight;
-                    } else {
-                        optionY = nextY;
-                    }
-
-                    menuContext.optionSelected += 1;
-                } else {
-                    startY = 38;
-                    optionY = 38;
-                    menuContext.optionSelected = 0;
-                }
-            }
-
-            if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
-                switch (menuContext.optionSelected) {
-                    case 0:
-                        shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, ICON_HOOK);
-                        menuContext.values[0] = bit(shellPrefs->getCSCHooks, ICON_HOOK);
-                        break;
-                    case 1:
-                        shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
-                        menuContext.values[1] = bit(shellPrefs->getCSCHooks, ON_SHORTS_HOOK);
-                        break;
-                    case 2:
-                        shellPrefs->getCSCHooks = toggle(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
-                        menuContext.values[2] = bit(shellPrefs->getCSCHooks, FAST_ALPHA_HOOK);
-                        break;
-                    case 3:
-                        shellPrefs->editArchivedProgs = 3 * !shellPrefs->editArchivedProgs;
-                        menuContext.values[3] = shellPrefs->editArchivedProgs;
-                        break;
-                    case 4:
-                        shellPrefs->editLockedProgs = !shellPrefs->editLockedProgs;
-                        menuContext.values[4] = shellPrefs->editLockedProgs;
-                        break;
-                    case 5:
-                        shellPrefs->hidePrgmOptions = 2 * !shellPrefs->hidePrgmOptions;
-                        menuContext.values[5] = shellPrefs->hidePrgmOptions;
-                        break;
-                    case 6:
-                        shellPrefs->hideBusyIndicator = !shellPrefs->hideBusyIndicator;
-                        menuContext.values[6] = shellPrefs->hideBusyIndicator;
-                        break;
-                    case 7:
-                        shellPrefs->osLowercase = !shellPrefs->osLowercase;
-                        menuContext.values[7] = shellPrefs->osLowercase;
-                        break;
-                    case 8:
-                        menu_AboutScreen(shellPrefs, shellContext);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            gfx_SetDrawBuffer();
-            menu_Draw(shellPrefs, 15, 35, startY, 141, 168, &menuContext);
-            gfx_BlitBuffer();
-
-            util_WaitBeforeKeypress(&clockOffset, &keyPressed);
-        }
-    }
+    menu_Open(shellPrefs, shellContext, &menuContext, kb_KeyGraph);
 }
