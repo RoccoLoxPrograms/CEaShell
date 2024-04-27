@@ -346,11 +346,15 @@ hooks_onHook:
 .isAsm:
     ld de, (ti.t2ByteTok shl 8) or ti.tasm
     call ti.BufInsert
+    pop hl
+    ret z
+    push hl
 
 .notAsm:
     ld de, ti.tProg
     call ti.BufInsert
     pop hl
+    ret z
 
 .insertName:
     inc hl
