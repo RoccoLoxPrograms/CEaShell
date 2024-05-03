@@ -336,7 +336,7 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
             retVal = !retVal;
 
             if (!keyPressed) {
-                while (clock() - clockOffset < CLOCKS_PER_SEC / 2.5 && (kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter))) {
+                while (clock() - clockOffset < CLOCKS_PER_SEC / 2.25 && (kb_Data[7] || kb_Data[1] || kb_IsDown(kb_KeyEnter))) {
                     kb_Scan();
                 }
             }
@@ -483,12 +483,12 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
     #ifdef FR
     static const char *specialThanks = "Remerciements ""\x7F"" : Programmation : MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
     " Traduction fran""\x13""aise : Shadow. Inspiration/Id""\x15""es : KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Testeurs b""\x16""ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, naga_serpentis."
+    " Dream of Omnimaga. Testeurs b""\x16""ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, Invalid_Jake, naga_serpentis."
     " Et un grand merci ""\x7F"" tous les membres de notre Discord pour leurs id""\x15""es et leurs support !";
     #else
     static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, naga_serpentis."
+    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, Invalid_Jake, naga_serpentis."
     " And a big thank you to the members of our Discord for your support and ideas!";
     #endif
     unsigned int startDisplay = 0;
@@ -541,11 +541,11 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
         }
 
         #ifdef FR
-        if (startDisplay > 428) {
+        if (startDisplay > 442) {
             startDisplay = 0; // restart
         }
         #else
-        if (startDisplay > 424) {
+        if (startDisplay > 438) {
             startDisplay = 0; // restart
         }
         #endif

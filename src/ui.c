@@ -481,7 +481,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         }
 
-        if (clock() - clockOffset > CLOCKS_PER_SEC / 2.5 && !keyPressed) {
+        if (clock() - clockOffset > CLOCKS_PER_SEC / 2.25 && !keyPressed) {
             if (cursorActive) {
                 gfx_SetColor(shellPrefs->textColor);
             } else {

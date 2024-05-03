@@ -411,7 +411,7 @@ void util_UpdateKeyTimer(struct preferences_t *shellPrefs, struct context_t *she
 
 void util_WaitBeforeKeypress(clock_t *clockOffset, bool *keyPressed) {
     if (!(*keyPressed)) {
-        while ((clock() - *clockOffset < CLOCKS_PER_SEC / 2.5) && kb_AnyKey()) {
+        while ((clock() - *clockOffset < CLOCKS_PER_SEC / 2.25) && kb_AnyKey()) {
             kb_Scan();
         }
     }
