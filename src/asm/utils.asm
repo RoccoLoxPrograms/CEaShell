@@ -520,6 +520,8 @@ _asm_utils_dispQuitErr:
 
 _asm_utils_cleanupForceCmd:
     di
+    ld a, true
+    ld (exitLaunchHook), a
     ld a, (ti.menuCurrent)
     cp a, ti.kWindow
     jr nz, .notInWindow

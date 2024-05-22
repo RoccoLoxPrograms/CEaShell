@@ -172,6 +172,9 @@ hooks_getCSCHook:
     ret
 
 hooks_iconHook:
+    ld a, (ti.cxCurApp)
+    cp a, ti.cxPrgmEdit
+    ret z
     ld a, (getCSCvalA)
     cp a, $1A
     jr nz, .keyPress
@@ -672,8 +675,6 @@ hooks_openShellHook:
 hooks_launchAppHook:
     push hl
     ld iy, ti.flags
-    call ti.CursorOff
-    call ti.RunIndicOff
     call _asm_utils_cleanupForceCmd
     call ti.RunIndicOff
     xor a, a
@@ -843,7 +844,9 @@ _asm_hooks_editorHook:
     call nz, ShowResult
     bit ti.monAbandon, (iy + ti.monFlags)
     jr nz, .turnOff
+    ld a, (exitLaunchHook)
     or a, a
+    jr nz, .turnOff
     sbc hl, hl
     add hl, sp
     ld de, stackBackup

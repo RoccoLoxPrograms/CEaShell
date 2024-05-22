@@ -66,8 +66,9 @@ spiValid := 8
 isCelticVar := returnLoc + 1
 lockOnExit := isCelticVar + 1
 arcOnExit := lockOnExit + 1
+exitLaunchHook := arcOnExit + 1
 
-errorOffset := arcOnExit + 1
+errorOffset := exitLaunchHook + 1
 editMode := errorOffset + 3 ; resultError for goto, false for no goto
 stackBackup := editMode + 1 ; 18 bytes of memory for copying the top 6 stack entries for exiting CEaShell's editor
 

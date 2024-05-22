@@ -78,6 +78,7 @@ _asm_editProgram_main: ; OP1 = File name to edit
     xor a, a
     ld (arcOnExit), a
     ld (lockOnExit), a
+    ld (exitLaunchHook), a
     ld de, (ti.asm_prgm_size)
     or a, a
     sbc hl, hl
