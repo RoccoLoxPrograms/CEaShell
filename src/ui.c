@@ -389,6 +389,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
 
     bool keyPressed = false;
     clock_t clockOffset = clock();
+    clock_t cursorOffset = clockOffset;
 
     gfx_SetColor(shellPrefs->fgColor);
     gfx_Rectangle_NoClip(245, 206, 2, 18);
@@ -481,7 +482,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         }
 
-        if (clock() - clockOffset > CLOCKS_PER_SEC / 2.25 && !keyPressed) {
+        if (clock() - cursorOffset > CLOCKS_PER_SEC / 2.25 && !keyPressed) {
             if (cursorActive) {
                 gfx_SetColor(shellPrefs->textColor);
             } else {
@@ -491,7 +492,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
             gfx_FillRectangle_NoClip(cursorX, y, 2, 14);
 
             cursorActive = !cursorActive;
-            clockOffset = clock();
+            cursorOffset = clock();
 
             gfx_BlitBuffer();
         }

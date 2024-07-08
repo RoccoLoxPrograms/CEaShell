@@ -123,7 +123,7 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
             #endif
         } else if (fileInfo->type != OS_TYPE_APPVAR) {
             #ifdef FR
-            shapes_PixelIndentRectangle(219, 190, 39, 9);
+            shapes_PixelIndentRectangle(182, 190, 39, 9);
             #else
             shapes_PixelIndentRectangle(181, 190, 39, 9);
             #endif
@@ -165,8 +165,8 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
         if (fileInfo->type != OS_TYPE_APPVAR) {
             util_SetGFXChar('[', leftBracket, 5);
             #ifdef FR
-            gfx_PrintStringXY("[on] raccourci clavier:", 64, 191);
-            menu_DrawValueString(259, 191, MENU_TYPE_HKEY, fileInfo->shortcut);
+            gfx_PrintStringXY("[on] touche:", 102, 191);
+            menu_DrawValueString(222, 191, MENU_TYPE_HKEY, fileInfo->shortcut);
             #else
             gfx_PrintStringXY("[on] Hotkey:", 101, 191);
             menu_DrawValueString(221, 191, MENU_TYPE_HKEY, fileInfo->shortcut);
@@ -340,8 +340,8 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                                 gfx_SetColor(shellPrefs->hlColor);
 
                                 #ifdef FR
-                                gfx_FillRectangle_NoClip(221, 191, 35, 7);
-                                menu_DrawValueString(259, 191, MENU_TYPE_HKEY, value);
+                                gfx_FillRectangle_NoClip(184, 191, 35, 7);
+                                menu_DrawValueString(222, 191, MENU_TYPE_HKEY, value);
                                 #else
                                 gfx_FillRectangle_NoClip(183, 191, 35, 7);
                                 menu_DrawValueString(221, 191, MENU_TYPE_HKEY, value);

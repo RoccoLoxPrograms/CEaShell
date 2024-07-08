@@ -18,19 +18,19 @@ CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It a
 * Integration with [HexaEdit](https://github.com/captain-calc/HexaEdit-CE) to open files in hex editor, if the user has HexaEdit installed on their calculator.
 * Creating and copying of programs and AppVars.
 * Turning off the calculator while in the shell, and returning to the shell after turning the calculator back on.
-* Option to view icons, descriptions, and file size in the TI-OS [apps] and [prgm] menus.
+* View icons, descriptions, and file size in the TI-OS [apps] and [prgm] menus.
 * [Shortcuts](#shortcuts) in TI-OS to launch the shell, invert OS colors, trigger APD, and jump to labels in the TI-OS program editor.
-* Option to allow editing of archived programs in TI-OS.
-* Option to allow editing of locked programs in CEaShell.
+* Custom shortcuts to launch programs and apps.
+* Enable editing of archived programs in TI-OS.
+* Allow editing of locked programs in CEaShell.
 * Fast alpha scrolling in the TI-OS editor.
-* Option to hide the "Programming" menu on Python calculators, skipping directly to a TI-BASIC menu like non-Python calcs.
-* Option to disable the busy indicator when running TI-BASIC programs through CEaShell.
-* Option to enable lowercase in TI-OS.
+* Ability to hide the "Programming" menu on Python calculators, skipping directly to a TI-BASIC menu like non-Python calcs.
+* Disable the busy indicator when running TI-BASIC programs through CEaShell.
+* Enable lowercase in TI-OS.
 
 ## Installation
 
-~~1. Download the latest version of CEaShell from [the GitHub releases page](https://github.com/roccoloxprograms/CEaShell/releases/latest).~~
-1. Clone and build CEaShell, following [these instructions](#building-ceashell).
+1. Download the latest version of CEaShell from [the GitHub releases page](https://github.com/roccoloxprograms/CEaShell/releases/latest), or clone and build CEaShell, following [these instructions](#building-ceashell).
 2. Send **CEASHELL.8xp** and **AppInstA.8xv** to your calculator using TI-Connect CE or TiLP. If you don't have the [CE C libraries](https://tiny.cc/clibs), you'll need to download and send those as well.
 3. Run **prgmCEASHELL** from the programs menu (You will need to use the [arTIfiCE jailbreak](https://yvantt.github.io/arTIfiCE) if you are on an OS version 5.5 and above).
 4. CEaShell will be installed in the apps menu.

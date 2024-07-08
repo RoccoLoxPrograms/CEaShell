@@ -75,7 +75,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
         shapes_RoundRectangleFill(6, 36, 76, 249, 89);
         gfx_SetColor(246);
         shapes_PixelIndentRectangle(42, 82, 237, 77);
-        gfx_PrintStringXY("v"VERSION_NO, 117, 108);
+        gfx_PrintStringXY("v"VERSION_NO, 142, 108);
         gfx_PrintStringXY("(C) Copyright 2022 - 2024", 48, 132);
         gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 48, 144);
         gfx_SetTextScale(2, 2);

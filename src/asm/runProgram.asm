@@ -205,6 +205,7 @@ _asm_runProgram_main:
 .loadComplete:
     call ti.OP4ToOP1
     call ti.RunIndicOn
+    call ti.EnableAPD
     bit disableBusyIndicator, (iy + shellFlags)
     call nz, ti.RunIndicOff
     set ti.progExecuting, (iy + ti.newDispF)

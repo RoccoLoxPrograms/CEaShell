@@ -59,7 +59,7 @@ struct preferences_t {
     bool timeFormat;                    /** Format to display the clock in CEaShell. If the value is true, use 24 hour time, and if it is false, use 12 hour time. */
     bool showCEaShellApp;               /** Whether or not to display the CEaShell app in the list of apps found in CEaShell. */
     bool showFileCount;                 /** Whether or not to display the number of files in the currently opened directory in CEaShell's status bar. */
-    uint8_t apdTimer;                   /** Timer to turn off the calculator after a certain amount of inactivity. If the value is 0, this feature is disaled, if it is 1, it will turn off after 1 minute, etc. Default is 3 minutes. */
+    uint8_t apdTimer;                   /** Timer to turn off the calculator after a certain amount of inactivity. If the value is 0, this feature is disabled, if it is 1, it will turn off after 1 minute, etc. Default is 3 minutes. */
     bool showAppsFolder;                /** Whether or not to display the apps directory in CEaShell. */
     bool showAppVarsFolder;             /** Whether or not to display the AppVars directory in CEaShell. */
     bool showHiddenProgs;               /** Whether or not to show hidden programs in the programs directory of CEaShell. */

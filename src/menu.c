@@ -131,18 +131,18 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
             }
 
             break;
-        case MENU_TYPE_HKEY:
+        case MENU_TYPE_HKEY: // Some values are hardcoded to save space since this is always in the same spot
             width = 35;
 
             if (value == 10) {
                 #ifdef FR
-                gfx_PrintStringXY("D""\x15""s", 227, 191);
+                gfx_PrintStringXY("D""\x15""s", 190, 191);
                 #else
                 gfx_PrintStringXY("Off", 189, 191);
                 #endif
             } else {
                 #ifdef FR
-                gfx_SetTextXY(235, 191);
+                gfx_SetTextXY(198, 191);
                 #else
                 gfx_SetTextXY(197, 191);
                 #endif
@@ -483,12 +483,12 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
     #ifdef FR
     static const char *specialThanks = "Remerciements ""\x7F"" : Programmation : MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, et le Discord CEdev."
     " Traduction fran""\x13""aise : Shadow. Inspiration/Id""\x15""es : KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Testeurs b""\x16""ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, Invalid_Jake, naga_serpentis."
+    " Dream of Omnimaga. Testeurs b""\x16""ta: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, Invalid_Jake, naga_serpentis, StephenM."
     " Et un grand merci ""\x7F"" tous les membres de notre Discord pour leurs id""\x15""es et leurs support !";
     #else
     static const char *specialThanks = "Special Thanks To: Code/Coding Help: MateoConLechuga, calc84maniac, commandblockguy, jacobly, Zeroko, and the CEdev Discord."
     " French translation: Shadow. Inspiration/Feature Ideas: KermMartian, Adriweb, epsilon5, NoahK,"
-    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, Invalid_Jake, naga_serpentis."
+    " Dream of Omnimaga. Beta Testing: Nanobot567, ChuckyHecker, darkwater4213, Oxiti8, LogicalJoe, Calculatordream, Invalid_Jake, naga_serpentis, StephenM."
     " And a big thank you to the members of our Discord for your support and ideas!";
     #endif
     unsigned int startDisplay = 0;
@@ -541,11 +541,11 @@ void menu_AboutScreen(struct preferences_t *shellPrefs, struct context_t *shellC
         }
 
         #ifdef FR
-        if (startDisplay > 442) {
+        if (startDisplay > 452) {
             startDisplay = 0; // restart
         }
         #else
-        if (startDisplay > 438) {
+        if (startDisplay > 448) {
             startDisplay = 0; // restart
         }
         #endif

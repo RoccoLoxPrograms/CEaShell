@@ -2,6 +2,55 @@
 
 All notable changes to CEaShell will be documented in this file.
 
+## [2.0.0] - 2024-07-08
+
+### Added
+- Scrollbar in main file menu.
+- Four different GUI scales in the main file menu.
+- Option to customize normal and hidden file name text colors.
+- Fast alpha scrolling feature in the TI-OS editor.
+- Integration with [HexaEdit](https://github.com/captain-calc/HexaEdit-CE) for as an alternative file editor.
+- More detailed comments in header files and consistent naming / formatting schemes in all source files.
+- Added support for app icons in CEaShell.
+- App icons and descriptions in the TI-OS app menu.
+- Option to hide the "Programming" menu in Python versions of TI-OS and jump directly to TI-BASIC.
+- File searching in the main file view.
+- Show file size next to the currently selected file in TI-OS apps and programs menus.
+- CEaShell installer has a French translation, which is selected when TI-OS has its language set to French.
+- Quickly edit programs using <kbd>vars</kbd> when in CEaShell.
+- <kbd>on</kbd> + <kbd>0</kbd> - <kbd>9</kbd> customizable shortcut to launch programs / apps.
+
+### Changed
+- 95% of code has been re-written since [1.1.5](#115---2023-03-25).
+- Major restructuring and optimization.
+- French translation is now on the same branch.
+- Status bar now covers the whole top of the screen.
+- Calculate rounded corners of windows to make them fit inside each other.
+- You can turn off the calculator in any menu of CEaShell now.
+- More consistent / easy to use interfaces.
+- Hidden files use a different color for names, rather than the fake transparent dither effect.
+- Menus are no longer hardcoded.
+- Transitions use SPI commands to disable and enable LCD updates, as opposed to getting a sprite of large areas of the screen like previously.
+- Move options between settings and customization menus to make more sense.
+- Improved text-wrap algorithm.
+- Use static allocation for things that were previously dynamically allocated.
+- Change file properties format, you can now open the info menu while selecting folders as well.
+- Proper text-input routine with timer-based key debouncing.
+- Restrcuture GetCSC hooks to work better with each other.
+- Exit homescreen hook in a safer way and no longer force context.
+- Show the number of files in a folder when viewing it in the info menu.
+- Replaced welcome screen with a more minimalist design.
+- Shorten descriptions in the OS with "..." if they would exceed the space available for displaying.
+
+### Fixed
+- Fix pixel offsets for menu options.
+- Fix issues with strange edge-cases when exiting TI-BASIC execution.
+- Properly chain hooks.
+- Correctly go to errors in TI-BASIC subprograms.
+- Correctly go to errors in TI-BASIC temporary parsers.
+- Safely handle Garbage Collection while using CEaShell.
+- Issue with using recall in the TI-BASIC editor.
+
 ## [1.1.5] - 2023-03-25
 
 ### Added
