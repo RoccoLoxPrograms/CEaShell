@@ -74,7 +74,6 @@ static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, 
 }
 
 void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext) {
-    uint8_t dimension  = 0;
     static const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
     static const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
 
@@ -278,13 +277,13 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 updateBattery = true;
             } else if (fileCount && (kb_IsDown(kb_KeyWindow) || kb_IsDown(kb_KeyZoom) || kb_IsDown(kb_KeyTrace) || kb_IsDown(kb_KeyAlpha))) {
                 info_Open(shellPrefs, shellContext, &fileCount);
-                files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
 
                 if (!kb_IsDown(kb_KeyClear)) {
                     util_CorrectCursorRemove(shellPrefs, shellContext);
                     fileCount = *(&(shellContext->programCount) + shellContext->directory);
                 }
 
+                files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
                 gfx_SetDrawScreen();
 
                 if (shellPrefs->transitionSpeed) {
@@ -309,6 +308,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 rows = 6 / shellPrefs->uiScale + (shellPrefs->uiScale == 4);
                 columns = 4 - (shellPrefs->uiScale == 1);
                 fileCount = *(&(shellContext->programCount) + shellContext->directory);
+                util_SetGFXChar('[', thetaChar, 8);
                 files_Redraw(rows, columns, fileCount, shellPrefs, shellContext);
                 gfx_SetDrawScreen();
 
@@ -322,7 +322,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     }
                 }
 
-                util_SetGFXChar('[', thetaChar, 8);
                 updateBattery = true;
             }
 
@@ -340,18 +339,19 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
 
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         } else if (fileCount == 1 && !strcmp(asm_utils_getFileName(shellContext->programPtrs[0]), "CAESHELL")) {
-            gfx_SetColor(randInt(0, 255));
-            dimension = randInt(10, 37);
+            uint8_t color = randInt(0, 255);
+            uint8_t drawY = 240;
 
-            if (randInt(0, 1)) {
-                shapes_RoundRectangleFill(dimension / 2, randInt(0, 320 - dimension * 2), randInt(0, 240 - dimension * 2), dimension * 2, dimension * 2);
-            } else {
-                gfx_FillCircle_NoClip(randInt(0 + dimension, 320 - dimension), randInt(0 + dimension, 240 - dimension), dimension);
+            while (!kb_AnyKey()) {
+                for (unsigned int drawX = 0; drawX < 340; drawX += 20) {
+                    gfx_FillCircle(drawX, drawY, randInt(5, 15));
+                    gfx_SetColor(color);
+                    color += 32;
+                }
+
+                gfx_BlitBuffer();
+                drawY -= 16;
             }
-
-            clockOffset = clock();
-            while (clock() - clockOffset < CLOCKS_PER_SEC / 16 && !kb_AnyKey());
-            gfx_BlitBuffer();
         }
     }
 

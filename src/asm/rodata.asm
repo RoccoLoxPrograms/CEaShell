@@ -35,6 +35,8 @@ _rodata_celticAppVarHeader:
 _rodata_hashProg:
     db ti.ProgObj, '#', 0
 
+    db ti.ProgObj, '!', 0 ; Other system variable
+
 _rodata_appVarName:
 _rodata_appName := $ + 1
     db ti.AppVarObj, 'CEaShell', 0

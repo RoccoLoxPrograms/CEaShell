@@ -410,10 +410,13 @@ runProgram_showError:
     ld b, 9
     call ti.StrCmpre
     pop de
-    jr z, $ + 10
-    ld a, (ti.basic_prog + 1)
-    cp a, $24 ; check for possible temp var
-    jr nz, $ + 10
+    jr z, $ + 17
+    ld a, (ti.basic_prog)
+    cp a, ti.EquObj ; check for possible temp var
+    jr nz, $ + 17
+    or a, a
+    sbc hl, hl
+    ld (errorOffset), hl
     ld hl, backupPrgmName
     call ti.Mov9b
     call ti.DispErrorScreen

@@ -41,8 +41,10 @@ include 'include/equates.inc'
     public _asm_utils_restoreAns
     public _asm_utils_dispQuitErr
     public _asm_utils_cleanupForceCmd
+    public _asm_utils_checkSysVar
 
     extern _asm_apps_reloadApp
+    extern _rodata_hashProg
     extern _rodata_appVarName
     extern _rodata_errorQuit
     extern _rodata_errorQuitFR
@@ -534,3 +536,21 @@ _asm_utils_cleanupForceCmd:
     ld a, ti.cxCmd
     call ti.NewContext0
     jp ti.CursorOff
+
+_asm_utils_checkSysVar: ; checks if a user is trying to mess with one of the system programs
+    ld hl, ti.OP1
+    push hl
+    ld de, _rodata_hashProg 
+    push de
+    ld b, 3
+    call ti.StrCmpre
+    ret z
+    pop hl
+    inc hl
+    inc hl
+    inc hl
+    ex de, hl
+    pop hl
+    ld b, 3
+    call ti.StrCmpre
+    ret

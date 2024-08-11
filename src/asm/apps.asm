@@ -235,10 +235,10 @@ _asm_apps_executeApp:
     pop de
     ex (sp), hl
     push de
-    ld (appPtr), hl ; save pointer
     ld sp, (ti.onSP) ; Don't bork the stack (safety first)
+    push hl
     call ti.ResetStacks
-    ld hl, (appPtr)
+    pop hl
     ld de, $100
     add hl, de
     push hl

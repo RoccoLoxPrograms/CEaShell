@@ -320,10 +320,12 @@ static void custom_Callback(struct preferences_t *shellPrefs, struct context_t *
             case 5:
                 shellPrefs->showAppsFolder = !shellPrefs->showAppsFolder;
                 menuContext->values[5] = shellPrefs->showAppsFolder;
+                util_CorrectCursorRemove(shellPrefs, shellContext);
                 break;
             case 6:
                 shellPrefs->showAppVarsFolder = !shellPrefs->showAppVarsFolder;
                 menuContext->values[6] = shellPrefs->showAppVarsFolder;
+                util_CorrectCursorRemove(shellPrefs, shellContext);
                 break;
             case 7:
                 shellPrefs->showHiddenProgs = !shellPrefs->showHiddenProgs;
@@ -347,7 +349,7 @@ static void custom_Callback(struct preferences_t *shellPrefs, struct context_t *
             case 1:
                 if (shellPrefs->transitionSpeed == TRANSITION_SLOW) {
                     shellPrefs->transitionSpeed = TRANSITION_FAST;
-                } else {
+                } else if (shellPrefs->transitionSpeed) {
                     shellPrefs->transitionSpeed -= 1;
                 }
 

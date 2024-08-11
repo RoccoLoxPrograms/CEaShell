@@ -103,7 +103,8 @@ will preform specific utilities in the OS:
 | [on] + [stat]    | Turn off the calculator, and preserve where you were in the OS.                     |
 | [on] + [graph]   | Jump to a program label in the OS program editor.                                   |
 | [on] + [0] - [9] | Launch the program or app assigned to the number key pressed. Files can be assigned |
-|                  | a number in the info menu.                                                          |
+|                  | a number in the info menu, by selecting the option with [2nd] and assigning a       |
+|                  | number.                                                                             |
 +------------------+-------------------------------------------------------------------------------------+
 
 Building CEaShell

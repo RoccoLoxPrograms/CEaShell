@@ -424,9 +424,10 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
                 }
             } else if (kb_IsDown(kb_KeyUp)) {
                 currentOffset = 0;
+                cursorX = x;
             } else if (kb_IsDown(kb_KeyDown)) {
                 currentOffset = charCount;
-                cursorX = x;
+                cursorX = x + gfx_GetStringWidth(input);
             } else if (kb_IsDown(kb_KeyMode)) { // Backspace
                 if (currentOffset && charCount) {
                     charCount--;
@@ -451,6 +452,8 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
                 } else {
                     inputMode++;
                 }
+
+                while (kb_AnyKey());
             } else if (charCount < 8) {
                 if (!keyPressed) {
                     inputChar = asm_utils_getCharFromKey(inputMode);

@@ -226,7 +226,11 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
         kb_Scan();
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
-        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+        if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyVars)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (kb_IsDown(kb_KeyVars)) {
+                goto edit;
+            }
+
             if ((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && fileInfo.shellType != DIR_TYPE) {
                 switch (option) {
                     case 0:
@@ -280,6 +284,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
                         break;
                     case 5:
+                    edit:
                         if (hexaEdit || fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE) {
                             ti_Close(slot);
                             while (kb_AnyKey());
@@ -294,6 +299,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                                         gfx_SetColor(shellPrefs->fgColor);
                                         gfx_FillRectangle_NoClip(56, 205, 208, 20);
                                         ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
+                                        hexaEdit = true;
                                         while (kb_AnyKey());
                                         break;
                                     }
@@ -322,7 +328,7 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                             kb_Scan();
                             util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
-                            if (kb_Data[7]) {
+                            if (kb_Data[7] && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 16)) {
                                 if (kb_IsDown(kb_KeyLeft)) {
                                     if (value) {
                                         value--;
@@ -383,10 +389,10 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         option--;
                     }
                 } else if (kb_IsDown(kb_KeyDown)) {
-                    if (option == 5) {
-                        option = 6;
+                    if (option == 6) {
+                        option = 2;
                     } else if (option > 2) {
-                        option -= 3 + (option == 6);
+                        option = 6;
                     } else {
                         option += 3;
                     }

@@ -2,6 +2,26 @@
 
 All notable changes to CEaShell will be documented in this file.
 
+## [2.0.1] - 2024-08-10
+
+### Added
+- Pressing <kbd>vars</kbd> in the file info menu opens the editor.
+
+### Changed
+- Modify behavior for moving the cursor down in the file info menu.
+- Holding down <kbd>alpha</kbd> will no longer repeat when changing input mode in CEaShell text input contexts.
+- Repeat delay for <kbd>on</kbd> hotkey selector is now longer.
+
+### Fixed
+- Theta characters no longer render as `[` when collapsing menus.
+- Transition speed setting is more stable.
+- Issue with editing TI-BASIC programs when Hexaedit is on the calculator after opening the edit options menu once.
+- File cursor behavior when hiding both apps and AppVars folder.
+- File names now properly render during collapse animation after deleting through the file info menu.
+- Cursor behavior for <kbd>↑</kbd> and <kbd>↓</kbd> keys in text input contexts no longer goes out of bounds.
+- Using `expr(` or storing a string variable with an error to an equation no longer crashes after going to the error.
+- Block running and editing of system variables in obscure contexts.
+
 ## [2.0.0] - 2024-07-08
 
 ### Added

@@ -73,14 +73,14 @@ Below is a table with keys and their various usage in CEaShell:
 
 If the option **[on] Shortcuts** is enabled in CEaShell, the follow key combinations will preform specific utilities in the OS:
 
-| Key combination                             | Action performed                                                                                               |
-|---------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| <kbd>on</kbd> + <kbd>prgm</kbd>             | Launch CEaShell.                                                                                               |
-| <kbd>on</kbd> + <kbd>sto →</kbd>            | Invert OS colors ("Dark mode").                                                                                |
-| <kbd>on</kbd> + <kbd>ln</kbd>               | Un-invert OS colors.                                                                                           |
-| <kbd>on</kbd> + <kbd>stat</kbd>             | Turn off the calculator, and preserve where you were in the OS.                                                |
-| <kbd>on</kbd> + <kbd>graph</kbd>            | Jump to a program label in the OS program editor.                                                              |
-| <kbd>on</kbd> + <kbd>0</kbd> - <kbd>9</kbd> | Launch the program or app assigned to the number key pressed. Files can be assigned a number in the info menu. |
+| Key combination                             | Action performed                                                                                                                                                                   |
+|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <kbd>on</kbd> + <kbd>prgm</kbd>             | Launch CEaShell.                                                                                                                                                                   |
+| <kbd>on</kbd> + <kbd>sto →</kbd>            | Invert OS colors ("Dark mode").                                                                                                                                                    |
+| <kbd>on</kbd> + <kbd>ln</kbd>               | Un-invert OS colors.                                                                                                                                                               |
+| <kbd>on</kbd> + <kbd>stat</kbd>             | Turn off the calculator, and preserve where you were in the OS.                                                                                                                    |
+| <kbd>on</kbd> + <kbd>graph</kbd>            | Jump to a program label in the OS program editor.                                                                                                                                  |
+| <kbd>on</kbd> + <kbd>0</kbd> - <kbd>9</kbd> | Launch the program or app assigned to the number key pressed. Files can be assigned a number in the info menu, by selecting the option with <kbd>2nd</kbd> and assigning a number. |
 
 ## Building CEaShell
 

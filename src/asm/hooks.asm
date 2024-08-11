@@ -46,13 +46,14 @@ include 'include/equates.inc'
     extern _asm_utils_findCEaShellAppVar
     extern _asm_utils_deleteTempRunner
     extern _asm_utils_cleanupForceCmd
+    extern _asm_utils_checkSysVar
     extern _rodata_hashProg
     extern _rodata_appName
     extern _rodata_numberKeysLUT
     extern _exit.sp
 
 hooks_parserStopHook:
-    db $83 ; hook signifier
+    db $83
     push af
     cp a, 2
     jr z, .maybeStop
@@ -559,6 +560,8 @@ hooks_homescreenHookStart: ; handle OS programs using our code
 .loaded:
     ex de, hl
     ld (hl), 0
+    call _asm_utils_checkSysVar
+    jr z, .return + 11
     call ti.ChkFindSym
     jr c, .return
     call ti.ChkInRam

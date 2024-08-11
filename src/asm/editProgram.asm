@@ -18,6 +18,7 @@ include 'include/equates.inc'
     public _asm_editProgram_main
     public _asm_editProgram_restoreAppVar
 
+    extern _asm_fileSystem_error
     extern _asm_hooks_installAppChangeHook
     extern _asm_hooks_editorHook
     extern _asm_runProgram_returnOS.restoreHooks
@@ -26,7 +27,10 @@ include 'include/equates.inc'
     extern _asm_utils_backupPrgmName
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_lcdNormal
+    extern _asm_utils_dispQuitErr
+    extern _asm_utils_checkSysVar
     extern _rodata_tempAppVarPrgm
+    extern _exit.sp
 
 _asm_editProgram_edit: ; editing from CEaShell
     ld iy, 0
@@ -88,6 +92,16 @@ _asm_editProgram_main: ; OP1 = File name to edit
     ; make sure these flags are these values, for Celtic compatibility
     res keyPressed, (iy + celticFlags2)
     set showLineNum, (iy + celticFlags1)
+    call _asm_utils_checkSysVar
+    jr nz, .safe
+    ld a, (returnLoc)
+    or a, a
+    ld a, ti.E_Variable - ti.E_EDIT
+    ld (ti.errNo), a
+    jp nz, ti.JError
+    jp _asm_fileSystem_error
+
+.safe:
     call ti.ChkFindSym
     ld a, (hl)
     cp a, ti.ProgObj

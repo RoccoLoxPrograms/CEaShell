@@ -39,6 +39,7 @@ include 'include/equates.inc'
 
     public _asm_fileSystem_sortVAT
     public _asm_fileSystem_initPtrArrays
+    public _asm_fileSystem_error
     public _asm_fileSystem_getProgramPtrs
     public _asm_fileSystem_getAppVarPtrs
     public _asm_fileSystem_findAllVars
@@ -320,6 +321,8 @@ _asm_fileSystem_initPtrArrays:
     ld a, ti.E_Memory
     ld (ti.errNo), a
     call _gfx_End
+
+_asm_fileSystem_error:
     call _asm_utils_clrScrnAndUsedRAM
     ld iy, ti.flags
     call ti.DrawStatusBar

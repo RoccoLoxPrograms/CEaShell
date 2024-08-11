@@ -104,15 +104,11 @@ newName := backupAppVarName
 ; use cursorImage RAM for these variables
 ;-----------------------------------------
 
-; Apps
-
-appPtr := ti.cursorImage + 100
-
 ; General
 
-EOF := appPtr + 3
+EOF := ti.cursorImage + 100
 
-prgmName := appPtr - 9
+prgmName := EOF - 9
 
 ; Icons / Descriptions
 
