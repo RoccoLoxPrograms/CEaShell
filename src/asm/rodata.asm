@@ -22,6 +22,8 @@ include 'include/equates.inc'
     public _rodata_errorGoto
     public _rodata_errorQuitFR
     public _rodata_errorGotoFR
+    public _rodata_waitHomescreen
+    public _rodata_waitHomescreenFR
     public _rodata_basicPrgmName
     public _rodata_hexaEditHeader
     public _rodata_osColorToXlibC
@@ -55,6 +57,12 @@ _rodata_errorQuitFR:
 
 _rodata_errorGotoFR:
     db '2:', 0, 'Voir', 0
+
+_rodata_waitHomescreen:
+    db 'Press a key', 0
+
+_rodata_waitHomescreenFR:
+    db 'Appuyez sur une touche', 0
 
 _rodata_basicPrgmName:
     db ti.ProtProgObj, "CEaShTmp", 0

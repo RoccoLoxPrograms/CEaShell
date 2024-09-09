@@ -145,6 +145,9 @@ _asm_hooks_removeStopHook:
 hooks_getCSCHook:
     db $83
     push af
+    ld a, (ti.cxCurApp)
+    cp a, ti.cxextapps
+    jr z, .return
     ld hl, (ti.catalog1HookPtr)
     call ti.ChkHLIs0
     jr z, .return
@@ -640,9 +643,8 @@ hooks_editArchivedProgs:
     ld a, b
     cp a, ti.cxPrgmEdit
     jr nz, .return
+    call _asm_utils_cleanupForceCmd + 7
     call ti.ReleaseBuffer
-    ld a, ti.cxCmd
-    call ti.NewContext0
     call ti.PPutAway
     call _asm_utils_findCEaShellAppVar
     jr c, .notFound

@@ -53,15 +53,9 @@ include 'include/equates.inc'
 
 _asm_fileSystem_sortVAT:
     ld iy, ti.flags
-    ld a, (iy + sortFlag)
-    push af
-    call fileSystem_sortVatInternal
-    pop af
-    ld (iy + sortFlag), a
-    ret
-
-fileSystem_sortVatInternal:
-    res sortFirstItemFound, (iy + sortFlag)
+    or a, a
+    sbc hl, hl
+    ld (sortFirstItemFoundPtr), hl
     ld hl, (ti.progPtr)
 
 .sortNext:
@@ -69,8 +63,19 @@ fileSystem_sortVatInternal:
     ret nc
 
 .foundItem:
-    bit sortFirstItemFound, (iy + sortFlag)
-    jp z, .firstFound
+    push hl
+    ld hl, (sortFirstItemFoundPtr)
+    add hl, de
+    or a, a
+    sbc hl, de
+    pop hl
+    jr nz, .notFirst
+    ld (sortFirstItemFoundPtr), hl ; to make it only execute once
+    call .skipName
+    ld (sortEndOfPartPtr), hl
+    jr .sortNext
+
+.notFirst:
     push hl
     call .skipName
     pop de
@@ -153,18 +158,11 @@ fileSystem_sortVatInternal:
     ld (sortEndOfPartPtr), hl
     jp .sortNext
 
-.firstFound:
-    set sortFirstItemFound, (iy + sortFlag)
-    ld (sortFirstItemFoundPtr), hl ; to make it only execute once
-    call .skipName
-    ld (sortEndOfPartPtr), hl
-    jp .sortNext
-
 .skipToNext:
     ld bc, -6
     add hl, bc
     call .skipName
-    jp .findNextItem ; look for next item
+    jr .findNextItem ; look for next item
 
 .skipName:
     ld bc, 0
@@ -175,83 +173,56 @@ fileSystem_sortVatInternal:
     ret
 
 .compareNames: ; hl and de pointers to strings output=carry if de is first
-    res sortFirstHidden, (iy + sortFlag)
-    res sortSecondHidden, (iy + sortFlag)
-    dec hl
-    dec de
-    ld b, 64
-    ld a, (hl)
-    cp a, b
-    jr nc, .firstNotHidden ; check if files are hidden
-    add a, b
-    ld (hl), a
-    set sortFirstHidden, (iy + sortFlag)
-
-.firstNotHidden:
-    ld a, (de)
-    cp a, b
-    jr nc, .secondNotHidden
-    add a, b
-    ld (de), a
-    set sortSecondHidden, (iy + sortFlag)
-
-.secondNotHidden:
-    push hl
-    push de
-    inc hl
-    inc de
     ld b, (hl)
     ld a, (de)
     ld c, 0
     cp a, b ; check if same length
-    jr z, .compareNameContinue
-    jr nc, .compareNameContinue ; b = smaller than a
+    jr z, .hlLonger
+    jr nc, .hlLonger ; b = smaller than a
     inc c ; to remember that b was larger
     ld b, a ; b was larger than a
 
-.compareNameContinue:
+.hlLonger:
+    push bc
+    ld b, 64
+    dec hl
+    dec de
+    ld a, (hl)
+    cp a, b
+    jr nc, .firstNotHidden ; check if files are hidden
+    add a, b
+
+.firstNotHidden:
+    ld c, a
+    ld a, (de)
+    cp a, b
+    jr nc, .secondNotHidden
+    add a, b
+
+.secondNotHidden:
+    cp a, c
+    pop bc
+    jr .start
+
+.loop:
     dec hl
     dec de
     ld a, (de)
     cp a, (hl)
-    jr nz, .match
-    djnz .compareNameContinue
-    pop de
-    pop hl
-    call .resetHiddenFlags
+
+.start:
+    ret nz
+    djnz .loop
     dec c
     ret nz
     ccf
-    ret
-
-.match:
-    pop de
-    pop hl
-
-.resetHiddenFlags:
-    push af
-    bit sortFirstHidden, (iy + sortFlag)
-    jr z, .firstNotHiddenCheck
-    ld a, (hl)
-    sub a, 64
-    ld (hl), a
-
-.firstNotHiddenCheck:
-    bit sortSecondHidden, (iy + sortFlag)
-    jr z, .secondNotHiddenCheck
-    ld a, (de)
-    sub a, 64
-    ld (de), a
-
-.secondNotHiddenCheck:
-    pop af
     ret
 
 .findNextItem: ; carry = found, nc = notfound
     ex de, hl
     ld hl, (ti.pTemp)
     or a, a ; reset carry flag
-    sbc hl, de
+    sbc hl ,de
     ret z
     ex de, hl ; load progptr into hl
     ld a, (hl)
@@ -261,7 +232,7 @@ fileSystem_sortVatInternal:
     ld bc, fileSystem_sortTypes.length
     cpir
     pop hl
-    jp nz, .skipToNext ; skip to next entry
+    jr nz, .skipToNext ; skip to next entry
     dec hl ; add check for folders here if needed
     dec hl
     dec hl ; to pointer

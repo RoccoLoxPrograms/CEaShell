@@ -552,5 +552,4 @@ _asm_utils_checkSysVar: ; checks if a user is trying to mess with one of the sys
     ex de, hl
     pop hl
     ld b, 3
-    call ti.StrCmpre
-    ret
+    jp ti.StrCmpre

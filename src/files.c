@@ -71,6 +71,8 @@ static void files_Redraw(uint8_t rows, uint8_t columns, unsigned int fileCount, 
 
         ui_ScrollBar(shellPrefs, 20, scrollY, 280, fileCount + dummyFiles, shellContext->fileStartLoc, rows * columns, true);
     }
+
+    gfx_SetColor(shellPrefs->fgColor);
 }
 
 void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext) {
@@ -115,13 +117,14 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                     util_GetFileInfo(shellContext->fileSelected, &fileInfo, shellPrefs, shellContext);
 
                     if (fileInfo.shellType == DIR_TYPE) {
+                        shellContext->fileSelected = 0;
+
                         #ifdef FR
                         if (fileInfo.name[3] == 'l') { // Applis
                         #else
                         if (fileInfo.name[3] == 's') { // Apps
                         #endif
                             shellContext->directory = APPS_FOLDER;
-                            shellContext->fileSelected = 0;
                             fileCount = shellContext->appCount;
                         #ifdef FR
                         } else if (fileInfo.name[3] == 'V') { // AppVars
@@ -129,15 +132,13 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         } else if (fileInfo.name[3] == 'V') { // AppVars
                         #endif
                             shellContext->directory = APPVARS_FOLDER;
-                            shellContext->fileSelected = 0;
                             fileCount = shellContext->appVarCount;
                         #ifdef FR
-                        } else if (fileInfo.name[3] == 'm') { // Prgms
+                        } else { // Prgms
                         #else
-                        } else if (fileInfo.name[3] == 'g') { // Programs
+                        } else { // Programs
                         #endif
                             shellContext->directory = PROGRAMS_FOLDER;
-                            shellContext->fileSelected = 0;
                             fileCount = shellContext->programCount;
                         }
 
@@ -153,7 +154,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         asm_apps_executeApp(shellContext->appPtrs[app - 1]);
                     } else if (shellContext->directory == PROGRAMS_FOLDER) {
                         util_SearchToMain(shellPrefs, shellContext);
-                        gfx_End();
                         asm_runProgram_run(fileInfo.name, fileInfo.type, fileInfo.shellType, shellPrefs);
                     }
 
@@ -164,7 +164,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
 
                     if (kb_IsDown(kb_KeyVars) && (fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE)) {
                         util_SearchToMain(shellPrefs, shellContext);
-                        gfx_End();
                         asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
                     } else if (kb_IsDown(kb_KeyDel)) {
                         menu_DeleteFile(shellPrefs, shellContext, &fileInfo);
@@ -193,12 +192,10 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 fileCount = *(&(shellContext->programCount) + shellContext->directory);
 
                 if (kb_IsDown(kb_KeyUp)) {
-                    if (shellContext->fileSelected % rows) {
-                        shellContext->fileSelected--;
-                    } else if(shellContext->fileSelected) {
+                    if(shellContext->fileSelected) {
                         shellContext->fileSelected--;
 
-                        if (shellContext->fileSelected < shellContext->fileStartLoc && shellContext->fileStartLoc) {
+                        if (!(shellContext->fileSelected % rows) && shellContext->fileSelected < shellContext->fileStartLoc && shellContext->fileStartLoc) {
                             shellContext->fileStartLoc -= rows;
                         }
                     }
@@ -265,8 +262,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 gfx_SetDrawScreen();
 
                 if (shellPrefs->transitionSpeed) {
-                    gfx_SetColor(shellPrefs->fgColor);
-
                     for (uint8_t frame = 16 / shellPrefs->transitionSpeed; frame > 2; frame--) {
                         if (!(frame & 1)) { // Skip every other frame because of speed issue with SPI stuff I didn't fix
                             ui_TransitionDrawFrame(6, 8, 232 - frame * 12 * shellPrefs->transitionSpeed, frame * (19 * shellPrefs->transitionSpeed), frame * (12 * shellPrefs->transitionSpeed));
@@ -287,8 +282,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 gfx_SetDrawScreen();
 
                 if (shellPrefs->transitionSpeed) {
-                    gfx_SetColor(shellPrefs->fgColor);
-
                     for (int8_t frame = 16 / shellPrefs->transitionSpeed; frame > 2; frame--) {
                         if (!(frame & 1)) {
                             ui_TransitionDrawFrame(15, 50, 231 - frame * 12 * shellPrefs->transitionSpeed, 220, frame * 12 * shellPrefs->transitionSpeed);
@@ -313,8 +306,6 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                 gfx_SetDrawScreen();
 
                 if (shellPrefs->transitionSpeed) {
-                    gfx_SetColor(shellPrefs->fgColor);
-
                     for (int8_t frame = 16 / shellPrefs->transitionSpeed; frame > 3; frame--) {
                         if (!(frame & 1)) {
                             ui_TransitionDrawFrame(6, 312 - frame * 19 * shellPrefs->transitionSpeed, 232 - frame * 12 * shellPrefs->transitionSpeed, frame * (19 * shellPrefs->transitionSpeed), frame * (12 * shellPrefs->transitionSpeed));

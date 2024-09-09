@@ -74,25 +74,25 @@ void shapes_FileIcon(uint8_t scale, uint8_t shellType, int x, uint8_t y) {
 
     gfx_FillRectangle_NoClip(x + 4 * scale, y, 4 * scale, 4 * scale);
 
-    unsigned int fileTypeX = 0; // Minimize function calls this way
-    uint8_t fileTypeY = 0;
+    unsigned int fileTypeX = x; // Minimize function calls this way
+    uint8_t fileTypeY = y;
 
     switch (scale) {
         case SCALE_SMALLEST:
-            fileTypeX = x - 2;
-            fileTypeY = y + 6;
+            fileTypeX -= 2;
+            fileTypeY += 6;
             break;
         case SCALE_SMALL:
-            fileTypeX = x + 2;
-            fileTypeY = y + 11;
+            fileTypeX += 2;
+            fileTypeY += 11;
             break;
         case SCALE_MEDIUM:
-            fileTypeX = x + 6;
-            fileTypeY = y + 18;
+            fileTypeX += 6;
+            fileTypeY += 18;
             break;
         case SCALE_LARGE:
-            fileTypeX = x + 5;
-            fileTypeY = y + 21;
+            fileTypeX += 5;
+            fileTypeY += 21;
             break;
         default:
             break;

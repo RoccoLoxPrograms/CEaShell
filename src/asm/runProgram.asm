@@ -34,12 +34,15 @@ include 'include/equates.inc'
     extern _asm_utils_backupPrgmName
     extern _asm_utils_lcdNormal
     extern _asm_utils_clrScrnAndUsedRAM
+    extern _asm_utils_dispTextToolbar
     extern _asm_utils_deleteTempRunner
     extern _asm_utils_dispQuitErr
     extern _rodata_errorQuit
     extern _rodata_errorGoto
     extern _rodata_errorQuitFR
     extern _rodata_errorGotoFR
+    extern _rodata_waitHomescreen
+    extern _rodata_waitHomescreenFR
     extern _rodata_basicPrgmName
 
 _asm_runProgram_run:
@@ -56,11 +59,10 @@ _asm_runProgram_run:
     inc hl
     inc hl
     inc hl
-    ld a, (hl)
     push iy
     ld iy, ti.flags
     set disableBusyIndicator, (iy + shellFlags)
-    bit 0, a
+    bit 0, (hl)
     jr nz, $ + 6
     res disableBusyIndicator, (iy + shellFlags)
     pop iy
@@ -323,8 +325,42 @@ _asm_runProgram_main:
     jr .loopLoad
 
 runProgram_return:
+    ld a, (returnLoc)
+    or a, a
+    jr nz, .chkDone
+    ld hl, ti.textShadow
+    ld bc, 260
+
+.chkHomescreen:
+    ld a, (hl)
+    cp ' '
+    jr nz, .chkDonePause
+    inc hl
+    ld a, b
+    or a, c
+    jr nz, .chkHomescreen
+    jr .chkDone
+
+.chkDonePause:
+    ld.sis hl, (ti.localLanguage and $FFFF)
+    or a, a
+    ld de, $010C ; check for French language
+    sbc hl, de
+    ld hl, _rodata_waitHomescreen
+    jr nz, $ + 6
+    ld hl, _rodata_waitHomescreenFR
+    call _asm_utils_dispTextToolbar
+
+.loopPause:
+    call ti.GetCSC
+    or a, a
+    jr z, .loopPause
+    call ti.os.ClearStatusBarLow
+
+.chkDone:
     call ti.PopErrorHandler
     xor a, a
+    res error, (iy + shellFlags)
 
 .error:
     push af
@@ -372,6 +408,12 @@ _asm_runProgram_returnOS:
     call ti.SaveCmdShadow
     ld a, ti.cxCmd
     call ti.NewContext0
+    bit error, (iy + shellFlags)
+    jr z, .skipClear
+    call ti.ClrScrn
+    call ti.HomeUp
+
+.skipClear:
     call ti.PPutAway
 
 .restoreHooks:
@@ -388,6 +430,7 @@ _asm_runProgram_returnOS:
     ret
 
 runProgram_showError:
+    set error, (iy + shellFlags)
     xor a, a
     ld (ti.menuCurrent), a
     ld a, (ti.errNo)
@@ -470,7 +513,7 @@ runProgram_showError:
     cp a, ti.sk1
     ret z
     cp a, ti.skEnter
-    jr z, .get_option
+    jr z, .getOption
     jr .input
 
 .highlight1:
@@ -518,7 +561,7 @@ runProgram_showError:
     call ti.PutS
     jr .input
 
-.get_option:
+.getOption:
     ld a, (ti.curRow)
     dec a
     ret nz

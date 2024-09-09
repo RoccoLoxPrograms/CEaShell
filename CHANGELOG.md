@@ -2,7 +2,7 @@
 
 All notable changes to CEaShell will be documented in this file.
 
-## [2.0.1] - 2024-08-10
+## [2.0.1] - 2024-09-08
 
 ### Added
 - Pressing <kbd>vars</kbd> in the file info menu opens the editor.
@@ -11,6 +11,7 @@ All notable changes to CEaShell will be documented in this file.
 - Modify behavior for moving the cursor down in the file info menu.
 - Holding down <kbd>alpha</kbd> will no longer repeat when changing input mode in CEaShell text input contexts.
 - Repeat delay for <kbd>on</kbd> hotkey selector is now longer.
+- Update VAT sorting code to Mateo's latest version.
 
 ### Fixed
 - Theta characters no longer render as `[` when collapsing menus.
@@ -21,6 +22,8 @@ All notable changes to CEaShell will be documented in this file.
 - Cursor behavior for <kbd>↑</kbd> and <kbd>↓</kbd> keys in text input contexts no longer goes out of bounds.
 - Using `expr(` or storing a string variable with an error to an equation no longer crashes after going to the error.
 - Block running and editing of system variables in obscure contexts.
+- Editing an archived program when a scrolling Ans value is freshly displayed on the homescreen.
+- Conflict with GetCSC hook and apps that use ti.appData like ProbSym
 
 ## [2.0.0] - 2024-07-08
 

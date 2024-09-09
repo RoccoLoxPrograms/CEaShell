@@ -11,16 +11,12 @@ include 'ti84pceg.inc'
 
 ; Flags
 
-sortFlag := ti.asm_Flag1
-sortFirstItemFound := 0
-sortFirstHidden := 1
-sortSecondHidden := 2
-
 shellFlags := ti.asm_Flag2
 disableBusyIndicator := 0
 updateProgInfo := 1
 useASMToken := 2
 frenchLanguage := 4
+error := 5
 
 sysHookFlg := ti.hookflags2
 appInpPrmptInit := 0

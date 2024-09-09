@@ -23,6 +23,7 @@
 #include "asm/utils.h"
 
 #include <fileioc.h>
+#include <graphx.h>
 #include <keypadc.h>
 #include <string.h>
 
@@ -131,7 +132,6 @@ void util_WritePrefs(struct preferences_t *shellPrefs, struct context_t *shellCo
 
 void util_PowerOff(struct preferences_t *shellPrefs, struct context_t *shellContext) {
     util_SearchToMain(shellPrefs, shellContext);
-    gfx_End();
     asm_hooks_triggerAPD();
 }
 
@@ -144,16 +144,13 @@ void util_FilesInit(struct preferences_t *shellPrefs, struct context_t *shellCon
     // Account for folders
     if (shellContext->searchString[0] == '\0') {
         shellContext->programCount += shellPrefs->showAppsFolder + shellPrefs->showAppVarsFolder;
+        shellContext->programCount -= 2 * (shellPrefs->showHiddenProgs); // Remove ! and # programs
     } else {
         shellContext->programCount += 1;
     }
 
     shellContext->appVarCount += 1;
     shellContext->appCount += shellPrefs->showCEaShellApp; // since we'd need to subtract one if we're hiding CEaShell anyway, this takes care of both at once
-
-    if (shellContext->searchString[0] == '\0') {
-        shellContext->programCount -= 2 * (shellPrefs->showHiddenProgs); // Remove ! and # programs
-    }
 
     asm_fileSystem_getProgramPtrs(shellContext->programPtrs, shellPrefs->showHiddenProgs, shellContext->searchString);
     asm_fileSystem_getAppVarPtrs(shellContext->appVarPtrs, shellContext->searchString);
@@ -505,4 +502,5 @@ void util_SearchToMain(struct preferences_t *shellPrefs, struct context_t *shell
     }
 
     util_WritePrefs(shellPrefs, shellContext, true);
+    gfx_End();
 }

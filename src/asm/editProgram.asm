@@ -46,8 +46,7 @@ _asm_editProgram_edit: ; editing from CEaShell
     ld hl, ti.OP1
     ld (hl), ti.ProgObj
     ld de, (iy + 3) ; program name
-    ld a, (iy + 6) ; celtic var status
-    bit 0, a
+    bit 0, (iy + 6) ; celtic var status
     jr z, .loadName
     ld (hl), ti.AppVarObj
     ld a, true
@@ -156,7 +155,7 @@ editProgram_editHelper:
     ld de, (ti.editCursor)
     or a, a
     sbc hl, de
-    add hl, de
+    ;add hl, de
     jr nz, .endGoto
     ld bc, (errorOffset)
     ld a, b

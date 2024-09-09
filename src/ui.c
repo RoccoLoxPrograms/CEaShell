@@ -127,7 +127,7 @@ void ui_DrawBottomBar(struct preferences_t *shellPrefs, char *description) {
         gfx_PrintStringXY("ROM Free: ", 82, 216);
         #endif
 
-        gfx_PrintInt(os_TempFreeArc, 7);
+        gfx_PrintUInt(os_TempFreeArc, 7);
     }
 }
 
@@ -305,23 +305,7 @@ void ui_DrawFiles(struct preferences_t *shellPrefs, struct context_t *shellConte
 
             ui_File(iconX, iconY, fileDrawing, &fileInfo, shellPrefs, shellContext);
 
-            switch (scale) {
-                case 4:
-                    iconY += 82;
-                    break;
-                case 3:
-                    iconY += 75;
-                    break;
-                case 2:
-                    iconY += 52;
-                    break;
-                case 1:
-                    iconY += 27;
-                    break;
-                default:
-                    break;
-            }
-
+            iconY += 27 + 25 * (scale > 1) + 23 * (scale > 2) + 7 * (scale == 4); // +82 for scale 4, +75 for scale 3, +52 for scale 2, +27 for scale 1
             fileDrawing++; // Move on to the next file
         }
 

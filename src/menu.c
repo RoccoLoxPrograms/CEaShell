@@ -148,6 +148,7 @@ uint8_t menu_DrawValueString(unsigned int xEdge, int y, uint8_t type, uint8_t va
                 #endif
                 gfx_PrintUInt(value, 1);
             }
+
         default:
             break;
     }
@@ -467,7 +468,6 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
             ti_Close(slot);
             util_SearchToMain(shellPrefs, shellContext);
             while (kb_AnyKey());
-            gfx_End();
             asm_editProgram_edit(newName, shellContext->directory == APPVARS_FOLDER, shellPrefs);
         } else {
             asm_fileOps_copyFile(fileInfo->name, newName, fileInfo->type);

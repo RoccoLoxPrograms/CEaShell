@@ -161,9 +161,9 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
         static const uint8_t leftBracket[8] = {0xF0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xF0, 0x00};
         static const uint8_t thetaChar[8] = {0x7C, 0xC6, 0xC6, 0xFE, 0xC6, 0xC6, 0x7C, 0x00};
+        util_SetGFXChar('[', leftBracket, 5);
 
         if (fileInfo->type != OS_TYPE_APPVAR) {
-            util_SetGFXChar('[', leftBracket, 5);
             #ifdef FR
             gfx_PrintStringXY("[on] touche:", 102, 191);
             menu_DrawValueString(222, 191, MENU_TYPE_HKEY, fileInfo->shortcut);
@@ -171,8 +171,9 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
             gfx_PrintStringXY("[on] Hotkey:", 101, 191);
             menu_DrawValueString(221, 191, MENU_TYPE_HKEY, fileInfo->shortcut);
             #endif
-            util_SetGFXChar('[', thetaChar, 8);
         }
+
+        util_SetGFXChar('[', thetaChar, 8);
 
         #ifdef FR
         gfx_PrintStringXY("Op""\x15""rations du fichier :", 64, 165);
@@ -227,8 +228,9 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyVars)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
-            if (kb_IsDown(kb_KeyVars)) {
-                goto edit;
+            if (kb_IsDown(kb_KeyVars) && (fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE)) {
+                util_SearchToMain(shellPrefs, shellContext);
+                asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
             }
 
             if ((kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && fileInfo.shellType != DIR_TYPE) {
@@ -284,7 +286,6 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                         ui_DrawUISprite(shellPrefs->fgColor, UI_DARROW, 152, 209);
                         break;
                     case 5:
-                    edit:
                         if (hexaEdit || fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE) {
                             ti_Close(slot);
                             while (kb_AnyKey());
@@ -308,13 +309,11 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                                 if (hexaEdit) {
                                     asm_utils_initHexaEditStart(fileInfo.name, strlen(fileInfo.name), fileInfo.type);
                                     util_SearchToMain(shellPrefs, shellContext);
-                                    gfx_End();
                                     asm_runProgram_run("HEXAEDIT", OS_TYPE_PROT_PRGM, C_TYPE, shellPrefs);
                                 }
                             }
 
                             util_SearchToMain(shellPrefs, shellContext);
-                            gfx_End();
                             asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
                         }
 
