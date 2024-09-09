@@ -23,7 +23,7 @@ All notable changes to CEaShell will be documented in this file.
 - Using `expr(` or storing a string variable with an error to an equation no longer crashes after going to the error.
 - Block running and editing of system variables in obscure contexts.
 - Editing an archived program when a scrolling Ans value is freshly displayed on the homescreen.
-- Conflict with GetCSC hook and apps that use ti.appData like ProbSym
+- Conflict with GetCSC hook and apps that use ti.appData like ProbSim
 
 ## [2.0.0] - 2024-07-08
 
