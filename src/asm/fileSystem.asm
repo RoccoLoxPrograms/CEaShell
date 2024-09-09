@@ -222,7 +222,7 @@ _asm_fileSystem_sortVAT:
     ex de, hl
     ld hl, (ti.pTemp)
     or a, a ; reset carry flag
-    sbc hl ,de
+    sbc hl, de
     ret z
     ex de, hl ; load progptr into hl
     ld a, (hl)

@@ -333,7 +333,7 @@ runProgram_return:
 
 .chkHomescreen:
     ld a, (hl)
-    cp ' '
+    cp a, ' '
     jr nz, .chkDonePause
     inc hl
     ld a, b

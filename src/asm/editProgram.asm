@@ -155,7 +155,6 @@ editProgram_editHelper:
     ld de, (ti.editCursor)
     or a, a
     sbc hl, de
-    ;add hl, de
     jr nz, .endGoto
     ld bc, (errorOffset)
     ld a, b
