@@ -36,6 +36,7 @@ include 'include/equates.inc'
     extern _asm_fileSystem_sortVAT
     extern _asm_labelJumper_showLabels
     extern _asm_prgmMenuHook_showDescription
+    extern _asm_prgmMenuHook_showType
     extern _asm_prgmMenuHook_icons
     extern _asm_prgmMenuHook_showAppInfo
     extern _asm_runProgram_main
@@ -212,6 +213,9 @@ hooks_iconHook:
     jp z, _asm_prgmMenuHook_showAppInfo
     call _asm_prgmMenuHook_icons
     call _asm_prgmMenuHook_showDescription
+    ld a, (description)
+    or a, a
+    call z, _asm_prgmMenuHook_showType
     set updateProgInfo, (iy + shellFlags)
     ret
 

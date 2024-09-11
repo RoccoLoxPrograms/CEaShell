@@ -14,6 +14,7 @@
 include 'include/equates.inc'
 
     public _asm_prgmMenuHook_showDescription
+    public _asm_prgmMenuHook_showType
     public _asm_prgmMenuHook_icons
     public _asm_prgmMenuHook_showAppInfo
 
@@ -28,8 +29,11 @@ include 'include/equates.inc'
     extern _asm_utils_getEOF
     extern _asm_utils_findVar
     extern _asm_utils_dispTextToolbar
+    extern _rodata_fileTypes
 
 _asm_prgmMenuHook_showDescription:
+    xor a, a
+    ld (description), a
     ld hl, ti.progCurrent
     call ti.Mov9ToOP1
     call prgmMenuHook_eraseRect
@@ -189,6 +193,18 @@ _asm_prgmMenuHook_showDescription:
 
 .drawDescription:
     ld hl, description
+    jp _asm_utils_dispTextToolbar
+
+_asm_prgmMenuHook_showType:
+    ld hl, ti.progCurrent
+    call ti.Mov9ToOP1
+    call _asm_utils_findVar + 4
+    call _asm_fileOps_getPrgmType.check
+    ld e, a
+    ld d, 11
+    mlt de
+    ld hl, _rodata_fileTypes
+    add hl, de
     jp _asm_utils_dispTextToolbar
 
 _asm_prgmMenuHook_icons:

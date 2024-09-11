@@ -30,6 +30,12 @@ include 'include/equates.inc'
     public _rodata_characters
     public _rodata_sizeOfCharsLUT
     public _rodata_numberKeysLUT
+    public _rodata_fileTypes
+    public _rodata_fileTypeASM
+    public _rodata_fileTypeBASIC
+    public _rodata_fileTypeC
+    public _rodata_fileTypeICE
+    public _rodata_fileTypeICESrc
 
 _rodata_celticAppVarHeader:
     db ti.tColon, ti.tC, ti.tE, ti.tL, ti.tEnter
@@ -117,3 +123,19 @@ _rodata_sizeOfCharsLUT := $ - _rodata_characters
 
 _rodata_numberKeysLUT:
     db ti.sk0, ti.sk1, ti.sk2, ti.sk3, ti.sk4, ti.sk5, ti.sk6, ti.sk7, ti.sk8, ti.sk9
+
+_rodata_fileTypes:
+_rodata_fileTypeASM:
+    db "ASM", 8 dup 0
+
+_rodata_fileTypeC:
+    db "C", 10 dup 0
+
+_rodata_fileTypeBASIC:
+    db "TI-BASIC", 0, 0, 0
+
+_rodata_fileTypeICE:
+    db "ICE", 8 dup 0
+
+_rodata_fileTypeICESrc:
+    db "ICE Source", 0

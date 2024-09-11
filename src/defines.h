@@ -242,6 +242,15 @@ extern gfx_sprite_t *tempSprite;
  */
 extern char rodata_appName;
 
+/**
+ * File type strings.
+ */
+extern char rodata_fileTypeASM;    /** ASM file type string. */
+extern char rodata_fileTypeBASIC;  /** TI-BASIC file type string. */
+extern char rodata_fileTypeC;      /** C file type string. */
+extern char rodata_fileTypeICE;    /** ICE file type string. */
+extern char rodata_fileTypeICESrc; /** ICE Source file type string. */
+
 #ifdef __cplusplus
 }
 #endif

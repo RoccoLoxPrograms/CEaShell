@@ -64,10 +64,10 @@ static void info_Redraw(struct preferences_t *shellPrefs, struct file_t *fileInf
 
 
     #ifdef FR
-    static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Annuaire", "AppVar", NULL, "Var Celtic", "Appli", "Inconnu"};
+    static const char *fileTypeStrings[11] = {&rodata_fileTypeASM, &rodata_fileTypeC, &rodata_fileTypeBASIC, &rodata_fileTypeICE, &rodata_fileTypeICESrc, "Annuaire", "AppVar", NULL, "Var Celtic", "Appli", "Inconnu"};
     gfx_PrintStringXY("Type : ", 64, 74);
     #else
-    static const char *fileTypeStrings[11] = {"ASM", "C", "TI-BASIC", "ICE", "ICE Source", "Directory", "AppVar", NULL, "Celtic Var", "App", "Unknown"};
+    static const char *fileTypeStrings[11] = {&rodata_fileTypeASM, &rodata_fileTypeC, &rodata_fileTypeBASIC, &rodata_fileTypeICE, &rodata_fileTypeICESrc, "Directory", "AppVar", NULL, "Celtic Var", "App", "Unknown"};
     gfx_PrintStringXY("Type: ", 64, 74);
     #endif
 

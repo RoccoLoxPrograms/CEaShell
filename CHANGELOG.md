@@ -2,10 +2,11 @@
 
 All notable changes to CEaShell will be documented in this file.
 
-## [2.0.1] - 2024-09-08
+## [2.0.1] - 2024-09-11
 
 ### Added
 - Pressing <kbd>vars</kbd> in the file info menu opens the editor.
+- Show file type in program menu hook for programs without descriptions.
 
 ### Changed
 - Modify behavior for moving the cursor down in the file info menu.
