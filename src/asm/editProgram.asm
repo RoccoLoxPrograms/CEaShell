@@ -27,10 +27,8 @@ include 'include/equates.inc'
     extern _asm_utils_backupPrgmName
     extern _asm_utils_clrScrnAndUsedRAM
     extern _asm_utils_lcdNormal
-    extern _asm_utils_dispQuitErr
     extern _asm_utils_checkSysVar
     extern _rodata_tempAppVarPrgm
-    extern _exit.sp
 
 _asm_editProgram_edit: ; editing from CEaShell
     ld iy, 0
