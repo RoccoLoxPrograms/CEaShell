@@ -313,9 +313,9 @@ runProgram_return:
     cp a, ' '
     jr nz, .chkDonePause
     inc hl
+    dec bc
     ld a, b
     or a, c
-    dec bc
     jr nz, .chkHomescreen
     jr .chkDone
 
