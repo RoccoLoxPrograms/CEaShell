@@ -133,6 +133,7 @@ _asm_fileOps_copyFile:
     ld hl, (iy + 3) ; get name of prog to copy from
     push af
     call _asm_utils_findVar
+    ld (ti.asm_data_ptr1), de
     or a, a
     sbc hl, hl
     ld a, (de)
@@ -155,14 +156,9 @@ _asm_fileOps_copyFile:
     call ti.CreateVar
     inc de
     inc de
-    push de 
-    ld a, (iy + 9)
-    ld hl, (iy + 3)
-    call _asm_utils_findVar
-    inc de
-    inc de
-    ex de, hl
-    pop de
+    ld hl, (ti.asm_data_ptr1)
+    inc hl
+    inc hl
     pop bc
     ld a, b
     or a, c

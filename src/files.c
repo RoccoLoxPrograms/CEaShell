@@ -167,7 +167,7 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
                         asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
                     } else if (kb_IsDown(kb_KeyDel)) {
                         menu_DeleteFile(shellPrefs, shellContext, &fileInfo);
-                    } else if (kb_IsDown(kb_KeyMode)) {
+                    } else if (kb_IsDown(kb_KeyMode) && shellContext->directory != APPS_FOLDER) {
                         menu_CopyFile(shellPrefs, shellContext, &fileInfo);
                     } else if (kb_IsDown(kb_KeyStat)) {
                         gfx_SetColor(shellPrefs->bgColor);
@@ -193,11 +193,11 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
 
                 if (kb_IsDown(kb_KeyUp)) {
                     if(shellContext->fileSelected) {
-                        shellContext->fileSelected--;
-
-                        if (!(shellContext->fileSelected % rows) && shellContext->fileSelected < shellContext->fileStartLoc && shellContext->fileStartLoc) {
+                        if (shellContext->fileSelected == shellContext->fileStartLoc) {
                             shellContext->fileStartLoc -= rows;
                         }
+
+                        shellContext->fileSelected--;
                     }
                 } else if (kb_IsDown(kb_KeyDown)) {
                     if ((shellContext->fileSelected + 1) % rows) {

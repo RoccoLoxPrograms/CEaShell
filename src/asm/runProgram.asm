@@ -20,6 +20,7 @@ include 'include/equates.inc'
 
     extern _asm_apps_reloadApp
     extern _asm_editProgram_goto
+    extern _asm_fileOps_getPrgmType
     extern _asm_hooks_installStopHook
     extern _asm_hooks_removeStopHook
     extern _asm_hooks_installGetCSCHookCont
@@ -95,6 +96,7 @@ _asm_runProgram_main:
     ld hl, ti.userMem
     call ti.DelMem
     call _asm_utils_findVar + 4
+    ld (ti.asm_data_ptr1), de
     ld bc, 0
     ld a, (de)
     ld c, a
@@ -132,23 +134,11 @@ _asm_runProgram_main:
     ld hl, ti.userMem
     push hl
     call ti.MemSet
-    call ti.ChkFindSym
-    call ti.ChkInRam
-    jr z, .inRamASM
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
-
-.inRamASM:
-    inc de ; skip size + $EF7B
-    inc de
-    inc de
-    inc de
-    ex de, hl
+    ld hl, (ti.asm_data_ptr1)
+    inc hl ; skip size + $EF7B
+    inc hl
+    inc hl
+    inc hl
     pop de
     pop bc
     ld a, b
@@ -277,20 +267,7 @@ _asm_runProgram_main:
     ld hl, ti.userMem
     push hl
     call ti.MemSet
-    ld hl, backupPrgmName
-    call ti.Mov9ToOP1
-    call ti.ChkFindSym
-    call ti.ChkInRam
-    ex de, hl
-    jr z, .inRam2
-    ld de, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-
-.inRam2:
+    ld hl, (ti.asm_data_ptr1)
     inc hl
     inc hl
     inc hl
@@ -338,6 +315,7 @@ runProgram_return:
     inc hl
     ld a, b
     or a, c
+    dec bc
     jr nz, .chkHomescreen
     jr .chkDone
 
@@ -479,12 +457,23 @@ runProgram_showError:
     ld hl, ti.basic_prog
     ld a, (hl)
     cp a, ti.ProtProgObj
-    ld hl, lockOnExit
-    ld (hl), false
+    ld a, false
+    ld (lockOnExit), a
     jr nz, .notProtected
     ld a, (isASM)
     or a, a
     jp nz, .onlyAllowQuit
+    call ti.Mov9ToOP1
+    call ti.ChkFindSym
+    push hl
+    call _asm_fileOps_getPrgmType
+    pop hl
+    cp a, typeBasic
+    jr z, .checkAllowLock
+    cp a, typeSrc
+    jp nz, .onlyAllowQuit
+
+.checkAllowLock:
     ld a, (editLockProgs)
     bit 0, a
     jp z, .onlyAllowQuit

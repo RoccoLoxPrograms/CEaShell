@@ -422,10 +422,6 @@ bool menu_RenameFile(struct preferences_t *shellPrefs, struct context_t *shellCo
 void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellContext, struct file_t *fileInfo) {
     unsigned int *fileCount = &(shellContext->programCount) + shellContext->directory;
 
-    if (fileInfo->shellType == DIR_TYPE) {
-        return;
-    }
-
     gfx_SetColor(shellPrefs->bgColor);
     shapes_RoundRectangleFill(9, 56, 205, 208, 20);
     #ifdef FR
@@ -434,7 +430,7 @@ void menu_CopyFile(struct preferences_t *shellPrefs, struct context_t *shellCont
     bool createNew = menu_YesNo(shellPrefs, shellContext, 80, 79, "Copy", "Create New");
     #endif
 
-    if (kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyMode)) {
+    if (kb_IsDown(kb_KeyClear) || kb_IsDown(kb_KeyMode) || (!createNew && fileInfo->shellType == DIR_TYPE)) {
         while (kb_AnyKey());
         return;
     }

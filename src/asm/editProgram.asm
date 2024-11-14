@@ -248,6 +248,7 @@ editProgram_prepAppVar:
 
 .inRam:
     ex de, hl
+    ld (ti.asm_data_ptr1), hl
     ld de, 0
     ld e, (hl)
     inc hl
@@ -263,25 +264,9 @@ editProgram_prepAppVar:
     ld a, ti.E_Memory
     jp c, _asm_runProgram_error
     call ti.CreateProg
-    push de
-    ld hl, backupAppVarName
-    call ti.Mov9ToOP1
-    call ti.ChkFindSym ; the AppVar could've moved if it was in RAM
-    call ti.ChkInRam
-    jr z, .inRam2
-    ld hl, 10
-    add hl, de
-    ld a, c
-    ld bc, 0
-    ld c, a
-    add hl, bc
-    ex de, hl
-
-.inRam2:
-    ex de, hl
+    ld hl, (ti.asm_data_ptr1)
     inc hl
     inc hl
-    pop de
     inc de
     inc de
     pop bc

@@ -346,6 +346,8 @@ void util_AlphaSearch(struct preferences_t *shellPrefs, struct context_t *shellC
         memcpy(currentName, asm_utils_getFileName(filePtrs[shellContext->fileSelected - dirCount]), 9);
     }
 
+    *currentName += 64 * (*currentName < 'A'); // Ensure no issue with hidden files
+
     bool reverse = (targetLetter <= *currentName);
 
     while (!((shellContext->fileSelected - dirCount == 0 && reverse) || (shellContext->fileSelected == fileCount - 1 && !reverse))) {
@@ -355,8 +357,10 @@ void util_AlphaSearch(struct preferences_t *shellPrefs, struct context_t *shellC
             memcpy(currentName, asm_utils_getFileName(filePtrs[shellContext->fileSelected - dirCount]), 9);
         }
 
+        *currentName += 64 * (*currentName < 'A');
+
         if (reverse) {
-            if ((*currentName + 64 * (*currentName < 'A')) < targetLetter) {
+            if (*currentName < targetLetter) {
                 reverse = false;
             } else {
                 if (!(shellContext->fileSelected + 1 - shellContext->fileStartLoc)) {
@@ -366,7 +370,7 @@ void util_AlphaSearch(struct preferences_t *shellPrefs, struct context_t *shellC
                 shellContext->fileSelected -= 1;
             }
         } else {
-            if ((*currentName + 64 * (*currentName < 'A')) >= targetLetter) {
+            if (*currentName >= targetLetter) {
                 break;
             } else {
                 if (shellContext->fileSelected - shellContext->fileStartLoc == rows * columns) {

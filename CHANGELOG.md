@@ -2,6 +2,18 @@
 
 All notable changes to CEaShell will be documented in this file.
 
+## [2.0.2] - 2024-11-13
+
+### Changed
+- Update to C toolchain version 12.1.
+- Files can now be created when selecting folders.
+- Save space by using ti.asm_data_ptr1 to preserve data pointers rather than recalculating them.
+
+### Fixed
+- Correct alpha jump behavior when selecting hidden files.
+- Cursor goes off screen when pressing <kbd>up</kbd> and selecting the top-left most file.
+- Wait for key press when programs exit with text on screen.
+
 ## [2.0.1] - 2024-09-11
 
 ### Added
@@ -24,7 +36,7 @@ All notable changes to CEaShell will be documented in this file.
 - Using `expr(` or storing a string variable with an error to an equation no longer crashes after going to the error.
 - Block running and editing of system variables in obscure contexts.
 - Editing an archived program when a scrolling Ans value is freshly displayed on the homescreen.
-- Conflict with GetCSC hook and apps that use ti.appData like ProbSim
+- Conflict with GetCSC hook and apps that use ti.appData like ProbSim.
 
 ## [2.0.0] - 2024-07-08
 
