@@ -496,7 +496,7 @@ void custom_Open(struct preferences_t *shellPrefs, struct context_t *shellContex
     menuContext.options[11] = "Preset Themes";
 
     menuContext.details[0] = "Turn on/off the transition animations when opening or closing menus.";
-    menuContext.details[1] = "Speed for transition animaitons between menus.";
+    menuContext.details[1] = "Speed for transition animations between menus.";
     menuContext.details[2] = "Scale of file icons in the main file viewer.";
     menuContext.details[3] = "Choose whether the clock uses 24-Hour or 12-Hour time.";
     menuContext.details[4] = "Show CEaShell in the main file viewer.";

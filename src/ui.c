@@ -65,7 +65,7 @@ void ui_DrawStatusBar(struct preferences_t *shellPrefs, struct context_t *shellC
 
     gfx_SetTextXY(9, 7);
     gfx_PrintUInt(time[2], 1);
-    gfx_PrintString(":");
+    gfx_PrintChar(':');
     gfx_PrintUInt(time[1], 2);
 
     if (!(shellPrefs->timeFormat)) {
@@ -141,7 +141,7 @@ void ui_ScrollBar(struct preferences_t *shellPrefs, unsigned int x, uint8_t y, u
             scrollBarLength = 4;
         }
 
-        uint8_t scrollOffset = (float)maxLength / (float)total * (float)start;
+        unsigned int scrollOffset = (float)maxLength / (float)total * (float)start;
 
         gfx_SetColor(shellPrefs->bgColor);
 
@@ -469,7 +469,7 @@ char *ui_StringInput(struct preferences_t *shellPrefs, struct context_t *shellCo
             util_WaitBeforeKeypress(&clockOffset, &keyPressed);
         }
 
-        if (clock() - cursorOffset > CLOCKS_PER_SEC / 2.25 && !keyPressed) {
+        if (clock() - cursorOffset > CLOCKS_PER_SEC / 2 && !keyPressed) {
             if (cursorActive) {
                 gfx_SetColor(shellPrefs->textColor);
             } else {
