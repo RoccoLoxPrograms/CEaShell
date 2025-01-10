@@ -3,7 +3,7 @@
  * 
  * CEaShell Source Code - utility.c
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022 - 2024
+ * Copyright 2022 - 2025
  * License: GPL-3.0
  * 
  * --------------------------------------
@@ -77,7 +77,7 @@ void util_ReadPrefs(struct preferences_t *shellPrefs, struct context_t *shellCon
         gfx_SetColor(246);
         shapes_PixelIndentRectangle(42, 82, 237, 77);
         gfx_PrintStringXY("v"VERSION_NO, 142, 108);
-        gfx_PrintStringXY("(C) Copyright 2022 - 2024", 48, 132);
+        gfx_PrintStringXY("(C) Copyright 2022 - 2025", 48, 132);
         gfx_PrintStringXY("RoccoLox Programs, TIny_Hacker", 48, 144);
         gfx_SetTextScale(2, 2);
         gfx_PrintStringXY(&rodata_appName, 103, 88);

@@ -3,7 +3,7 @@
  * 
  * CEaShell Source Code - utils.h
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022 - 2024
+ * Copyright 2022 - 2025
  * License: GPL-3.0
  * 
  * --------------------------------------

@@ -3,9 +3,9 @@
  * 
  * CEaShell Source Code - main.c
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022 - 2024
+ * Copyright 2022 - 2025
  * License: GPL-3.0
- * Last Build: December 29, 2024
+ * Last Build: January 9, 2025
  * Version: 2.0.2
  * 
  * --------------------------------------
