@@ -70,6 +70,10 @@ static void custom_CreateTheme(struct preferences_t *shellPrefs, struct context_
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_Data[7] || kb_IsDown(kb_KeyMode) || justOpened) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (!keyPressed) {
+                clockOffset = clock();
+            }
+
             justOpened = false;
 
             if (kb_IsDown(kb_KeyMode)) {
@@ -197,6 +201,10 @@ static void custom_PresetTheme(struct preferences_t *shellPrefs, struct context_
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_Data[7] || justOpened) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (!keyPressed) {
+                clockOffset = clock();
+            }
+
             justOpened = false;
 
             if (kb_IsDown(kb_KeyUp) || kb_IsDown(kb_KeyDown)) {

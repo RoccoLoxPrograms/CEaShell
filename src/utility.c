@@ -403,11 +403,6 @@ void util_UpdateKeyTimer(struct preferences_t *shellPrefs, struct context_t *she
         *keyPressed = false;
         *clockOffset = clock();
     }
-
-    // Reset timer for inactivity when a key is pressed (the user is now active again)
-    if (kb_AnyKey() && !(*keyPressed)) {
-        *clockOffset = clock();
-    }
 }
 
 void util_WaitBeforeKeypress(clock_t *clockOffset, bool *keyPressed) {

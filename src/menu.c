@@ -253,6 +253,10 @@ void menu_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (!keyPressed) {
+                clockOffset = clock();
+            }
+
             if (kb_IsDown(kb_KeyUp)) {
                 if (menuContext->optionSelected) {
                     int nextY = optionY - 5 - menu_CalculateLines(menuContext->options[menuContext->optionSelected - 1], (141 - menu_DrawValueString(0, 0, menuContext->types[menuContext->optionSelected - 1], 0) - 3) / 8, 3) * 12;
@@ -333,6 +337,10 @@ bool menu_YesNo(struct preferences_t *shellPrefs, struct context_t *shellContext
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_IsDown(kb_KeyLeft) || kb_IsDown(kb_KeyRight)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (!keyPressed) {
+                clockOffset = clock();
+            }
+
             gfx_SwapDraw();
             retVal = !retVal;
 

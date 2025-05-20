@@ -228,6 +228,10 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
         util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
         if ((kb_Data[7] || kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter) || kb_IsDown(kb_KeyVars)) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (!keyPressed) {
+                clockOffset = clock();
+            }
+
             if (kb_IsDown(kb_KeyVars) && (fileInfo.shellType == BASIC_TYPE || fileInfo.shellType == ICE_SRC_TYPE || fileInfo.shellType == CELTIC_TYPE)) {
                 util_SearchToMain(shellPrefs, shellContext);
                 asm_editProgram_edit(fileInfo.name, fileInfo.shellType == CELTIC_TYPE, shellPrefs);
@@ -328,6 +332,10 @@ void info_Open(struct preferences_t *shellPrefs, struct context_t *shellContext,
                             util_UpdateKeyTimer(shellPrefs, shellContext, &clockOffset, &keyPressed);
 
                             if (kb_Data[7] && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 16)) {
+                                if (!keyPressed) {
+                                    clockOffset = clock();
+                                }
+
                                 if (kb_IsDown(kb_KeyLeft)) {
                                     if (value) {
                                         value--;

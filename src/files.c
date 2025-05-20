@@ -111,6 +111,10 @@ void files_Main(struct preferences_t *shellPrefs, struct context_t *shellContext
         }
 
         if (kb_AnyKey() && !kb_IsDown(kb_KeyClear) && (!keyPressed || clock() - clockOffset > CLOCKS_PER_SEC / 32)) {
+            if (!keyPressed) {
+                clockOffset = clock();
+            }
+
             if (fileCount) {
                 if (kb_IsDown(kb_Key2nd) || kb_IsDown(kb_KeyEnter)) {
                     while (kb_AnyKey());
