@@ -3,7 +3,7 @@
  * 
  * CEaShell Source Code - utils.h
  * By RoccoLox Programs and TIny_Hacker
- * Copyright 2022 - 2025
+ * Copyright 2022 - 2026
  * License: GPL-3.0
  * 
  * --------------------------------------
@@ -72,9 +72,9 @@ void asm_utils_setGfxCharWidth(uint8_t charNum, uint8_t width);
 char asm_utils_getCharFromKey(uint8_t inputMode);
 
 /**
- * @brief Gets a the name of a file from a pointer to the VAT entry of that file.
+ * @brief Gets the name of a file from a pointer to the VAT entry of that file.
  * 
- * @param filePtr Poiner to the file's VAT entry.
+ * @param filePtr Pointer to the file's VAT entry.
  * @return void* Pointer to the file name.
  */
 void *asm_utils_getFileName(void *filePtr);

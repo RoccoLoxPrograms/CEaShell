@@ -2,7 +2,7 @@
 ;
 ; CEaShell Source Code - fileOps.asm
 ; By RoccoLox Programs and TIny_Hacker
-; Copyright 2022 - 2025
+; Copyright 2022 - 2026
 ; License: GPL-3.0
 ;
 ;--------------------------------------

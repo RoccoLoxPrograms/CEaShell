@@ -139,4 +139,4 @@ Bugs
 Si vous rencontrez un bug en utilisant CEaShell, n'hésitez pas à ouvrir un dossier (issue) ou à
 nous le signaler sur notre serveur Discord (https://discord.gg/RDTtu258fW).
 
-© 2022 - 2025 RoccoLox Programs et TIny_Hacker
+© 2022 - 2026 RoccoLox Programs et TIny_Hacker

@@ -108,4 +108,4 @@ CEaShell has also been translated to French by [Shadow](https://github.com/Bryan
 
 A more detailed credits can be found in CEaShell. [**app_tools**](https://github.com/commandblockguy/app_tools) is created by [commandblockguy](https://github.com/commandblockguy/), and some of the assembly was written by [MateoConLechuga](https://github.com/mateoconlechuga/).
 
-© 2022 - 2025 RoccoLox Programs and TIny_Hacker
+© 2022 - 2026 RoccoLox Programs and TIny_Hacker

@@ -3,7 +3,7 @@
 ; CEaShell Source Code - spi.asm
 ; By RoccoLox Programs and TIny_Hacker
 ; Some code from: https://github.com/Zaalan3/AnotherWorldCE/blob/main/src/spi.asm
-; Copyright 2022 - 2025
+; Copyright 2022 - 2026
 ; License: GPL-3.0
 ;
 ;--------------------------------------
