@@ -2,6 +2,10 @@
 
 CEaShell (pronounced like "Seashell") is a new shell for the TI-84 Plus CE. It aims to provide a modern, sleek, and easy to use UI, which is understandable by any user regardless of previous experience or calculator-related knowledge. To get help, suggest a feature, or report a bug, join the discord!
 
+**PLEASE NOTE** that due to TI patching the exploit CEaShell's app installer uses in the latest bootcode version, calculators with bootcode 5.8.4 will not be able to install CEaShell until a new exploit is found. The bootcode is part of read-only memory and cannot be downgraded or updated, meaning if CEaShell has worked on your calculator in the past you will be fine.
+
+To check your bootcode version, press <kbd>mode</kbd>, <kbd>alpha</kbd>, and <kbd>ln</kbd>. After viewing your bootcode version, you can safely exit the screen by pressing <kbd>on</kbd>.
+
 ## Screenshots
 
 ![Modern UI](screenshots/shell.gif "Modern UI")    ![OS Enhancements](screenshots/osFileInfo.gif "OS Enhancements")
