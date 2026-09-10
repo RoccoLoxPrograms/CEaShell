@@ -189,9 +189,26 @@ _asm_apps_getAppIcon:
     add hl, de
     ld a, (hl)
     cp a, $01
-    ld a, 0
     pop de
+    jr z, _asm_apps_getAppIcon.hasIcon
+    or a, a ; C apps seem to have this first
+    ld a, 0
     ret nz
+    inc hl
+    ld a, (hl) ; now check for jump byte
+    cp a, $C3
+    ld a, 0
+    ret nz
+    inc hl
+    inc hl
+    inc hl
+    inc hl
+    ld a, (hl)
+    cp a, $01
+    ld a, 0
+    ret nz
+
+_asm_apps_getAppIcon.hasIcon:
     inc hl
     inc hl
     inc hl
