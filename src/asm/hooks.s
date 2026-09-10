@@ -7,77 +7,95 @@
 ;
 ;--------------------------------------
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_hooks_installStopHook
+    .type   _asm_hooks_installStopHook, @function
+    .global _asm_hooks_removeStopHook
+    .type   _asm_hooks_removeStopHook, @function
+    .global _asm_hooks_installGetCSCHook
+    .type   _asm_hooks_installGetCSCHook, @function
+    .global _asm_hooks_installGetCSCHookCont
+    .type   _asm_hooks_installGetCSCHookCont, @function
+    .global _asm_hooks_removeGetCSCHook
+    .type   _asm_hooks_removeGetCSCHook, @function
+    .global _asm_hooks_installAppChangeHook
+    .type   _asm_hooks_installAppChangeHook, @function
+    .global _asm_hooks_removeAppChangeHook
+    .type   _asm_hooks_removeAppChangeHook, @function
+    .global _asm_hooks_editorHook
+    .type   _asm_hooks_editorHook, @function
+    .global _asm_hooks_installHomescreenHook
+    .type   _asm_hooks_installHomescreenHook, @function
+    .global _asm_hooks_removeHomescreenHook
+    .type   _asm_hooks_removeHomescreenHook, @function
+    .global _asm_hooks_installMenuHook
+    .type   _asm_hooks_installMenuHook, @function
+    .global _asm_hooks_removeMenuHook
+    .type   _asm_hooks_removeMenuHook, @function
+    .global _asm_hooks_triggerAPD
+    .type   _asm_hooks_triggerAPD, @function
+    .global _asm_hooks_removeBasicKeyHook
+    .type   _asm_hooks_removeBasicKeyHook, @function
+    .global _asm_hooks_installBasicKeyHook
+    .type   _asm_hooks_installBasicKeyHook, @function
+    .global _asm_hooks_basicPrgmHook
+    .type   _asm_hooks_basicPrgmHook, @function
 
-    public _asm_hooks_installStopHook
-    public _asm_hooks_removeStopHook
-    public _asm_hooks_installGetCSCHook
-    public _asm_hooks_installGetCSCHookCont
-    public _asm_hooks_removeGetCSCHook
-    public _asm_hooks_installAppChangeHook
-    public _asm_hooks_removeAppChangeHook
-    public _asm_hooks_editorHook
-    public _asm_hooks_installHomescreenHook
-    public _asm_hooks_removeHomescreenHook
-    public _asm_hooks_installMenuHook
-    public _asm_hooks_removeMenuHook
-    public _asm_hooks_triggerAPD
-    public _asm_hooks_removeBasicKeyHook
-    public _asm_hooks_installBasicKeyHook
-    public _asm_hooks_basicPrgmHook
+    .extern _asm_apps_reloadApp
+    .extern _asm_editProgram_main
+    .extern _asm_editProgram_restoreAppVar
+    .extern _asm_fileSystem_sortVAT
+    .extern _asm_labelJumper_showLabels
+    .extern _asm_prgmMenuHook_showDescription
+    .extern _asm_prgmMenuHook_showType
+    .extern _asm_prgmMenuHook_icons
+    .extern _asm_prgmMenuHook_showAppInfo
+    .extern _asm_runProgram_main
+    .extern _asm_runProgram_returnOS.restoreHooks
+    .extern _asm_spi_setupSPI
+    .extern _asm_utils_arcUnarc
+    .extern _asm_utils_clrScrnAndUsedRAM
+    .extern _asm_utils_findCEaShellAppVar
+    .extern _asm_utils_deleteTempRunner
+    .extern _asm_utils_cleanupForceCmd
+    .extern _asm_utils_checkSysVar
+    .extern _rodata_hashProg
+    .extern _rodata_appName
+    .extern _rodata_numberKeysLUT
+    .extern _exit_sp
 
-    extern _asm_apps_reloadApp
-    extern _asm_editProgram_main
-    extern _asm_editProgram_restoreAppVar
-    extern _asm_fileSystem_sortVAT
-    extern _asm_labelJumper_showLabels
-    extern _asm_prgmMenuHook_showDescription
-    extern _asm_prgmMenuHook_showType
-    extern _asm_prgmMenuHook_icons
-    extern _asm_prgmMenuHook_showAppInfo
-    extern _asm_runProgram_main
-    extern _asm_runProgram_returnOS.restoreHooks
-    extern _asm_spi_setupSPI
-    extern _asm_utils_arcUnarc
-    extern _asm_utils_clrScrnAndUsedRAM
-    extern _asm_utils_findCEaShellAppVar
-    extern _asm_utils_deleteTempRunner
-    extern _asm_utils_cleanupForceCmd
-    extern _asm_utils_checkSysVar
-    extern _rodata_hashProg
-    extern _rodata_appName
-    extern _rodata_numberKeysLUT
-    extern _exit.sp
+;--------------------------------------
+
+    .section .text
 
 hooks_parserStopHook:
     db $83
     push af
     cp a, 2
-    jr z, .maybeStop
+    jr z, parserStopHook.maybeStop
 
-.chain:
+parserStopHook.chain:
     ld a, (parserChainLoc)
     cp a, $7F
-    jr nz, .noChain
+    jr nz, parserStopHook.noChain
     pop af
     ld ix, (parserChainLoc + 1)
     jp (ix)
 
-.noChain:
+parserStopHook.noChain:
     pop af
     cp a, a
     ret
 
-.maybeStop:
+parserStopHook.maybeStop:
     ld a, hookTokenStop ; check if stop token
     cp a, b
-    jr nz, .chain
+    jr nz, parserStopHook.chain
 
-.stop:
+parserStopHook.stop:
     pop af
     xor a, a
     jp ti.JError
@@ -86,43 +104,43 @@ _asm_hooks_installStopHook:
     xor a, a
     ld (parserChainLoc), a
     bit ti.parserHookActive, (iy + ti.hookflags4)
-    jr z, .noChain
+    jr z, installStopHook.noChain
     ld hl, (ti.parserHookPtr)
     ld de, hooks_parserStopHook
     or a, a
     sbc hl, de
     add hl, de
-    jr z, .checkIfBadExit
+    jr z, installStopHook.checkIfBadExit
 
-.chainHooks:
+installStopHook.chainHooks:
     ld a, (hl)
     cp a, $83
-    jr nz, .noChain
+    jr nz, installStopHook.noChain
     ex de, hl
     inc de
     ld hl, parserChainLoc
     ld (hl), $7F
     inc hl
     ld (hl), de
-    jr .noChain
+    jr installStopHook.noChain
 
-.checkIfBadExit:
+installStopHook.checkIfBadExit:
     ld hl, parserChainLoc
     ld a, (hl)
     cp a, $7F
-    jr nz, .noChain
+    jr nz, installStopHook.noChain
     inc hl
     ld hl, (hl)
     dec hl
-    jr .chainHooks
+    jr installStopHook.chainHooks
 
-.noChain:
+installStopHook.noChain:
     ld hl, hooks_parserStopHook
     jp ti.SetParserHook
 
 _asm_hooks_removeStopHook:
     bit ti.parserHookActive, (iy + ti.hookflags4)
-    jr z, .clearParser
+    jr z, removeStopHook.clearParser
     ld hl, (ti.parserHookPtr)
     ld de, hooks_parserStopHook
     or a, a
@@ -132,7 +150,7 @@ _asm_hooks_removeStopHook:
     ld hl, parserChainLoc
     ld a, (hl)
     cp a, $7F
-    jr nz, .clearParser
+    jr nz, removeStopHook.clearParser
     inc hl
     ld hl, (hl)
     dec hl
@@ -140,7 +158,7 @@ _asm_hooks_removeStopHook:
     ld (parserChainLoc), a
     jp ti.SetParserHook
 
-.clearParser:
+removeStopHook.clearParser:
     jp ti.ClrParserHook
 
 hooks_getCSCHook:
@@ -148,10 +166,10 @@ hooks_getCSCHook:
     push af
     ld a, (ti.cxCurApp)
     cp a, ti.cxextapps
-    jr z, .return
+    jr z, getCSCHook.return
     ld hl, (ti.catalog1HookPtr)
     call ti.ChkHLIs0
-    jr z, .return
+    jr z, getCSCHook.return
     pop af
     ld (getCSCvalA), a
     ld (getCSCvalBC), bc
@@ -168,7 +186,7 @@ hooks_getCSCHook:
     ld bc, (getCSCvalBC)
     push af
 
-.return:
+getCSCHook.return:
     pop af
     cp a, $1B
     ret nz
@@ -182,32 +200,32 @@ hooks_iconHook:
     ret z
     ld a, (getCSCvalA)
     cp a, $1A
-    jr nz, .keyPress
+    jr nz, iconHook.keyPress
     ld a, (ti.menuCurrent)
     cp a, ti.mApps
-    jr z, .update
+    jr z, iconHook.update
     cp a, ti.mProgramHome
-    jr z, .continue
+    jr z, iconHook.continue
     bit updateProgInfo, (iy + shellFlags) ; if we just left a valid menu, clean up
     ret nz
     call ti.os.ClearStatusBarLow
     set updateProgInfo, (iy + shellFlags)
     ret
 
-.continue:
+iconHook.continue:
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Run
-    jr z, .update
+    jr z, iconHook.update
     cp a, ti.mPrgm_Edit
-    jr nz, .returnOther
+    jr nz, iconHook.returnOther
 
-.update:
+iconHook.update:
     bit updateProgInfo, (iy + shellFlags)
     ret nz
     call ti.os.ClearStatusBarLow
     ld a, (ti.menuNumItems)
     or a, a
-    jr z, .returnOther
+    jr z, iconHook.returnOther
     ld a, (ti.menuCurrent)
     cp a, ti.mApps
     jp z, _asm_prgmMenuHook_showAppInfo
@@ -219,31 +237,31 @@ hooks_iconHook:
     set updateProgInfo, (iy + shellFlags)
     ret
 
-.keyPress: ; keypress event
+iconHook.keyPress: ; keypress event
     ld bc, (getCSCvalBC)
     ld a, b
     cp a, ti.skMatrix ; apps key
-    jr z, .return
+    jr z, iconHook.return
     cp a, ti.skCos ; apps key on 83PCE
-    jr z, .return
+    jr z, iconHook.return
     cp a, ti.skPrgm
-    jr nz, .modified
+    jr nz, iconHook.modified
     ld a, (iy + ti.shiftFlags)
     add a, a
     add a, a ; shiftALock
-    jr c, .modified
+    jr c, iconHook.modified
     add a, a ; shiftLwrAlpha
-    jr c, .modified
+    jr c, iconHook.modified
     add a, a ; shiftAlpha
-    jr c, .modified
+    jr c, iconHook.modified
     add a, a ; shift2nd
     call nc, _asm_fileSystem_sortVAT
 
-.return:
+iconHook.return:
     res updateProgInfo, (iy + shellFlags)
     ret
 
-.modified:
+iconHook.modified:
     res updateProgInfo, (iy + shellFlags)
     ld a, (ti.menuCurrent)
     cp a, ti.mApps
@@ -253,7 +271,7 @@ hooks_iconHook:
     set updateProgInfo, (iy + shellFlags)
     ret
 
-.returnOther: ; draw over artifact when switching to create menu
+iconHook.returnOther: ; draw over artifact when switching to create menu
     call ti.os.ClearStatusBarLow
     bit updateProgInfo, (iy + shellFlags)
     ret nz
@@ -310,7 +328,7 @@ hooks_onHook:
     or a, a
     ret z
     cp a, ti.AppObj
-    jr nz, .runProgram
+    jr nz, onHook.runProgram
     inc hl
     push hl
     call ti.FindAppStart
@@ -318,7 +336,7 @@ hooks_onHook:
     ret c
     jp hooks_launchAppHook
 
-.runProgram:
+onHook.runProgram:
     push hl
     call ti.Mov9ToOP1
     call ti.ChkFindSym
@@ -332,7 +350,7 @@ hooks_onHook:
     pop bc
     pop de
     call ti.ChkInRam
-    jr z, .inRam
+    jr z, onHook.inRam
     ld hl, 10
     add hl, de
     ld a, c
@@ -341,45 +359,45 @@ hooks_onHook:
     add hl, bc
     ex de, hl
 
-.inRam:
+onHook.inRam:
     inc de
     inc de
     ld a, (de)
     cp a, ti.tExtTok
-    jr nz, .notAsm
+    jr nz, onHook.notAsm
     inc de
     ld a, (de)
     cp a, ti.tAsm84CeCmp
-    jr z, .isAsm
+    jr z, onHook.isAsm
     cp a, ti.tAsm84CePrgm
-    jr nz, .notAsm
+    jr nz, onHook.notAsm
 
-.isAsm:
-    ld de, (ti.t2ByteTok shl 8) or ti.tasm
+onHook.isAsm:
+    ld de, (ti.t2ByteTok << 8) | ti.tasm
     call ti.BufInsert
     pop hl
     ret z
     push hl
 
-.notAsm:
+onHook.notAsm:
     ld de, ti.tProg
     call ti.BufInsert
     pop hl
     ret z
 
-.insertName:
+onHook.insertName:
     inc hl
     ld de, 0
     ld a, (hl)
     or a, a
-    jr z, .doneInserting
+    jr z, onHook.doneInserting
     ld e, a
     push hl
     call ti.BufInsert
     pop hl
-    jr nz, .insertName
+    jr nz, onHook.insertName
 
-.doneInserting:
+onHook.doneInserting:
     res ti.onInterrupt, (iy + ti.onFlags)
     ld a, ti.kEnter
     jp ti.JForceCmd
@@ -401,54 +419,54 @@ hooks_fastAlphaScrolling:
     ld bc, (getCSCvalBC)
     ld a, b
     cp a, ti.skUp
-    jr z, .popUp
+    jr z, fastAlphaScrolling.popUp
     cp a, ti.skDown
     ret nz
     pop hl
 
-.down:
+fastAlphaScrolling.down:
     call ti.BufRight
-    jr z, .returnDown
+    jr z, fastAlphaScrolling.returnDown
     ld a, d
     or a, a
-    jr nz, .down
+    jr nz, fastAlphaScrolling.down
     ld a, e
     cp a, ti.tEnter
-    jr nz, .down
+    jr nz, fastAlphaScrolling.down
     ld a, (newlineCount)
     inc a
     ld (newlineCount), a
     cp a, 7
-    jr c, .down
-    jr .return
+    jr c, fastAlphaScrolling.down
+    jr fastAlphaScrolling.return
 
-.returnDown:
+fastAlphaScrolling.returnDown:
     call ti.BufToBtm
-    jr .return
+    jr fastAlphaScrolling.return
 
-.popUp:
+fastAlphaScrolling.popUp:
     pop hl
 
-.up:
+fastAlphaScrolling.up:
     call ti.BufLeft
-    jr z, .returnUp
+    jr z, fastAlphaScrolling.returnUp
     ld a, d
     or a, a
-    jr nz, .up
+    jr nz, fastAlphaScrolling.up
     ld a, e
     cp a, ti.tEnter
-    jr nz, .up
+    jr nz, fastAlphaScrolling.up
     ld a, (newlineCount)
     inc a
     ld (newlineCount), a
     cp a, 7
-    jr c, .up
-    jr .return
+    jr c, fastAlphaScrolling.up
+    jr fastAlphaScrolling.return
 
-.returnUp:
+fastAlphaScrolling.returnUp:
     call ti.BufToTop
 
-.return:
+fastAlphaScrolling.return:
     call ti.CursorOff
     xor a, a
     ld (ti.curCol), a
@@ -459,20 +477,20 @@ hooks_fastAlphaScrolling:
     ld a, ':'
     call ti.PutMap
     ld hl, 1
-    ld.sis (ti.curCol and $FFFF), hl
+    ld.sis (ti.curCol & $FFFF), hl
 
-.backup:
+fastAlphaScrolling.backup:
     call ti.BufLeft
-    jr z, .done
+    jr z, fastAlphaScrolling.done
     ld a, d
     or a, a
-    jr nz, .backup
+    jr nz, fastAlphaScrolling.backup
     ld a, e
     cp a, ti.tEnter
-    jr nz, .backup
+    jr nz, fastAlphaScrolling.backup
     call ti.BufRight
 
-.done:
+fastAlphaScrolling.done:
     call ti.DispEOW
     call ti.CursorOn
     bit ti.shiftALock, (iy + ti.shiftFlags)
@@ -497,7 +515,7 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     ld a, returnOS
     ld (returnLoc), a
     call _asm_utils_findCEaShellAppVar
-    jr c, .notFound
+    jr c, homescreenHookStart.notFound
     ld hl, 18 ; skip to the byte to check
     add hl, de
     ld de, (hl)
@@ -508,20 +526,20 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     inc hl
     ld a, (hl)
     bit 0, a
-    jr z, .continue
+    jr z, homescreenHookStart.continue
     set disableBusyIndicator, (iy + shellFlags)
-    jr .continue
+    jr homescreenHookStart.continue
 
-.notFound:
+homescreenHookStart.notFound:
     ld hl, $10101
     ld (editArcProgs), hl
 
-.continue:
+homescreenHookStart.continue:
     res useASMToken, (iy + shellFlags)
     ld hl, _rodata_hashProg ; prgm#
     call ti.Mov9ToOP1
     call ti.ChkFindSym
-    jr c, .return
+    jr c, homescreenHookStart.return
     ex de, hl
     ld bc, 0
     ld c, (hl)
@@ -533,25 +551,25 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     or a, a
     sbc hl, bc
     pop hl
-    jr z, .return
+    jr z, homescreenHookStart.return
     ld a, (hl)
     cp a, ti.tProg
-    jr z, .isProg
+    jr z, homescreenHookStart.isProg
     cp a, ti.t2ByteTok
     inc hl
-    jr nz, .return
+    jr nz, homescreenHookStart.return
     ld a, (hl)
     cp a, ti.tasm
-    jr nz, .return
+    jr nz, homescreenHookStart.return
     inc hl
     ld a, (hl)
     cp a, ti.tProg
-    jr nz, .return
+    jr nz, homescreenHookStart.return
     dec bc
     dec bc
     set useASMToken, (iy + shellFlags)
 
-.isProg:
+homescreenHookStart.isProg:
     inc hl
     dec bc
     ex de, hl
@@ -561,18 +579,18 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     ex de, hl
     ld a, b
     or a, c
-    jr z, .loaded
+    jr z, homescreenHookStart.loaded
     ldir
 
-.loaded:
+homescreenHookStart.loaded:
     ex de, hl
     ld (hl), 0
     call _asm_utils_checkSysVar
-    jr z, .return + 11
+    jr z, homescreenHookStart.return + 11
     call ti.ChkFindSym
-    jr c, .return
+    jr c, homescreenHookStart.return
     call ti.ChkInRam
-    jr z, .inRam2
+    jr z, homescreenHookStart.inRam2
     ld hl, 10
     add hl, de
     ld a, c
@@ -581,50 +599,50 @@ hooks_homescreenHookStart: ; handle OS programs using our code
     add hl, bc
     ex de, hl
 
-.inRam2:
+homescreenHookStart.inRam2:
     inc de
     inc de
     ld a, (de)
     cp a, ti.tExtTok
-    jr nz, .notASM
+    jr nz, homescreenHookStart.notASM
     inc de
     ld a, (de)
     cp a, ti.tAsm84CeCmp
     dec de
-    jr nz, .notASM
+    jr nz, homescreenHookStart.notASM
     xor a, a
-    jr .run
+    jr homescreenHookStart.run
 
-.notASM:
+homescreenHookStart.notASM:
     bit useASMToken, (iy + shellFlags)
-    jr nz, .return
+    jr nz, homescreenHookStart.return
     ld a, typeBasic
 
-.run:
+homescreenHookStart.run:
     jp _asm_runProgram_main
 
-.return:
+homescreenHookStart.return:
     ld a, (de)
     cp a, ti.tExtTok
     jr nz, $ + 8
     inc de
     ld a, (de)
     cp a, ti.tAsm84CePrgm
-    jr z, .notASM + 6
+    jr z, homescreenHookStart.notASM + 6
     cp a, a
     ret
 
 hooks_hideProgrammingOptions:
     db $83
     cp a, 4
-    jr nz, .return
+    jr nz, hideProgrammingOptions.return
     ld a, $5B ; programming options menu equate
     cp a, b
     ld a, 4
-    jr nz, .return
+    jr nz, hideProgrammingOptions.return
     ld b, ti.mProgramHome
 
-.return:
+hideProgrammingOptions.return:
     cp a, a
     ret
 
@@ -637,32 +655,32 @@ hooks_menuHookStart:
 hooks_editArchivedProgs:
     db $83
     cp a, 3
-    jr nz, .return
+    jr nz, editArchivedProgs.return
     ld a, (ti.menuCurrent)
     cp a, ti.mProgramHome
-    jr nz, .return
+    jr nz, editArchivedProgs.return
     ld a, (ti.menuCurrentSub)
     cp a, ti.mPrgm_Edit
-    jr nz, .return
+    jr nz, editArchivedProgs.return
     ld a, b
     cp a, ti.cxPrgmEdit
-    jr nz, .return
+    jr nz, editArchivedProgs.return
     call _asm_utils_cleanupForceCmd + 7
     call ti.ReleaseBuffer
     call ti.PPutAway
     call _asm_utils_findCEaShellAppVar
-    jr c, .notFound
+    jr c, editArchivedProgs.notFound
     ld hl, 18 ; skip to the byte to check
     add hl, de
     ld de, (hl)
     ld (editArcProgs), de
-    jr .continue
+    jr editArchivedProgs.continue
 
-.notFound:
+editArchivedProgs.notFound:
     ld hl, $10101
     ld (editArcProgs), hl
 
-.continue:
+editArchivedProgs.continue:
     ld a, returnOS
     ld (returnLoc), a
     xor a, a
@@ -674,7 +692,7 @@ hooks_editArchivedProgs:
     call ti.Mov9ToOP1
     jp _asm_editProgram_main
 
-.return:
+editArchivedProgs.return:
     cp a, a
     ret
 
@@ -777,13 +795,13 @@ _asm_hooks_installAppChangeHook:
     xor a, a
     ld (appChangeHookLoc), a
     bit ti.appChangeHookActive, (iy + ti.hookflags4)
-    jr z, .install
+    jr z, installAppChangeHook.install
     inc a
     ld (appChangeHookLoc), a
     ld hl, (ti.appChangeHookPtr)
     ld (appChangeHookLoc + 1), hl
 
-.install:
+installAppChangeHook.install:
     ex de, hl
     jp ti.SetAppChangeHook
 
@@ -825,37 +843,37 @@ _asm_hooks_editorHook:
     call ti.ChkFindSym
     ld a, (lockOnExit)
     or a, a
-    jr z, .noLock
+    jr z, editorHook.noLock
     ld (hl), ti.ProtProgObj
 
-.noLock:
+editorHook.noLock:
     ld a, (arcOnExit)
     or a, a
-    jr z, .noArchive
+    jr z, editorHook.noArchive
     ld a, (isCelticVar)
     or a, a
-    jr nz, .noArchive
+    jr nz, editorHook.noArchive
     call _asm_utils_arcUnarc
 
-.noArchive:
+editorHook.noArchive:
     ld a, (isCelticVar)
     or a, a
     call nz, _asm_editProgram_restoreAppVar
     bit ti.monAbandon, (iy + ti.monFlags)
-    jr nz, .returnOS
+    jr nz, editorHook.returnOS
     ld a, (returnLoc)
     or a, a
     jp z, _asm_apps_reloadApp
 
-.returnOS:
+editorHook.returnOS:
     ld a, (editMode)
     or a, a
     call nz, ShowResult
     bit ti.monAbandon, (iy + ti.monFlags)
-    jr nz, .turnOff
+    jr nz, editorHook.turnOff
     ld a, (exitLaunchHook)
     or a, a
-    jr nz, .turnOff
+    jr nz, editorHook.turnOff
     sbc hl, hl
     add hl, sp
     ld de, stackBackup
@@ -870,7 +888,7 @@ _asm_hooks_editorHook:
     ld hl, stackBackup
     ldir
 
-.turnOff:
+editorHook.turnOff:
     pop hl
     pop bc
     ld a, c
@@ -897,25 +915,25 @@ _asm_hooks_installMenuHook:
     ex (sp), hl
     push de
     dec l
-    jr z, .both
+    jr z, installMenuHook.both
     dec l
-    jr z, .hideProgrammingOptions
+    jr z, installMenuHook.hideProgrammingOptions
     dec l
-    jr z, .editArchivedProgs
+    jr z, installMenuHook.editArchivedProgs
     ret
 
-.editArchivedProgs:
+installMenuHook.editArchivedProgs:
     ld hl, hooks_editArchivedProgs
-    jr .install
+    jr installMenuHook.install
 
-.hideProgrammingOptions:
+installMenuHook.hideProgrammingOptions:
     ld hl, hooks_hideProgrammingOptions
-    jr .install
+    jr installMenuHook.install
 
-.both:
+installMenuHook.both:
     ld hl, hooks_menuHookStart
 
-.install:
+installMenuHook.install:
     ld iy, ti.flags
     jp ti.SetMenuHook
 
@@ -927,21 +945,21 @@ _asm_hooks_removeMenuHook:
     ld hl, hooks_menuHookStart
     or a, a
     sbc hl, de
-    jr z, .clearHook
+    jr z, removeMenuHook.clearHook
     ld hl, hooks_editArchivedProgs
     or a, a
     sbc hl, de
-    jr z, .clearHook
+    jr z, removeMenuHook.clearHook
     ld hl, hooks_hideProgrammingOptions
     or a, a
     sbc hl, de
     ret nz
 
-.clearHook:
+removeMenuHook.clearHook:
     jp ti.ClrMenuHook
 
 _asm_hooks_triggerAPD:
-    call _exit.sp + 3
+    call _exit_sp
     ld de, (ti.asm_prgm_size)
     ld hl, ti.userMem
     call ti.DelMem
@@ -952,13 +970,13 @@ _asm_hooks_triggerAPD:
     xor a, a
     ld (getcscHookLoc), a
     bit ti.getCSCHookActive, (iy + ti.hookflags2)
-    jr z, .install
+    jr z, triggerAPD.install
     inc a
     ld (getcscHookLoc), a
     ld hl, (ti.getKeyHookPtr)
     ld (getcscHookLoc + 1), hl
 
-.install:
+triggerAPD.install:
     ld hl, hooks_reloadHook
     call ti.SetGetCSCHook
     ld a, ti.kClear
@@ -969,12 +987,12 @@ hooks_reloadHook:
     call hooks_turnCalcOff
     ld a, (getcscHookLoc)
     or a, a
-    jr z, .clearHook
+    jr z, reloadHook.clearHook
     ld hl, (getcscHookLoc + 1)
     call ti.SetGetCSCHook
     jr $ + 6
 
-.clearHook:
+reloadHook.clearHook:
     call ti.ClrGetKeyHook
     jp hooks_openShellHook
 
@@ -997,18 +1015,18 @@ hooks_basicKeyHook:
     push af
     ld a, (ti.cxCurApp)
     cp a, ti.kPrgmInput
-    jr nz, .returnAlt
+    jr nz, basicKeyHook.returnAlt
     pop af
     push af
     cp a, ti.kQuit
-    jr nz, .returnAlt
+    jr nz, basicKeyHook.returnAlt
 
-.returnCancel:
+basicKeyHook.returnCancel:
     pop af
     xor a, a
     ret
 
-.returnAlt:
+basicKeyHook.returnAlt:
     pop af
     ld b, a
     inc b
@@ -1019,13 +1037,13 @@ _asm_hooks_installBasicKeyHook:
     xor a, a
     ld (rawKeyHookLoc), a
     bit ti.rawKeyHookActive, (iy + ti.hookflags2)
-    jr z, .install
+    jr z, installBasicKeyHook.install
     inc a
     ld (rawKeyHookLoc), a
     ld hl, (ti.rawKeyHookPtr)
     ld (rawKeyHookLoc + 1), hl
 
-.install:
+installBasicKeyHook.install:
     ld hl, hooks_basicKeyHook
     jp ti.SetGetKeyHook
 
@@ -1035,7 +1053,7 @@ _asm_hooks_basicPrgmHook:
     ld hl, ti.mpLcdCtrl + 1
     bit 3, (hl)
     pop hl
-    jr z, .exit
+    jr z, basicPrgmHook.exit
     ld e, a
     ld a, b
     cp a, ti.kError
@@ -1044,7 +1062,7 @@ _asm_hooks_basicPrgmHook:
     cp a, ti.kQuit
     ret nz
 
-.exit:
+basicPrgmHook.exit:
     push af
     push hl
     push bc

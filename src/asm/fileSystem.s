@@ -31,25 +31,34 @@
 ;
 ; uses insertion sort to sort the vat alphabetically
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_fileSystem_sortVAT
+    .type   _asm_fileSystem_sortVAT, @function
+    .global _asm_fileSystem_initPtrArrays
+    .type   _asm_fileSystem_initPtrArrays, @function
+    .global _asm_fileSystem_error
+    .type   _asm_fileSystem_error, @function
+    .global _asm_fileSystem_getProgramPtrs
+    .type   _asm_fileSystem_getProgramPtrs, @function
+    .global _asm_fileSystem_getAppVarPtrs
+    .type   _asm_fileSystem_getAppVarPtrs, @function
+    .global _asm_fileSystem_findAllVars
+    .type   _asm_fileSystem_findAllVars, @function
+    .global _asm_fileSystem_findArrayOffset
+    .type   _asm_fileSystem_findArrayOffset, @function
 
-    public _asm_fileSystem_sortVAT
-    public _asm_fileSystem_initPtrArrays
-    public _asm_fileSystem_error
-    public _asm_fileSystem_getProgramPtrs
-    public _asm_fileSystem_getAppVarPtrs
-    public _asm_fileSystem_findAllVars
-    public _asm_fileSystem_findArrayOffset
+    .extern _asm_utils_clrScrnAndUsedRAM
+    .extern _asm_utils_checkHiddenHeader
+    .extern _asm_utils_dispQuitErr
+    .extern _exit_sp
+    .extern _gfx_End
 
-    extern _asm_utils_clrScrnAndUsedRAM
-    extern _asm_utils_checkHiddenHeader
-    extern _asm_utils_dispQuitErr
-    extern _exit.sp
-    extern _gfx_End
+;--------------------------------------
+
+    .section .text
 
 _asm_fileSystem_sortVAT:
     ld iy, ti.flags
@@ -58,55 +67,55 @@ _asm_fileSystem_sortVAT:
     ld (sortFirstItemFoundPtr), hl
     ld hl, (ti.progPtr)
 
-.sortNext:
-    call .findNextItem
+sortVAT.sortNext:
+    call sortVAT.findNextItem
     ret nc
 
-.foundItem:
+sortVAT.foundItem:
     push hl
     ld hl, (sortFirstItemFoundPtr)
     add hl, de
     or a, a
     sbc hl, de
     pop hl
-    jr nz, .notFirst
+    jr nz, sortVAT.notFirst
     ld (sortFirstItemFoundPtr), hl ; to make it only execute once
-    call .skipName
+    call sortVAT.skipName
     ld (sortEndOfPartPtr), hl
-    jr .sortNext
+    jr sortVAT.sortNext
 
-.notFirst:
+sortVAT.notFirst:
     push hl
-    call .skipName
+    call sortVAT.skipName
     pop de
     push hl ; to continue from later on
     ld hl, (sortFirstItemFoundPtr)
-    jr .searchNextStart ; could speed up sorted list by first checking if it's the last item (not neccessary)
+    jr sortVAT.searchNextStart ; could speed up sorted list by first checking if it's the last item (not neccessary)
 
-.searchNext:
-    call .skipName
+sortVAT.searchNext:
+    call sortVAT.skipName
     ld bc, (sortEndOfPartPtr)
     or a, a ; reset carry flag
     push hl
     sbc hl, bc
     pop hl
-    jr z, .locationFound
+    jr z, sortVAT.locationFound
     ld bc, -6
     add hl, bc
 
-.searchNextStart:
+sortVAT.searchNextStart:
     push hl
     push de
-    call .compareNames
+    call sortVAT.compareNames
     pop de
     pop hl
-    jr nc, .searchNext
+    jr nc, sortVAT.searchNext
 
-.searchNextEnd:
+sortVAT.searchNextEnd:
     ld bc, 6
     add hl, bc ; goto start of entry
 
-.locationFound:
+sortVAT.locationFound:
     ex de, hl
     ld a, (hl)
     add a, 7
@@ -121,7 +130,7 @@ _asm_fileSystem_sortVAT:
     sbc hl, de
     pop hl
     pop de
-    jr z, .noMoveNeeded
+    jr z, sortVAT.noMoveNeeded
     push hl
     ld de, sortVatEntryTempEnd
     lddr ; copy entry to move to sortVatEntryTempEnd
@@ -151,20 +160,20 @@ _asm_fileSystem_sortVAT:
     sbc hl, bc
     ld (sortEndOfPartPtr), hl
     pop hl ; pointer to continue from
-    jp .sortNext ; to skip name and rest of entry
+    jp sortVAT.sortNext ; to skip name and rest of entry
 
-.noMoveNeeded:
+sortVAT.noMoveNeeded:
     pop hl
     ld (sortEndOfPartPtr), hl
-    jp .sortNext
+    jp sortVAT.sortNext
 
-.skipToNext:
+sortVAT.skipToNext:
     ld bc, -6
     add hl, bc
-    call .skipName
-    jr .findNextItem ; look for next item
+    call sortVAT.skipName
+    jr sortVAT.findNextItem ; look for next item
 
-.skipName:
+sortVAT.skipName:
     ld bc, 0
     ld c, (hl) ; number of bytes in name
     inc c ; to get pointer to data type byte of next entry
@@ -172,53 +181,53 @@ _asm_fileSystem_sortVAT:
     sbc hl, bc
     ret
 
-.compareNames: ; hl and de pointers to strings output=carry if de is first
+sortVAT.compareNames: ; hl and de pointers to strings output=carry if de is first
     ld b, (hl)
     ld a, (de)
     ld c, 0
     cp a, b ; check if same length
-    jr z, .hlLonger
-    jr nc, .hlLonger ; b = smaller than a
+    jr z, sortVAT.hlLonger
+    jr nc, sortVAT.hlLonger ; b = smaller than a
     inc c ; to remember that b was larger
     ld b, a ; b was larger than a
 
-.hlLonger:
+sortVAT.hlLonger:
     push bc
     ld b, 64
     dec hl
     dec de
     ld a, (hl)
     cp a, b
-    jr nc, .firstNotHidden ; check if files are hidden
+    jr nc, sortVAT.firstNotHidden ; check if files are hidden
     add a, b
 
-.firstNotHidden:
+sortVAT.firstNotHidden:
     ld c, a
     ld a, (de)
     cp a, b
-    jr nc, .secondNotHidden
+    jr nc, sortVAT.secondNotHidden
     add a, b
 
-.secondNotHidden:
+sortVAT.secondNotHidden:
     cp a, c
     pop bc
-    jr .start
+    jr sortVAT.start
 
-.loop:
+sortVAT.loop:
     dec hl
     dec de
     ld a, (de)
     cp a, (hl)
 
-.start:
+sortVAT.start:
     ret nz
-    djnz .loop
+    djnz sortVAT.loop
     dec c
     ret nz
     ccf
     ret
 
-.findNextItem: ; carry = found, nc = notfound
+sortVAT.findNextItem: ; carry = found, nc = notfound
     ex de, hl
     ld hl, (ti.pTemp)
     or a, a ; reset carry flag
@@ -232,7 +241,7 @@ _asm_fileSystem_sortVAT:
     ld bc, fileSystem_sortTypes.length
     cpir
     pop hl
-    jr nz, .skipToNext ; skip to next entry
+    jr nz, sortVAT.skipToNext ; skip to next entry
     dec hl ; add check for folders here if needed
     dec hl
     dec hl ; to pointer
@@ -247,7 +256,7 @@ _asm_fileSystem_sortVAT:
 
 fileSystem_sortTypes:
     db ti.ProgObj, ti.ProtProgObj, ti.AppVarObj
-.length := $-.
+.equ fileSystem_sortTypes.length, $ - fileSystem_sortTypes
 
 ;------------------------------------------------
 
@@ -259,13 +268,13 @@ _asm_fileSystem_initPtrArrays:
     push de
     push bc
     push hl
-    lea hl, iy
+    lea hl, iy + 0
     add hl, de
     add hl, bc
     ld de, ti.pixelShadow2 - ti.pixelShadow + 1
     or a, a
     sbc hl, de
-    jr nc, .error
+    jr nc, initPtrArrays.error
     ld iy, 0
     add iy, sp
     push bc
@@ -288,7 +297,7 @@ _asm_fileSystem_initPtrArrays:
     ld (hl), de
     ret
 
-.error:
+initPtrArrays.error:
     ld a, ti.E_Memory
     ld (ti.errNo), a
     call _gfx_End
@@ -299,13 +308,13 @@ _asm_fileSystem_error:
     call ti.DrawStatusBar
     call _asm_utils_dispQuitErr
 
-.waitLoop:
+error.waitLoop:
     call ti.GetCSC
     cp a, ti.sk1
     jr z, $ + 4
     cp a, ti.skEnter
-    jp z, _exit.sp - 1 ; exit the app
-    jr .waitLoop
+    jp z, _exit_sp - 4 ; exit the app
+    jr error.waitLoop
 
 _asm_fileSystem_getProgramPtrs:
     ld iy, 0
@@ -321,43 +330,43 @@ _asm_fileSystem_getProgramPtrs:
     push hl
     ld hl, (ti.progPtr)
 
-.loop:
+getProgramPtrs.loop:
     ld de, (ti.pTemp)
     or a, a
     sbc hl, de
-    jr z, .return
-    jr c, .return
+    jr z, getProgramPtrs.return
+    jr c, getProgramPtrs.return
     add hl, de
     ld a, (hl)
     and a, $1F
     cp a, ti.ProgObj
-    jr z, .isProgram
+    jr z, getProgramPtrs.isProgram
     cp a, ti.ProtProgObj
-    jr nz, .skipEntry
+    jr nz, getProgramPtrs.skipEntry
 
-.isProgram:
+getProgramPtrs.isProgram:
     ld de, -7
     push hl
     add hl, de
     ld a, (hl)
     pop hl
     bit 0, b
-    jr nz, .loadAddress
+    jr nz, getProgramPtrs.loadAddress
     cp a, ti.tA
-    jr c, .skipEntry
+    jr c, getProgramPtrs.skipEntry
 
-.loadAddress:
+getProgramPtrs.loadAddress:
     call _asm_utils_checkHiddenHeader
-    jr z, .skipEntry
+    jr z, getProgramPtrs.skipEntry
     pop de
     bit 1, b
     call nz, fileSystem_checkString
     push de
-    jr nz, .skipEntry
+    jr nz, getProgramPtrs.skipEntry
     ld (iy), hl
     lea iy, iy + 3
 
-.skipEntry:
+getProgramPtrs.skipEntry:
     ld de, -6
     add hl, de
     ld a, (hl)
@@ -365,9 +374,9 @@ _asm_fileSystem_getProgramPtrs:
     neg
     ld e, a
     add hl, de
-    jr .loop
+    jr getProgramPtrs.loop
 
-.return:
+getProgramPtrs.return:
     pop de
     ret
 
@@ -385,26 +394,26 @@ _asm_fileSystem_getAppVarPtrs:
     push hl
     ld hl, (ti.progPtr)
 
-.loop:
+getAppVarPtrs.loop:
     ld de, (ti.pTemp)
     or a, a
     sbc hl, de
-    jr z, _asm_fileSystem_getProgramPtrs.return
-    jr c, _asm_fileSystem_getProgramPtrs.return
+    jr z, getProgramPtrs.return
+    jr c, getProgramPtrs.return
     add hl, de
     ld a, (hl)
     and a, $1F
     cp a, ti.AppVarObj
-    jr nz, .skipEntry
+    jr nz, getAppVarPtrs.skipEntry
     pop de
     bit 1, b
     call nz, fileSystem_checkString
     push de
-    jr nz, .skipEntry
+    jr nz, getAppVarPtrs.skipEntry
     ld (iy), hl
     lea iy, iy + 3
 
-.skipEntry:
+getAppVarPtrs.skipEntry:
     ld de, -6
     add hl, de
     ld a, (hl)
@@ -412,7 +421,7 @@ _asm_fileSystem_getAppVarPtrs:
     neg
     ld e, a
     add hl, de
-    jr .loop
+    jr getAppVarPtrs.loop
 
 _asm_fileSystem_findAllVars:
     ld iy, 0
@@ -427,51 +436,51 @@ _asm_fileSystem_findAllVars:
     set 1, b ; z to not search, nz if we do search
     push hl
     ld ix, 0 ; programs
-    lea iy, ix ; appvars
+    lea iy, ix + 0 ; appvars
     ld hl, (ti.progPtr)
 
-.loop:
+findAllVars.loop:
     ld de, (ti.pTemp)
     or a, a
     sbc hl, de
-    jr z, .return
-    jr c, .return
+    jr z, findAllVars.return
+    jr c, findAllVars.return
     add hl, de
     pop de
     bit 1, b
     call nz, fileSystem_checkString
     push de
-    jr nz, .skipEntry
+    jr nz, findAllVars.skipEntry
     ld a, (hl)
     and a, $1F
     cp a, ti.AppVarObj
-    jr z, .countAppVar
+    jr z, findAllVars.countAppVar
     cp a, ti.ProgObj
-    jr z, .countProgram
+    jr z, findAllVars.countProgram
     cp a, ti.ProtProgObj
-    jr nz, .skipEntry
+    jr nz, findAllVars.skipEntry
 
-.countProgram:
+findAllVars.countProgram:
     ld de, -7
     push hl
     add hl, de
     ld a, (hl)
     pop hl
     cp a, ti.tA
-    jr nc, .visible
+    jr nc, findAllVars.visible
     bit 0, b
-    jr z, .skipEntry
+    jr z, findAllVars.skipEntry
 
-.visible:
+findAllVars.visible:
     call _asm_utils_checkHiddenHeader
-    jr z, .skipEntry
+    jr z, findAllVars.skipEntry
     inc ix
-    jr .skipEntry
+    jr findAllVars.skipEntry
 
-.countAppVar:
+findAllVars.countAppVar:
     inc iy
 
-.skipEntry:
+findAllVars.skipEntry:
     ld de, -6
     add hl, de
     ld a, (hl)
@@ -479,12 +488,12 @@ _asm_fileSystem_findAllVars:
     neg
     ld e, a
     add hl, de
-    jr .loop
+    jr findAllVars.loop
 
-.return:
+findAllVars.return:
     pop de
-    lea bc, ix
-    lea de, iy
+    lea bc, ix + 0
+    lea de, iy + 0
     pop ix
     pop iy
     pop hl
@@ -505,19 +514,19 @@ fileSystem_checkString:
     call ti.StrLength
     ld a, (de)
     cp a, ti.tA
-    jr nc, .loop
+    jr nc, checkString.loop
     xor a, 64
 
-.loop:
+checkString.loop:
     cpi
     dec de
-    jr nz, .return
+    jr nz, checkString.return
     ld a, b
     or a, c
     ld a, (de)
-    jr nz, .loop
+    jr nz, checkString.loop
 
-.return:
+checkString.return:
     pop de
     pop bc
     pop hl
@@ -532,7 +541,7 @@ _asm_fileSystem_findArrayOffset:
     or a, a
     sbc hl, hl
 
-.loop:
+findArrayOffset.loop:
     ld bc, (iy)
     ex de, hl
     or a, a
@@ -542,4 +551,4 @@ _asm_fileSystem_findArrayOffset:
     ret z
     inc hl
     lea iy, iy + 3
-    jr .loop
+    jr findArrayOffset.loop

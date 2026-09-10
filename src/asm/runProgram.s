@@ -7,44 +7,50 @@
 ;
 ;--------------------------------------
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_runProgram_run
+    .type   _asm_runProgram_run, @function
+    .global _asm_runProgram_main
+    .type   _asm_runProgram_main, @function
+    .global _asm_runProgram_returnOS.restoreHooks
+    .type   _asm_runProgram_returnOS.restoreHooks, @function
+    .global _asm_runProgram_error
+    .type   _asm_runProgram_error, @function
 
-    public _asm_runProgram_run
-    public _asm_runProgram_main
-    public _asm_runProgram_returnOS.restoreHooks
-    public _asm_runProgram_error
+    .extern _asm_apps_reloadApp
+    .extern _asm_editProgram_goto
+    .extern _asm_fileOps_getPrgmType
+    .extern _asm_hooks_installStopHook
+    .extern _asm_hooks_removeStopHook
+    .extern _asm_hooks_installGetCSCHookCont
+    .extern _asm_hooks_removeGetCSCHook
+    .extern _asm_hooks_installAppChangeHook
+    .extern _asm_hooks_removeAppChangeHook
+    .extern _asm_hooks_installHomescreenHook
+    .extern _asm_hooks_removeBasicKeyHook
+    .extern _asm_hooks_installBasicKeyHook
+    .extern _asm_hooks_basicPrgmHook
+    .extern _asm_utils_findVar
+    .extern _asm_utils_backupPrgmName
+    .extern _asm_utils_lcdNormal
+    .extern _asm_utils_clrScrnAndUsedRAM
+    .extern _asm_utils_dispTextToolbar
+    .extern _asm_utils_deleteTempRunner
+    .extern _asm_utils_dispQuitErr
+    .extern _rodata_errorQuit
+    .extern _rodata_errorGoto
+    .extern _rodata_errorQuitFR
+    .extern _rodata_errorGotoFR
+    .extern _rodata_waitHomescreen
+    .extern _rodata_waitHomescreenFR
+    .extern _rodata_basicPrgmName
 
-    extern _asm_apps_reloadApp
-    extern _asm_editProgram_goto
-    extern _asm_fileOps_getPrgmType
-    extern _asm_hooks_installStopHook
-    extern _asm_hooks_removeStopHook
-    extern _asm_hooks_installGetCSCHookCont
-    extern _asm_hooks_removeGetCSCHook
-    extern _asm_hooks_installAppChangeHook
-    extern _asm_hooks_removeAppChangeHook
-    extern _asm_hooks_installHomescreenHook
-    extern _asm_hooks_removeBasicKeyHook
-    extern _asm_hooks_installBasicKeyHook
-    extern _asm_hooks_basicPrgmHook
-    extern _asm_utils_findVar
-    extern _asm_utils_backupPrgmName
-    extern _asm_utils_lcdNormal
-    extern _asm_utils_clrScrnAndUsedRAM
-    extern _asm_utils_dispTextToolbar
-    extern _asm_utils_deleteTempRunner
-    extern _asm_utils_dispQuitErr
-    extern _rodata_errorQuit
-    extern _rodata_errorGoto
-    extern _rodata_errorQuitFR
-    extern _rodata_errorGotoFR
-    extern _rodata_waitHomescreen
-    extern _rodata_waitHomescreenFR
-    extern _rodata_basicPrgmName
+;--------------------------------------
+
+    .section .text
 
 _asm_runProgram_run:
     ld iy, 0
@@ -84,10 +90,10 @@ _asm_runProgram_main:
     push af
     ld iy, ti.flags
 
-.debounce:
+main.debounce:
     call ti.GetCSC
     or a, a
-    jr nz, .debounce
+    jr nz, main.debounce
     call _asm_utils_backupPrgmName
     ld de, (ti.asm_prgm_size)
     or a, a
@@ -105,15 +111,15 @@ _asm_runProgram_main:
     ld b, a
     pop af
     or a, a
-    jr z, .runASM ; assembly program
+    jr z, main.runASM ; assembly program
     dec a
-    jr z, .runASM ; C program
+    jr z, main.runASM ; C program
     dec a
-    jp z, .runBasic ; BASIC program
+    jp z, main.runBasic ; BASIC program
     dec a
-    jp nz, .runBasic ; ICE program
+    jp nz, main.runBasic ; ICE program
 
-.runASM:
+main.runASM:
     ld hl, isASM
     ld (hl), true
     inc de
@@ -143,10 +149,10 @@ _asm_runProgram_main:
     pop bc
     ld a, b
     or a, c
-    jr z, .ASMLoaded
+    jr z, _asm_runProgram_main.ASMLoaded
     ldir
 
-.ASMLoaded:
+_asm_runProgram_main.ASMLoaded:
     call ti.DisableAPD
     set ti.appAutoScroll, (iy + ti.appFlags)
     call runProgram_vectorsSetup
@@ -154,22 +160,22 @@ _asm_runProgram_main:
     push hl
     jp ti.userMem
 
-.runBasic:
+main.runBasic:
     ld hl, isASM
     ld (hl), false
     inc de
     ld a, (de)
     cp a, ti.tExtTok
-    jr nz, .noSquish
+    jr nz, main.noSquish
     inc de
     ld a, (de)
     cp a, ti.tAsm84CePrgm
-    jr z, .squish
+    jr z, main.squish
     dec de
 
-.noSquish:
+main.noSquish:
     call ti.ChkInRam
-    jr z, .loadComplete + 4
+    jr z, main.loadComplete + 4
     push de
     push bc
     ld hl, 128
@@ -191,10 +197,10 @@ _asm_runProgram_main:
     pop hl
     ld a, b
     or a, c
-    jr z, .loadComplete
+    jr z, main.loadComplete
     ldir
 
-.loadComplete:
+main.loadComplete:
     call ti.OP4ToOP1
     call ti.RunIndicOn
     call ti.EnableAPD
@@ -212,45 +218,45 @@ _asm_runProgram_main:
     push hl
     jp ti.ParseInp
 
-.squish:
+main.squish:
     ex de, hl
     inc hl
     dec bc
     dec bc ; remove Asm84CEPrgm from un-squished size
     ld a, b
     or a, c
-    jr z, .error
+    jr z, main.error
     push bc
     push bc
 
-.loopNewlines:
+main.loopNewlines:
     ld a, (hl)
     cp a, ti.tEnter
-    jr nz, .notNewline
+    jr nz, main.notNewline
     pop de
     dec de
     push de
 
-.notNewline:
+main.notNewline:
     inc hl
     dec bc
     ld a, b
     or a, c
-    jr nz, .loopNewlines
+    jr nz, main.loopNewlines
     pop hl ; un-squished size minus newlines
     bit 0, l
-    jr nz, .error - 2 ; check if an odd number of tokens
+    jr nz, main.error - 2 ; check if an odd number of tokens
     ld a, h
     or a, l
-    jr nz, .notEmpty
+    jr nz, main.notEmpty
     pop hl
     pop hl
 
-.error:
+main.error:
     ld a, ti.E_Syntax
     jp _asm_runProgram_error
 
-.notEmpty:
+main.notEmpty:
     push hl
     ld de, 128
     add hl, de
@@ -275,7 +281,7 @@ _asm_runProgram_main:
     pop de ; userMem
     pop bc ; original (un-squished) size
 
-.loopLoad:
+main.loopLoad:
     ld a, b
     or a, c
     jp z, _asm_runProgram_main.ASMLoaded
@@ -283,7 +289,7 @@ _asm_runProgram_main:
     inc hl
     dec bc
     cp a, ti.tEnter
-    jr z, .loopLoad
+    jr z, main.loopLoad
     push de
     call runProgram_convertTokenToHex
     add a, a
@@ -299,28 +305,28 @@ _asm_runProgram_main:
     pop de
     ld (de), a
     inc de
-    jr .loopLoad
+    jr main.loopLoad
 
 runProgram_return:
     ld a, (returnLoc)
     or a, a
-    jr nz, .chkDone
+    jr nz, return.chkDone
     ld hl, ti.textShadow
     ld bc, 260
 
-.chkHomescreen:
+return.chkHomescreen:
     ld a, (hl)
     cp a, ' '
-    jr nz, .chkDonePause
+    jr nz, return.chkDonePause
     inc hl
     dec bc
     ld a, b
     or a, c
-    jr nz, .chkHomescreen
-    jr .chkDone
+    jr nz, return.chkHomescreen
+    jr return.chkDone
 
-.chkDonePause:
-    ld.sis hl, (ti.localLanguage and $FFFF)
+return.chkDonePause:
+    ld.sis hl, (ti.localLanguage & $FFFF)
     or a, a
     ld de, $010C ; check for French language
     sbc hl, de
@@ -329,18 +335,18 @@ runProgram_return:
     ld hl, _rodata_waitHomescreenFR
     call _asm_utils_dispTextToolbar
 
-.loopPause:
+return.loopPause:
     call ti.GetCSC
     or a, a
-    jr z, .loopPause
+    jr z, return.loopPause
     call ti.os.ClearStatusBarLow
 
-.chkDone:
+return.chkDone:
     call ti.PopErrorHandler
     xor a, a
     res error, (iy + shellFlags)
 
-.error:
+runProgram_return.error:
     push af
     res ti.progExecuting, (iy + ti.newDispF)
     res ti.cmdExec, (iy + ti.cmdFlags)
@@ -356,7 +362,7 @@ runProgram_return:
     or a, a
     call nz, runProgram_showError
 
-.quit:
+return.quit:
     call ti.DeleteTempPrograms
     call ti.CleanAll
     call ti.ReloadAppEntryVecs
@@ -370,10 +376,10 @@ runProgram_return:
     call ti.DelMem
     res appWantHome, (iy + sysHookFlg)
 
-.debounce:
+return.debounce:
     call ti.GetCSC
     or a, a
-    jr nz, .debounce
+    jr nz, return.debounce
     xor a, a
     ld (ti.kbdGetKy), a
     bit ti.monAbandon, (iy + ti.monFlags)
@@ -387,14 +393,14 @@ _asm_runProgram_returnOS:
     ld a, ti.cxCmd
     call ti.NewContext0
     bit error, (iy + shellFlags)
-    jr z, .skipClear
+    jr z, returnOS.skipClear
     call ti.ClrScrn
     call ti.HomeUp
 
-.skipClear:
+returnOS.skipClear:
     call ti.PPutAway
 
-.restoreHooks:
+_asm_runProgram_returnOS.restoreHooks:
     ld a, (editArcProgs)
     bit 0, a
     jr nz, $ + 8
@@ -443,7 +449,7 @@ runProgram_showError:
     call ti.DispErrorScreen
     ld hl, 1
     ld (ti.curRow), hl
-    ld.sis hl, (ti.localLanguage and $FFFF)
+    ld.sis hl, (ti.localLanguage & $FFFF)
     or a, a
     ld de, $010C ; check for French language
     sbc hl, de
@@ -459,29 +465,29 @@ runProgram_showError:
     cp a, ti.ProtProgObj
     ld a, false
     ld (lockOnExit), a
-    jr nz, .notProtected
+    jr nz, showError.notProtected
     ld a, (isASM)
     or a, a
-    jp nz, .onlyAllowQuit
+    jp nz, showError.onlyAllowQuit
     call ti.Mov9ToOP1
     call ti.ChkFindSym
     push hl
     call _asm_fileOps_getPrgmType
     pop hl
     cp a, typeBasic
-    jr z, .checkAllowLock
+    jr z, showError.checkAllowLock
     cp a, typeSrc
-    jp nz, .onlyAllowQuit
+    jp nz, showError.onlyAllowQuit
 
-.checkAllowLock:
+showError.checkAllowLock:
     ld a, (editLockProgs)
     bit 0, a
-    jp z, .onlyAllowQuit
+    jp z, showError.onlyAllowQuit
 
-.notProtected:
+showError.notProtected:
     ld hl, 2
     ld (ti.curRow), hl
-    ld.sis hl, (ti.localLanguage and $FFFF)
+    ld.sis hl, (ti.localLanguage & $FFFF)
     or a, a
     ld de, $010C ; check for French language
     sbc hl, de
@@ -491,34 +497,34 @@ runProgram_showError:
     call ti.PutS
     call ti.PutS
 
-.input:
+showError.input:
     call ti.GetCSC
     cp a, ti.skUp
-    jr z, .highlight1
+    jr z, showError.highlight1
     cp a, ti.skDown
-    jr z, .highlight2
+    jr z, showError.highlight2
     cp a, ti.sk2
-    jr z, .goto
+    jr z, showError.goto
     cp a, ti.sk1
     ret z
     cp a, ti.skEnter
-    jr z, .getOption
-    jr .input
+    jr z, showError.getOption
+    jr showError.input
 
-.highlight1:
+showError.highlight1:
     ld hl, 1
     ld de, 2
     ld a, '1'
     ld b, '2'
-    jr .highlight
+    jr showError.highlight
 
-.highlight2:
+showError.highlight2:
     ld hl, 2
     ld de, 1
     ld a, '2'
     ld b, '1'
 
-.highlight:
+showError.highlight:
     push bc
     push de
     ld (ti.curRow), hl
@@ -533,10 +539,10 @@ runProgram_showError:
     push hl
     scf
     sbc hl, hl
-    ld.sis (ti.fillRectColor and $FFFF), hl
+    ld.sis (ti.fillRectColor & $FFFF), hl
     inc hl
     ld de, 25
-    ld bc, (55 shl 8) or 96
+    ld bc, (55 << 8) | 96
     call ti.FillRect
     pop hl
     set ti.textInverse, (iy + ti.textFlags)
@@ -548,45 +554,45 @@ runProgram_showError:
     ld hl, ti.OP6
     ld (hl), b
     call ti.PutS
-    jr .input
+    jr showError.input
 
-.getOption:
+showError.getOption:
     ld a, (ti.curRow)
     dec a
     ret nz
 
-.goto:
+showError.goto:
     ld hl, ti.basic_prog
     call ti.Mov9ToOP1
     jp _asm_editProgram_goto
 
-.onlyAllowQuit:
+showError.onlyAllowQuit:
     call ti.GetCSC
     cp a, ti.sk1
     ret z
     cp a, ti.skEnter
     ret z
-    jr .onlyAllowQuit
+    jr showError.onlyAllowQuit
 
 _asm_runProgram_error:
     push af
     ld a, (returnLoc)
     or a, a
-    jr nz, .exitOS
+    jr nz, error.exitOS
     pop af
     ld (ti.errNo), a
     call _asm_utils_lcdNormal
     call _asm_utils_dispQuitErr
 
-.waitLoop:
+error.waitLoop:
     call ti.GetCSC
     cp a, ti.sk1
     jr z, $ + 4
     cp a, ti.skEnter
     jp z, _asm_apps_reloadApp - 4
-    jr .waitLoop
+    jr error.waitLoop
 
-.exitOS:
+error.exitOS:
     pop af
     jp ti.JError
 
@@ -606,17 +612,17 @@ runProgram_vectorsSetup:
     jp ti.PushErrorHandler
 
 runProgram_vectors:
-    dl .ret
-    dl ti.SaveCmdShadow
-    dl .putaway
-    dl .restore
-    dl .ret
-    dl .ret
+    .d24 vectors.ret
+    .d24 ti.SaveCmdShadow
+    .d24 vectors.putaway
+    .d24 vectors.restore
+    .d24 vectors.ret
+    .d24 vectors.ret
 
-.ret:
+vectors.ret:
     ret
 
-.putaway:
+vectors.putaway:
     xor a, a
     ld (ti.currLastEntry), a
     bit appInpPrmptInit, (iy + ti.apiFlg2)
@@ -626,31 +632,31 @@ runProgram_vectors:
     ld b, 0
     ret
 
-.restore:
+vectors.restore:
     call ti.HomeUp
     call ti.ClrScrn
     jp ti.RStrShadow
 
 runProgram_convertTokenToHex:
     cp a, ti.t0
-    jr c, .error
+    jr c, convertTokenToHex.error
     cp a, ti.t9 + 1
-    jr nc, .skip
-    jr .convert
+    jr nc, convertTokenToHex.skip
+    jr convertTokenToHex.convert
 
-.error:
+convertTokenToHex.error:
     pop hl
     pop hl
     ld a, ti.E_Syntax
     jp _asm_runProgram_error
 
-.skip:
+convertTokenToHex.skip:
     cp a, ti.tA
-    jr c, .error
+    jr c, convertTokenToHex.error
     cp a, ti.tF + 1
-    jr nc, .error
+    jr nc, convertTokenToHex.error
 
-.convert:
+convertTokenToHex.convert:
     sub a, ti.t0
     cp a, $0A
     ret c
@@ -665,11 +671,11 @@ runProgram_getErrorOffset:
     or a, a
     sbc hl, de
 
-.loop:
+getErrorOffset.loop:
     ld (errorOffset), hl
     ld a, (ti.OP1 + 1)
     cp a, $24
-    jr nz, .notTempParser
+    jr nz, getErrorOffset.notTempParser
     call ti.FindSym
     ex de, hl
     inc hl
@@ -690,17 +696,17 @@ runProgram_getErrorOffset:
     ld (de), a
     inc de
 
-.loadName:
+getErrorOffset.loadName:
     ldi
-    djnz .loadName
+    djnz getErrorOffset.loadName
     ld e, (hl)
     inc hl
     ld d, (hl)
     ld hl, (errorOffset)
     add.sil hl, de
-    jr .loop
+    jr getErrorOffset.loop
 
-.notTempParser:
+getErrorOffset.notTempParser:
     push hl
     ld de, ti.basic_prog
     call ti.MovFrOP1

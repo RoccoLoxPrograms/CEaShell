@@ -5,7 +5,7 @@
  * By RoccoLox Programs and TIny_Hacker
  * Copyright 2022 - 2026
  * License: GPL-3.0
- * Last Build: January 9, 2025
+ * Last Build: September 9, 2026
  * Version: 2.0.2
  * 
  * --------------------------------------
@@ -31,6 +31,7 @@ gfx_UninitedSprite(fileIcon, 16, 16);
 gfx_UninitedSprite(tempSprite, 12, 12);
 
 int main(void) {
+    asm("call $020D3C"); // BufClear
     srand(rtc_Time());
     asm_utils_restoreAns();
 

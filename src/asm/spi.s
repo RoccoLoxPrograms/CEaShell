@@ -8,28 +8,33 @@
 ;
 ;--------------------------------------
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
-
-    public _asm_spi_beginFrame
-    public _asm_spi_endFrame
-    public _asm_spi_setupSPI
+    .global _asm_spi_beginFrame
+    .type   _asm_spi_beginFrame, @function
+    .global _asm_spi_endFrame
+    .type   _asm_spi_endFrame, @function
+    .global _asm_spi_setupSPI
+    .type   _asm_spi_setupSPI, @function
 
 ;--------------------------------------
 
-macro spi cmd, params&
-    ld a, cmd
+    .section .text
+
+;--------------------------------------
+
+.macro spi cmd, params:vararg
+    ld a, \cmd
     call spi_spiCmd
-    match any, params
-        iterate param, any
-            ld a, param
+    .ifnb \params
+        .irp param, \params
+            ld a, \param
             call spi_spiParam
-        end iterate
-    end match
-end macro
+        .endr
+    .endif
+.endm
 
 ;--------------------------------------
 
@@ -54,16 +59,16 @@ _asm_spi_endFrame:
     sbc hl, de
     or a, a
     sbc hl, de
-    jr z, .resetVcomp
+    jr z, endFrame.resetVcomp
     ld a, ti.lcdIntVcomp
     ld (ti.mpLcdIcr), a
 
-.loop:
+endFrame.loop:
     ld a, (ti.mpLcdRis)
     bit ti.bLcdIntVcomp, a
-    jr z, .loop
+    jr z, endFrame.loop
 
-.resetVcomp:
+endFrame.resetVcomp:
     ld a, ti.lcdIntVcomp
     ld (ti.mpLcdIcr), a
     spi $B0, $11 ; enable framebuffer copies
@@ -98,38 +103,34 @@ _asm_spi_setupSPI: ; set these defaults for the SPI so everything works on Pytho
 
 spi_spiParam:
     scf
-    virtual
-        jr nc, $
-        load .jr_nc : byte from $$
-    end virtual
-    db .jr_nc
+    db 0x30
 
 spi_spiCmd:
     or a, a
-    ld hl, ti.mpSpiData or spiValid shl 8
+    ld hl, ti.mpSpiData | (spiValid << 8)
     ld b, 3
 
-.loop:
+spiCmd.loop:
     rla
     rla
     rla
     ld (hl), a
-    djnz .loop
+    djnz spiCmd.loop
     ld l, h
     ld (hl), 1
 
-.wait:
+spiCmd.wait:
     ld l, ti.spiStatus + 1
 
-.wait1:
+spiCmd.wait1:
     ld a, (hl)
     and a, $F0
-    jr nz, .wait1
+    jr nz, spiCmd.wait1
     dec l
 
-.wait2:
+spiCmd.wait2:
     bit 2, (hl)
-    jr nz, .wait2
+    jr nz, spiCmd.wait2
     ld l, h
     ld (hl), a
     ret

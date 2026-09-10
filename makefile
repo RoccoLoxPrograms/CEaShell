@@ -8,12 +8,12 @@
 #--------------------------------------
 
 NAME = CEaShell
-APP_NAME = CEaShell
-APP_INST_NAME = CEASHELL
-APP_VERSION = 5.0.0.0000
-CEASHELL_VERSION = 2.0.2
+ICON = icon.png
+APPVAR_PREFIX = CEaSh
+APPLICATION = YES
+APPLICATION_DESCRIPTION = "(C)  2022-2026  RoccoLox  &  TIny_Hacker"
+CEASHELL_VERSION = 2.0.3
 APPVAR_VERSION = 0
-DESCRIPTION = "(C)  2022-2026  RoccoLox  &  TIny_Hacker"
 COMPRESSED = NO
 ARCHIVED = YES
 LANGUAGE = EN
@@ -23,4 +23,8 @@ CXXFLAGS = -Wall -Wextra -Oz -DVERSION_NO=\"$(CEASHELL_VERSION)\" -DAPPVAR_VERSI
 
 # ----------------------------
 
-include app_tools/makefile
+include $(shell cedev-config --makefile)
+
+appvar:
+	@make
+	@convbin --iformat 8ek --input bin/$(NAME).8ek --oformat 8xv-split --maxvarsize 65200 --output bin/$(APPVAR_PREFIX).8xv --name $(APPVAR_PREFIX)

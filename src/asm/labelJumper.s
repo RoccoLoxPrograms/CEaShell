@@ -26,16 +26,20 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ; POSSIBILITY OF SUCH DAMAGE.
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_labelJumper_showLabels
+    .type   _asm_labelJumper_showLabels, @function
+    .global _asm_labelJumper_convertNum
+    .type   _asm_labelJumper_convertNum, @function
 
-    public _asm_labelJumper_showLabels
-    public _asm_labelJumper_convertNum
+    .extern _asm_utils_dispTextToolbar
 
-    extern _asm_utils_dispTextToolbar
+;--------------------------------------
+
+    .section .text
 
 _asm_labelJumper_showLabels:
     di
@@ -46,16 +50,16 @@ _asm_labelJumper_showLabels:
     inc a
     dec a
     ret
-    ld.sis hl, (ti.localLanguage and $FFFF)
+    ld.sis hl, (ti.localLanguage & $FFFF)
     or a, a
     ld de, $010C ; check for French language
     sbc hl, de
     res frenchLanguage, (iy + shellFlags)
-    ld hl, .pageString
+    ld hl, showLabels.pageString
     ld bc, stringRelocateSize
     jr nz, $ + 14
     set frenchLanguage, (iy + shellFlags)
-    ld hl, .pageStringFR
+    ld hl, showLabels.pageStringFR
     ld bc, stringRelocateSizeFR
     ld de, ti.cursorImage + 32
     ldir
@@ -72,136 +76,136 @@ _asm_labelJumper_showLabels:
     ld (editCursor), hl
     call ti.ClrTxtShd
     call ti.BufToTop
-    call .countLabels
+    call showLabels.countLabels
     ld bc, 0
 
-.getLabelLoop:
+showLabels.getLabelLoop:
     call ti.ClrScrn
     call ti.BufToTop
-    call .drawLabels
+    call showLabels.drawLabels
     ld hl, (labelPage)
-    ld de, ti.cursorImage + 32 + (.currentPageString - .pageString)
+    ld de, ti.cursorImage + 32 + (showLabels.currentPageString - showLabels.pageString)
     bit frenchLanguage, (iy + shellFlags)
     jr z, $ + 6
-    ld de, ti.cursorImage + 32 + (.currentPageStringFR - .pageStringFR)
+    ld de, ti.cursorImage + 32 + (showLabels.currentPageStringFR - showLabels.pageStringFR)
     inc hl
-    call _asm_labelJumper_convertNum.threeDigits
+    call convertNum.threeDigits
     ld hl, ti.cursorImage + 32
     call _asm_utils_dispTextToolbar
 
-.getKey:
+showLabels.getKey:
     di
     call ti.DisableAPD
     call ti.GetCSC
     or a, a
-    jr z, .getKey
+    jr z, showLabels.getKey
     ld bc, 1
     cp a, ti.sk0
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk1
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk2
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk3
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk4
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk5
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk6
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk7
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk8
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     inc c
     cp a, ti.sk9
-    jr z, .moveToLabel
+    jr z, showLabels.moveToLabel
     cp a, ti.skLeft
-    jp z, .prevPage
+    jp z, showLabels.prevPage
     cp a, ti.skRight
-    jp z, .nextPage
+    jp z, showLabels.nextPage
     cp a, ti.skClear
-    jp z, .return
+    jp z, showLabels.return
     cp a, ti.skMode
-    jp z, .return
-    jr .getKey
+    jp z, showLabels.return
+    jr showLabels.getKey
 
-.moveToLabel:
+showLabels.moveToLabel:
     ld a, (ti.curRow)
     cp a, c
-    jr z, .okay
-    jr c, .getKey
+    jr z, showLabels.okay
+    jr c, showLabels.getKey
 
-.okay:
+showLabels.okay:
     ld hl, (labelPage)
     add hl, de
     or a, a
     sbc hl, de
-    jr nz, .normalLabel
+    jr nz, showLabels.normalLabel
     ld a, c
     dec c
     dec c
     dec a
-    jr nz, .notTop
+    jr nz, showLabels.notTop
     call ti.BufToTop
-    jr .gotoEditor
+    jr showLabels.gotoEditor
 
-.notTop:
+showLabels.notTop:
     dec a
-    jr nz, .normalLabel
+    jr nz, showLabels.normalLabel
     call ti.BufToBtm
-    jr .gotoEditor
+    jr showLabels.gotoEditor
 
-.normalLabel:
-    call .computePageOffsetHL
+showLabels.normalLabel:
+    call showLabels.computePageOffsetHL
     add hl, bc
     push hl
     call ti.BufToTop
     pop bc
-    call .skipLabels
+    call showLabels.skipLabels
     call ti.BufLeft
 
-.gotoEditor:
+showLabels.gotoEditor:
     call ti.ClrScrn
     xor a, a
     ld (ti.curCol), a
     ld (ti.curRow), a
     ld a, (ti.winTop)
     or a, a
-    jr z, .inCEashellEditor
-    ld hl, .programString
+    jr z, showLabels.inCEashellEditor
+    ld hl, showLabels.programString
     call ti.PutS
     ld hl, ti.progToEdit
     call ti.PutS
     call ti.NewLine
 
-.inCEashellEditor:
+showLabels.inCEashellEditor:
     ld a, ':'
     call ti.PutMap
     ld hl, 1
-    ld.sis (ti.curCol and $FFFF), hl
+    ld.sis (ti.curCol & $FFFF), hl
 
-.backup:
+showLabels.backup:
     call ti.BufLeft
-    jr z, .done
+    jr z, showLabels.done
     ld a, d
     or a, a
-    jr nz, .backup
+    jr nz, showLabels.backup
     ld a, e
     cp a, ti.tEnter
-    jr nz, .backup
+    jr nz, showLabels.backup
     call ti.BufRight
 
-.done:
+showLabels.done:
     call ti.DispEOW
     call ti.CursorOn
     call ti.DrawStatusBar
@@ -210,94 +214,94 @@ _asm_labelJumper_showLabels:
     dec a
     ret
 
-.return:
+showLabels.return:
     ld hl, (editTail)
     ld (ti.editTail), hl
     ld hl, (editCursor)
     ld (ti.editCursor), hl
-    jr .gotoEditor
+    jr showLabels.gotoEditor
 
-.nextPage:
+showLabels.nextPage:
     ld hl, (labelPage)
     ld de, (labelNumberOfPages)
     or a, a
     sbc hl, de
     add hl, de
-    jr z, .firstPage
+    jr z, showLabels.firstPage
     inc hl
-    jr .setPage
+    jr showLabels.setPage
 
-.firstPage:
+showLabels.firstPage:
     or a, a
     sbc hl, hl
 
-.setPage:
+showLabels.setPage:
     ld (labelPage), hl
-    jp .getLabelLoop
+    jp showLabels.getLabelLoop
 
-.prevPage:
+showLabels.prevPage:
     ld hl, (labelPage)
     add hl, de
     or a, a
     sbc hl, de
-    jr z, .lastPage
+    jr z, showLabels.lastPage
     dec hl
-    jr .setPage
+    jr showLabels.setPage
 
-.lastPage:
+showLabels.lastPage:
     ld hl, (labelNumberOfPages)
-    jr .setPage
+    jr showLabels.setPage
 
-.countLabels:
+showLabels.countLabels:
     call ti.BufToTop
 
-.loop:
+showLabels.loop:
     call ti.BufRight
-    jr z, .getNumPages
+    jr z, showLabels.getNumPages
     ld a, d
     cp a, ti.t2ByteTok
-    jr z, .loop
+    jr z, showLabels.loop
     ld a, e
     cp a, ti.tLbl
-    jr nz, .loop
+    jr nz, showLabels.loop
     ld hl, (labelNumber)
     inc hl
     ld (labelNumber), hl
-    jr .loop
+    jr showLabels.loop
 
-.getNumPages:
+showLabels.getNumPages:
     ld hl, (labelNumber)
     dec hl
     ld a, 10
     call ti.DivHLByA
     ld (labelNumberOfPages), hl
     inc hl
-    ld de, ti.cursorImage + 32 + (.totalPageString - .pageString)
+    ld de, ti.cursorImage + 32 + (showLabels.totalPageString - showLabels.pageString)
     bit frenchLanguage, (iy + shellFlags)
     jr z, $ + 6
-    ld de, ti.cursorImage + 32 + (.totalPageStringFR - .pageStringFR)
-    jp _asm_labelJumper_convertNum.threeDigits
+    ld de, ti.cursorImage + 32 + (showLabels.totalPageStringFR - showLabels.pageStringFR)
+    jp convertNum.threeDigits
 
-.skipLabelsLoop:
+showLabels.skipLabelsLoop:
     push bc
     call ti.BufRight
     pop bc
     ret z
     ld a, d
     cp a, ti.t2ByteTok
-    jr z, .skipLabelsLoop
+    jr z, showLabels.skipLabelsLoop
     ld a, e
     cp a, ti.tLbl
-    jr nz, .skipLabelsLoop
+    jr nz, showLabels.skipLabelsLoop
     dec bc
 
-.skipLabels:
+showLabels.skipLabels:
     sbc hl, hl
     adc hl, bc
-    jr nz, .skipLabelsLoop
+    jr nz, showLabels.skipLabelsLoop
     ret
 
-.drawLabels:
+showLabels.drawLabels:
     xor a, a
     ld (ti.curCol), a
     ld (ti.curRow), a
@@ -305,20 +309,20 @@ _asm_labelJumper_showLabels:
     add hl, de
     or a ,a
     sbc hl, de
-    jr nz, .normalPage
-    ld hl, .topLabel
+    jr nz, showLabels.normalPage
+    ld hl, showLabels.topLabel
     bit frenchLanguage, (iy + shellFlags)
     jr z, $ + 6
-    ld hl, .topLabelFR
+    ld hl, showLabels.topLabelFR
     call ti.PutS
     xor a, a
     ld (ti.curCol), a
     inc a
     ld (ti.curRow), a
-    ld hl, .bottomLabel
+    ld hl, showLabels.bottomLabel
     bit frenchLanguage, (iy + shellFlags)
     jr z, $ + 6
-    ld hl, .bottomLabelFR
+    ld hl, showLabels.bottomLabelFR
     call ti.PutS
     call ti.BufToTop
     xor a, a
@@ -326,45 +330,45 @@ _asm_labelJumper_showLabels:
     ld a, 2
     ld (ti.curRow), a
 
-.normalPage:
-    call .computePageOffset
-    call .skipLabels
+showLabels.normalPage:
+    call showLabels.computePageOffset
+    call showLabels.skipLabels
     ld hl, labelName
 
-.parseLabels:
+showLabels.parseLabels:
     push hl
     call ti.BufRight
     pop hl
     ret z
     ld a, d
     or a, a
-    jr nz, .parseLabels
+    jr nz, showLabels.parseLabels
     ld a, e
     cp a, ti.tLbl
-    jr nz, .parseLabels
+    jr nz, showLabels.parseLabels
 
-.addLabel:
+showLabels.addLabel:
     push hl
     call ti.BufRight
     pop hl
-    jr z, .addedLabel
+    jr z, showLabels.addedLabel
     ld a, e
     cp a, ti.tColon
-    jr z, .addedLabel
+    jr z, showLabels.addedLabel
     cp a, ti.tEnter
-    jr z, .addedLabel
+    jr z, showLabels.addedLabel
     ld a, d
     or a, a
-    jr z, .single
+    jr z, showLabels.single
     ld (hl), a
     inc hl
 
-.single:
+showLabels.single:
     ld (hl), e
     inc hl
-    jr .addLabel
+    jr showLabels.addLabel
 
-.addedLabel:
+showLabels.addedLabel:
     xor a, a
     ld (hl), a
     ld (ti.curCol), a
@@ -376,60 +380,60 @@ _asm_labelJumper_showLabels:
     ld hl, labelName
     push hl
 
-.displayLine:
+showLabels.displayLine:
     ld a, (hl)
     or a, a
-    jr z, .leftEdge
+    jr z, showLabels.leftEdge
     inc hl
     call ti.Isa2ByteTok
     ld d, 0
-    jr nz, .singleByte
+    jr nz, showLabels.singleByte
 
-.multiByte:
+showLabels.multiByte:
     ld d, a
     ld e, (hl)
     inc hl
-    jr .getString
+    jr showLabels.getString
 
-.singleByte:
+showLabels.singleByte:
     ld e, a
 
-.getString:
+showLabels.getString:
     push hl
     call ti.GetTokString
     ld b, (hl)
     inc hl
 
-.loopDisplay:
+showLabels.loopDisplay:
     ld a, (ti.curCol)
     cp a, $19
-    jr z, .leftEdgePop
+    jr z, showLabels.leftEdgePop
     ld a, (hl)
     inc hl
     call ti.PutC
-    djnz .loopDisplay
+    djnz showLabels.loopDisplay
     pop hl
-    jr .displayLine
+    jr showLabels.displayLine
 
-.leftEdgePop:
+showLabels.leftEdgePop:
     pop hl
 
-.leftEdge:
+showLabels.leftEdge:
     ld a, (ti.curRow)
     inc a
     ld (ti.curRow), a
     cp a, 10
     pop hl
-    jp nz, .parseLabels
+    jp nz, showLabels.parseLabels
     ret
 
-.computePageOffsetHL:
+showLabels.computePageOffsetHL:
     push bc
-    call .computePageOffset
+    call showLabels.computePageOffset
     pop bc
     ret
 
-.computePageOffset:
+showLabels.computePageOffset:
     ld hl, (labelPage)
     add hl, de
     or a, a
@@ -445,69 +449,69 @@ _asm_labelJumper_showLabels:
     pop bc
     ret
 
-.programString:
+showLabels.programString:
     db "PROGRAM:", 0
 
-.pageString:
+showLabels.pageString:
     db "Use <> to switch page:     <"
 
-.currentPageString:
+showLabels.currentPageString:
     db "000"
     db " of "
 
-.totalPageString:
+showLabels.totalPageString:
     db "000"
     db ">", 0
 
-stringRelocateSize := $ - .pageString
+.equ stringRelocateSize, $ - showLabels.pageString
 
-.topLabel:
+showLabels.topLabel:
     db "0:PRGM TOP", 0
 
-.bottomLabel:
+showLabels.bottomLabel:
     db "1:PRGM BOTTOM", 0
 
-.pageStringFR:
+showLabels.pageStringFR:
     db "Utiliser <> pour changer pages : <"
 
-.currentPageStringFR:
+showLabels.currentPageStringFR:
     db "000"
     db " / "
 
-.totalPageStringFR:
+showLabels.totalPageStringFR:
     db "000"
     db ">", 0
 
-stringRelocateSizeFR := $ - .pageStringFR
+.equ stringRelocateSizeFR, $ - showLabels.pageStringFR
 
-.topLabelFR:
+showLabels.topLabelFR:
     db "0:PRGM DESSUS", 0
 
-.bottomLabelFR:
+showLabels.bottomLabelFR:
     db "1:PRGM DESSOUS", 0
 
 _asm_labelJumper_convertNum:
     ld bc, -100000
-    call .aqu
+    call convertNum.aqu
     ld bc, -10000
-    call .aqu
+    call convertNum.aqu
     ld bc, -1000
-    call .aqu
+    call convertNum.aqu
 
-.threeDigits:
+convertNum.threeDigits:
     ld bc, -100
-    call .aqu
+    call convertNum.aqu
     ld c, -10
-    call .aqu
+    call convertNum.aqu
     ld c, b
 
-.aqu:
+convertNum.aqu:
     ld a, '0' - 1
 
-.under:
+convertNum.under:
     inc a
     add hl, bc
-    jr c, .under
+    jr c, convertNum.under
     sbc hl, bc
     ld (de), a
     inc de

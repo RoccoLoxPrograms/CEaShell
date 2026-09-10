@@ -7,27 +7,40 @@
 ;
 ;--------------------------------------
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_apps_getAppPtrs
+    .type   _asm_apps_getAppPtrs, @function
+    .global _asm_apps_getAppName
+    .type   _asm_apps_getAppName, @function
+    .global _asm_apps_findAllApps
+    .type   _asm_apps_findAllApps, @function
+    .global _asm_apps_getAppSize
+    .type   _asm_apps_getAppSize, @function
+    .global _asm_apps_getAppMinOSVersion
+    .type   _asm_apps_getAppMinOSVersion, @function
+    .global _asm_apps_getAppCopyrightInfo
+    .type   _asm_apps_getAppCopyrightInfo, @function
+    .global _asm_apps_getAppIcon
+    .type   _asm_apps_getAppIcon, @function
+    .global _asm_apps_reloadApp
+    .type   _asm_apps_reloadApp, @function
+    .global _asm_apps_executeApp
+    .type   _asm_apps_executeApp, @function
+    .global _asm_apps_deleteApp
+    .type   _asm_apps_deleteApp, @function
+    .global _asm_apps_exitDefrag
+    .type   _asm_apps_exitDefrag, @function
 
-    public _asm_apps_getAppPtrs
-    public _asm_apps_getAppName
-    public _asm_apps_findAllApps
-    public _asm_apps_getAppSize
-    public _asm_apps_getAppMinOSVersion
-    public _asm_apps_getAppCopyrightInfo
-    public _asm_apps_getAppIcon
-    public _asm_apps_reloadApp
-    public _asm_apps_executeApp
-    public _asm_apps_deleteApp
-    public _asm_apps_exitDefrag
+    .extern _asm_utils_clrScrnAndUsedRAM
+    .extern _rodata_appName
+    .extern _exit_sp
 
-    extern _asm_utils_clrScrnAndUsedRAM
-    extern _rodata_appName
-    extern _exit.sp
+;--------------------------------------
+
+    .section .text
 
 _asm_apps_getAppPtrs:
     pop hl
@@ -41,14 +54,14 @@ _asm_apps_getAppPtrs:
     ld a, ti.AppObj
     ld (ti.OP1), a
 
-.findApp:
+getAppPtrs.findApp:
     push bc
     ld a, $0D
     call ti.FindAppCustom
     pop bc
     ret c
     bit 0, c
-    jr nz, .loop
+    jr nz, getAppPtrs.loop
     push bc
     push de
     ld b, 8
@@ -57,12 +70,12 @@ _asm_apps_getAppPtrs:
     call ti.StrCmpre
     pop de
     pop bc
-    jr z, .findApp
+    jr z, getAppPtrs.findApp
 
-.loop:
+getAppPtrs.loop:
     ld (iy), de
     lea iy, iy + 3
-    jr .findApp
+    jr getAppPtrs.findApp
 
 _asm_apps_getAppName:
     pop bc
@@ -85,14 +98,14 @@ _asm_apps_findAllApps:
     ld (ti.OP1), a
     ld c, 0
 
-.findAllLoop:
+findAllApps.findAllLoop:
     push bc
     call ti.FindAppUp
     pop bc
     ld a, c
     ret c
     inc c
-    jr .findAllLoop
+    jr findAllApps.findAllLoop
 
 _asm_apps_getAppSize:
     pop de
@@ -190,7 +203,7 @@ _asm_apps_getAppIcon:
     ret
 
     ; call _asm_apps_reloadApp - 4 if the app needs to properly close first
-    call _exit.sp + 3
+    call _exit_sp
 
 _asm_apps_reloadApp:
     ld hl, _rodata_appName
@@ -200,7 +213,7 @@ _asm_apps_reloadApp:
     jr $ + 6
 
 _asm_apps_executeApp:
-    call _exit.sp + 3
+    call _exit_sp
     call ti.GetCSC
     or a, a
     jr nz, _asm_apps_executeApp + 4 ; debounce
@@ -249,7 +262,7 @@ _asm_apps_executeApp:
     add hl, de
     or a, a
     sbc hl, de
-    jr z, .noBss
+    jr z, executeApp.noBss
     push hl
     pop bc
     ld hl, $15
@@ -259,7 +272,7 @@ _asm_apps_executeApp:
     ld de, $D1787C
     ldir
 
-.noBss:
+executeApp.noBss:
     pop hl
     push hl
     pop de

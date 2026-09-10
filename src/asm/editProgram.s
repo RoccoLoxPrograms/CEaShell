@@ -7,28 +7,34 @@
 ;
 ;--------------------------------------
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_editProgram_edit
+    .type   _asm_editProgram_edit, @function
+    .global _asm_editProgram_goto
+    .type   _asm_editProgram_goto, @function
+    .global _asm_editProgram_main
+    .type   _asm_editProgram_main, @function
+    .global _asm_editProgram_restoreAppVar
+    .type   _asm_editProgram_restoreAppVar, @function
 
-    public _asm_editProgram_edit
-    public _asm_editProgram_goto
-    public _asm_editProgram_main
-    public _asm_editProgram_restoreAppVar
+    .extern _asm_fileSystem_error
+    .extern _asm_hooks_installAppChangeHook
+    .extern _asm_hooks_editorHook
+    .extern _asm_runProgram_returnOS.restoreHooks
+    .extern _asm_runProgram_error
+    .extern _asm_utils_arcUnarc
+    .extern _asm_utils_backupPrgmName
+    .extern _asm_utils_clrScrnAndUsedRAM
+    .extern _asm_utils_lcdNormal
+    .extern _asm_utils_checkSysVar
+    .extern _rodata_tempAppVarPrgm
 
-    extern _asm_fileSystem_error
-    extern _asm_hooks_installAppChangeHook
-    extern _asm_hooks_editorHook
-    extern _asm_runProgram_returnOS.restoreHooks
-    extern _asm_runProgram_error
-    extern _asm_utils_arcUnarc
-    extern _asm_utils_backupPrgmName
-    extern _asm_utils_clrScrnAndUsedRAM
-    extern _asm_utils_lcdNormal
-    extern _asm_utils_checkSysVar
-    extern _rodata_tempAppVarPrgm
+;--------------------------------------
+
+    .section .text
 
 _asm_editProgram_edit: ; editing from CEaShell
     ld iy, 0
@@ -45,12 +51,12 @@ _asm_editProgram_edit: ; editing from CEaShell
     ld (hl), ti.ProgObj
     ld de, (iy + 3) ; program name
     bit 0, (iy + 6) ; celtic var status
-    jr z, .loadName
+    jr z, edit.loadName
     ld (hl), ti.AppVarObj
     ld a, true
     ld (isCelticVar), a
 
-.loadName:
+edit.loadName:
     inc hl
     ex de, hl
     ld bc, 8
@@ -90,7 +96,7 @@ _asm_editProgram_main: ; OP1 = File name to edit
     res keyPressed, (iy + celticFlags2)
     set showLineNum, (iy + celticFlags1)
     call _asm_utils_checkSysVar
-    jr nz, .safe
+    jr nz, main.safe
     ld a, (returnLoc)
     or a, a
     ld a, ti.E_Variable - ti.E_EDIT
@@ -98,23 +104,23 @@ _asm_editProgram_main: ; OP1 = File name to edit
     jp nz, ti.JError
     jp _asm_fileSystem_error
 
-.safe:
+main.safe:
     call ti.ChkFindSym
     ld a, (hl)
     cp a, ti.ProgObj
-    jr z, .notLocked
+    jr z, main.notLocked
     ld (hl), ti.ProgObj
     ld hl, lockOnExit
     ld (hl), true
 
-.notLocked:
+main.notLocked:
     call ti.ChkInRam
-    jr z, .inRam
+    jr z, main.inRam
     call _asm_utils_arcUnarc
     ld hl, arcOnExit
     ld (hl), true
 
-.inRam:
+main.inRam:
     call _asm_utils_backupPrgmName
     ld de, _asm_hooks_editorHook
     call _asm_hooks_installAppChangeHook
@@ -148,61 +154,61 @@ editProgram_editHelper:
     call ti.PutC
     ld a, (editMode)
     or a, a
-    jr z, .noGoto
+    jr z, editHelper.noGoto
     ld hl, (ti.editTop)
     ld de, (ti.editCursor)
     or a, a
     sbc hl, de
-    jr nz, .endGoto
+    jr nz, editHelper.endGoto
     ld bc, (errorOffset)
     ld a, b
     or a, c
-    jr z, .endGoto
+    jr z, editHelper.endGoto
     ld hl, (ti.editTail)
     ldir
     ld (ti.editTail), hl
     ld (ti.editCursor), de
-    call ti.cursorImage + 256 + (.newLineGoto - editProgram_editHelper)
+    call ti.cursorImage + 256 + (editHelper.newLineGoto - editProgram_editHelper)
     call ti.DispEOW
     ld hl, $100
     ld (ti.curRow), hl
 
-.correctCursor:
+editHelper.correctCursor:
     ld hl, (ti.editCursor)
     ld de, (ti.editTop)
     or a, a
     sbc hl, de
     ld de, (errorOffset)
     sbc hl, de
-    jr nc, .skip
+    jr nc, editHelper.skip
     call ti.CursorRight
-    jr .correctCursor
+    jr editHelper.correctCursor
 
-.endGoto:
+editHelper.endGoto:
     call ti.DispEOW
     ld hl, $100
     ld (ti.curRow), hl
-    jr .skip
+    jr editHelper.skip
 
-.noGoto:
+editHelper.noGoto:
     call ti.DispEOW
     ld hl, $100
     ld (ti.curRow), hl
     call ti.BufToTop
 
-.skip:
+editHelper.skip:
     xor a, a
     ld (ti.menuCurrent), a
     set 7, (iy + $28)
     jp ti.Mon
 
-.newLineGoto:
+editHelper.newLineGoto:
     ld hl, (ti.editCursor)
     ld a, (hl)
     cp a, ti.tEnter
-    jr z, .newLineGotoBack
+    jr z, editHelper.newLineGotoBack
 
-.loop:
+editHelper.loop:
     ld a, (hl)
     ld de, (ti.editTop)
     or a, a
@@ -214,20 +220,20 @@ editProgram_editHelper:
     ld a, (hl)
     call ti.Isa2ByteTok
     pop de
-    jr z, .newLineGotoBack
+    jr z, editHelper.newLineGotoBack
     ld a, d
     cp a, ti.tEnter
-    jr z, .newLineGotoNext
+    jr z, editHelper.newLineGotoNext
 
-.newLineGotoBack:
+editHelper.newLineGotoBack:
     call ti.BufLeft
     ld hl, (ti.editCursor)
-    jr .loop
+    jr editHelper.loop
 
-.newLineGotoNext:
+editHelper.newLineGotoNext:
     jp ti.BufRight
 
-editHelperSize := $ - editProgram_editHelper
+.equ editHelperSize, $ - editProgram_editHelper
 
 editProgram_prepAppVar:
     ld hl, ti.OP1
@@ -235,7 +241,7 @@ editProgram_prepAppVar:
     call ti.Mov9b
     call ti.ChkFindSym
     call ti.ChkInRam
-    jr z, .inRam
+    jr z, prepAppVar.inRam
     ld a, true
     ld (arcOnExit), a
     ld hl, 10
@@ -246,7 +252,7 @@ editProgram_prepAppVar:
     add hl, bc
     ex de, hl
 
-.inRam:
+prepAppVar.inRam:
     ex de, hl
     ld (ti.asm_data_ptr1), hl
     ld de, 0
@@ -272,10 +278,10 @@ editProgram_prepAppVar:
     pop bc
     ld a, b
     or a, c
-    jr z, .loadComplete
+    jr z, prepAppVar.loadComplete
     ldir
 
-.loadComplete:
+prepAppVar.loadComplete:
     ld hl, _rodata_tempAppVarPrgm
     jp ti.Mov9ToOP1
 
@@ -306,7 +312,7 @@ _asm_editProgram_restoreAppVar:
     call ti.DelVarArc
     ld hl, backupAppVarName
     call ti.Mov9ToOP1
-    ld.sis hl, (ti.pixelShadow and $FFFF)
+    ld.sis hl, (ti.pixelShadow & $FFFF)
     push hl
     call ti.CreateAppVar
     inc de

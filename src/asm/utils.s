@@ -7,53 +7,86 @@
 ;
 ;--------------------------------------
 
-    assume adl=1
+    .assume adl=1
 
-    section .text
+    .include "src/asm/include/equates.inc"
 
-include 'include/equates.inc'
+    .global _asm_utils_checkEOF
+    .type   _asm_utils_checkEOF, @function
+    .global _asm_utils_getEOF
+    .type   _asm_utils_getEOF, @function
+    .global _asm_utils_loadNameOP1
+    .type   _asm_utils_loadNameOP1, @function
+    .global _asm_utils_findVarPtr
+    .type   _asm_utils_findVarPtr, @function
+    .global _asm_utils_findVar
+    .type   _asm_utils_findVar, @function
+    .global _asm_utils_getFreeRAM
+    .type   _asm_utils_getFreeRAM, @function
+    .global _asm_utils_toggleLowercase
+    .type   _asm_utils_toggleLowercase, @function
+    .global _asm_utils_willNotGC
+    .type   _asm_utils_willNotGC, @function
+    .global _asm_utils_invertPalette
+    .type   _asm_utils_invertPalette, @function
+    .global _asm_utils_arcOnGC
+    .type   _asm_utils_arcOnGC, @function
+    .global _asm_utils_arcUnarc
+    .type   _asm_utils_arcUnarc, @function
+    .global _asm_utils_setGfxCharWidth
+    .type   _asm_utils_setGfxCharWidth, @function
+    .global _asm_utils_getCharFromKey
+    .type   _asm_utils_getCharFromKey, @function
+    .global _asm_utils_getFileName
+    .type   _asm_utils_getFileName, @function
+    .global _asm_utils_isFileArchived
+    .type   _asm_utils_isFileArchived, @function
+    .global _asm_utils_backupPrgmName
+    .type   _asm_utils_backupPrgmName, @function
+    .global _asm_utils_lcdNormal
+    .type   _asm_utils_lcdNormal, @function
+    .global _asm_utils_clrScrnAndUsedRAM
+    .type   _asm_utils_clrScrnAndUsedRAM, @function
+    .global _asm_utils_isNameValid
+    .type   _asm_utils_isNameValid, @function
+    .global _asm_utils_findCEaShellAppVar
+    .type   _asm_utils_findCEaShellAppVar, @function
+    .global _asm_utils_dispTextToolbar
+    .type   _asm_utils_dispTextToolbar, @function
+    .global _asm_utils_initHexaEditStart
+    .type   _asm_utils_initHexaEditStart, @function
+    .global _asm_utils_deleteTempRunner
+    .type   _asm_utils_deleteTempRunner, @function
+    .global _asm_utils_checkEnoughRAM
+    .type   _asm_utils_checkEnoughRAM, @function
+    .global _asm_utils_checkHiddenHeader
+    .type   _asm_utils_checkHiddenHeader, @function
+    .global _asm_utils_restoreAns
+    .type   _asm_utils_restoreAns, @function
+    .global _asm_utils_dispQuitErr
+    .type   _asm_utils_dispQuitErr, @function
+    .global _asm_utils_cleanupForceCmd
+    .type   _asm_utils_cleanupForceCmd, @function
+    .global _asm_utils_checkSysVar
+    .type   _asm_utils_checkSysVar, @function
+    .global _exit_sp
+    .type   _exit_sp, @function
 
-    public _asm_utils_checkEOF
-    public _asm_utils_getEOF
-    public _asm_utils_loadNameOP1
-    public _asm_utils_findVarPtr
-    public _asm_utils_findVar
-    public _asm_utils_getFreeRAM
-    public _asm_utils_toggleLowercase
-    public _asm_utils_willNotGC
-    public _asm_utils_invertPalette
-    public _asm_utils_arcOnGC
-    public _asm_utils_arcUnarc
-    public _asm_utils_setGfxCharWidth
-    public _asm_utils_getCharFromKey
-    public _asm_utils_getFileName
-    public _asm_utils_isFileArchived
-    public _asm_utils_backupPrgmName
-    public _asm_utils_lcdNormal
-    public _asm_utils_clrScrnAndUsedRAM
-    public _asm_utils_isNameValid
-    public _asm_utils_findCEaShellAppVar
-    public _asm_utils_dispTextToolbar
-    public _asm_utils_initHexaEditStart
-    public _asm_utils_deleteTempRunner
-    public _asm_utils_checkEnoughRAM
-    public _asm_utils_checkHiddenHeader
-    public _asm_utils_restoreAns
-    public _asm_utils_dispQuitErr
-    public _asm_utils_cleanupForceCmd
-    public _asm_utils_checkSysVar
+    .extern _asm_apps_reloadApp
+    .extern _rodata_hashProg
+    .extern _rodata_appVarName
+    .extern _rodata_errorQuit
+    .extern _rodata_errorQuitFR
+    .extern _rodata_basicPrgmName
+    .extern _rodata_hexaEditHeader
+    .extern _rodata_characters
+    .extern _rodata_sizeOfCharsLUT
+    .extern _gfx_GetCharWidth
+    .extern _exit.sp
 
-    extern _asm_apps_reloadApp
-    extern _rodata_hashProg
-    extern _rodata_appVarName
-    extern _rodata_errorQuit
-    extern _rodata_errorQuitFR
-    extern _rodata_basicPrgmName
-    extern _rodata_hexaEditHeader
-    extern _rodata_characters
-    extern _rodata_sizeOfCharsLUT
-    extern _exit.sp
-    extern _gfx_GetCharWidth
+;--------------------------------------
+
+    .section .text
 
 _asm_utils_checkEOF: ; bc = current address being read; destroys hl
     push bc
@@ -130,11 +163,11 @@ _asm_utils_toggleLowercase:
     push de
     ld iy, ti.flags
     bit 0, l
-    jr z, .turnOff
+    jr z, toggleLowercase.turnOff
     set ti.lwrCaseActive, (iy + ti.appLwrCaseFlag)
     ret
 
-.turnOff:
+toggleLowercase.turnOff:
     res ti.lwrCaseActive, (iy + ti.appLwrCaseFlag)
     ret
 
@@ -144,9 +177,9 @@ _asm_utils_willNotGC: ; Check if a file can be archived without a garbage collec
     push de
     call _asm_utils_findVarPtr
     ex de, hl
-    jr .skipRAMCheck
+    jr willNotGC.skipRAMCheck
 
-.checkGC:
+_asm_utils_willNotGC.checkGC:
     ex de, hl
     push hl
     add hl, hl
@@ -154,7 +187,7 @@ _asm_utils_willNotGC: ; Check if a file can be archived without a garbage collec
     ld a, 1
     ret nc
 
-.skipRAMCheck:
+willNotGC.skipRAMCheck:
     ld hl, (hl)
     ld a, c
     add a, 12
@@ -175,7 +208,7 @@ _asm_utils_invertPalette:
     ld hl, ti.mpLcdPalette
     ld b, 0
 
-.loop:
+invertPalette.loop:
     ld a, (hl)
     cpl
     ld (hl), a
@@ -184,7 +217,7 @@ _asm_utils_invertPalette:
     cpl
     ld (hl), a
     inc hl
-    djnz .loop
+    djnz invertPalette.loop
     ret
 
 _asm_utils_arcOnGC: ; Safely archive a file that is going to garbage collect
@@ -209,19 +242,19 @@ _asm_utils_arcUnarc:
     call _asm_utils_willNotGC.checkGC
     push af
     or a, a
-    jr nz, .archiveOrUnarchive
+    jr nz, arcUnarc.archiveOrUnarchive
     call ti.boot.ClearVRAM
     ld a, $2D
     ld (ti.mpLcdCtrl), a
     call ti.DrawStatusBar
 
-.archiveOrUnarchive:
-    ld hl, .errorHandler
+arcUnarc.archiveOrUnarchive:
+    ld hl, arcUnarc.errorHandler
     call ti.PushErrorHandler
     call ti.Arc_Unarc
     call ti.PopErrorHandler
 
-.errorHandler:
+arcUnarc.errorHandler:
     pop af
     ret
 
@@ -231,7 +264,7 @@ _asm_utils_setGfxCharWidth: ; Set the width of a specific character in the graph
     push hl
     call _gfx_GetCharWidth
     pop iy
-    lea hl, iy
+    lea hl, iy + 0
     add iy, sp
     ld l, (iy + 3)
     add hl, bc
@@ -245,43 +278,43 @@ _asm_utils_getCharFromKey: ; Scans for a keypress and converts it to a character
     ld (hl), h
     xor a, a
 
-.loop:
+getCharFromKey.loop:
     cp a, (hl)
-    jr nz, .loop
+    jr nz, getCharFromKey.loop
     ld hl, ti.mpKeyRange + ti.keyData
-    ld bc, 56 shl 8
+    ld bc, 56 << 8
 
-.getKeyLoop:
+getCharFromKey.getKeyLoop:
     ld a, b
     and a, 7
-    jr nz, .sameGroup
+    jr nz, getCharFromKey.sameGroup
     inc hl
     inc hl
     ld e, (hl)
 
-.sameGroup:
+getCharFromKey.sameGroup:
     sla e
-    jr nc, .loopCode
+    jr nc, getCharFromKey.loopCode
     xor a, a
     cp a, c
-    jr nz, .return
+    jr nz, getCharFromKey.return
     ld c, b
 
-.loopCode:
-    djnz .getKeyLoop
+getCharFromKey.loopCode:
+    djnz getCharFromKey.getKeyLoop
 
-.return:
+getCharFromKey.return:
     pop de
     ex (sp), hl
     push de
-    ld h, _rodata_sizeOfCharsLUT
+    ld h, 38 ; _rodata_sizeOfCharsLUT
     mlt hl
     ld de, _rodata_characters
     add hl, de
     ld a, c
     sub a, 10
     jr c, $ + 8
-    cp a, _rodata_sizeOfCharsLUT + 1
+    cp a, 38 + 1 ; _rodata_sizeOfCharsLUT + 1
     jr nc, $ + 4
     ld c, a
     add hl, bc
@@ -300,12 +333,12 @@ _asm_utils_getFileName:
     push de
     ex de, hl
 
-.storeLoop:
+getFileName.storeLoop:
     ld a, (de)
     ld (hl), a
     dec de
     inc hl
-    djnz .storeLoop
+    djnz getFileName.storeLoop
     ld (hl), b
     pop hl
     ret
@@ -333,7 +366,7 @@ _asm_utils_lcdNormal:
     or a, a
     jp nz, ti.DrawStatusBar
     call ti.boot.ClearVRAM
-    jp _exit.sp + 3
+    jp _exit_sp
 
 _asm_utils_clrScrnAndUsedRAM:
     call ti.ForceFullScreen
@@ -366,25 +399,25 @@ _asm_utils_isNameValid: ; Checks if a string is a valid file name for a specific
     ret nz
     dec hl
 
-.checkForLowercase:
+isNameValid.checkForLowercase:
     inc hl
     ld a, (hl)
     or a, a
-    jr z, .validName
+    jr z, isNameValid.validName
     cp a, ti.t0
-    jr c, .invalidName
+    jr c, isNameValid.invalidName
     cp a, ti.tTheta + 1
-    jr nc, .invalidName
+    jr nc, isNameValid.invalidName
     cp a, ti.t9 + 1
-    jr c, .checkForLowercase
+    jr c, isNameValid.checkForLowercase
     cp a, ti.tA
-    jr nc, .checkForLowercase
+    jr nc, isNameValid.checkForLowercase
 
-.invalidName:
+isNameValid.invalidName:
     xor a, a
     ret
 
-.validName:
+isNameValid.validName:
     ld a, 1
     ret
 
@@ -402,16 +435,16 @@ _asm_utils_findCEaShellAppVar:
 
 _asm_utils_dispTextToolbar: ; Displays a string on the lower half of the status bar
     ld de, $E71C
-    ld.sis (ti.drawFGColor and $FFFF), de
-    ld.sis de, (ti.statusBarBGColor and $FFFF)
-    ld.sis (ti.drawBGColor and $FFFF), de
+    ld.sis (ti.drawFGColor & $FFFF), de
+    ld.sis de, (ti.statusBarBGColor & $FFFF)
+    ld.sis (ti.drawBGColor & $FFFF), de
     ld a, 14
     ld (ti.penRow), a
     ld de, 2
-    ld.sis (ti.penCol and $FFFF), de
+    ld.sis (ti.penCol & $FFFF), de
     call ti.VPutS
     ld de, $FFFF
-    ld.sis (ti.drawBGColor and $FFFF), de
+    ld.sis (ti.drawBGColor & $FFFF), de
     ret
 
 _asm_utils_initHexaEditStart: ; Set up the Ans variable for Hexaedit's headless start
@@ -483,11 +516,11 @@ _asm_utils_checkHiddenHeader: ; Checks if a file has a header denoting that it s
     ret nz
     ld a, (de)
     cp a, ti.tRand
-    jr z, .continueCheck
+    jr z, checkHiddenHeader.continueCheck
     cp a, ti.tAns
     ret nz
 
-.continueCheck:
+checkHiddenHeader.continueCheck:
     inc de
     ld a, (de)
     cp a, ti.tEnter
@@ -508,7 +541,7 @@ _asm_utils_dispQuitErr:
     call ti.DispErrorScreen
     ld hl, 1
     ld (ti.curRow), hl
-    ld.sis hl, (ti.localLanguage and $FFFF)
+    ld.sis hl, (ti.localLanguage & $FFFF)
     or a, a
     ld de, $010C ; check for French language
     sbc hl, de
@@ -526,11 +559,11 @@ _asm_utils_cleanupForceCmd:
     ld (exitLaunchHook), a
     ld a, (ti.menuCurrent)
     cp a, ti.kWindow
-    jr nz, .notInWindow
+    jr nz, cleanupForceCmd.notInWindow
     ld a, ti.kClear
     call ti.PullDownChk ; exit from alpha + function menus
 
-.notInWindow:
+cleanupForceCmd.notInWindow:
     ld a, ti.kQuit
     call ti.PullDownChk ; exit from randInt( and related menus
     ld a, ti.cxCmd
@@ -553,3 +586,25 @@ _asm_utils_checkSysVar: ; checks if a user is trying to mess with one of the sys
     pop hl
     ld b, 3
     jp ti.StrCmpre
+
+_exit_sp_reset:
+    ld sp, (_exit.sp)
+
+_exit_sp:
+    push hl
+    ld iy, ti.flags
+    ld a, (_exit.sp + 3)
+    ld (0xE00305), a
+    call ti.usb_ResetTimer
+    ld a, 1
+    ld (0xF00008), a ; clear on interrupt
+    res 4, (iy + 0x09) ; onInterrupt,(iy+onFlags)
+    set 0, (iy + 0x03) ; graphDraw,(iy+graphFlags)
+    set 1, (iy + 0x0D) ; use text buffer
+    res 3, (iy + 0x4A) ; use first shadow buffer
+    res 5, (iy + 0x4C) ; use shadow buffer
+    call ti.ClrLCDFull
+    call ti.HomeUp
+    call ti.DrawStatusBar
+    pop hl ; hl = exit code
+    ret
