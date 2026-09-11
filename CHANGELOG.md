@@ -2,6 +2,21 @@
 
 All notable changes to CEaShell will be documented in this file.
 
+## [2.0.3] - 2026-09-11
+
+### Added
+- Support secondary app icon format for apps using C toolchain version 15.0.
+
+### Changed
+- Adjust initial key delay value.
+- Use GAS syntax in asm files for compatibility with C toolchain version 15.0.
+
+### Fixed
+- Correct spelling of "animations" in customization menu.
+- Installation for all boot code versions <= 5.8.4.0058.
+- Scrollbar overflow bug.
+- Correct initial key delay, which was skipped in some places.
+
 ## [2.0.2] - 2024-11-13
 
 ### Changed

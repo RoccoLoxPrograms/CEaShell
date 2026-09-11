@@ -37,7 +37,7 @@ Installation
 1. Download the latest version of CEaShell from the GitHub releases page:
    https://github.com/roccoloxprograms/CEaShell/releases/latest
    OR clone and build CEaShell, following the instructions under "Building CEaShell".
-2. Send CEASHELL.8xp and AppInstA.8xv to your calculator using TI-Connect CE or TiLP.
+2. Send CEASHELL.8xp and CEaShel.0.8xv to your calculator using TI-Connect CE or TiLP.
    If you don't have the CE C libraries (https://tiny.cc/clibs), you'll need to
    download and send those as well.
 3. Run prgmCEASHELL from the programs menu. You will need to use the arTIfiCE jailbreak
@@ -113,17 +113,14 @@ Building CEaShell
 To build CEaShell, you will need to install the latest version of the CE C toolchain
 (https://ce-programming.github.io/toolchain/index.html). Instructions to install the toolchain can be found
 here: https://ce-programming.github.io/toolchain/static/getting-started.html#installing-the-ce-toolchain
-You will also need to use the latest version of convimg: https://github.com/mateoconlechuga/convimg
 
-1. Clone CEaShell with the app_tools submodule by running `git clone --recurse-submodules
-   https://github.com/RoccoLoxPrograms/CEaShell`
-2. If you are using an OS that uses `python3` insead of `python`, open app_tools/makefile and change
-   `PYTHON_VER := python` to `PYTHON_VER := python3`.
-3. If you would like to build the French version of CEaShell, open CEaShell's
-   makefile (not the app_tools one) and change `LANGUAGE = EN` to `LANGUAGE = FR`.
-4. In a command line, `cd` into the cloned repository, and run `make gfx`.
-5. Once complete, run `make`. The compiled binaries will be in the newly created bin directory.
-
+1. Clone CEaShell with the CEaShell-Installer submodule by running 
+   `git clone --recurse-submodules https://github.com/RoccoLoxPrograms/CEaShell`.
+2. If you would like to build the French version of CEaShell, open CEaShell's makefile and change
+   `LANGUAGE = EN` to `LANGUAGE = FR`.
+3. In a command line, `cd` into the cloned repository, and run `make gfx`.
+4. Once complete, run `make installer`. The compiled CEaShel.0.8xv file will be in the newly created bin
+   directory, and the compiled CEASHELL.8xp installer will be in CEaShell-Installer/bin.
 
 Bugs
 --------------------

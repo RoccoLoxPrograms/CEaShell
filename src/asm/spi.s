@@ -1,6 +1,6 @@
 ;--------------------------------------
 ;
-; CEaShell Source Code - spi.asm
+; CEaShell Source Code - spi.s
 ; By RoccoLox Programs and TIny_Hacker
 ; Some code from: https://github.com/Zaalan3/AnotherWorldCE/blob/main/src/spi.asm
 ; Copyright 2022 - 2026

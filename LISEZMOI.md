@@ -30,8 +30,8 @@ CEaShell (prononcé "Seashell") est un nouveau shell pour la TI-83 Premium CE et
 
 ## Installation
 
-1. Téléchargez la dernière version de CEaShell depuis [la page des sorties GitHub](https://github.com/roccoloxprograms/CEaShell/releases/latest), ou clonez et compilez CEaShell en suivant [ces instructions](#building-ceashell).
-2. Envoyez **CEASHELL.8xp** et **AppInstA.8xv** à votre calculatrice en utilisant TI-Connect CE ou TiLP. Si vous n'avez pas les [bibliothèques CE C](https://tiny.cc/clibs), vous devrez les télécharger et les envoyer également.
+1. Téléchargez la dernière version de CEaShell depuis [la page des sorties GitHub](https://github.com/roccoloxprograms/CEaShell/releases/latest).
+2. Envoyez **CEASHELL.8xp** et **CEaShel.0.8xv** à votre calculatrice en utilisant TI-Connect CE ou TiLP. Si vous n'avez pas les [bibliothèques CE C](https://tiny.cc/clibs), vous devrez les télécharger et les envoyer également.
 3. Exécutez **prgmCEASHELL** depuis le menu des programmes (vous devrez utiliser le [jailbreak arTIfiCE](https://yvantt.github.io/arTIfiCE) si vous êtes sur une version OS 5.5 et supérieure).
 4. CEaShell sera installé dans le menu des applications.
 
@@ -81,18 +81,6 @@ Si l'option **[on] Shortcuts** est activée dans CEaShell, les combinaisons de t
 | <kbd>on</kbd> + <kbd>stat</kbd>             | Éteindre la calculatrice et conserver votre position dans l'OS.                                                    |
 | <kbd>on</kbd> + <kbd>graph</kbd>            | Sauter à une étiquette de programme dans l'éditeur de programmes de l'OS.                                          |
 | <kbd>on</kbd> + <kbd>0</kbd> - <kbd>9</kbd> | Lancer le programme ou l'application assigné à la touche numérique pressée. Les fichiers peuvent être assignés à un numéro dans le menu d'informations. |
-
-## Construction de CEaShell
-
-Pour "construire" CEaShell, vous devrez installer la dernière version de [l'outil CE C](https://ce-programming.github.io/toolchain/index.html). Les instructions pour installer l'outil se trouvent [ici](https://ce-programming.github.io/toolchain/static/getting-started.html#installing-the-ce-toolchain). Vous devrez également utiliser la dernière version de [convimg](https://github.com/mateoconlechuga/convimg).
-
-<br />
-
-1. Clonez CEaShell avec le sous-module **app_tools** en exécutant `git clone --recurse-submodules https://github.com/RoccoLoxPrograms/CEaShell`
-2. Si vous utilisez un OS qui utilise `python3` au lieu de `python`, ouvrez **app_tools/makefile** et changez `PYTHON_VER := python` en `PYTHON_VER := python3`.
-3. Si vous souhaitez construire la version française de CEaShell, ouvrez le **makefile** de CEaShell (pas celui de **app_tools**) et changez `LANGUAGE = EN` en `LANGUAGE = FR`.
-4. Dans une ligne de commande, `cd` dans le dépôt cloné, et exécutez `make gfx`.
-5. Une fois terminé, exécutez `make`. Les binaires compilés seront dans le nouveau répertoire **bin**.
 
 ## Bugs
 

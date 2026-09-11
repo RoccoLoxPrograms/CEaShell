@@ -1,6 +1,6 @@
 ;--------------------------------------
 ;
-; CEaShell Source Code - utils.asm
+; CEaShell Source Code - utils.s
 ; By RoccoLox Programs and TIny_Hacker
 ; Copyright 2022 - 2026
 ; License: GPL-3.0

@@ -25,6 +25,7 @@ CXXFLAGS = -Wall -Wextra -Oz -DVERSION_NO=\"$(CEASHELL_VERSION)\" -DAPPVAR_VERSI
 
 include $(shell cedev-config --makefile)
 
-appvar:
+installer:
 	@make
+	@make -C CEaShell-Installer
 	@convbin --iformat 8ek --input bin/$(NAME).8ek --oformat 8xv-split --maxvarsize 65200 --output bin/$(APPVAR_PREFIX).8xv --name $(APPVAR_PREFIX)
