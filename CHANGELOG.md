@@ -16,6 +16,7 @@ All notable changes to CEaShell will be documented in this file.
 - Installation for all boot code versions <= 5.8.4.0058.
 - Scrollbar overflow bug.
 - Correct initial key delay, which was skipped in some places.
+- Timer fix after program execution.
 
 ## [2.0.2] - 2024-11-13
 

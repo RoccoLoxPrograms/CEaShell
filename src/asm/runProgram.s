@@ -348,6 +348,10 @@ return.chkDone:
 
 runProgram_return.error:
     push af
+    ld hl, ti.mpTmrCtrl + 1 ; fix timers
+    ld a, (hl)
+    and a, l
+    ld (hl), a
     res ti.progExecuting, (iy + ti.newDispF)
     res ti.cmdExec, (iy + ti.cmdFlags)
     res ti.textInverse, (iy + ti.textFlags)
