@@ -86,7 +86,7 @@ If the option **[on] Shortcuts** is enabled in CEaShell, the follow key combinat
 
 To build CEaShell, you will need to install the latest version of the [CE C toolchain](https://ce-programming.github.io/toolchain/index.html). Instructions to install the toolchain can be found [here](https://ce-programming.github.io/toolchain/static/getting-started.html#installing-the-ce-toolchain).
 
-1. Clone CEaShell with the **CEaShell-Installer** submodule by `running git clone --recurse-submodules https://github.com/RoccoLoxPrograms/CEaShell`.
+1. Clone CEaShell with the **CEaShell-Installer** submodule by running `git clone --recurse-submodules https://github.com/RoccoLoxPrograms/CEaShell`.
 2. If you would like to build the French version of CEaShell, open CEaShell's **makefile** and change `LANGUAGE = EN` to `LANGUAGE = FR`.
 3. In a command line, `cd` into the cloned repository, and run `make gfx`.
 4. Once complete, run `make installer`. The compiled **CEaShel.0.8xv** file will be in the newly created **bin** directory, and the compiled **CEASHELL.8xp** installer will be in **CEaShell-Installer/bin**.
